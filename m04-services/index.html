@@ -1,0 +1,1878 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>服務與價格原型</title>
+<script src="../test-kit/kit.js" data-proto="m04-services"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens copied from the today board via M-03 and M-07. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+:root{--sidew:15rem;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:24px;scroll-padding-bottom:120px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+.nw{white-space:nowrap}
+.muted{color:var(--ink-muted)}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .pbtn{border:1px solid var(--proto-line);border-radius:8px;padding:4px 10px;min-height:32px;color:var(--proto-ink);font-weight:700}
+.proto .pbtn:hover{border-color:var(--proto-ink)}
+.proto .tagp{border:1.5px dashed var(--proto-muted);border-radius:999px;padding:1px 8px;font-weight:800;color:var(--proto-muted)}
+
+/* ---------- shell: labeled cocoa sidebar (管理 Web) ---------- */
+#app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+#app.compact{display:block}
+.side{position:sticky;top:0;height:calc(100vh - 44px);height:calc(100dvh - 44px);overflow-y:auto;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;gap:2px;padding:18px 12px 16px;color:var(--rail-ink)}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+.mark{width:40px;height:40px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;flex:none}
+.mark .ico{width:24px;height:24px;stroke-width:0;fill:currentColor}
+.brand small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+.brand b{display:block;color:var(--rail-cur);font-size:1rem;font-weight:900;line-height:1.3}
+.sgrp{font-size:.75rem;font-weight:800;letter-spacing:.04em;padding:10px 12px 4px;color:var(--rail-ink);opacity:.82}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 12px;border-radius:12px;font-size:.9375rem;font-weight:700;line-height:1.3;color:var(--rail-ink);transition:background-color .2s var(--out),color .2s var(--out)}
+.sitem:hover{background:var(--rail-hover);color:var(--rail-cur)}
+.sitem[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.sitem .n{margin-left:auto;min-width:24px;padding:0 8px;border-radius:999px;background:var(--rail-hover);color:var(--rail-cur);font-size:.75rem;font-weight:900;text-align:center;line-height:1.6}
+.sitem .n.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.sitem[aria-current="page"] .n:not(.hot){background:var(--sunk);color:var(--ink)}
+.side :focus-visible{outline-color:var(--rail-cur)}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid var(--rail-hover);position:sticky;bottom:-16px;background:var(--rail);margin-bottom:-16px;padding-bottom:16px}
+.me::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:28px;background:linear-gradient(to bottom,transparent,var(--rail));pointer-events:none}
+.me .av{width:36px;height:36px;border-radius:50%;background:var(--rail-hover);color:var(--rail-cur);display:grid;place-items:center;font-weight:900;flex:none}
+.me b{display:block;color:var(--rail-cur);font-weight:800;line-height:1.3}
+.me small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+/* compact: the sidebar becomes a top bar and a drawer */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--rail);color:var(--rail-cur)}
+.topbar .mark{width:36px;height:36px;border-radius:12px}
+.topbar b{font-weight:900}
+.topbar .ibtn{color:var(--rail-cur)}
+.topbar .ibtn:hover{background:var(--rail-hover)}
+.topbar :focus-visible{outline-color:var(--rail-cur)}
+.ibtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;transition:background-color .2s var(--out)}
+.ibtn:hover{background:var(--sunk)}
+.drawer-nav{position:fixed;inset:0 auto 0 0;z-index:80;width:min(18rem,86vw);box-shadow:var(--lift-hi);animation:slidein .32s var(--out)}
+.drawer-nav .side{height:100%}
+@keyframes slidein{from{transform:translateX(-100%)}}
+main{min-width:0;container:main / inline-size}
+/* 1024–1279: the labeled sidebar folds into the world's icon rail so the detail keeps its width */
+#app.rail{--sidew:5.25rem}
+#app.rail .side{padding:16px 6px;align-items:center;gap:4px}
+#app.rail .brand{padding:0 0 10px}
+#app.rail .brand>span:not(.mark),#app.rail .sgrp,#app.rail .me>span:not(.av){display:none}
+#app.rail .sitem{flex-direction:column;justify-content:center;gap:4px;width:4.25rem;min-height:3.75rem;padding:6px 2px;border-radius:16px;font-size:.75rem;font-weight:700;text-align:center;line-height:1.25;position:relative}
+#app.rail .sitem[aria-current="page"]{font-weight:900}
+#app.rail .sitem .n{position:absolute;top:2px;right:2px;margin:0;padding:0 6px;font-size:.75rem}
+#app.rail .me{padding:12px 0 0;justify-content:center}
+
+
+/* ---------- page head ---------- */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 16px;padding:22px 28px 0}
+.compact .head{padding:16px 16px 0}
+.head h1{font-size:1.75rem;font-weight:900;line-height:1.25;display:flex;align-items:center;gap:10px}
+.compact .head h1{font-size:1.375rem}
+.compact .head .tools{margin-left:0;order:4;flex-basis:100%}
+.head .sub{flex-basis:100%;order:3;font-size:.875rem;font-weight:600;color:var(--ink-muted);margin-top:-6px}
+.head .tools{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.scope{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--control-border);font-weight:800;font-size:.875rem}
+select.scope{appearance:none;padding-right:36px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;cursor:pointer}
+select.scope:hover{border-color:var(--ink)}
+.scope.fixed{border-style:dashed;color:var(--ink-muted)}
+.updated{font-size:.8125rem;font-weight:700;color:var(--ink-muted);display:inline-flex;align-items:center;gap:6px}
+.updated.off{color:var(--warning)}
+.banner{display:flex;gap:10px;align-items:flex-start;margin:14px 28px 0;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:700;line-height:1.5}
+.compact .banner{margin:12px 16px 0}
+.banner.warning{background:var(--warning-bg);color:var(--warning)}
+.banner.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.banner .ico{margin-top:1px}
+
+/* ---------- buttons, chips, tags ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:var(--r-md);font-size:.9375rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out),border-color .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.quiet{background:var(--surface);color:var(--ink);border-color:var(--control-border)}
+.btn.quiet:hover{border-color:var(--ink)}
+.btn.danger{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.btn.danger:hover{filter:brightness(1.08)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none;filter:none}
+.btn.busy{pointer-events:none}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(1turn)}}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+a.textbtn{text-decoration:none}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.textbtn[aria-disabled="true"]{color:var(--ink-muted);background:transparent;border:1.5px dashed var(--control-border);cursor:not-allowed}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4;text-wrap:pretty}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.warning{color:var(--warning);background:var(--warning-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.chip.plain{background:var(--sunk);color:var(--ink)}
+.chip.plain::before{display:none}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 9px;border-radius:999px;font-size:.875rem;line-height:1.4;white-space:nowrap}
+.tag.safety{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.tag.care{background:var(--warning-bg);color:var(--warning);font-weight:700}
+.cnt{min-width:26px;padding:1px 9px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;text-align:center;line-height:1.5}
+.cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.masked{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--sunk);color:var(--ink-muted);font-size:.8125rem;font-weight:800;border:1.5px dashed var(--control-border)}
+.masked .ico{width:14px;height:14px;stroke-width:2.2}
+
+/* filter pills and segmented control */
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--border);font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out),border-color .2s var(--out),transform .35s var(--spring)}
+.pill:hover{border-color:var(--control-border);color:var(--ink)}
+.pill:active{transform:scale(.96);transition-duration:.08s}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface);font-weight:900}
+.pill[aria-pressed="true"] .cnt{background:var(--surface);color:var(--ink)}
+.pill[aria-pressed="true"] .cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.pill .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);flex-wrap:wrap}
+.seg button{min-height:40px;padding:0 16px;border-radius:999px;font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out)}
+.seg button:hover{color:var(--ink)}
+.seg button:is([aria-pressed="true"],[aria-checked="true"]){background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+:root[data-theme="dark"] .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+/* ---------- 臉環 ---------- */
+.face{--s:56px;position:relative;flex:none;width:var(--s);height:var(--s);display:inline-grid;place-items:center;border-radius:50%}
+.face>svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.face circle{fill:none;stroke:var(--track);stroke-width:7;stroke-linecap:round}
+.face circle.done{stroke:var(--ink)}
+.face circle.cur{stroke:var(--ink);stroke-width:9;stroke-dasharray:0 600;animation:seg .7s var(--out) .15s forwards}
+@keyframes seg{to{stroke-dasharray:var(--dash) 600}}
+.face img,.face .ini{width:calc(var(--s) * .74);height:calc(var(--s) * .74);border-radius:50%;object-fit:cover;background:var(--sunk);display:grid;place-items:center;font-weight:900;color:var(--ink-muted);font-size:calc(var(--s) * .3)}
+.face.plain img,.face.plain .ini{width:calc(var(--s) * .9);height:calc(var(--s) * .9)}
+.face.person .ini{background:var(--sunk);color:var(--ink)}
+.face .badge{position:absolute;right:-2px;bottom:-2px;width:calc(var(--s) * .32);height:calc(var(--s) * .32);min-width:20px;min-height:20px;border-radius:50%;display:grid;place-items:center;background:var(--danger-solid);color:var(--on-danger-solid);border:2.5px solid var(--surface)}
+.face .badge .ico{width:62%;height:62%;stroke-width:2.4}
+.face .step{position:absolute;left:-2px;bottom:-2px;padding:1px 7px;border-radius:999px;background:var(--surface);color:var(--ink);border:2px solid var(--ink);font-size:.75rem;font-weight:900;line-height:1.25}
+button.face{cursor:pointer;transition:transform .35s var(--spring)}
+button.face:hover{transform:scale(1.04)}
+button.face:active{transform:scale(.95);transition-duration:.08s}
+
+/* ---------- money ---------- */
+.money{font-weight:900;white-space:nowrap;font-feature-settings:"tnum"}
+.money .cur{font-size:.78em;font-weight:700;color:var(--ink-muted);margin-right:1px}
+.money.neg{color:var(--ink)}
+
+/* ---------- panels ---------- */
+.panel{background:var(--surface);border-radius:var(--r-lg);padding:22px;box-shadow:var(--lift)}
+.panel-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.panel-h h2,.panel-h h3{font-size:1.0625rem;font-weight:900;line-height:1.3;display:inline-flex;align-items:center;gap:8px}
+.panel-h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+/* ---------- dialog ---------- */
+.dialog{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:24px;display:flex;flex-direction:column;gap:16px;animation:pop .35s var(--spring)}
+@keyframes pop{from{transform:translateY(16px) scale(.98);opacity:0}}
+.dialog h2{font-size:1.25rem;font-weight:900;line-height:1.35;text-wrap:balance}
+.dialog .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.cdl{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px 14px;padding:14px 16px;border-radius:var(--r-md);background:var(--sunk);font-size:.9375rem;font-weight:700}
+.cdl dt{color:var(--ink-muted);font-size:.875rem}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:.875rem;font-weight:800}
+.field input,.field textarea{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:.9375rem;font-weight:600}
+.field textarea{min-height:84px;resize:vertical;line-height:1.5}
+.field input:hover,.field textarea:hover{border-color:var(--ink)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink-muted)}
+.field [aria-invalid="true"]{border-color:var(--danger)}
+.field .err{font-size:.8125rem;font-weight:800;color:var(--danger)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.dbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:flex-start}
+.dbtns .cell{display:flex;flex-direction:column;align-items:flex-end}
+@media (max-width: 600px){
+  .dlg-s{align-items:flex-end;padding:0}
+  .dialog{border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:92dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+  .dbtns{flex-direction:column-reverse;align-items:stretch}
+  .dbtns .cell{align-items:stretch}
+}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(560px,calc(100vw - 32px));padding:10px 18px;border-radius:18px;background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .4s var(--spring)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+#app:not(.compact) ~ #layer .toast{left:calc(50% + var(--sidew) / 2)}
+#app.rail ~ #layer .toast{left:calc(50% + 2.625rem)}
+
+.whoami{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 6px;border-radius:999px;background:var(--sunk);font-weight:800;font-size:.875rem}
+.whoami .av{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900}
+:root{--boarding:#5B3BA6;--boarding-bg:#EDE7FA}
+:root[data-theme="dark"]{--boarding:#C6B3F5;--boarding-bg:#2D2347}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--boarding:#C6B3F5;--boarding-bg:#2D2347}}
+.chip.boarding{color:var(--boarding);background:var(--boarding-bg)}
+.btn.wide{width:100%}
+.btn .ico{flex:none}
+
+/* ---------- overlays ---------- */
+.scrim{position:fixed;inset:0;z-index:70;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s var(--out)}
+@keyframes fade{from{opacity:0}}
+.scrim.side-r{justify-content:flex-end;align-items:stretch;padding:0}
+@keyframes slidein-r{from{transform:translateX(40px);opacity:0}}
+
+/* ---------- page frame ---------- */
+.wrap{padding:14px 28px 56px}
+.compact .wrap{padding:12px 16px 48px}
+.head .pre-act{display:flex;flex-direction:column;align-items:flex-end}
+.compact .head .pre-act{align-items:stretch;flex-basis:100%}
+.head .pre-act .reason{margin-top:4px}
+.btn.primary.calm{background:var(--surface);color:var(--ink);border-color:var(--control-border);box-shadow:none;font-weight:700}
+.btn.primary.calm:hover{border-color:var(--ink);background:var(--surface)}
+
+/* ---------- layout: calendar beside the detail panel ---------- */
+.lay{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start;margin-top:14px}
+.lay.withp{grid-template-columns:minmax(0,1fr) 400px}
+/* ---------- detail panel (right side) ---------- */
+.dp{position:sticky;top:12px;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:20px;display:flex;flex-direction:column;gap:16px;animation:slidein-r .36s var(--out)}
+.dp.sheet{position:relative;top:0;width:min(440px,100vw);height:100%;max-height:none;border-radius:var(--r-xl) 0 0 var(--r-xl)}
+@media (max-width: 600px){.dp.sheet{border-radius:0;padding:16px 16px calc(24px + env(safe-area-inset-bottom))}}
+.dp-top{display:flex;align-items:center;gap:6px;margin:-6px -6px 0}
+.dp-top .back{margin-right:auto}
+.dp-top .x{margin-left:auto}
+.dp-id{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center}
+.dp-id .face{--s:72px}
+.dp-id h2{font-size:1.375rem;font-weight:900;line-height:1.25}
+.dp-id p{font-size:.875rem;font-weight:700;color:var(--ink-muted);margin-top:2px}
+.dp-id .masked{margin-top:6px}
+.dp h2.mode{font-size:1.25rem;font-weight:900;line-height:1.3}
+.dp h3{font-size:.9375rem;font-weight:900;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.notes{list-style:none;display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:var(--r-md);background:var(--danger-tint);box-shadow:inset 0 0 0 1px var(--border-danger)}
+.notes.care{background:var(--warning-bg);box-shadow:none}
+.notes li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:.875rem;font-weight:700;line-height:1.45}
+.kv{display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:9px 14px;font-weight:700;font-size:.9375rem;line-height:1.45}
+.kv dt{color:var(--ink-muted);font-size:.875rem;padding-top:1px}
+.kv dd{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.kv dd small{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.rqbox{padding:14px;border-radius:var(--r-md);border:2px dashed var(--ink);display:flex;flex-direction:column;gap:8px}
+.rqbox .mv1{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-weight:900}
+.rqbox .mv1 .ico{width:16px;height:16px;color:var(--ink-muted)}
+.rqbox small{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.rqbox .own{font-size:.875rem;font-weight:800}
+.dacts{display:flex;flex-direction:column;gap:8px;padding-top:4px}
+.dacts .row{display:flex;gap:8px;flex-wrap:wrap}
+.dacts .row .btn{flex:1 1 auto}
+.more{border-top:1px solid var(--border);padding-top:10px}
+.more ul{list-style:none;margin-top:8px;display:flex;flex-direction:column;gap:2px}
+.more li button,.more li a{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:48px;padding:12px;border-radius:var(--r-sm);font-weight:700;text-decoration:none;color:var(--ink);transition:background-color .2s var(--out)}
+.more li button:hover,.more li a:hover{background:var(--sunk)}
+.more li [aria-disabled="true"]{color:var(--ink-muted);cursor:not-allowed}
+.more li [aria-disabled="true"]:hover{background:transparent}
+.more li .lb{display:flex;flex-direction:column}
+.more li .lb small{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.more li.end{margin-top:6px;padding-top:6px;border-top:1.5px dashed var(--border-danger)}
+.more li.end button:not([aria-disabled="true"]){color:var(--danger)}
+.tday{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.875rem;font-weight:700;line-height:1.5}
+.tday .ico{margin-top:1px;color:var(--ink-muted)}
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:800;line-height:1.5}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.info{background:var(--info-bg);color:var(--info)}
+.notice .ico{margin-top:1px}
+.notice:focus{outline:2.5px solid var(--focus);outline-offset:2px}
+
+/* pickers: radiogroups of options */
+.fs{border:0;display:flex;flex-direction:column;gap:8px}
+.fs legend,.fs .lgd{font-size:.875rem;font-weight:900;margin-bottom:8px;padding:0}
+.rg{display:flex;flex-wrap:wrap;gap:6px}
+.opt{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:6px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:800;line-height:1.3;color:var(--ink);text-align:center;transition:box-shadow .2s var(--out),background-color .2s var(--out),transform .35s var(--spring)}
+.opt:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.opt:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.opt small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.opt[aria-checked="true"]{background:var(--ink);color:var(--surface);box-shadow:none}
+.opt[aria-checked="true"] small{color:var(--surface)}
+.opt[aria-disabled="true"]{background:transparent;box-shadow:none;border:1.5px dashed var(--control-border);color:var(--ink-muted);cursor:not-allowed}
+.ferr{display:flex;gap:8px;align-items:flex-start;font-size:.875rem;font-weight:800;color:var(--danger);line-height:1.45}
+.ferr .ico{margin-top:1px;width:18px;height:18px}
+.srch{position:relative}
+.srch .ico{position:absolute;left:14px;top:14px;color:var(--ink-muted)}
+.srch input{width:100%;min-height:48px;padding:10px 14px 10px 44px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);font-size:.9375rem;font-weight:600}
+.srch input:hover{border-color:var(--ink)}
+.srch input::placeholder{color:var(--ink-muted)}
+.hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+/* consequence preview */
+.cq{list-style:none;display:flex;flex-direction:column}
+.cq li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:2px 12px;padding:10px 0;border-top:1px solid var(--border)}
+.cq li:first-child{border-top:0;padding-top:0}
+.cq .ci{grid-row:span 2;width:32px;height:32px;border-radius:50%;background:var(--sunk);display:grid;place-items:center;color:var(--ink)}
+.cq .ci .ico{width:17px;height:17px}
+.cq .cl{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-weight:900;line-height:1.4}
+.cq .cl .money{margin-left:auto}
+.cq p{font-size:.8125rem;font-weight:600;color:var(--ink-muted);line-height:1.45;text-wrap:pretty}
+.sum{display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:8px 12px;padding:14px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700;line-height:1.45}
+.sum dt{color:var(--ink-muted)}
+.sum dd .money{font-size:1rem}
+.blockers{font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.5}
+.blockers b{color:var(--ink);font-weight:800}
+.dp .go{display:flex;flex-direction:column;gap:6px;padding-top:14px;border-top:1px solid var(--border)}
+.dp .go .btn{width:100%;min-height:56px}
+
+.togs{display:flex;flex-wrap:wrap;gap:6px}
+.tog{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out),box-shadow .2s var(--out)}
+.tog .ico{width:16px;height:16px}
+.tog:not([aria-checked="true"]) .ico{display:none}
+.tog:hover{box-shadow:inset 0 0 0 1.5px var(--control-border);color:var(--ink)}
+.tog[aria-checked="true"]{padding-left:10px;color:var(--ink);background:var(--warning-bg);box-shadow:inset 0 0 0 1.5px var(--warning)}
+.tog.s[aria-checked="true"]{background:var(--danger-solid);color:var(--on-danger-solid);box-shadow:none}
+.tnote{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px;align-items:center}
+.tnote label{font-size:.8125rem;font-weight:800}
+.tnote input{min-height:44px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:8px 12px;font-weight:600;width:100%}
+.tnote input:hover{border-color:var(--ink)}
+.lockf{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:46px;padding:8px 12px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700}
+.ckl{display:flex;align-items:flex-start;gap:10px;font-size:.875rem;font-weight:800;min-height:44px;padding-top:10px;cursor:pointer}
+.ckl input{width:20px;height:20px;accent-color:var(--ink);margin-top:1px;flex:none}
+.match{padding:14px;border-radius:var(--r-md);border:2px dashed var(--ink);display:flex;flex-direction:column;gap:10px}
+.match .who{display:flex;align-items:center;gap:10px}
+.match .who b{font-weight:900}
+.match .who small{display:block;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.chs{display:flex;flex-direction:column;gap:6px}
+.ch{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:52px;padding:10px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);text-align:left;font-weight:800;line-height:1.4}
+.ch small{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.ch .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--control-border);flex:none;margin-top:1px;display:grid;place-items:center}
+.ch:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.ch[aria-checked="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
+.ch[aria-checked="true"] .dot{border-color:var(--ink);background:var(--ink);box-shadow:inset 0 0 0 3px var(--surface)}
+
+/* ---------- shared bits carried from M-07 ---------- */
+.fail{padding:32px 24px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.fail h2{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:900;color:var(--danger)}
+.fail p{font-size:.9375rem;font-weight:600;color:var(--ink-muted)}
+.noacc{max-width:36rem;margin:40px auto 0;padding:32px 28px;border-radius:var(--r-xl);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.noacc h2{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:900}
+.noacc p{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.banner.danger{background:var(--danger-tint);color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.dialog select{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:0 14px;font-weight:700}
+.pre-x{display:inline-flex;flex-direction:column;align-items:flex-end}
+:root{--hair:#F3EBE2}
+:root[data-theme="dark"]{--hair:#2B221C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hair:#2B221C}}
+
+/* ---------- M-04: rule strip and tabs ---------- */
+.rule{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:14px 28px 0;padding:12px 16px;border-radius:var(--r-lg);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.875rem;font-weight:700;line-height:1.5}
+.compact .rule{margin:12px 16px 0}
+.rule .ico{color:var(--ink-muted)}
+.rule b{font-weight:900}
+.tabs{margin:16px 28px 0;flex-wrap:nowrap;max-width:calc(100% - 56px);overflow-x:auto}
+.compact .tabs{margin:14px 16px 0;max-width:calc(100% - 32px)}
+.compact .tabs button{padding:0 14px}
+@media (max-width: 719px){.tabs button .ico{display:none}.compact .tabs button{padding:0 12px}}
+.tabs button{min-height:44px;padding:0 18px;font-size:.9375rem;white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
+.tabs button .ico{width:18px;height:18px}
+.seg button[aria-selected="true"]{background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+:root[data-theme="dark"] .seg button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+/* ---------- M-04: the price matrix (the editor) ---------- */
+.sheet{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:6px 10px 12px;container:sheet / inline-size}
+.mx{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
+.mx col.c-n{width:29%}
+.mx col.c-b{width:12.5rem}
+.mx col.c-a{width:7.5rem}
+.mx thead th{padding:16px 12px 10px;font-size:.8125rem;font-weight:900;color:var(--ink-muted);text-align:left;border-bottom:1.5px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:3;background:var(--surface)}
+.compact .mx thead th{top:60px}
+.mx thead th.z{text-align:right}
+/* a size header opens the whole-column editor */
+.colh{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:0 10px;margin:-6px -10px;border-radius:999px;font-weight:900;color:var(--ink);transition:background-color .2s var(--out)}
+.colh .ico{width:14px;height:14px;stroke-width:2.1;color:var(--ink-muted)}
+.colh:hover{background:var(--sunk)}
+.colh[aria-expanded="true"]{background:var(--ink);color:var(--surface)}
+.colh[aria-expanded="true"] .ico{color:var(--surface)}
+.colh[aria-disabled="true"]{cursor:not-allowed;color:var(--ink-muted)}
+.colh[aria-disabled="true"]:hover{background:transparent}
+.mx td.hl{background:var(--surface-2)}
+.mx .band th{padding:16px 0 6px;text-align:left;font-weight:inherit}
+.bh{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:9px 14px;border-radius:var(--r-md);background:var(--sunk);font-size:.9375rem;font-weight:900;line-height:1.35}
+.bh .ico{width:17px;height:17px}
+.bh small{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.bh .bact{margin-left:auto}
+.bh .bact .textbtn{min-height:36px;background:var(--surface)}
+.bh .bact .textbtn:hover{background:var(--surface-2)}
+.mx tbody td,.mx tbody th[scope="row"]{padding:3px;border-bottom:1px solid var(--hair);vertical-align:middle;text-align:left;font-weight:inherit}
+.mx tbody tr:last-child>*{border-bottom:0}
+.sname{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:10px;min-width:0}
+.nlink{font-size:1.0625rem;font-weight:900;line-height:1.3;text-align:left;border-radius:6px;padding-block:3px;margin-block:-3px;text-underline-offset:4px;text-decoration-thickness:1.5px}
+.nlink:hover{text-decoration:underline}
+/* touch: the name stays 28px tall to the eye, the hit area grows to 44px */
+@media (pointer: coarse){.mx .nlink{position:relative}.mx .nlink::after{content:"";position:absolute;inset:-8px -6px}.colh{min-height:44px;margin-block:-12px}}
+.sname small{font-size:.8125rem;font-weight:600;color:var(--ink-muted);line-height:1.45;text-wrap:pretty}
+.sname .chip{margin-top:3px}
+.sname .bc-in{display:none}
+.cell{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:1px;width:100%;min-height:70px;padding:10px 12px;border-radius:var(--r-md);text-align:right;font-weight:inherit;transition:background-color .2s var(--out),box-shadow .2s var(--out)}
+button.cell{cursor:pointer}
+button.cell:hover{background:var(--surface-2);box-shadow:inset 0 0 0 1.5px var(--control-border)}
+button.cell[aria-disabled="true"]{cursor:not-allowed}
+button.cell[aria-disabled="true"]:hover{background:transparent;box-shadow:none}
+.cell .pr{font-size:1.125rem;font-weight:900;line-height:1.3;white-space:nowrap}
+.cell .pr .money{font-weight:900}
+.cell .tm{font-size:.8125rem;font-weight:700;color:var(--ink-muted);white-space:nowrap}
+.cell .none{font-size:.8125rem;font-weight:700;color:var(--ink-muted);padding:1px 10px;border-radius:999px;border:1.5px dashed var(--control-border);white-space:nowrap}
+.miss{display:inline-flex;align-items:center;gap:4px;font-size:.8125rem;font-weight:800;color:var(--warning);background:var(--warning-bg);padding:1px 9px 1px 7px;border-radius:999px;white-space:nowrap}
+.miss .ico{width:14px;height:14px;stroke-width:2.2}
+.mx td.all .cell{flex-direction:row;align-items:center;justify-content:center;gap:12px}
+.allt{font-size:.75rem;font-weight:800;color:var(--ink-muted);padding:2px 9px;border-radius:999px;background:var(--sunk);white-space:nowrap}
+/* not yet in effect: dashed, the same language as M-07's draft */
+.sch{display:inline-flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:0 5px;max-width:100%;margin-top:5px;padding:2px 9px 2px 7px;border-radius:999px;border:1.5px dashed var(--ink);font-size:.75rem;font-weight:800;line-height:1.45;white-space:nowrap;color:var(--ink)}
+.sch .ico{width:13px;height:13px;stroke-width:2.2}
+.sch .money .cur{font-size:.9em}
+.sch.draw{animation:draw 1s var(--out) .25s both}
+@keyframes draw{from{clip-path:inset(-2px 100% -2px -2px round 999px);opacity:.3}to{clip-path:inset(-2px -2px -2px -2px round 999px)}}
+.roll{display:inline-grid;overflow:hidden;vertical-align:bottom;padding:0 2px;margin:0 -2px}
+.roll>span{grid-area:1/1;display:block}
+.roll .o{animation:rollout .7s var(--out) .1s forwards;color:var(--ink-muted)}
+.roll .n{animation:rollin .75s var(--spring) .25s both}
+@keyframes rollout{to{transform:translateY(-105%);opacity:0}}
+@keyframes rollin{from{transform:translateY(105%);opacity:0}}
+.bc{display:flex;flex-direction:column;gap:6px;padding:8px 10px;align-items:flex-start}
+.brs{display:flex;gap:4px;flex-wrap:wrap}
+.brp{font-size:.75rem;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--sunk);line-height:1.4;white-space:nowrap}
+.ct{display:inline-flex;align-items:center;gap:5px;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.4}
+.ct .ico{width:14px;height:14px;stroke-width:2.1;flex:none}
+.ct b{color:var(--ink);font-weight:800}
+tr.off .nlink,tr.off .cell .pr{color:var(--ink-muted)}
+tr.off .cell .pr .cur{color:inherit}
+tr.cur>th,tr.cur>td{background:var(--surface-2)}
+tr.cur>th:first-child{border-radius:var(--r-md) 0 0 var(--r-md)}
+tr.cur>td:last-child{border-radius:0 var(--r-md) var(--r-md) 0}
+tr.fresh>*{animation:freshrow 1.8s var(--out)}
+@keyframes freshrow{0%,35%{background:var(--act-tint)}}
+tr.sel .nlink{text-decoration:underline}
+.hidn td{padding:14px 10px 4px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.hidn .textbtn{margin-left:8px;min-height:36px}
+
+/* the row opened in place */
+.ec{display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:8px 6px}
+.ec .esz{font-size:.8125rem;font-weight:900;color:var(--ink);text-align:right;line-height:1.3}
+.ec .was{font-size:.75rem;font-weight:800;color:var(--ink-muted);text-align:right;min-height:1.1em;line-height:1.4}
+.ec .was del,.sch del{text-decoration-thickness:1.5px}
+.ec .sch{align-self:flex-end;margin-top:0}
+.sch.strike{color:var(--ink-muted);border-color:var(--control-border)}
+.pin{display:flex;align-items:center;gap:4px;border:1.5px solid var(--control-border);border-radius:var(--r-sm);background:var(--surface);min-height:44px;padding:0 10px;transition:border-color .2s var(--out)}
+.pin:hover{border-color:var(--ink)}
+.pin:has(input:focus-visible){outline:2.5px solid var(--focus);outline-offset:2px}
+.pin span{font-size:.75rem;font-weight:800;color:var(--ink-muted)}
+.pin input{width:100%;min-width:0;border:0;background:none;text-align:right;font-weight:900;font-size:1.0625rem;padding:0;outline:none;font-feature-settings:"tnum"}
+.pin input::placeholder{color:var(--ink-muted);font-weight:700;font-size:.875rem}
+.ec.chg .pin{border-width:2px;border-color:var(--ink)}
+.ec select,.fsel{min-height:40px;width:100%;border:1.5px solid var(--control-border);border-radius:var(--r-sm);background:var(--surface);padding:0 8px;font-weight:700;font-size:.875rem;cursor:pointer}
+.ec select:hover,.fsel:hover{border-color:var(--ink)}
+.ec .cerr{display:flex;justify-content:flex-end;align-items:center;gap:4px;font-size:.75rem;font-weight:800;color:var(--danger);text-align:right}
+.ec .cerr .ico{width:13px;height:13px;stroke-width:2.3}
+.ec [aria-invalid="true"],.pin:has([aria-invalid="true"]){border-color:var(--danger)}
+.ec .ehint{font-size:.75rem;font-weight:700;color:var(--ink-muted);text-align:right}
+.ec.all{flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:8px 12px}
+.ec.all .ecol{display:flex;flex-direction:column;gap:6px;width:9.5rem}
+.tray>td{padding:0 3px 14px;border-bottom:1px solid var(--hair)}
+.tr-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.25fr);gap:16px 26px;padding:16px 18px;border-radius:var(--r-lg);background:var(--surface-2);box-shadow:inset 0 0 0 2px var(--ink);animation:trayin .34s var(--out)}
+@keyframes trayin{from{opacity:0;transform:translateY(-8px)}}
+.tr-in h3{font-size:.8125rem;font-weight:900;color:var(--ink-muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.tr-in h3 .ico{width:15px;height:15px}
+.tr-ch ul{list-style:none;display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:.9375rem;line-height:1.45}
+.tr-ch li{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px}
+.tr-ch li .k{min-width:3.5rem;font-size:.8125rem;color:var(--ink-muted)}
+.tr-ch del{color:var(--ink-muted);text-decoration-thickness:1.5px}
+.tr-ch del .money{font-weight:700}
+.tr-ch .ar{color:var(--ink-muted);font-weight:700}
+.tr-ch p,.tr-im p{font-size:.875rem;font-weight:700;color:var(--ink-muted);line-height:1.5;text-wrap:pretty}
+.tr-im p b{color:var(--ink);font-weight:900}
+.tr-im p+p{margin-top:6px}
+.effs{display:flex;flex-wrap:wrap;gap:6px}
+.effs .opt{min-height:48px;align-items:flex-start;text-align:left;padding:6px 14px}
+.dpick{margin-top:8px;display:flex;align-items:center;gap:8px;font-size:.8125rem;font-weight:800}
+.dpick input{min-height:40px;border:1.5px solid var(--control-border);border-radius:var(--r-sm);background:var(--surface);padding:0 10px;font-weight:700}
+.dpick input:hover{border-color:var(--ink)}
+/* other schedules on the same sizes: they stay, said in words */
+.stk{margin-top:8px;font-size:.8125rem;font-weight:700;color:var(--ink-muted);display:flex;gap:6px;align-items:flex-start;line-height:1.45;text-wrap:pretty}
+.stk b{color:var(--ink);font-weight:800}
+.stk .ico{width:15px;height:15px;margin-top:2px;flex:none}
+/* write conflict: the list was worked out before the other device's change */
+.tr-im.stale .kp,.tr-im.stale p:not(.stl){opacity:.55}
+.stl{display:flex;gap:6px;align-items:flex-start;margin-bottom:8px;padding:6px 10px;border-radius:var(--r-sm);background:var(--warning-bg);color:var(--warning);font-size:.8125rem;font-weight:800;line-height:1.45}
+.stl .ico{width:15px;height:15px;margin-top:2px;flex:none}
+/* whole-column editor */
+.colt>td{padding:12px 3px 14px}
+.colt .rg{margin-bottom:8px}
+.cpin{max-width:12rem}
+.cpin input{font-size:1.125rem}
+.colt .cerr{display:flex;align-items:center;gap:4px;margin-top:6px;font-size:.8125rem;font-weight:800;color:var(--danger)}
+.colt .cerr .ico{width:14px;height:14px;stroke-width:2.3}
+.colt .hint{margin-top:6px}
+.cpv{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:.9375rem;font-weight:800;line-height:1.4}
+.cpv li{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px}
+.cpv .nm{flex:1 1 7rem;min-width:0}
+.cpv .nm small{margin-left:6px;font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.cpv del{color:var(--ink-muted);text-decoration-thickness:1.5px}
+.cpv del .money{font-weight:700}
+.cpv .ar{color:var(--ink-muted);font-weight:700;margin:0 4px}
+.cpv .cx{flex-basis:100%;font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.cskip{margin-top:10px;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.5;text-wrap:pretty}
+.tr-go{grid-column:1/-1;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;align-items:flex-start;padding-top:14px;border-top:1px solid var(--border)}
+.tr-go .ferr{margin-right:auto;max-width:34rem}
+.tr-go .cellr{display:flex;flex-direction:column;align-items:flex-end}
+.kp{list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.kp li{display:flex;align-items:center;gap:10px;font-size:.875rem;font-weight:700;line-height:1.35}
+.kp li .face{--s:32px}
+.kp li .money{margin-left:auto;font-size:.875rem}
+.kp li small{display:block;font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.kp li .chip{font-size:.75rem;padding:1px 8px;margin-left:auto}
+.kp li>span:not(.chip):not(.nw):not(.face){flex:1;min-width:0}
+.kp.more li:nth-child(n+5){display:none}
+.kp .kmore{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+@container sheet (max-width: 61.25rem){
+  .tr-in{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .tr-im{grid-column:1/-1}
+}
+@container sheet (max-width: 51.25rem){
+  .mx col.c-b{width:0}
+  .mx th.b,.mx td.bc-td{padding:0;border:0;overflow:hidden;font-size:0}
+  .mx td.bc-td .bc{display:none}
+  .sname .bc-in{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+  .mx col.c-n{width:30%}
+  .cell{padding:10px 8px}
+  .cell .pr{font-size:1rem}
+}
+@container sheet (max-width: 40rem){
+  .tr-in{grid-template-columns:minmax(0,1fr)}
+}
+
+/* phone: read-only cards */
+.pcards{list-style:none;display:flex;flex-direction:column;gap:10px}
+.pgrp{font-size:.9375rem;font-weight:900;padding:14px 4px 2px;display:flex;align-items:center;gap:8px}
+.pgrp small{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.pcard{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--lift);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.pcard.off{background:transparent;box-shadow:inset 0 0 0 1.5px var(--border)}
+.pcard .ph{display:flex;align-items:flex-start;gap:10px}
+.pcard{position:relative}
+.pcard .ph .nlink{flex:1}
+.pcard .ph .nlink::after{content:"";position:absolute;inset:0;border-radius:var(--r-lg)}
+.pcard .ph .nlink:focus-visible{outline:0}
+.pcard .ph .nlink:focus-visible::after{outline:2.5px solid var(--focus);outline-offset:3px}
+.pcard .ph .ico{color:var(--ink-muted);margin-top:3px}
+.psz{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;font-size:.9375rem;font-weight:700}
+.psz dt{color:var(--ink-muted);font-size:.875rem}
+.psz dd{display:flex;flex-direction:column;align-items:flex-end;gap:3px;text-align:right}
+.psz dd .pv{display:inline-flex;align-items:baseline;gap:8px}
+.psz dd .tm{font-size:.8125rem;color:var(--ink-muted)}
+.psz dd .sch{margin-top:0}
+
+/* ---------- M-04: the service panel ---------- */
+.dph{display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;align-items:center}
+.ttile{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--sunk);color:var(--ink)}
+.ttile .ico{width:26px;height:26px;stroke-width:1.7}
+.ttile.dash{background:transparent;border:2px dashed var(--control-border);color:var(--ink-muted)}
+.dph h2{font-size:1.375rem;font-weight:900;line-height:1.25}
+.dph p{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:.875rem;font-weight:700;color:var(--ink-muted);margin-top:4px}
+.dsec{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--border)}
+.dsec>h3{margin-bottom:0}
+.dsec>.hint{margin-top:-4px}
+.szl{display:grid;grid-template-columns:4rem minmax(0,1fr);gap:8px 12px;font-size:.9375rem;font-weight:700;align-items:baseline}
+.szl dt{color:var(--ink-muted);font-size:.875rem}
+.szl dd{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.szl dd .tm{font-size:.8125rem;color:var(--ink-muted)}
+.szl dd .sch{margin-top:0}
+.szl dd .none{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.swl{display:flex;flex-direction:column;gap:2px}
+.swr{display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 4px;border-radius:var(--r-sm);cursor:pointer;text-align:left;width:100%}
+.swr:hover:not([aria-disabled="true"]){background:var(--surface-2)}
+.swr .lb{flex:1;display:flex;flex-direction:column;font-weight:800;line-height:1.35}
+.swr .lb small{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.swr .sw{position:relative;width:48px;height:28px;border-radius:999px;background:var(--track);flex:none;transition:background-color .25s var(--out)}
+.swr .sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:0 1px 3px rgb(43 33 28 / .3);transition:transform .35s var(--spring)}
+.swr[aria-checked="true"] .sw{background:var(--ink)}
+.swr[aria-checked="true"] .sw::after{transform:translateX(20px)}
+.swr[aria-disabled="true"]{cursor:not-allowed}
+.swr[aria-disabled="true"] .sw{background:transparent;border:1.5px dashed var(--control-border)}
+.swr[aria-disabled="true"] .sw::after{background:var(--track);box-shadow:none;top:1.5px;left:1.5px}
+.swr[aria-disabled="true"][aria-checked="true"] .sw{background:var(--track);border:0}
+.swr[aria-disabled="true"][aria-checked="true"] .sw::after{background:var(--surface);top:3px;left:3px}
+.lockf{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700;line-height:1.5}
+.lockf .ico{margin-top:1px;flex:none}
+.lockf b{font-weight:900}
+.lockf small{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.ckl{display:flex;align-items:flex-start;gap:10px;font-size:.9375rem;font-weight:800;min-height:44px;padding:10px 4px;cursor:pointer;line-height:1.4;border-radius:var(--r-sm)}
+.ckl:hover{background:var(--surface-2)}
+.ckl input{width:20px;height:20px;accent-color:var(--ink);margin-top:1px;flex:none}
+.ckl small{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.ckl a{color:inherit;text-underline-offset:3px}
+.ckl.ro{cursor:default}
+.ckl.ro:hover{background:transparent}
+.tlinks{display:flex;flex-wrap:wrap;gap:6px}
+.hist{list-style:none;display:flex;flex-direction:column}
+.hist li{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:2px 10px;padding:9px 0;border-top:1px solid var(--hair);font-size:.875rem;font-weight:700;line-height:1.45}
+.hist li:first-child{border-top:0;padding-top:0}
+.hist time{color:var(--ink-muted);font-size:.8125rem}
+.hist small{grid-column:2;font-size:.75rem;font-weight:600;color:var(--ink-muted)}
+.hist li.pend{padding:10px 12px;margin-bottom:6px;border:1.5px dashed var(--ink);border-radius:var(--r-md);grid-template-columns:minmax(0,1fr) auto;align-items:center}
+.hist li.pend small{grid-column:1}
+.hist li.pend .textbtn{grid-row:1 / span 2;grid-column:2;min-height:40px}
+.blk{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:var(--r-md);background:var(--warning-bg);color:var(--warning);font-size:.875rem;font-weight:800;line-height:1.5}
+.blk ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.blk li{display:flex;gap:6px;align-items:flex-start}
+.blk li .ico{width:16px;height:16px;margin-top:2px}
+.blk.ok{background:var(--success-bg);color:var(--success)}
+.endlist{list-style:none;border-top:1.5px dashed var(--border-danger);padding-top:8px}
+.endlist button{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:48px;padding:12px;border-radius:var(--r-sm);font-weight:800;color:var(--danger);transition:background-color .2s var(--out)}
+.endlist button:hover{background:var(--danger-tint)}
+.endlist button .lb{display:flex;flex-direction:column}
+.endlist button small{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.endlist button.re{color:var(--ink)}
+.endlist button.re:hover{background:var(--sunk)}
+.endlist button[aria-disabled="true"]{color:var(--ink-muted);cursor:not-allowed}
+.endlist button[aria-disabled="true"]:hover{background:transparent}
+.rocard{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);border:1.5px dashed var(--control-border);font-size:.875rem;font-weight:700;color:var(--ink-muted);line-height:1.5}
+.rocard .ico{margin-top:1px;flex:none}
+.rocard b{color:var(--ink);font-weight:900}
+/* new service: size grid */
+.ngrid{display:grid;grid-template-columns:4rem minmax(0,1fr) 7.5rem;gap:8px 10px;align-items:center}
+.ngrid .gh{font-size:.75rem;font-weight:800;color:var(--ink-muted)}
+.ngrid .sz{font-size:.875rem;font-weight:800}
+.ngrid .pin{min-height:44px}
+.ngrid .gerr{grid-column:2 / -1;margin-top:-4px;font-size:.75rem;font-weight:800;color:var(--danger)}
+
+/* ---------- M-04: 加購・費用・折扣 ---------- */
+.fx col.c-n{width:auto}
+.fx col.c-m{width:9.5rem}
+.fx col.c-u{width:34%}
+.fx col.c-a{width:9.5rem}
+.fx thead th.z{text-align:right}
+.fx .cell{min-height:58px}
+.fx .use{padding:8px 12px;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.45}
+.fx .acts{display:flex;justify-content:flex-end;padding:6px 8px}
+.fx .acts .textbtn{min-height:40px;background:transparent}
+.fx .acts .textbtn:hover{background:var(--sunk)}
+.fx .fname{padding:10px;display:flex;flex-direction:column;gap:2px}
+.fx .fname b{font-size:1rem;font-weight:900}
+.fx .fname .chip{align-self:flex-start}
+.fx .fname small{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.fx tr.off .fname b,.fx tr.off .cell .pr{color:var(--ink-muted)}
+.fedit{display:flex;flex-direction:column;gap:6px;padding:8px}
+.fedit input.tin{min-height:44px;border:1.5px solid var(--control-border);border-radius:var(--r-sm);background:var(--surface);padding:0 12px;font-weight:800;width:100%}
+.fedit input.tin:hover{border-color:var(--ink)}
+.fedit .cerr{font-size:.75rem;font-weight:800;color:var(--danger)}
+.fx .fgo{display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding:8px}
+.fx .fgo .btn{min-height:44px;width:100%;padding:8px 12px}
+.fnote{display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:12px 16px;border-radius:var(--r-lg);border:1.5px dashed var(--control-border);font-size:.875rem;font-weight:700;color:var(--ink-muted);line-height:1.5}
+.fnote .ico{flex:none;margin-top:1px}
+.fnote b{color:var(--ink);font-weight:900}
+.fnote a{color:var(--ink);font-weight:800;text-underline-offset:3px}
+@container sheet (max-width: 45rem){
+  .fx col.c-u,.fx td.use,.fx th.u{display:none}
+  .fx col.c-u{width:0}
+}
+
+/* ---------- M-04: 住宿計價 ---------- */
+.stg{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+.compact .stg,#app.rail .stg{grid-template-columns:minmax(0,1fr)}
+.stg .panel{display:flex;flex-direction:column;gap:14px}
+.stg h2{font-size:1.0625rem;font-weight:900;display:flex;align-items:center;gap:8px}
+.stg .q{font-size:1rem;font-weight:800}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:34rem}
+.bopt{display:grid;grid-template-columns:24px minmax(0,1fr);gap:2px 12px;align-items:start;min-height:84px;padding:14px 16px;border-radius:var(--r-lg);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);text-align:left;transition:box-shadow .2s var(--out)}
+.bopt:hover:not([aria-disabled="true"]){box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.bopt .rd{grid-row:span 2;width:24px;height:24px;border-radius:50%;border:2px solid var(--control-border);display:grid;place-items:center;margin-top:2px}
+.bopt .rd .ico{width:14px;height:14px;stroke-width:3;opacity:0}
+.bopt b{font-size:1.375rem;font-weight:900;line-height:1.25}
+.bopt small{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.bopt[aria-checked="true"]{box-shadow:inset 0 0 0 2.5px var(--ink)}
+.bopt[aria-checked="true"] .rd{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.bopt[aria-checked="true"] .rd .ico{opacity:1}
+.bopt[aria-disabled="true"]{cursor:not-allowed}
+.nightsum{display:flex;flex-wrap:wrap;gap:8px}
+.nightsum>span{display:inline-flex;flex-direction:column;padding:8px 14px;border-radius:var(--r-md);background:var(--sunk);font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.35}
+.nightsum>span .money{font-size:1.125rem;color:var(--ink)}
+.lfee{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-weight:800}
+.lfee .pin{width:9rem}
+.bubble{border-radius:var(--r-lg);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);padding:14px 16px;font-size:.875rem;font-weight:700;line-height:1.55}
+.bubble .from{font-size:.75rem;font-weight:800;color:var(--ink-muted);margin-bottom:6px}
+.bubble ul{list-style:none;margin-top:6px;display:flex;flex-direction:column;gap:2px}
+.bubble li::before{content:"・"}
+.sgo{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start;justify-content:flex-end;padding-top:14px;border-top:1px solid var(--border)}
+
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}tr.fresh>*{animation-duration:1.8s !important}.roll .o{display:none}}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>M-04 服務與價格・原型</b><span class="muted">價格與資料全為虛構示範，正式價格由店家自己設定・今天 10/9（五）11:20</span>
+  <label>身分 <select id="p-role"><option value="admin">陳老闆・店家管理者</option><option value="mgr">林店長・店長（中山店）</option><option value="desk">阿凱・櫃台（中山店）</option></select></label>
+  <label>跳到 <select id="p-go"><option value="">選擇情境</option><option value="list">價目表</option><option value="spa">改價：精緻美容</option><option value="sched">排程中的改價（基礎洗澡）</option><option value="draft">未完成：貓咪剃毛</option><option value="stop">停用精緻美容</option><option value="off">已停用：草本 SPA</option><option value="new">新增服務</option><option value="fee">加購・費用・折扣</option><option value="stay">住宿計價</option></select></label>
+  <label>店家狀態 <select id="p-susp"><option value="ok">正常</option><option value="susp">停權中</option></select></label>
+  <label>下一次寫入 <select id="p-write"><option value="ok">正常</option><option value="conflict">被其他人修改</option></select></label>
+  <label><input type="checkbox" id="p-fail"> 載入失敗</label>
+  <label><input type="checkbox" id="p-off"> 離線</label>
+  <label>字級 <select id="p-scale"><option value="1">100%</option><option value="2">200%</option></select></label>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <span class="tagp">原型</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+const I = {
+  inbox:'<path d="M4 13h4l1.5 2.5h5L16 13h4"/><path d="M5.5 5h13L20 13v6H4v-6l1.5-8Z"/>',
+  coins:'<ellipse cx="9" cy="7" rx="5" ry="2.5"/><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7"/><path d="M10 15.4c.9 1.3 3 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  dash:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 19c1-3.5 3.4-5 6-5s5 1.5 6 5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.3c1.7.7 2.9 2.2 3.5 4.7"/>',
+  scis:'<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17M8.6 15.6 20 7"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  doc:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  team:'<circle cx="10" cy="8" r="4"/><path d="M3 20c1.4-3.5 4-5 7-5 1.5 0 2.9.4 4 1.1M18 14v6M15 17h6"/>',
+  plan:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  fwd:'<path d="m10 6 6 6-6 6"/>',
+  up:'<path d="m6 14 6-6 6 6"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  paw:'<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  unlock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',
+  ban:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4V5Z"/>',
+  receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  stamp:'<path d="M9 4h6l-1 7h-4L9 4Z"/><path d="M5 15h14v3H5zM7 21h10"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  erase:'<path d="M8 20h12M4.5 15.5 14 6l5 5-7.5 7.5H8.5l-4-3Z"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/>',
+  swap:'<path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/>',
+  otp:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  layers:'<path d="m12 4 9 5-9 5-9-5 9-5Z"/><path d="m3 14 9 5 9-5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>'
+};
+Object.assign(I, {
+  store:'<path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8h13v-8M10 20v-5h4v5"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  tag:'<path d="M3.5 12.5V4h8.5l8.5 8.5-8.5 8.5-8.5-8.5Z"/><circle cx="8" cy="8.5" r="1.5"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  qr:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
+  play:'<circle cx="12" cy="12" r="8.5"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'
+});
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+I.res = '<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>';
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* a person's initial: skip the 阿 / 小 prefix so 阿凱 and 阿楷 stay apart (user decision 2026-10-11); pets keep their first character */
+const initialOf = n => /^[阿小]./.test(n) ? n[1] : n[0];
+const $ = id => document.getElementById(id);
+const fmt = n => Math.abs(n).toLocaleString('en-US');
+const money = n => `<span class="money"><span aria-hidden="true"><span class="cur">NT$</span>${fmt(n)}</span><span class="sr">新台幣 ${fmt(n)} 元</span></span>`;
+const nowT = () => { const d = new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+const qs = new URLSearchParams(location.search);
+/* 貓咪剃毛上架 (prototypes/new-service): ?life=sv-finish is 10/9（五）11:20, the page's own clock. Nothing else changes: 陳老闆 gives 貓咪剃毛
+   its 2 小時 and turns it on, and turning it on posts 'enabled'. */
+const LIFE = (v => ['sv-finish'].includes(v) ? v : null)(qs.get('life'));
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+Object.assign(I, {
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  dots:'<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+  board:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16M9 9v11"/>',
+  release:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M9 15h6" stroke-dasharray="2 2"/>'
+});
+Object.assign(I, {
+  print:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/>',
+  trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  tablet:'<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M11 18h2"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8M16 7l3 3M14 9l2 2"/>',
+  scale:'<path d="M12 4v16M7 20h10M5 8h14"/><path d="m5 8-3 6a3 3 0 0 0 6 0L5 8ZM19 8l-3 6a3 3 0 0 0 6 0l-3-6Z"/>',
+  home:'<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>'
+});
+
+/* ---------- time ---------- */
+const NOWS = '11:20';
+const WD = '日一二三四五六';
+const dt = d => new Date(2026, 9, 9 + d);
+const dLabel = d => { const x = dt(d); return `${x.getMonth() + 1}/${x.getDate()}（${WD[x.getDay()]}）`; };
+const relDay = d => d === 0 ? '今天' : d === 1 ? '明天' : dLabel(d);
+const STEP_MS = qs.get('fast') === '1' ? 120 : 800;
+const CN = '一二三四五六七八九十';
+
+/* ---------- demo data (fictional; every price is set by the shop here, these are only starting values) ---------- */
+const SHOP = '毛孩日和';
+const BR = {zs:'中山店', xy:'信義店'};
+const BRK = ['zs', 'xy'];
+const ROLES = {
+  admin:{who:'陳老闆', role:'店家管理者', br:null, write:true},
+  mgr:{who:'林店長', role:'店長', br:'zs', write:false},
+  desk:{who:'阿凱', role:'櫃台', br:'zs', none:true}
+};
+const SIZES = [['s','小型犬'], ['m','中型犬'], ['l','大型犬'], ['c','貓']];
+const SZ = Object.fromEntries(SIZES);
+const CATS = {
+  groom:{n:'洗澡與美容', note:'一律需要簽約', icon:'scis'},
+  quick:{n:'快速整理', note:'不用洗澡的單項服務', icon:'tag'},
+  stay:{n:'住宿', note:'每晚價格・計晚方式與逾時費在「住宿計價」', icon:'moon'}
+};
+/* contract templates come from M-07; only published ones can be chosen */
+const TPLS = {groom:['犬貓美容定型化契約', 3], senior:['高齡犬美容告知', 1], stay:['住宿同意書', 1]};
+const TPL_FOR = {groom:['groom', 'senior'], quick:['groom', 'senior'], stay:['stay']};
+const RES = {table:'美容台', cage:'狗房・貓房', none:'不占用資源'};
+const ADDONS0 = [
+  {id:'ear', n:'耳道清潔', a:150, d:'清耳垢、修耳毛'},
+  {id:'nail2', n:'指甲修剪', a:100, d:'搭配洗澡時加購'},
+  {id:'flea', n:'除蚤洗劑', a:200, d:'洗澡改用除蚤洗劑'},
+  {id:'teeth', n:'牙齒清潔', a:250, d:'刷牙與口腔檢查，不含麻醉'}
+];
+const FEES0 = {
+  addon:ADDONS0,
+  fee:[{id:'mat', n:'毛髮打結處理', a:200, d:'打結需要額外梳開或剃短'}, {id:'care', n:'特殊照護費', a:150, d:'高齡、術後等需要多一人照顧'}],
+  disc:[{id:'back', n:'回訪優惠', a:-100, d:'30 天內再次預約'}, {id:'member', n:'會員折扣', a:-150, d:'年度會員'}, {id:'bday', n:'生日優惠', a:-200, d:'寵物生日當月'}]
+};
+const FGRP = {
+  addon:{n:'加購', note:'飼主同意後才加收・收款時櫃台與店長可加', add:'新增加購'},
+  fee:{n:'費用', note:'現場發生才收・收款時櫃台與店長可加', add:'新增費用'},
+  disc:{n:'折扣', note:'收款時只有店長以上能加', add:'新增折扣'}
+};
+const P = (s, m, l, c) => ({s, m, l, c});
+const SV0 = [
+  {id:'bath', cat:'groom', name:'基礎洗澡', desc:'洗澡・吹整・清耳朵・剪指甲', p:P([600,60],[800,60],[1200,90],[1000,60]), br:['zs','xy'], need:true, tpl:['groom'], res:'table', online:true, ao:['ear','nail2','flea','teeth'], st:'on',
+    schs:[{d:6, p:{m:[900,60], l:[1300,90]}, by:'陳老闆', made:'10/1（四）'}],
+    hist:[['2026/10/1', '排程 10/15 起：中型犬 NT$800 → NT$900・大型犬 NT$1,200 → NT$1,300', '陳老闆'], ['2026/6/1', '各體型調漲 NT$100', '陳老闆'], ['2025/7/1', '開始提供', '陳老闆']]},
+  {id:'groom', cat:'groom', name:'洗澡＋剪毛', desc:'洗澡加全身造型修剪', p:P([1200,120],[1500,120],[2000,150],[1600,120]), br:['zs','xy'], need:true, tpl:['groom'], res:'table', online:true, ao:['ear','flea','teeth'], st:'on',
+    hist:[['2026/6/1', '貓 NT$1,500 → NT$1,600', '陳老闆'], ['2025/7/1', '開始提供', '陳老闆']]},
+  {id:'bathpaw', cat:'groom', name:'洗澡＋修腳底毛', desc:'基礎洗澡加修短腳底毛', p:P([900,60],[1100,75],[1500,90],null), br:['zs','xy'], need:true, tpl:['groom'], res:'table', online:true, ao:['ear','nail2','flea'], st:'on',
+    hist:[['2025/7/1', '開始提供', '陳老闆']]},
+  {id:'spa', cat:'groom', name:'精緻美容', desc:'洗澡、全身造型修剪、護毛與香氛', p:P([1500,120],[1800,120],[2200,150],null), br:['zs','xy'], need:true, tpl:['groom','senior'], res:'table', online:true, ao:['ear','teeth'], st:'on',
+    hist:[['2026/6/1', '小型犬 NT$1,400 → NT$1,500', '陳老闆'], ['2025/9/1', '開始提供', '陳老闆']]},
+  {id:'catshave', cat:'groom', name:'貓咪剃毛', desc:'全身剃短，適合長毛打結的貓', p:P(null,null,null,[1800,null]), br:['zs'], need:true, tpl:['groom'], res:'table', online:true, ao:[], st:'draft',
+    hist:[['2026/10/8', '建立（未完成）', '陳老闆']]},
+  {id:'herb', cat:'groom', name:'草本 SPA', desc:'草本泡澡與按摩', p:P([1500,90],[1900,120],null,null), br:['zs','xy'], need:true, tpl:['groom'], res:'table', online:true, ao:[], st:'off', offAt:'2026/8/31',
+    hist:[['2026/8/31', '停用', '陳老闆'], ['2025/11/1', '開始提供', '陳老闆']]},
+  {id:'nail', cat:'quick', name:'修指甲', desc:'剪指甲、磨圓', same:true, p:P([300,30],[300,30],[300,30],[300,30]), br:['zs','xy'], need:false, tpl:[], res:'table', online:true, ao:[], st:'on',
+    hist:[['2025/7/1', '開始提供', '陳老闆']]},
+  {id:'paw', cat:'quick', name:'腳底毛修剪', desc:'修短腳底毛，防滑', same:true, p:P([200,15],[200,15],[200,15],[200,15]), br:['zs','xy'], need:false, tpl:[], res:'table', online:true, ao:[], st:'on',
+    hist:[['2025/7/1', '開始提供', '陳老闆']]},
+  {id:'stay', cat:'stay', name:'住宿', desc:'過夜照顧，每天兩次散步', night:true, p:P([800],[1200],[1300],[1000]), br:['zs'], need:true, tpl:['stay'], res:'cage', online:true, ao:[], st:'on',
+    hist:[['2025/7/1', '開始提供（只有中山店有狗房、貓房）', '陳老闆']]}
+];
+/* future appointments already created (names follow M-07); each keeps the price it was booked at.
+   Days 0..+7 are M-02's bookings (prototypes/m02-appointments: same pet, owner, time, branch, service); later days are this page's own. */
+const PETS = {huasheng:'花生', mochi:'麻糬', ougao:'歐告', cola:'可樂', maomao:'毛毛', buding:'布丁', zhima:'芝麻', xueqiu:'雪球', qiuqiu:'球球', dudu:'嘟嘟', panghu:'胖虎', doudou:'豆豆'};
+const PHOTO = {maomao:1, buding:1};
+const A = (pet, owner, svc, size, d, t, br) => ({pet, owner, svc, size, d, t, br});
+const APPTS = [
+  A('ougao','羅小姐','spa','l',0,'15:00','xy'), A('qiuqiu','許小姐','spa','s',0,'16:00','zs'), A('buding','吳小姐','spa','m',2,'14:00','zs'),
+  A('huasheng','何先生','spa','s',24,'14:00','zs'), A('dudu','劉小姐','spa','s',28,'11:00','xy'), A('mochi','游小姐','spa','s',36,'10:00','zs'), A('panghu','郭先生','spa','m',43,'10:00','xy'),
+  A('huasheng','何先生','bath','s',0,'14:00','zs'), A('panghu','郭先生','bath','m',7,'12:00','xy'), A('xueqiu','江小姐','bath','s',7,'14:00','xy'),
+  A('mochi','游小姐','groom','s',0,'12:30','zs'), A('cola','楊小姐','groom','m',0,'17:00','zs'), A('maomao','王太太','groom','s',1,'10:00','zs'), A('zhima','高先生','groom','s',10,'11:00','zs'),
+  A('doudou','黃先生','stay','s',0,'—','zs')
+];
+const STAY0 = {rule:'rolling', late:100};
+
+/* ---------- helpers ---------- */
+const clone = o => JSON.parse(JSON.stringify(o));
+const durL = m => !m ? '' : m < 60 ? `${m} 分` : m % 60 === 0 ? `${m / 60} 小時` : m % 60 === 30 ? `${(m / 60).toFixed(1)} 小時` : `${Math.floor(m / 60)} 小時 ${m % 60} 分`;
+const MINS = Array.from({length:20}, (_, i) => (i + 1) * 15);
+const chip = (tone, t) => `<span class="chip ${tone}">${t}</span>`;
+const dShort = d => { const x = dt(d); return `${x.getMonth() + 1}/${x.getDate()}`; };
+const ymd = d => { const x = dt(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
+const dOf = s => { const [y, m, dd] = s.split('-').map(Number); return Math.round((new Date(y, m - 1, dd) - new Date(2026, 9, 9)) / 864e5); };
+const D_NOV1 = dOf('2026-11-01');
+function face(key, size) {
+  const n = PETS[key], st = size ? ` style="--s:${size}px"` : '';
+  const img = PHOTO[key] ? `<img src="pets/${key}.webp" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ini',textContent:'${n[0]}'}))">` : `<span class="ini" aria-hidden="true">${n[0]}</span>`;
+  return `<span class="face plain"${st} role="img" aria-label="${n}">${img}</span>`;
+}
+const sizesOf = s => s.same ? ['s'] : SIZES.map(([k]) => k);
+
+/* ---------- state ---------- */
+let SV = clone(SV0), FEES = clone(FEES0), STAY = clone(STAY0);
+const INIT = {role:'admin', tab:'svc', scope:'all', panel:null, edit:null, col:null, fe:null, pe:null, nd:null, st:null, dlg:null, offline:false, loadFail:false, susp:false, nextWrite:'ok', seq:0, roll:null, drawSch:null, fresh:null};
+let state = clone(INIT);
+const me = () => ROLES[state.role];
+const canWrite = () => !state.offline;
+const admin = () => !!me().write && !state.phone;
+const sv = id => SV.find(s => s.id === id);
+const parseN = v => { const t = String(v ?? '').replace(/[,\s，]/g, ''); return t === '' ? null : /^\d+$/.test(t) ? +t : NaN; };
+const isDone = (s, k) => { const v = s.p[k]; return !!v && v[0] != null && (s.night || v[1] != null); };
+const missingOf = s => sizesOf(s).flatMap(k => { const v = s.p[k]; if (!v) return []; const lab = s.same ? '各體型' : SZ[k]; return v[0] == null ? [`${lab}缺價格`] : !s.night && v[1] == null ? [`${lab}缺時間`] : []; });
+const offered = s => sizesOf(s).filter(k => s.p[k]);
+const inScope = s => state.scope === 'all' || s.br.includes(state.scope);
+const future = (svc, sizes, from = 0) => APPTS.filter(a => a.svc === svc && (!sizes || sizes.includes(a.size)) && a.d >= from).sort((a, b) => a.d - b.d);
+const tplName = k => `${TPLS[k][0]}・第 ${TPLS[k][1]} 版`;
+/* scheduled price changes stack: s.schs holds every future schedule, by date; each names only the sizes it changes.
+   A later schedule never cancels an earlier one; a schedule on the same date is merged, size by size. */
+const schsOf = s => (s.schs = s.schs || []);
+const pendOf = (s, k) => schsOf(s).filter(x => k in x.p);
+/* the price a booking created on day d gets: today's price, then every schedule that has started by then */
+const baseAt = (s, k, d) => pendOf(s, k).reduce((v, x) => x.d <= d ? x.p[k] : v, s.p[k] ?? null);
+const parseS = v => { const t = String(v ?? '').replace(/[,\s，]/g, '').replace('−', '-'); return t === '' || t === '+' || t === '-' ? null : /^[+-]?\d+$/.test(t) ? +t : NaN; };
+const round10 = n => Math.round(n / 10) * 10;
+
+/* ---------- small pieces ---------- */
+/* every pending schedule of one size, as dashed capsules in date order; o.draw(x) animates a fresh one, o.strike is the date being replaced */
+const schPills = (s, k, o = {}) => pendOf(s, k).map(x => {
+  const v = x.p[k], prev = baseAt(s, k, x.d - 1), st = o.strike === x.d, amt = v ? money(v[0]) : '不提供';
+  return `<span class="sch${o.draw && o.draw(x) ? ' draw' : ''}${st ? ' strike' : ''}"><span class="nw">${ic('clock')} ${dShort(x.d)} 起</span> <span class="nw">${st ? `<del>${amt}</del>` : amt}</span>${!s.night && v && v[1] && v[1] !== prev?.[1] ? `・${durL(v[1])}` : ''}<span class="sr">（排程中，還沒生效）</span></span>`;
+}).join('');
+const ctLine = s => s.need ? `<span class="ct">${ic(s.cat === 'groom' ? 'lock' : 'doc')}<span>需契約・<b>${s.tpl.map(k => TPLS[k][0]).join('、') || '未選模板'}</b></span></span>` : `<span class="ct">${ic('doc')}<span>不需契約</span></span>`;
+const brLine = s => `<span class="brs">${s.br.map(b => `<span class="brp">${BR[b]}</span>`).join('')}</span>`;
+const stChip = s => s.st === 'draft' ? chip('warning', '未完成') : s.st === 'off' ? chip('neutral', `已停用・${s.offAt.slice(5)}`) : '';
+
+/* ---------- shell ---------- */
+const NAV = [
+  ['營運', [['dash','儀表板','dash'],['cal','預約','cal'],['queue','待處理','inbox'],['cust','客戶與寵物','users'],['money','收款對帳','coins']]],
+  ['設定', [['svc','服務與價格','scis'],['hours','營業時間','clock'],['res','資源','res'],['tpl','契約模板','doc'],['pol','取消與改期政策','cxl'],['notify','通知設定','bell']]],
+  ['帳務', [['staff','員工與權限','team'],['plan','方案與用量','plan'],['audit','稽核紀錄','shield']]]
+];
+function sideNav() {
+  const staffOnly = !!me().none;
+  const groups = NAV.filter(([g]) => !staffOnly || g === '營運').map(([g, list]) => `<div class="sgrp" aria-hidden="true">${g}</div>${list.map(([k, l, icon]) =>
+    `<button class="sitem" data-key="nav-${k}" data-do="nav" data-page="${k}" ${k === 'svc' && !staffOnly ? 'aria-current="page"' : ''}>${ic(icon)}<span>${l}</span></button>`).join('')}`).join('');
+  const m = me();
+  return `<nav class="side" aria-label="主選單"><div class="brand"><span class="mark" aria-hidden="true">${ic('mark')}</span><span><small>寵派商家中心</small><b>${SHOP}</b></span></div>${groups}
+    <div class="me"><span class="av" aria-hidden="true">${initialOf(m.who)}</span><span><b>${m.who}</b><small>${m.role}・${m.br ? BR[m.br] : '兩家分店'}</small></span></div></nav>`;
+}
+const whoami = () => `<span class="whoami"><span class="av" aria-hidden="true">${initialOf(me().who)}</span>${me().who}・${me().role}</span>`;
+function newBtn() {
+  if (!admin() || state.tab !== 'svc') return '';
+  if (!canWrite()) return `<div class="pre-act"><button class="btn" aria-disabled="true" aria-describedby="new-r" data-key="new">${ic('plus')}新增服務</button><span class="reason" id="new-r">需連線</span></div>`;
+  const calm = state.panel || state.edit;
+  return `<button class="btn primary${calm ? ' calm' : ''}" data-do="newSvc" data-key="new">${ic('plus')}新增服務</button>`;
+}
+function pageHead() {
+  const upd = state.offline ? `<span class="updated off">${ic('off','sm')}離線・資料停在 ${NOWS}</span>` : `<span class="updated">${ic('refresh','sm')}${NOWS} 更新</span>`;
+  const on = SV.filter(s => s.st === 'on').length, dr = SV.filter(s => s.st === 'draft').length, sc = SV.filter(s => schsOf(s).length && s.st !== 'off').length;
+  const scope = state.tab === 'svc' ? `<label class="sr" for="scope">分店範圍</label><select class="scope" id="scope" data-key="scope">${[['all','全部分店'], ...BRK.map(b => [b, BR[b]])].map(([v, l]) => `<option value="${v}"${state.scope === v ? ' selected' : ''}>${l}</option>`).join('')}</select>` : '';
+  const sub = [`全店一個價格`, `${on} 項提供中`, dr ? `${dr} 項未完成` : '', sc ? `${sc} 項排程改價` : ''].filter(Boolean).join('・');
+  return `<header class="head"><h1 id="page-title" tabindex="-1">服務與價格</h1><div class="tools">${whoami()}${upd}${scope}${newBtn()}</div><p class="sub">${sub}</p></header>
+    ${state.offline ? `<div class="banner warning" role="status">${ic('off')}<span>離線中：可以查看價目；改價、新增與停用需要連線。</span></div>` : ''}
+    ${state.susp ? `<div class="banner danger" role="status">${ic('ban')}<span>店家停權中：飼主暫時不能建立新預約。價目照常可以調整，已建立的預約與在店的寵物不受影響。</span></div>` : ''}
+    ${state.role === 'mgr' ? `<div class="banner neutral" role="note">${ic('info')}<span>你可以開關中山店要不要提供每項服務；價格與其他設定由陳老闆（店家管理者）調整。</span></div>` : ''}
+    ${state.phone && me().write ? `<div class="banner neutral" role="note">${ic('info')}<span>手機上只能查看價目；改價請用電腦或平板。</span></div>` : ''}`;
+}
+function tabs() {
+  const T = [['svc','服務','scis'], ['fee','加購・費用・折扣','receipt'], ['stay','住宿計價','moon']];
+  return `<div class="seg tabs" role="tablist" aria-label="服務與價格">${T.map(([k, l, icon]) => `<button role="tab" aria-selected="${state.tab === k}" data-do="tab" data-v="${k}" data-key="tab-${k}" tabindex="${state.tab === k ? 0 : -1}">${ic(icon)}${l}</button>`).join('')}</div>`;
+}
+const RULES = {
+  svc:`${ic('info')}<span><b>全店一個價格</b>，各分店勾選要不要提供。</span><span>改價只影響之後新建立的預約，已建立的預約維持建立時的價格。</span>`,
+  fee:`${ic('receipt')}<span><b>收款時店員只能從這份價目選</b>，不能改金額。</span><span>已加在預約上的明細不會跟著改。</span>`,
+  stay:`${ic('moon')}<span><b>每晚價格在「服務」表的住宿列改</b>；這裡決定怎麼算晚數和逾時費。</span>`
+};
+
+/* ---------- 服務: the matrix ---------- */
+function cellRead(s, k) {
+  const v = s.p[k], dr = state.drawSch && state.drawSch.ids.includes(s.id) ? state.drawSch.d : null;
+  const rk = `${s.id}-${k}`, rolled = state.roll && state.roll.id === s.id && k in state.roll.old;
+  let inner;
+  if (!v) inner = `<span class="none">不提供</span>`;
+  else {
+    const num = v[0] == null ? `<span class="miss">${ic('warn')}缺價格</span>` : rolled && state.roll.old[k] && state.roll.old[k][0] !== v[0] ? `<span class="pr"><span class="roll"><span class="o" aria-hidden="true">${money(state.roll.old[k][0])}</span><span class="n">${money(v[0])}</span></span></span>` : `<span class="pr">${money(v[0])}</span>`;
+    const tm = s.night ? '<span class="tm">每晚</span>' : v[1] == null ? (v[0] == null ? '' : `<span class="miss">${ic('warn')}缺時間</span>`) : `<span class="tm">${durL(v[1])}</span>`;
+    inner = num + tm;
+  }
+  inner += schPills(s, k, {draw:x => x.d === dr});
+  const label = `<span class="sr">${esc(s.name)}・${s.same ? '各體型' : SZ[k]}：</span>`;
+  const can = admin() && s.st !== 'off';
+  if (!can) return `<div class="cell">${label}${inner}</div>`;
+  const off = !canWrite();
+  return `<button class="cell" data-do="editRow" data-id="${s.id}" data-k="${k}" data-key="c-${rk}"${off ? ' aria-disabled="true" title="離線中不能改價"' : ''}>${label}${inner}<span class="sr">，改價</span></button>`;
+}
+function editCell(s, k) {
+  const e = state.edit, cur = s.p[k], ev = e.v[k], err = e.err?.[k];
+  const d = editD(s, e), base = baseAt(s, k, d), from = pendOf(s, k).filter(x => x.d <= d).pop();
+  const np = parseN(ev[0]), nt = parseN(ev[1]);
+  const chP = (base?.[0] ?? null) !== np, chT = !s.night && (base?.[1] ?? null) !== nt;
+  /* 現價 and every pending schedule stay in view; the one this change starts from is struck */
+  const now = !cur ? '現在不提供' : cur[0] == null ? '現在缺價格' : `現價 ${chP && !from ? `<del>${money(cur[0])}</del>` : money(cur[0])}`;
+  const was = `${now}${!cur && !from && np ? '・新增' : ''}`;
+  const lab = s.same ? '各體型' : SZ[k];
+  const sel = s.night ? `<span class="ehint">每晚</span>` : `<label class="sr" for="e-${k}-t">${lab}時間</label><select id="e-${k}-t" data-ek="${k}" data-ei="1" data-key="e-${k}-t"${err === 't' ? ' aria-invalid="true"' : ''}><option value="">時間</option>${MINS.map(m => `<option value="${m}"${nt === m ? ' selected' : ''}>${durL(m)}</option>`).join('')}</select>`;
+  const msg = err === 't' ? '缺時間' : err === 'p' ? '缺價格' : err === 'n' ? '價格要是整數' : '';
+  return `<div class="ec${chP || chT ? ' chg' : ''}">${s.same ? '' : `<span class="esz" aria-hidden="true">${lab}</span>`}<span class="was">${was}</span>${schPills(s, k, {strike:chP && from ? from.d : null})}
+    <label class="pin"><span aria-hidden="true">NT$</span><span class="sr">${lab}價格</span><input id="e-${k}-p" data-ek="${k}" data-ei="0" data-key="e-${k}-p" inputmode="numeric" autocomplete="off" value="${esc(ev[0])}" placeholder="不提供"${err === 'p' || err === 'n' ? ' aria-invalid="true"' : ''}></label>
+    ${sel}${msg ? `<span class="cerr" role="alert">${ic('warn')}${msg}</span>` : ''}</div>`;
+}
+function rowHtml(s) {
+  const e = state.edit && state.edit.id === s.id ? state.edit : null;
+  const sel = state.panel && state.panel.id === s.id;
+  const name = `<th scope="row"><div class="sname"><button class="nlink" data-do="openSvc" data-id="${s.id}" data-key="n-${s.id}"${sel ? ' aria-current="true"' : ''}>${esc(s.name)}</button><small>${esc(s.desc)}</small>${stChip(s)}<span class="bc-in">${brLine(s)}${ctLine(s)}</span></div></th>`;
+  let cells;
+  if (s.same) cells = `<td colspan="4" class="all">${e ? `<div class="ec all"><span class="allt" style="align-self:center">各體型同價</span><div class="ecol">${editCell(s, 's')}</div></div>` : cellRead(s, 's').replace('</span>', '</span><span class="allt">各體型同價</span>')}</td>`;
+  else cells = SIZES.map(([k]) => `<td${state.col?.k === k ? ' class="hl"' : ''}>${e ? editCell(s, k) : cellRead(s, k)}</td>`).join('');
+  const cls = [s.st === 'off' ? 'off' : '', e ? 'cur' : '', sel ? 'sel' : '', state.fresh === s.id ? 'fresh' : ''].filter(Boolean).join(' ');
+  return `<tr${cls ? ` class="${cls}"` : ''} data-row="${s.id}">${name}${cells}<td class="bc-td"><div class="bc">${brLine(s)}${ctLine(s)}</div></td></tr>${e ? trayRow(s) : ''}`;
+}
+/* what the open row would change, in words */
+function changesOf(s, e) {
+  const out = [];
+  const d = editD(s, e);
+  for (const k of sizesOf(s)) {
+    const cur = baseAt(s, k, d), np = parseN(e.v[k][0]), nt = s.night ? null : parseN(e.v[k][1]);
+    const op = cur?.[0] ?? null, ot = s.night ? null : cur?.[1] ?? null;
+    if (op === np && ot === nt) continue;
+    out.push({k, op, ot, np, nt});
+  }
+  return out;
+}
+function validate(s, e) {
+  const err = {};
+  for (const k of sizesOf(s)) {
+    const p = parseN(e.v[k][0]), t = s.night ? 1 : parseN(e.v[k][1]);
+    if (Number.isNaN(p) || p === 0) err[k] = 'n';
+    else if (p != null && t == null) err[k] = 't';
+    else if (p == null && !s.night && t != null) err[k] = 'p';
+  }
+  return err;
+}
+function chWords(s, c) {
+  const lab = s.same ? '各體型' : SZ[c.k];
+  if (c.np == null && c.nt == null) return `<li><span class="k">${lab}</span>不再提供</li>`;
+  if (c.op == null && c.ot == null) return `<li><span class="k">${lab}</span>新增 ${money(c.np)}${c.nt ? `・${durL(c.nt)}` : ''}</li>`;
+  const parts = [];
+  if (c.op !== c.np) parts.push(`<del>${c.op == null ? '缺價格' : money(c.op)}</del><span class="ar" aria-hidden="true">→</span><span class="sr">改成</span>${c.np == null ? '未填' : money(c.np)}`);
+  if (c.ot !== c.nt) parts.push(`時間 <del>${c.ot ? durL(c.ot) : '缺'}</del><span class="ar" aria-hidden="true">→</span><span class="sr">改成</span>${c.nt ? durL(c.nt) : '未填'}`);
+  return `<li><span class="k">${lab}</span>${parts.join('<span aria-hidden="true">・</span>')}</li>`;
+}
+const effD = e => e.eff === 'now' ? 0 : e.eff === 'tmr' ? 1 : e.eff === 'nov1' ? D_NOV1 : e.date ? dOf(e.date) : null;
+const effLabel = d => d === 0 ? '立即' : `${dLabel(d)} 00:00 起`;
+/* the day the open row's change would start; a 未完成 service, or a date not picked yet, counts from today */
+const editD = (s, e) => s.st === 'on' ? effD(e) ?? 0 : 0;
+/* the four "什麼時候生效" choices, shared by the row editor (pre 'e') and the column editor (pre 'c') */
+function effBlock(e, pre) {
+  const da = pre === 'e' ? 'eff' : 'colEff', kp = pre === 'e' ? 'eff' : 'ceff';
+  const o = (v, big, small) => `<button class="opt" role="radio" aria-checked="${e.eff === v}" data-do="${da}" data-v="${v}" data-key="${kp}-${v}" tabindex="${e.eff === v ? 0 : -1}"><span>${big}</span>${small ? `<small>${small}</small>` : ''}</button>`;
+  return `<h3 id="${pre}-eff-h">${ic('clock')}什麼時候生效</h3><div class="effs" role="radiogroup" aria-labelledby="${pre}-eff-h">${o('now', '立即', `今天 ${NOWS}`)}${o('tmr', '明天', '10/10（六）00:00')}${o('nov1', '11/1', '（日）00:00')}${o('pick', '其他日期', e.eff === 'pick' && e.date ? dLabel(dOf(e.date)) : '')}</div>
+      ${e.eff === 'pick' ? `<label class="dpick">從<input type="date" id="${pre}-date" data-key="${pre}-date" min="${ymd(1)}" max="${ymd(180)}" value="${e.date || ''}">00:00 起</label>` : ''}`;
+}
+/* the other schedules on the sizes being changed: one on the same date is merged, the rest stay, each said in words */
+function stackNote(s, ks, d) {
+  if (d == null) return '';
+  const xs = schsOf(s).filter(x => ks.some(k => k in x.p));
+  if (!xs.length) return '';
+  const sz = x => ks.filter(k => k in x.p).map(k => `${s.same ? '各體型' : SZ[k]} → ${x.p[k] ? `NT$${fmt(x.p[k][0])}` : '不提供'}`).join('・');
+  return xs.map(x => `<p class="stk">${ic('layers')}<span>${x.d === d ? `<b>併入 ${dShort(x.d)} 起的排程</b>：這次填的價格取代它同一體型的排程價（原本 ${sz(x)}）`
+    : x.d < d ? `<b>${dShort(x.d)} 起的排程照舊</b>（${sz(x)}）；這次的新價接在它後面`
+    : `<b>${dShort(x.d)} 起的排程照舊</b>（${sz(x)}）；${dShort(x.d)} 起新建立的預約改用排程價`}</span></p>`).join('')
+    + `<p class="hint" style="margin-top:6px">排程不會被這次的改價取消；要取消某一個，打開服務設定，在「價格紀錄」逐一取消。</p>`;
+}
+function trayRow(s) {
+  const e = state.edit, ch = changesOf(s, e), live = s.st === 'on';
+  const priceCh = ch.filter(c => c.op !== c.np), timeOnly = ch.length && !priceCh.length;
+  const d = live ? effD(e) : 0;
+  const chHtml = ch.length ? `<ul>${ch.map(c => chWords(s, c)).join('')}</ul>` : `<p>還沒有改動。在上面的格子輸入新價格${s.night ? '' : '或時間'}；清空價格代表不提供這個體型。</p>`;
+  const eff = live ? effBlock(e, 'e') + stackNote(s, ch.length ? ch.map(c => c.k) : sizesOf(s), d)
+    : `<h3>${ic('clock')}什麼時候生效</h3><p class="hint" style="font-size:.875rem;font-weight:700">${s.st === 'draft' ? '還沒啟用，存檔後直接套用；啟用前飼主看不到這個服務。' : '已停用的服務不能改價。'}</p>`;
+  let im;
+  if (!live) im = `<p>沒有預約用到這個服務。</p>`;
+  else if (!ch.length) im = `<p>改了之後，這裡會列出哪些已建立的預約維持原價。</p>`;
+  else if (timeOnly) im = `<p>時間只影響新預約占用${RES[s.res]}的長度；已建立的 <b>${future(s.id, ch.map(c => c.k)).length} 筆</b>預約時段不變。</p>`;
+  else if (d == null) im = `<p>先選生效日期。</p>`;
+  else {
+    /* every booking that exists was created today or earlier, so the price it keeps is today's, whatever is scheduled */
+    const ks = priceCh.map(c => c.k), list = future(s.id, ks, d), kept = a => s.p[a.size]?.[0];
+    const earlier = d ? schsOf(s).filter(x => x.d < d && ks.some(k => k in x.p)) : [];
+    const ul = list.length ? `<ul class="kp${list.length > 4 ? ' more' : ''}">${list.map(a => `<li>${face(a.pet, 32)}<span>${PETS[a.pet]}・${esc(a.owner)}<small>${dLabel(a.d)} ${a.t}・${BR[a.br]}${s.same ? '' : `・${SZ[a.size]}`}</small></span>${kept(a) != null ? `<span class="nw">維持 ${money(kept(a))}</span>` : ''}</li>`).join('')}${list.length > 4 ? `<li class="kmore">還有 ${list.length - 4} 筆</li>` : ''}</ul>` : '';
+    im = d === 0 ? (list.length ? `<p>已建立的 <b>${list.length} 筆</b>預約維持建立時的價格；<b>從現在起新建立</b>的預約用新價。</p>${ul}` : `<p>還沒有預約，沒有人用原價；<b>從現在起新建立</b>的預約用新價。</p>`)
+      : `<p><b>${dShort(d)} 00:00 前建立的預約都用${earlier.length ? '建立時的價格' : '原價'}</b>，包括排在 ${dShort(d)} 之後的；${dShort(d)} 00:00 起新建立的預約才用新價。</p>`
+        + (earlier.length ? `<p>${earlier.map(x => `${dShort(x.d)} 起建立的用 ${dShort(x.d)} 的排程價`).join('、')}；今天以前建立的用現價。</p>` : '')
+        + (list.length ? `<p>目前有 <b>${list.length} 筆 ${dShort(d)} 之後</b>的預約，會維持原價：</p>${ul}` : `<p>${dShort(d)} 之後還沒有預約，沒有人用原價。</p>`);
+  }
+  const errs = Object.keys(e.err || {}).length;
+  const blockedBy = !ch.length ? '還沒有改動' : errs ? '先補齊標紅的格子' : live && d == null ? '先選生效日期' : !canWrite() ? '需連線' : '';
+  const save = e.busy ? `<button class="btn primary busy" aria-disabled="true" data-key="e-save"><span class="spin" aria-hidden="true"></span>儲存中</button>`
+    : blockedBy ? `<span class="cellr"><button class="btn primary" aria-disabled="true" aria-describedby="e-save-r" data-key="e-save">${ic('check')}儲存</button><span class="reason" id="e-save-r">${blockedBy}</span></span>`
+    : `<button class="btn primary" data-do="saveRow" data-key="e-save">${ic('check')}${live ? (d ? `儲存，${dShort(d)} 起生效` : '儲存，立即生效') : '儲存'}</button>`;
+  const ferr = e.conflict ? `<p class="ferr" role="alert">${ic('warn')}<span>${e.conflict}</span></p>` : '';
+  /* a write conflict keeps 取消; reloading is the way forward, and the list below is marked as worked out before the other change */
+  const go = `${ferr}<button class="btn secondary" data-do="cancelRow" data-key="e-cancel">取消</button>${e.conflict ? `<button class="btn primary" data-do="reloadRow" data-key="e-reload">${ic('refresh')}重新載入價格</button>` : save}`;
+  const stale = e.conflict ? `<p class="stl">${ic('warn')}<span>這份名單是另一台裝置改價前算的，可能已經不對；重新載入後再看。</span></p>` : '';
+  return `<tr class="tray"><td colspan="6"><div class="tr-in" role="group" aria-label="${esc(s.name)}改價">
+    <div class="tr-ch"><h3>${ic('pen')}這次改了</h3>${chHtml}</div>
+    <div class="tr-eff">${eff}</div>
+    <div class="tr-im${e.conflict ? ' stale' : ''}" aria-live="polite"><h3>${ic('receipt')}誰用原價</h3>${stale}${im}</div>
+    <div class="tr-go">${go}</div></div></td></tr>`;
+}
+/* ---------- 服務: one size column adjusted at once ---------- */
+/* which services the column editor touches at day d, and what each becomes; only live, per-size services that offer this size */
+function colPlan(c) {
+  const k = c.k, d = effD(c) ?? 0, n = parseS(c.n), okN = n != null && !Number.isNaN(n);
+  const rows = [], skip = {none:[], same:[], idle:0};
+  SV.forEach(s => {
+    if (s.st !== 'on') { skip.idle++; return; }
+    if (s.same) { skip.same.push(s.name); return; }
+    const b = baseAt(s, k, d);
+    if (!b || b[0] == null) { skip.none.push(s.name); return; }
+    const np = !okN ? null : c.mode === 'pct' ? round10(b[0] * (100 + n) / 100) : b[0] + n;
+    rows.push({s, b, np, from:pendOf(s, k).filter(x => x.d <= d).pop(), later:pendOf(s, k).filter(x => x.d > d)});
+  });
+  const ch = rows.filter(r => r.np != null && r.np !== r.b[0]);
+  const ids = ch.map(r => r.s.id), list = APPTS.filter(a => ids.includes(a.svc) && a.size === k && a.d >= d).sort((a, b) => a.d - b.d);
+  return {k, d, n, okN, rows, ch, skip, list};
+}
+function colTray() {
+  const c = state.col, P = colPlan(c), lab = SZ[c.k], d = effD(c);
+  const bad = Number.isNaN(P.n) ? '要是整數，例如 100 或 -50' : P.n === 0 ? '輸入 0 不會改變價格' : P.rows.some(r => r.np != null && r.np < 1) ? '調整後有價格小於 NT$1' : '';
+  const mo = (v, l) => `<button class="opt" role="radio" aria-checked="${c.mode === v}" data-do="colMode" data-v="${v}" data-key="cmode-${v}" tabindex="${c.mode === v ? 0 : -1}">${l}</button>`;
+  const how = `<h3 id="col-h">${ic('layers')}${lab}整欄調價</h3>
+    <div class="rg" role="radiogroup" aria-label="怎麼調">${mo('amt', '加減金額')}${mo('pct', '加減百分比')}</div>
+    <label class="pin cpin">${c.mode === 'amt' ? '<span aria-hidden="true">NT$</span>' : ''}<span class="sr">每一項${c.mode === 'amt' ? '加減多少元' : '加減百分之多少'}</span><input id="c-n" data-key="c-n" autocomplete="off" value="${esc(c.n)}" placeholder="${c.mode === 'amt' ? '例如 100' : '例如 10'}"${bad ? ' aria-invalid="true" aria-describedby="c-n-e"' : ''}>${c.mode === 'pct' ? '<span aria-hidden="true">%</span>' : ''}</label>
+    ${bad ? `<span class="cerr" id="c-n-e" role="alert">${ic('warn')}${bad}</span>` : ''}
+    <p class="hint">${c.mode === 'pct' ? '調整後四捨五入到 10 元，例如 NT$1,234 → NT$1,230。降價輸入負數，例如 -10。' : '每一項加同樣的金額，不四捨五入。降價輸入負數，例如 -100。'}</p>`;
+  const cx = r => [r.from ? `以 ${dShort(r.from.d)} 起的排程價為準` : '', ...r.later.map(x => `${dShort(x.d)} 起的排程照舊（${x.p[c.k] ? `NT$${fmt(x.p[c.k][0])}` : '不提供'}）`)].filter(Boolean).join('・');
+  const prev = P.rows.length ? `<ul class="cpv">${P.rows.map(r => `<li><span class="nm">${esc(r.s.name)}${r.s.night ? '<small>每晚</small>' : ''}</span><span class="nw">${r.np != null && r.np !== r.b[0] ? `<del>${money(r.b[0])}</del><span class="ar" aria-hidden="true">→</span><span class="sr">改成</span>${money(r.np)}` : money(r.b[0])}</span>${cx(r) ? `<small class="cx">${cx(r)}</small>` : ''}</li>`).join('')}</ul>` : `<p>這一欄沒有可以調的服務。</p>`;
+  const skip = [P.skip.none.length ? `不提供${lab}的 ${P.skip.none.length} 項不調（${P.skip.none.join('、')}）` : '', P.skip.same.length ? `各體型同價的 ${P.skip.same.length} 項不調（${P.skip.same.join('、')}），要改請在那一列改` : '', P.skip.idle ? `未完成、已停用的 ${P.skip.idle} 項不調` : ''].filter(Boolean);
+  let im;
+  if (!P.ch.length) im = `<p>輸入要調多少後，這裡會算出哪些已建立的預約維持原價。</p>`;
+  else if (d == null) im = `<p>先選生效日期。</p>`;
+  else {
+    const n = P.list.length;
+    im = (d === 0 ? (n ? `<p>已建立的 <b>${n} 筆</b>${lab}預約維持建立時的價格；<b>從現在起新建立</b>的預約用新價。</p>` : `<p>還沒有${lab}的預約，沒有人用原價；<b>從現在起新建立</b>的預約用新價。</p>`)
+      : `<p><b>${dShort(d)} 00:00 前建立的預約都用建立時的價格</b>，包括排在 ${dShort(d)} 之後的；${dShort(d)} 00:00 起新建立的預約才用新價。</p>${n ? `<p>目前有 <b>${n} 筆 ${dShort(d)} 之後</b>的${lab}預約，會維持原價。</p>` : `<p>${dShort(d)} 之後還沒有預約，沒有人用原價。</p>`}`)
+      + (n ? `<button class="textbtn" data-do="colList" data-key="c-list" aria-expanded="${!!c.showList}" aria-controls="c-kp" style="margin-top:8px">${ic(c.showList ? 'up' : 'chev', 'sm')}${c.showList ? '收起名單' : `看這 ${n} 筆`}</button>${c.showList ? `<ul class="kp" id="c-kp">${P.list.map(a => `<li>${face(a.pet, 32)}<span>${PETS[a.pet]}・${esc(a.owner)}<small>${dLabel(a.d)} ${a.t}・${esc(sv(a.svc).name)}</small></span><span class="nw">維持 ${money(sv(a.svc).p[c.k][0])}</span></li>`).join('')}</ul>` : ''}` : '');
+  }
+  const blockedBy = P.n == null ? '先輸入要調多少' : bad || (!P.ch.length ? '沒有價格會改變' : d == null ? '先選生效日期' : !canWrite() ? '需連線' : '');
+  const save = c.busy ? `<button class="btn primary busy" aria-disabled="true" data-key="c-save"><span class="spin" aria-hidden="true"></span>儲存中</button>`
+    : blockedBy ? `<span class="cellr"><button class="btn primary" aria-disabled="true" aria-describedby="c-save-r" data-key="c-save">${ic('check')}儲存</button><span class="reason" id="c-save-r">${blockedBy}</span></span>`
+    : `<button class="btn primary" data-do="colSave" data-key="c-save">${ic('check')}儲存 ${P.ch.length} 項，${d ? `${dShort(d)} 起生效` : '立即生效'}</button>`;
+  const ferr = c.conflict ? `<p class="ferr" role="alert">${ic('warn')}<span>${c.conflict}</span></p>` : '';
+  const stale = c.conflict ? `<p class="stl">${ic('warn')}<span>這份名單是另一台裝置改價前算的，可能已經不對；重新載入後再看。</span></p>` : '';
+  return `<tbody class="colb"><tr class="tray colt"><td colspan="6"><div class="tr-in" role="group" aria-labelledby="col-h">
+    <div class="tr-ch">${how}<h3 style="margin-top:16px">${ic('pen')}這次改了</h3>${prev}${skip.length ? `<p class="cskip">${skip.join('；')}。</p>` : ''}</div>
+    <div class="tr-eff">${effBlock(c, 'c')}${P.rows.some(r => r.from || r.later.length) ? `<p class="stk">${ic('layers')}<span>已經排好的改價<b>都照舊</b>，不會被這次取消；每一項的排程寫在左邊。</span></p>` : ''}</div>
+    <div class="tr-im${c.conflict ? ' stale' : ''}" aria-live="polite"><h3>${ic('receipt')}誰用原價</h3>${stale}${im}</div>
+    <div class="tr-go">${ferr}<button class="btn secondary" data-do="colCancel" data-key="c-cancel">取消</button>${c.conflict ? `<button class="btn primary" data-do="colReload" data-key="c-reload">${ic('refresh')}重新載入價格</button>` : save}</div></div></td></tr></tbody>`;
+}
+function matrix() {
+  const groups = Object.keys(CATS).map(c => {
+    const all = SV.filter(s => s.cat === c), rows = all.filter(inScope);
+    const order = [...rows.filter(s => s.st !== 'off'), ...rows.filter(s => s.st === 'off')];
+    if (!order.length) return '';
+    const C = CATS[c];
+    return `<tbody><tr class="band"><th colspan="6" scope="colgroup"><div class="bh">${ic(c === 'groom' ? 'lock' : C.icon)}${C.n}<small>${C.note}</small></div></th></tr>${order.map(rowHtml).join('')}</tbody>`;
+  }).join('');
+  const hidden = SV.filter(s => !inScope(s)).length;
+  const foot = hidden ? `<tbody><tr class="hidn"><td colspan="6">${BR[state.scope]}不提供的 ${hidden} 項沒有列出<button class="textbtn" data-do="scopeAll" data-key="scope-all">顯示全部分店</button></td></tr></tbody>` : '';
+  /* the size headers stay in view while scrolling, and open the whole-column editor */
+  const colH = (k, l) => !admin() ? l : `<button class="colh" data-do="colOpen" data-k="${k}" data-key="col-${k}" aria-expanded="${state.col?.k === k}" aria-describedby="colh-d"${!canWrite() ? ' aria-disabled="true" title="離線中不能改價"' : ''}>${l}${ic('pen')}</button>`;
+  return `<div class="sheet"><table class="mx" aria-label="服務價目：每列一項服務，每欄一種體型"><colgroup><col class="c-n">${SIZES.map(() => '<col>').join('')}<col class="c-b"></colgroup>
+    <thead><tr><th scope="col">服務</th>${SIZES.map(([k, l]) => `<th scope="col" class="z">${colH(k, l)}</th>`).join('')}<th scope="col" class="b">分店與契約</th></tr></thead>${state.col ? colTray() : ''}${groups}${foot}</table>${admin() ? '<span class="sr" id="colh-d">整欄調價</span>' : ''}</div>`;
+}
+function phoneCards() {
+  return Object.keys(CATS).map(c => {
+    const rows = SV.filter(s => s.cat === c && inScope(s));
+    if (!rows.length) return '';
+    return `<h2 class="pgrp">${CATS[c].n}<small>${CATS[c].note}</small></h2><ul class="pcards">${rows.map(s => `<li class="pcard${s.st === 'off' ? ' off' : ''}"><div class="ph"><button class="nlink" data-do="openSvc" data-id="${s.id}" data-key="n-${s.id}">${esc(s.name)}</button>${stChip(s)}</div>
+      <dl class="psz">${(s.same ? [['s','各體型']] : SIZES).map(([k, l]) => { const v = s.p[k]; return `<dt>${l}</dt><dd><span class="pv">${v ? `${v[0] == null ? `<span class="miss">${ic('warn')}缺價格</span>` : money(v[0])}${s.night ? '<span class="tm">每晚</span>' : v[1] ? `<span class="tm">${durL(v[1])}</span>` : `<span class="miss">${ic('warn')}缺時間</span>`}` : '<span class="tm">不提供</span>'}</span>${schPills(s, k)}</dd>`; }).join('')}</dl>
+      <div class="bc" style="padding:0">${brLine(s)}${ctLine(s)}</div></li>`).join('')}</ul>`;
+  }).join('');
+}
+
+/* ---------- 服務: the panel ---------- */
+const peOf = s => ({name:s.name, desc:s.desc, cat:s.cat, need:s.need, tpl:[...s.tpl], res:s.res, online:s.online, ao:[...s.ao]});
+const peDirty = s => state.pe && JSON.stringify(state.pe) !== JSON.stringify(peOf(s));
+const sw = (key, on, doAct, label, small, dis, extra = '') => `<button class="swr" role="switch" aria-checked="${on}" data-do="${doAct}" data-key="${key}" ${extra}${dis ? ` aria-disabled="true"${typeof dis === 'string' ? ` aria-describedby="${key}-r"` : ''}` : ''}><span class="lb">${label}${small || (typeof dis === 'string' ? `<small id="${key}-r">${dis}</small>` : '')}</span><span class="sw" aria-hidden="true"></span></button>`;
+function contractSec(d, ro, isNew) {
+  const cands = TPL_FOR[d.cat];
+  const tick = k => ro ? `<p class="ckl ro">${ic('doc')}<span>${tplName(k)}</span></p>` : `<label class="ckl"><input type="checkbox" data-pt="${k}" data-key="pt-${k}"${d.tpl.includes(k) ? ' checked' : ''}><span>${tplName(k)}<small>${k === 'senior' ? '另加高齡犬的風險告知' : k === 'stay' ? '住宿期間的照顧與緊急送醫授權' : '依農業部犬貓美容定型化契約範本'}</small></span></label>`;
+  const head = d.cat === 'groom'
+    ? `<div class="lockf">${ic('lock')}<span><b>一律需要簽約</b><small>美容服務依農業部「犬貓美容定型化契約」，飼主到店前或報到時要簽好。這個開關不能關。</small></span></div>${sw('p-need-lock', true, 'noop', '需要簽約', '', '洗澡與美容一律需要簽約')}`
+    : ro ? `<p class="ckl ro">${d.need ? '需要簽約' : '不需要簽約'}</p>` : sw('p-need', d.need, 'pNeed', '需要簽約', `<small>${d.cat === 'stay' ? '住宿建議簽「住宿同意書」' : '快速整理通常不需要'}</small>`);
+  const list = d.need ? `<div><p class="hint" style="margin-bottom:4px">用哪幾份契約（在「契約模板」發布的才能選）</p>${(ro ? d.tpl : cands).map(tick).join('') || '<p class="hint">還沒選</p>'}</div>` : '';
+  const link = !isNew ? `<a class="textbtn" href="../m07-contract-templates/index.html?role=${state.role}&t=${d.tpl[0] || 'groom'}" data-key="to-m07">${ic('doc','sm')}到契約模板查看</a>` : '';
+  return `<section class="dsec"><h3>${ic('doc','sm')}契約</h3>${head}${list}${d.need && link ? `<div class="tlinks">${link}</div>` : ''}</section>`;
+}
+function svcPanel(s) {
+  const ro = !admin() || s.st === 'off';
+  if (!ro && !state.pe) state.pe = peOf(s);
+  const d = !ro ? state.pe : peOf(s);
+  const dirty = !ro && peDirty(s);
+  const szl = `<dl class="szl">${(s.same ? [['s','各體型']] : SIZES).map(([k, l]) => { const v = s.p[k]; return `<dt>${l}</dt><dd>${v ? `${v[0] == null ? `<span class="miss">${ic('warn')}缺價格</span>` : money(v[0])}${s.night ? '<span class="tm">每晚</span>' : v[1] ? `<span class="tm">${durL(v[1])}</span>` : `<span class="miss">${ic('warn')}缺時間</span>`}` : '<span class="none">不提供</span>'}${schPills(s, k)}</dd>`; }).join('')}</dl>`;
+  const editP = admin() && s.st !== 'off' && !state.phone ? (canWrite() ? `<button class="textbtn" data-do="editRow" data-id="${s.id}" data-k="${offered(s)[0] || (s.same ? 's' : 's')}" data-key="p-edit">${ic('pen','sm')}在表格裡改價</button>` : `<span class="pre-x" style="align-items:flex-start"><button class="textbtn" aria-disabled="true" data-key="p-edit">${ic('pen','sm')}在表格裡改價</button><span class="reason">需連線</span></span>`) : '';
+  /* branches: the manager can only switch their own */
+  const brs = `<div class="swl">${BRK.map(b => {
+    const on = s.br.includes(b), mine = admin() || me().br === b;
+    const dis = s.st === 'off' ? '服務已停用' : !mine ? '只能開關你的分店' : !canWrite() ? '需連線' : s.cat === 'stay' && b === 'xy' && !on ? '信義店沒有狗房、貓房，先到「資源」新增' : '';
+    const cnt = future(s.id, null).filter(a => a.br === b).length;
+    return sw(`br-${b}`, on, 'brTog', BR[b], dis ? '' : `<small>${on ? `提供中${cnt ? `・已有 ${cnt} 筆未來預約` : ''}` : '不提供'}</small>`, dis || false, `data-b="${b}"`);
+  }).join('')}</div>`;
+  /* every pending schedule is its own item, in date order, each removable on its own */
+  const pend = s.st !== 'off' ? schsOf(s).map(x => `<li class="pend"><span><b>${dShort(x.d)} 起</b>　${Object.entries(x.p).filter(([k]) => !s.same || k === 's').map(([k, v]) => { const b = baseAt(s, k, x.d - 1); return `${s.same ? '各體型' : SZ[k]} ${b && b[0] != null ? money(b[0]) : '不提供'} → ${v ? money(v[0]) : '不提供'}`; }).join('・')}</span><small>排程中・${x.made} ${x.by}設定</small>${admin() ? writeBtn(`sch-x-${x.d}`, '取消這個排程', 'cancelSch', null, 'textbtn', `data-d="${x.d}"`) : ''}</li>`).join('') : '';
+  const hist = `<ol class="hist">${pend}${s.hist.map(([t, w, by]) => `<li><time>${t}</time><span>${w}</span><small>${by}</small></li>`).join('')}</ol>`;
+  const o = (grp, v, l, cur, dis) => `<button class="opt" role="radio" aria-checked="${cur === v}" data-do="${grp}" data-v="${v}" data-key="${grp}-${v}" tabindex="${cur === v ? 0 : -1}"${dis ? ' aria-disabled="true"' : ''}>${l}</button>`;
+  const info = ro ? `<dl class="kv"><dt>說明</dt><dd>${esc(s.desc)}<small>飼主在 LIFF 與公開網頁看到這句</small></dd><dt>占用</dt><dd>${RES[s.res]}</dd><dt>線上預約</dt><dd>${s.online ? '飼主可以自己預約' : '只能由店內建立'}</dd><dt>加購</dt><dd>${s.ao.length ? s.ao.map(a => FEES.addon.find(x => x.id === a)?.n).filter(Boolean).join('、') : '沒有'}</dd></dl>`
+    : `<div class="field"><label for="pe-name">名稱</label><input id="pe-name" data-pe="name" data-key="pe-name" value="${esc(d.name)}" maxlength="20"${state.pe?.err?.name ? ' aria-invalid="true" aria-describedby="pe-name-e"' : ''}>${state.pe?.err?.name ? `<span class="err" id="pe-name-e">${state.pe.err.name}</span>` : ''}</div>
+      <div class="field"><label for="pe-desc">飼主看到的說明</label><textarea id="pe-desc" data-pe="desc" data-key="pe-desc" maxlength="40">${esc(d.desc)}</textarea><span class="hint">顯示在 LIFF 與公開網頁的服務名稱下方，40 字內</span></div>
+      ${s.cat !== 'stay' ? `<fieldset class="fs"><legend id="pc-h">分類</legend><div class="rg" role="radiogroup" aria-labelledby="pc-h">${o('pCat', 'groom', '洗澡與美容', d.cat)}${o('pCat', 'quick', '快速整理', d.cat)}</div>${d.cat !== s.cat ? `<span class="hint">${d.cat === 'groom' ? '改成洗澡與美容後一律需要簽約' : '改成快速整理後可以選擇不需簽約'}</span>` : ''}</fieldset>` : ''}
+      <fieldset class="fs"><legend id="pr-h">占用資源</legend><div class="rg" role="radiogroup" aria-labelledby="pr-h">${(s.cat === 'stay' ? ['cage'] : ['table', 'none']).map(r => o('pRes', r, RES[r], d.res)).join('')}</div></fieldset>
+      <div class="swl">${sw('p-online', d.online, 'pOnline', '飼主可以自己預約', `<small>${d.online ? '在 LIFF 與公開網頁顯示' : '只能由店內建立，飼主看不到'}</small>`)}</div>
+      ${s.cat !== 'stay' ? `<div><p class="lbl" style="font-size:.875rem;font-weight:800">可搭配的加購</p><p class="hint" style="margin-bottom:2px">飼主預約時可以勾；店員收款時也可以加</p>${FEES.addon.filter(a => !a.off).map(a => `<label class="ckl"><input type="checkbox" data-pa="${a.id}" data-key="pa-${a.id}"${d.ao.includes(a.id) ? ' checked' : ''}><span>${esc(a.n)}　${money(a.a)}</span></label>`).join('')}</div>` : ''}`;
+  /* activation for a 未完成 service */
+  let act = '';
+  if (s.st === 'draft') {
+    const miss = missingOf(s), noSize = !offered(s).length, noBr = !s.br.length, noTpl = s.need && !s.tpl.length;
+    const bl = [...miss, noSize ? '至少要提供一種體型' : '', noBr ? '至少選一家分店' : '', noTpl ? '選一份契約' : ''].filter(Boolean);
+    act = `<section class="dsec" style="border-top:0;padding-top:0"><div class="blk${bl.length ? '' : ' ok'}" role="status">${bl.length ? `<span>啟用前還要補：</span><ul>${bl.map(b => `<li>${ic('warn')}${b}</li>`).join('')}</ul>` : `<span>${ic('check','sm')} 資料齊全，可以啟用</span>`}</div>
+      ${admin() ? (bl.length || dirty || !canWrite() ? `<span class="pre-x" style="align-items:stretch"><button class="btn ${dirty ? 'secondary' : 'primary'} wide" aria-disabled="true" aria-describedby="p-on-r" data-key="p-on">${ic('play')}啟用服務</button><span class="reason" id="p-on-r">${!canWrite() ? '需連線' : dirty ? '先儲存下面的變更' : miss.length ? '在表格裡補齊價格與時間' : '補齊上面的項目'}</span></span>` : `<button class="btn primary wide" data-do="enableSvc" data-key="p-on">${ic('play')}啟用服務</button>`) : ''}</section>`;
+  }
+  const go = !ro ? `<div class="go">${dirty ? (canWrite() ? `<button class="btn primary" data-do="savePe" data-key="pe-save">${ic('check')}儲存變更</button><button class="btn secondary" data-do="resetPe" data-key="pe-reset">放棄變更</button>` : `<button class="btn primary" aria-disabled="true" aria-describedby="pe-r" data-key="pe-save">${ic('check')}儲存變更</button><span class="reason" id="pe-r">需連線</span>`) : `<p class="hint" style="text-align:center">${ic('check','sm')} 沒有未儲存的變更</p>`}${state.pe?.conflict ? `<p class="ferr" role="alert">${ic('warn')}<span>${state.pe.conflict}</span></p>` : ''}</div>` : '';
+  const end = admin() ? `<ul class="endlist">${s.st === 'off' ? `<li><button class="re" data-do="reEnable" data-key="re-on"${!canWrite() ? ' aria-disabled="true"' : ''}>${ic('play')}<span class="lb">重新啟用<small>${missingOf(s).length ? '啟用前要先補齊價格與時間' : '飼主與店員又能選到這個服務'}</small></span></button></li>` : `<li><button data-do="stopSvc" data-key="stop"${!canWrite() ? ' aria-disabled="true"' : ''}>${ic('ban')}<span class="lb">停用服務<small>新預約看不到；已建立的預約照常進行</small></span></button></li>`}</ul>` : '';
+  return `<div class="dp-top"><button class="ibtn x" data-do="closePanel" data-key="dp-x" aria-label="關閉">${ic('x')}</button></div>
+    <div class="dph"><span class="ttile${s.st === 'draft' ? ' dash' : ''}" aria-hidden="true">${ic(CATS[s.cat].icon)}</span><div><h2 id="dp-h" tabindex="-1">${esc(s.name)}</h2><p>${CATS[s.cat].n}${stChip(s) ? stChip(s) : `<span class="chip success">提供中</span>`}</p></div></div>
+    ${act}
+    <section class="dsec"><h3>${ic('tag','sm')}價格與時間</h3>${szl}${editP ? `<div>${editP}</div>` : ''}</section>
+    <section class="dsec"><h3>${ic('store','sm')}分店</h3>${s.cat === 'stay' ? '<p class="hint">住宿要有狗房、貓房的分店才能提供</p>' : ''}${brs}</section>
+    ${contractSec(d, ro, false)}
+    <section class="dsec"><h3>${ic('list','sm')}預約設定</h3>${info}</section>
+    ${go}
+    <section class="dsec"><h3>${ic('shield','sm')}價格紀錄</h3><p class="hint">每次改價都寫入稽核紀錄；已建立的預約明細不會被改。</p>${hist}</section>
+    ${end}`;
+}
+/* ---------- new service ---------- */
+const ndInit = () => ({name:'', desc:'', cat:'groom', same:false, v:{s:['',''], m:['',''], l:['',''], c:['','']}, br:['zs','xy'], need:true, tpl:['groom'], res:'table', online:true, ao:[], err:{}});
+function newPanel() {
+  const d = state.nd, e = d.err || {};
+  const o = (grp, v, l, cur) => `<button class="opt" role="radio" aria-checked="${cur === v}" data-do="${grp}" data-v="${v}" data-key="${grp}-${v}" tabindex="${cur === v ? 0 : -1}">${l}</button>`;
+  const night = d.cat === 'stay';
+  const rows = (d.same ? [['s', '各體型']] : SIZES).map(([k, l]) => `<span class="sz" id="nz-${k}">${l}</span>
+    <label class="pin"><span aria-hidden="true">NT$</span><span class="sr">${l}價格${night ? '（每晚）' : ''}</span><input id="n-${k}-p" data-nk="${k}" data-ni="0" data-key="n-${k}-p" inputmode="numeric" autocomplete="off" value="${esc(d.v[k][0])}" placeholder="不提供"${e[k] ? ' aria-invalid="true"' : ''}></label>
+    ${night ? '<span class="hint">每晚</span>' : `<select class="fsel" id="n-${k}-t" data-nk="${k}" data-ni="1" data-key="n-${k}-t" aria-label="${l}時間"${e[k] === 't' ? ' aria-invalid="true"' : ''}><option value="">時間</option>${MINS.map(m => `<option value="${m}"${String(m) === String(d.v[k][1]) ? ' selected' : ''}>${durL(m)}</option>`).join('')}</select>`}
+    ${e[k] ? `<span class="gerr" role="alert">${e[k] === 't' ? '缺時間' : e[k] === 'p' ? '缺價格' : '價格要是整數'}</span>` : ''}`).join('');
+  return `<div class="dp-top"><button class="ibtn x" data-do="closePanel" data-key="dp-x" aria-label="關閉">${ic('x')}</button></div>
+    <div class="dph"><span class="ttile dash" aria-hidden="true">${ic('plus')}</span><div><h2 id="dp-h" tabindex="-1">新增服務</h2><p>建立後出現在價目表；啟用後飼主才看得到</p></div></div>
+    <div class="field"><label for="nd-name">名稱</label><input id="nd-name" data-nd="name" data-key="nd-name" value="${esc(d.name)}" maxlength="20" placeholder="例如：貓咪洗澡"${e.name ? ' aria-invalid="true" aria-describedby="nd-name-e"' : ''}>${e.name ? `<span class="err" id="nd-name-e" role="alert">${e.name}</span>` : ''}</div>
+    <fieldset class="fs"><legend id="nc-h">分類</legend><div class="rg" role="radiogroup" aria-labelledby="nc-h">${o('nCat', 'groom', '洗澡與美容', d.cat)}${o('nCat', 'quick', '快速整理', d.cat)}${o('nCat', 'stay', '住宿', d.cat)}</div></fieldset>
+    <div class="field"><label for="nd-desc">飼主看到的說明</label><textarea id="nd-desc" data-nd="desc" data-key="nd-desc" maxlength="40" placeholder="例如：洗澡・吹整・剪指甲"></textarea></div>
+    <section class="dsec"><h3>${ic('tag','sm')}價格與時間</h3><p class="hint">空著的體型代表不提供；有價格就要有時間。</p>
+      ${night ? '' : `<label class="ckl" style="min-height:40px;padding:4px"><input type="checkbox" id="nd-same" data-key="nd-same"${d.same ? ' checked' : ''}><span>各體型同價</span></label>`}
+      <div class="ngrid" role="group" aria-label="各體型價格與時間"><span class="gh">體型</span><span class="gh">價格</span><span class="gh">${night ? '' : '時間'}</span>${rows}</div>${e.size ? `<p class="ferr" role="alert">${ic('warn')}<span>${e.size}</span></p>` : ''}</section>
+    <section class="dsec"><h3>${ic('store','sm')}分店</h3><div class="swl">${BRK.map(b => sw(`nb-${b}`, d.br.includes(b), 'nBr', BR[b], '', night && b === 'xy' ? '信義店沒有狗房、貓房' : false, `data-b="${b}"`)).join('')}</div>${e.br ? `<p class="ferr" role="alert">${ic('warn')}<span>${e.br}</span></p>` : ''}</section>
+    ${contractSec(d, false, true)}
+    <div class="go"><button class="btn primary" data-do="newGo" data-v="on" data-key="nd-on">${ic('play')}建立並啟用</button><button class="btn secondary" data-do="newGo" data-v="draft" data-key="nd-draft">先存成未完成</button><p class="hint" style="text-align:center">「未完成」只有你看得到，補齊後再啟用</p></div>`;
+}
+
+/* ---------- 加購・費用・折扣 ---------- */
+function feeRow(g, x) {
+  const e = state.fe && state.fe.id === x.id ? state.fe : null;
+  const neg = g === 'disc';
+  const use = g === 'addon' ? (() => { const n = SV.filter(s => s.ao.includes(x.id) && s.st !== 'off'); return n.length ? `可搭配 ${n.map(s => s.name).join('、')}` : '沒有服務可搭配；收款時仍可加'; })() : esc(x.d || '');
+  if (e) {
+    const prev = x.a == null ? '' : Math.abs(x.a);
+    return `<tr class="cur"><th scope="row"><div class="fedit"><label class="sr" for="fe-n">名稱</label><input class="tin" id="fe-n" data-fe="n" data-key="fe-n" value="${esc(e.n)}" maxlength="16" placeholder="名稱"${e.err?.n ? ' aria-invalid="true"' : ''}>${e.err?.n ? `<span class="cerr" role="alert">${e.err.n}</span>` : ''}</div></th>
+      <td><div class="ec"><span class="was">${!e.isNew && String(prev) !== String(e.a).replace(/[,\s]/g, '') ? `原 <del>${money(prev)}</del>` : ''}</span><label class="pin"><span aria-hidden="true">${neg ? '−NT$' : 'NT$'}</span><span class="sr">金額</span><input id="fe-a" data-fe="a" data-key="fe-a" inputmode="numeric" value="${esc(e.a)}"${e.err?.a ? ' aria-invalid="true"' : ''}></label>${e.err?.a ? `<span class="cerr" role="alert">${e.err.a}</span>` : ''}</div></td>
+      <td class="use"><span class="hint">${e.isNew ? '存檔後收款畫面就能選' : '立即生效；已加在預約上的明細不變'}</span></td>
+      <td><div class="fgo">${e.busy ? `<button class="btn primary busy" aria-disabled="true" data-key="fe-save"><span class="spin" aria-hidden="true"></span>儲存中</button>` : `<button class="btn primary" data-do="feSave" data-key="fe-save">${ic('check')}儲存</button>`}<button class="btn secondary" data-do="feCancel" data-key="fe-cancel">取消</button></div></td></tr>`;
+  }
+  const can = admin() && !x.off;
+  const amt = `<span class="sr">${esc(x.n)}：</span><span class="pr">${neg ? '−' : ''}${money(x.a)}</span>`;
+  const cell = can ? `<button class="cell" data-do="feEdit" data-g="${g}" data-id="${x.id}" data-key="f-${x.id}"${!canWrite() ? ' aria-disabled="true" title="離線中不能改價"' : ''}>${amt}<span class="sr">，改金額</span></button>` : `<div class="cell">${amt}</div>`;
+  const acts = admin() ? (x.off ? writeBtn(`fo-${x.id}`, '重新啟用', 'feOn', 'play', 'textbtn', `data-g="${g}" data-id="${x.id}"`) : writeBtn(`fx-${x.id}`, '停用', 'feOff', 'ban', 'textbtn', `data-g="${g}" data-id="${x.id}"`)) : '';
+  return `<tr class="${[x.off ? 'off' : '', state.fresh === x.id ? 'fresh' : ''].join(' ')}"><th scope="row"><div class="fname"><b>${esc(x.n)}</b>${x.off ? chip('neutral', '已停用') : ''}</div></th><td>${cell}</td><td class="use">${use}</td><td><div class="acts">${acts}</div></td></tr>`;
+}
+function feeView() {
+  const body = Object.keys(FGRP).map(g => {
+    const G = FGRP[g], list = [...FEES[g].filter(x => !x.off), ...FEES[g].filter(x => x.off)];
+    const add = admin() ? `<span class="bact">${writeBtn(`fa-${g}`, G.add, 'feNew', 'plus', 'textbtn', `data-g="${g}"`)}</span>` : '';
+    const nw = state.fe && state.fe.isNew && state.fe.g === g ? feeRow(g, {id:state.fe.id}) : '';
+    return `<tbody><tr class="band"><th colspan="4" scope="colgroup"><div class="bh">${ic(g === 'disc' ? 'tag' : g === 'fee' ? 'receipt' : 'plus')}${G.n}<small>${G.note}</small>${add}</div></th></tr>${list.map(x => feeRow(g, x)).join('')}${nw}</tbody>`;
+  }).join('');
+  return `<div class="sheet"><table class="mx fx" aria-label="加購、費用與折扣價目"><colgroup><col class="c-n"><col class="c-m"><col class="c-u"><col class="c-a"></colgroup>
+    <thead><tr><th scope="col">項目</th><th scope="col" class="z">金額</th><th scope="col" class="u">說明</th><th scope="col"><span class="sr">動作</span></th></tr></thead>${body}</table></div>
+    <p class="fnote">${ic('info')}<span><b>取消費、未到費</b>依預約金額的比例計算，在「取消與改期政策」設定。<a href="../cancel-policy/index.html?role=${state.role}" data-key="to-pol">到取消與改期政策</a></span></p>`;
+}
+
+/* ---------- 住宿計價 ---------- */
+function stayView() {
+  const s = sv('stay'), d = state.st || STAY, dirty = state.st && JSON.stringify({rule:state.st.rule, late:state.st.late}) !== JSON.stringify(STAY);
+  const ro = !admin();
+  const o = (v, big, small) => `<button class="bopt" role="radio" aria-checked="${d.rule === v}" data-do="stRule" data-v="${v}" data-key="st-${v}" tabindex="${d.rule === v ? 0 : -1}"${ro ? ' aria-disabled="true"' : ''}><span class="rd" aria-hidden="true">${ic('check')}</span><b>${big}</b><small>${small}</small></button>`;
+  const one = d.rule === 'rolling', lateN = parseN(d.late), lateOk = lateN != null && !Number.isNaN(lateN);
+  const night = s.p.s[0];
+  const go = ro ? '' : `<div class="sgo">${dirty ? `<button class="btn secondary" data-do="stReset" data-key="st-reset">放棄變更</button>${!canWrite() ? `<span class="pre-x"><button class="btn primary" aria-disabled="true" data-key="st-save">${ic('check')}儲存</button><span class="reason">需連線</span></span>` : !lateOk ? `<span class="pre-x"><button class="btn primary" aria-disabled="true" data-key="st-save">${ic('check')}儲存</button><span class="reason">逾時費要是整數</span></span>` : `<button class="btn primary" data-do="stSave" data-key="st-save">${ic('check')}儲存</button>`}` : `<p class="hint">${ic('check','sm')} 沒有未儲存的變更</p>`}</div>`;
+  return `<div class="stg"><section class="panel" aria-labelledby="st-h">
+      <h2 id="st-h">${ic('moon')}每晚價格</h2>
+      <div class="nightsum">${SIZES.map(([k, l]) => `<span>${l}${s.p[k] ? money(s.p[k][0]) : '<b>不提供</b>'}</span>`).join('')}</div>
+      <div>${admin() ? `<button class="textbtn" data-do="toStayRow" data-key="st-row">${ic('pen','sm')}在服務表改每晚價格</button>` : ''}<p class="hint" style="margin-top:6px">只有${s.br.map(b => BR[b]).join('、')}提供住宿（${s.br.length === 1 ? '信義店沒有狗房、貓房' : ''}）。</p></div>
+      <h2 style="margin-top:8px">${ic('cal')}用一個例子決定怎麼算晚數</h2>
+      <p class="q" id="st-q">晚上 8 點入住，隔天晚上 8 點前接走，算幾晚？</p>
+      <div class="opts" role="radiogroup" aria-labelledby="st-q">${o('rolling', '1 晚', '24 小時制・每滿 24 小時算 1 晚')}${o('calendar', '2 晚', '日曆夜・跨過日界時間就多算 1 晚')}</div>
+      <h2 style="margin-top:8px">${ic('clock')}逾時費</h2>
+      <div class="lfee"><span>超過預計退房時間，每小時加收</span><label class="pin"><span aria-hidden="true">NT$</span><span class="sr">每小時逾時費</span><input id="st-late" data-key="st-late" inputmode="numeric" value="${esc(d.late)}"${ro ? ' disabled' : ''}${!lateOk ? ' aria-invalid="true"' : ''}></label></div>
+      <p class="hint">日界時間、寬限分鐘和逾時單位在「分店」設定（中山店：日界 12:00・寬限 30 分・每 1 小時）。改了只影響之後新建立的住宿預約。</p>
+      ${go}</section>
+    <section class="panel" aria-labelledby="see-h"><h2 id="see-h">${ic('eye')}飼主會看到什麼</h2>
+      <div class="bubble"><p class="from">LINE・寵派小管家（${SHOP}）</p><b>住宿預約確認</b><ul><li>入住 10/17（六）20:00</li><li>${one ? '預計退房 10/18（日）20:00 前' : '接回 10/18（日）20:00，跨過日界時間算第 2 晚'}</li><li>小型犬・共 ${one ? 1 : 2} 晚・${money(night * (one ? 1 : 2))}</li><li>超過預計退房時間，每小時加收 ${money(lateOk ? lateN : 0)}</li></ul></div>
+      <p class="hint">預約確認頁也寫一樣的內容。退房時逾時費是獨立一行明細。</p></section></div>`;
+}
+
+/* ---------- render ---------- */
+function noAccess() {
+  return `<section class="noacc" role="alert"><h2>${ic('lock','lg')}服務與價格只有店長以上能看</h2><p>櫃台與美容師不需要管理價目；收款時的加購、費用與折扣，可以直接在收款畫面選。</p><a class="textbtn" href="../m02-appointments/index.html?role=desk" data-key="na-cal">${ic('cal','sm')}回預約行事曆</a></section>`;
+}
+function mainBody() {
+  if (me().none) return noAccess();
+  if (state.loadFail) return `<section class="fail" role="alert"><h2>${ic('warn','lg')}服務與價格載入失敗</h2><p>網路或伺服器沒有回應。再試一次通常就好；飼主與店員看到的價格不受影響。</p>${state.retrying ? `<button class="btn secondary busy" aria-disabled="true" data-key="retry"><span class="spin" aria-hidden="true"></span>重新載入中</button>` : `<button class="btn secondary" data-do="retry" data-key="retry">${ic('refresh')}再試一次</button>`}</section>`;
+  if (state.tab === 'fee') return feeView();
+  if (state.tab === 'stay') return stayView();
+  const wide = state.wide && state.panel;
+  const list = state.phone ? phoneCards() : matrix();
+  return `<div class="lay${wide ? ' withp' : ''}" style="margin-top:0"><div>${list}</div>${wide ? `<aside class="dp" aria-labelledby="dp-h" data-key="dp">${panelBody()}</aside>` : ''}</div>`;
+}
+const panelBody = () => state.panel?.kind === 'new' ? newPanel() : state.panel ? svcPanel(sv(state.panel.id)) : '';
+function render(focusKey) {
+  const app = $('app');
+  const keep = focusKey || document.activeElement?.dataset?.key;
+  app.className = state.compact ? 'compact' : state.rail ? 'rail' : '';
+  const top = state.compact ? `<div class="topbar"><button class="ibtn" data-key="menu" data-do="openNav" aria-label="開啟選單">${ic('menu')}</button><span class="mark" aria-hidden="true">${ic('mark')}</span><b>服務與價格</b></div>` : '';
+  const ok = !me().none && !state.loadFail;
+  app.innerHTML = `${state.compact ? '' : sideNav()}<main>${top}${me().none ? '' : pageHead()}${ok ? tabs() : ''}${ok ? `<p class="rule">${RULES[state.tab]}</p>` : ''}<div class="wrap">${mainBody()}</div></main>`;
+  renderOverlayPanel();
+  const pt = state.panel?.kind === 'new' ? '新增服務・' : state.panel ? `${sv(state.panel.id).name}・` : '';
+  document.title = `${pt}服務與價格・寵派商家中心`;
+  if (keep) { const el = document.querySelector(`#app [data-key="${keep}"], #layer [data-key="${keep}"]`); if (el && el !== document.activeElement) el.focus({preventScroll:true}); }
+  state.fresh = null; state.roll = null; state.drawSch = null;
+  syncUrl();
+}
+function renderOverlayPanel() {
+  const l = $('layer'), ex = l.querySelector('.pnl-s');
+  const body = state.wide || !state.panel || state.tab !== 'svc' || me().none ? '' : panelBody();
+  if (!body) { ex?.remove(); return; }
+  const html = `<div class="dp sheet" role="dialog" aria-modal="true" aria-labelledby="dp-h">${body}</div>`;
+  if (ex) { const sc = ex.firstChild.scrollTop; ex.innerHTML = html; ex.firstChild.style.animation = 'none'; ex.firstChild.scrollTop = sc; return; }
+  l.insertAdjacentHTML('afterbegin', `<div class="scrim side-r pnl-s" data-do="scrimPanel">${html}</div>`);
+}
+function announce(t) { const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+function say(text) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status">${esc(text)}</div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 5200);
+}
+const writeBtn = (key, label, doAct, icon, cls = 'textbtn', extra = '') => canWrite()
+  ? `<button class="${cls}" data-do="${doAct}" data-key="${key}" ${extra}>${icon ? ic(icon, 'sm') : ''}${label}</button>`
+  : `<span class="pre-x"><button class="${cls}" aria-disabled="true" aria-describedby="${key}-r" data-key="${key}">${icon ? ic(icon, 'sm') : ''}${label}</button><span class="reason" id="${key}-r">需連線</span></span>`;
+
+/* ---------- dialogs ---------- */
+function openDlg(d) { state.dlg = Object.assign({busy:false, ret:document.activeElement?.dataset?.key}, d); renderDlg('dg-h'); }
+function closeDlg(focus) { const ret = focus || state.dlg?.ret; state.dlg = null; renderDlg(); if (ret) document.querySelector(`[data-key="${ret}"]`)?.focus(); }
+function renderDlg(focus) {
+  const l = $('layer'); l.querySelector('.dlg-s')?.remove();
+  const d = state.dlg; if (!d) return;
+  const ok = d.single ? '' : d.busy ? `<button class="btn ${d.danger ? 'danger' : 'primary'} busy" data-key="dg-ok" aria-disabled="true"><span class="spin" aria-hidden="true"></span>處理中</button>` : `<button class="btn ${d.danger ? 'danger' : 'primary'}" data-key="dg-ok" data-do="dlgOk"${d.okOff ? ' aria-disabled="true"' : ''}>${d.danger ? ic('warn') : ''}${d.ok}</button>`;
+  const no = `<button class="btn secondary" data-key="dg-no" ${d.busy ? 'aria-disabled="true"' : 'data-do="closeDlg"'}>${d.no || '返回'}</button>`;
+  const err = d.err ? `<p class="ferr" role="alert">${ic('warn')}<span>${d.err}</span></p>` : '';
+  l.insertAdjacentHTML('beforeend', `<div class="scrim dlg-s" data-do="scrimDlg" style="z-index:85"><div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dg-h" aria-describedby="dg-d"><h2 id="dg-h" tabindex="-1">${d.title}</h2>${d.lede ? `<p class="lede" id="dg-d">${d.lede}</p>` : ''}<dl class="cdl"${d.lede ? '' : ' id="dg-d"'}>${d.rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>${d.body || ''}${err}<div class="dbtns">${no}${ok}</div></div></div>`);
+  const f = focus && (document.getElementById(focus) || l.querySelector(`[data-key="${focus}"]`)); f?.focus();
+}
+const apptList = list => list.length ? `<ul class="kp" style="margin-top:0">${list.map(a => `<li>${face(a.pet, 32)}<span>${PETS[a.pet]}・${esc(a.owner)}<small>${a.t === '—' ? '住宿中' : `${dLabel(a.d)} ${a.t}`}・${BR[a.br]}</small></span></li>`).join('')}</ul>` : '';
+
+/* ---------- writes ---------- */
+function takeConflict() { if (state.nextWrite !== 'conflict') return false; state.nextWrite = 'ok'; $('p-write').value = 'ok'; return true; }
+const H = (s, w) => s.hist.unshift(['2026/10/9', w, me().who]);
+const plainW = (s, c) => { const lab = s.same ? '各體型' : SZ[c.k]; return c.np == null ? `${lab}不再提供` : c.op == null && c.ot == null ? `${lab}新增 NT$${fmt(c.np)}` : [c.op !== c.np ? `${lab} NT$${c.op == null ? '—' : fmt(c.op)} → NT$${fmt(c.np)}` : '', c.ot !== c.nt ? `${c.op !== c.np ? '' : lab}時間 ${durL(c.ot) || '—'} → ${durL(c.nt)}` : ''].filter(Boolean).join('・'); };
+/* one write path for the row and the column editors: day 0 changes today's price, a later day adds or merges a schedule.
+   Other schedules are never dropped: an earlier or later one stays, one on the same date takes the new value size by size. */
+function writePrice(s, d, ch) {
+  const val = c => c.np == null && c.nt == null ? null : s.night ? [c.np] : [c.np, c.nt];
+  const keys = c => s.same ? SIZES.map(([k]) => k) : [c.k];
+  if (d) {
+    let x = schsOf(s).find(y => y.d === d);
+    if (!x) { x = {d, p:{}}; s.schs.push(x); s.schs.sort((a, b) => a.d - b.d); }
+    ch.forEach(c => keys(c).forEach(k => { x.p[k] = val(c); }));
+    Object.assign(x, {by:me().who, made:'10/9（五）'});
+    return null;
+  }
+  const old = {};
+  ch.forEach(c => { old[c.k] = s.p[c.k]; keys(c).forEach(k => { s.p[k] = val(c); }); });
+  return old;
+}
+function commitRow() {
+  const e = state.edit, s = sv(e.id), ch = changesOf(s, e), live = s.st === 'on', d = live ? effD(e) : 0;
+  if (takeConflict()) { e.busy = false; e.conflict = `${s.name}的價格 11:24 在另一台裝置被修改，這次沒有存。重新載入看過最新價格後再改。`; render('e-reload'); announce(e.conflict); return; }
+  const words = ch.map(c => plainW(s, c)).join('・');
+  const pr = ch.filter(c => c.op !== c.np);
+  const keep = d ? future(s.id, pr.map(c => c.k), d).length : future(s.id, pr.map(c => c.k)).length;
+  const old = writePrice(s, live ? d : 0, ch);
+  if (live && d) { H(s, `排程 ${dShort(d)} 起：${words}`); state.drawSch = {ids:[s.id], d}; }
+  else { H(s, live ? words : `補齊：${words}`); state.roll = {id:s.id, old}; }
+  state.edit = null;
+  const focusK = `c-${s.id}-${ch[0].k}`;
+  render(focusK); document.querySelector(`[data-key="${focusK}"]`)?.focus({preventScroll:true});
+  const kept = !pr.length ? '' : !keep ? `；${d ? `${dShort(d)} 之後` : ''}還沒有預約，沒有人用原價` : `；已建立的 ${keep} 筆${d ? ` ${dShort(d)} 之後的` : ''}預約維持原價`;
+  const msg = !live ? `已存「${s.name}」：${words}` : `${s.name}：${words}，${d ? `${dShort(d)} 起生效` : '已生效'}${kept}`;
+  say(msg); announce(`${msg}。已寫入稽核紀錄。`);
+}
+/* the column editor saves one change per affected service: one schedule each, or today's price each */
+function commitCol() {
+  const c = state.col, P = colPlan(c), d = effD(c), lab = SZ[c.k];
+  if (takeConflict()) { c.busy = false; c.conflict = `${lab}的價格 11:24 在另一台裝置被修改，這次沒有存。重新載入看過最新價格後再調。`; render('c-reload'); announce(c.conflict); return; }
+  const adj = c.mode === 'pct' ? `${P.n > 0 ? '+' : '−'}${Math.abs(P.n)}%` : `${P.n > 0 ? '+' : '−'}NT$${fmt(P.n)}`;
+  P.ch.forEach(r => {
+    writePrice(r.s, d, [{k:c.k, op:r.b[0], np:r.np, nt:r.s.night ? null : r.b[1]}]);
+    H(r.s, `${d ? `排程 ${dShort(d)} 起：` : ''}${lab}整欄 ${adj}・NT$${fmt(r.b[0])} → NT$${fmt(r.np)}`);
+  });
+  if (d) state.drawSch = {ids:P.ch.map(r => r.s.id), d};
+  state.col = null;
+  render(`col-${c.k}`); document.querySelector(`[data-key="col-${c.k}"]`)?.focus({preventScroll:true});
+  const n = P.list.length, kept = !n ? `${d ? `${dShort(d)} 之後` : ''}還沒有預約，沒有人用原價` : `已建立的 ${n} 筆${d ? ` ${dShort(d)} 之後的` : ''}預約維持原價`;
+  const msg = `${lab}整欄 ${adj}：${P.ch.length} 項，${d ? `${dShort(d)} 起生效` : '已生效'}；${kept}`;
+  say(msg); announce(`${msg}。已寫入稽核紀錄。`);
+}
+function commitStop() {
+  const s = sv(state.dlg.id), d = state.dlg;
+  if (takeConflict()) { d.busy = false; d.err = `${s.name}剛剛被其他人更新，這次沒有停用。關閉後重新看一次影響再試。`; d.okOff = true; renderDlg('dg-no'); announce(d.err); return; }
+  s.st = 'off'; s.offAt = '2026/10/9'; const hadSch = schsOf(s).length > 0; s.schs = []; H(s, `停用${hadSch ? '（排程改價一併取消）' : ''}`);
+  state.dlg = null; renderDlg(); state.pe = null; state.fresh = s.id;
+  render('stop'); document.querySelector('[data-key="re-on"]')?.focus();
+  say(`已停用「${s.name}」，已建立的 ${future(s.id, null).length} 筆預約照常進行`);
+}
+function commitBr() {
+  const d = state.dlg, s = sv(d.id);
+  if (takeConflict()) { d.busy = false; d.err = '這項服務剛剛被其他人更新，這次沒有改。關閉後再試一次。'; d.okOff = true; renderDlg('dg-no'); announce(d.err); return; }
+  s.br = s.br.filter(b => b !== d.b); H(s, `${BR[d.b]}不再提供`);
+  state.dlg = null; renderDlg(); render(`br-${d.b}`); document.querySelector(`[data-key="br-${d.b}"]`)?.focus();
+  say(`${BR[d.b]}不再提供「${s.name}」，已建立的預約照常進行`);
+}
+function commitSch() {
+  const s = sv(state.dlg.id), d = state.dlg.d, ds = dShort(d);
+  s.schs = schsOf(s).filter(x => x.d !== d); H(s, `取消 ${ds} 起的排程改價`);
+  const rest = s.schs.map(x => dShort(x.d)).join('、');
+  state.dlg = null; renderDlg(); render('p-edit'); document.querySelector('[data-key="p-edit"]')?.focus();
+  say(`已取消 ${ds} 起的排程，${rest ? `${rest} 起的排程照舊` : '維持現在的價格'}`);
+}
+function commitNew(on) {
+  const d = state.nd, id = `n${++state.seq}`;
+  const p = {}; SIZES.forEach(([k]) => { const src = d.same ? d.v.s : d.v[k]; const a = parseN(src[0]), t = d.cat === 'stay' ? null : parseN(src[1]); p[k] = a == null && t == null ? null : d.cat === 'stay' ? [a] : [a, t]; });
+  const s = {id, cat:d.cat, name:d.name.trim(), desc:d.desc.trim() || '（還沒寫說明）', same:d.same && d.cat !== 'stay', night:d.cat === 'stay', p, br:[...d.br], need:d.cat === 'groom' ? true : d.need, tpl:[...d.tpl], res:d.cat === 'stay' ? 'cage' : d.res, online:d.online, ao:[], st:on ? 'on' : 'draft', hist:[['2026/10/9', on ? '建立並啟用' : '建立（未完成）', me().who]]};
+  SV.push(s); state.nd = null; state.panel = {kind:'svc', id}; state.pe = peOf(s); state.fresh = id;
+  if (state.scope !== 'all' && !s.br.includes(state.scope)) state.scope = 'all';
+  render(); $('dp-h')?.focus();
+  say(on ? `已建立並啟用「${s.name}」，LIFF 與公開網頁會顯示` : `已存成未完成「${s.name}」，補齊後再啟用`);
+}
+
+/* ---------- actions ---------- */
+const STUB = '原型只做服務與價格';
+const ndCheck = (d, on) => {
+  const err = {}, night = d.cat === 'stay';
+  if (!d.name.trim()) err.name = '請寫服務名稱';
+  else if (SV.some(s => s.name === d.name.trim())) err.name = '已經有同名的服務，換個名稱，例如加上體型或「貓咪」';
+  if (on) {
+    (d.same ? ['s'] : SIZES.map(([k]) => k)).forEach(k => { const p = parseN(d.v[k][0]), t = night ? 1 : parseN(d.v[k][1]); if (Number.isNaN(p) || p === 0) err[k] = 'n'; else if (p != null && t == null) err[k] = 't'; else if (p == null && !night && t != null) err[k] = 'p'; });
+    if (!(d.same ? ['s'] : SIZES.map(([k]) => k)).some(k => parseN(d.v[k][0]) > 0 && !err[k])) err.size = err.size || '至少填一種體型的價格' + (night ? '' : '與時間');
+    if (!d.br.length) err.br = '至少選一家分店';
+  }
+  return err;
+};
+const openEdit = (s, k) => {
+  state.panel && state.panel.kind === 'new' && (state.panel = null);
+  const v = {}; sizesOf(s).forEach(x => { const c = s.p[x]; v[x] = [c && c[0] != null ? String(c[0]) : '', c && c[1] != null ? String(c[1]) : '']; });
+  state.col = null;
+  state.edit = {id:s.id, v, eff:'now', date:'', err:{}, touched:{}, busy:false};
+  render(`e-${s.same ? 's' : k}-p`);
+  const inp = $(`e-${s.same ? 's' : k}-p`); if (inp) { inp.focus(); inp.select(); inp.closest('tr')?.scrollIntoView({block:'nearest'}); }
+  announce(`${s.name}改價：輸入新價格，下方選生效時間`);
+};
+/* a new start date moves the untouched inputs to the price in effect by then, so a date after a schedule starts from its value */
+const rebase = (s, e) => { const d = editD(s, e); sizesOf(s).forEach(k => { if (e.touched[k]) return; const b = baseAt(s, k, d); e.v[k] = [b && b[0] != null ? String(b[0]) : '', b && b[1] != null ? String(b[1]) : '']; }); };
+const colBusy = () => state.col && String(state.col.n).trim() !== '';
+const act = {
+  nav(el) {
+    const p = el.dataset.page; closeNavDrawer();
+    if (p === 'svc') { act.tab({dataset:{v:'svc'}}); return; }
+    const r = state.role;
+    if (p === 'tpl' && r !== 'desk') { location.href = `../m07-contract-templates/index.html?role=${r}`; return; }
+    if (p === 'cal') { location.href = `../m02-appointments/index.html?role=${r}`; return; }
+    if (p === 'cust') { location.href = `../m03-customers/index.html?role=${r}`; return; }
+    if (p === 'hours' && r !== 'desk') { location.href = `../m05-hours/index.html?role=${r}`; return; }
+    if (p === 'res' && r !== 'desk') { location.href = `../m06-resources/index.html?role=${r}`; return; }
+    if (p === 'staff' && r !== 'desk') { location.href = `../m08-staff/index.html?role=${r}`; return; }
+    if (p === 'plan' && ['admin','mgr'].includes(state.role)) { location.href = `../plan-usage/index.html?role=${state.role}`; return; }
+    if (p === 'pol' && ['admin','mgr'].includes(state.role)) { location.href = `../cancel-policy/index.html?role=${state.role}`; return; }
+    if (p === 'notify' && ['admin','mgr'].includes(state.role)) { location.href = `../notify-settings/index.html?role=${state.role}`; return; }
+    if (p === 'dash' && r in {admin:1, mgr:1}) { location.href = `../m01-dashboard/index.html?live=1&role=${r}`; return; }
+    if (['queue','money','audit'].includes(p)) { location.href = `../admin-review-desk/index.html?role=${r}&page=${p}`; return; }
+    say(`${el.innerText.trim()}：${STUB}`);
+  },
+  tab(el) {
+    const v = el.dataset.v; if (state.edit && !confirmLeave()) return;
+    if (colBusy()) { say(`先儲存或取消${SZ[state.col.k]}的整欄調價`); return; }
+    state.tab = v; state.edit = null; state.col = null; state.fe = null; state.panel = null; state.pe = null; state.st = null;
+    render(`tab-${v}`); announce(`${{svc:'服務', fee:'加購・費用・折扣', stay:'住宿計價'}[v]}`);
+  },
+  scopeAll() { state.scope = 'all'; render('scope'); },
+  openSvc(el) {
+    const s = sv(el.dataset.id); state.panel = {kind:'svc', id:s.id}; state.pe = peOf(s); state.nd = null;
+    render(); (state.wide ? $('dp-h') : document.querySelector('.pnl-s #dp-h'))?.focus(); announce(`${s.name}的設定`);
+  },
+  closePanel() { const id = state.panel?.id; state.panel = null; state.pe = null; state.nd = null; render(); document.querySelector(id ? `[data-key="n-${id}"]` : '[data-key="new"]')?.focus(); },
+  scrimPanel(el, ev) { if (ev.target === el) act.closePanel(); },
+  editRow(el) {
+    const s = sv(el.dataset.id);
+    if (state.edit && state.edit.id !== s.id && changesOf(sv(state.edit.id), state.edit).length) { say(`先儲存或取消「${sv(state.edit.id).name}」的改價`); document.querySelector('[data-key="e-cancel"]')?.focus(); return; }
+    if (state.edit && state.edit.id === s.id) { $(`e-${s.same ? 's' : el.dataset.k}-p`)?.focus(); return; }
+    if (colBusy()) { say(`先儲存或取消${SZ[state.col.k]}的整欄調價`); document.querySelector('[data-key="c-cancel"]')?.focus(); return; }
+    if (!state.wide && state.panel) { state.panel = null; state.pe = null; }
+    openEdit(s, el.dataset.k);
+  },
+  eff(el) { const e = state.edit; e.eff = el.dataset.v; if (e.eff === 'pick' && !e.date) e.date = ymd(D_NOV1 + 14); rebase(sv(e.id), e); render(`eff-${e.eff}`); announce(el.innerText.replace(/\s+/g, ' ')); },
+  /* whole-column editor */
+  colOpen(el) {
+    const k = el.dataset.k;
+    if (state.col && state.col.k === k) { act.colCancel(); return; }
+    if (state.edit && changesOf(sv(state.edit.id), state.edit).length) { say(`先儲存或取消「${sv(state.edit.id).name}」的改價`); document.querySelector('[data-key="e-cancel"]')?.focus(); return; }
+    if (colBusy()) { say(`先儲存或取消${SZ[state.col.k]}的整欄調價`); document.querySelector('[data-key="c-cancel"]')?.focus(); return; }
+    state.edit = null; if (!state.wide && state.panel) { state.panel = null; state.pe = null; }
+    state.col = {k, mode:'amt', n:'', eff:'now', date:'', busy:false, showList:false};
+    render('c-n'); const i = $('c-n'); if (i) { i.focus({preventScroll:true}); i.closest('tr')?.scrollIntoView({block:'nearest'}); }
+    announce(`${SZ[k]}整欄調價：輸入每一項加減多少，下方選生效時間`);
+  },
+  colMode(el) { state.col.mode = el.dataset.v; state.col.conflict = null; render(el.dataset.key); },
+  colEff(el) { const c = state.col; c.eff = el.dataset.v; if (c.eff === 'pick' && !c.date) c.date = ymd(D_NOV1 + 14); render(`ceff-${c.eff}`); announce(el.innerText.replace(/\s+/g, ' ')); },
+  colList() { state.col.showList = !state.col.showList; render('c-list'); },
+  colCancel() { const k = state.col.k; state.col = null; render(`col-${k}`); document.querySelector(`[data-key="col-${k}"]`)?.focus(); announce('已取消整欄調價'); },
+  colReload() { state.col.conflict = null; render('c-n'); $('c-n')?.focus(); say('已載入最新價格，名單也重新算過'); },
+  colSave() {
+    const c = state.col; if (!c || c.busy || c.conflict) return;
+    if (document.querySelector('[data-key="c-save"]')?.getAttribute('aria-disabled') === 'true') { $('c-n')?.focus(); announce(document.getElementById('c-save-r')?.textContent || ''); return; }
+    c.busy = true; render('c-save'); setTimeout(commitCol, STEP_MS);
+  },
+  cancelRow() { if (!state.edit) return; const id = state.edit.id; state.edit = null; render(); document.querySelector(`[data-key^="c-${id}-"]`)?.focus(); announce('已取消改價'); },
+  reloadRow() { const s = sv(state.edit.id), k = Object.keys(state.edit.v)[0]; const m = s.p.m && !s.same && !s.night; if (m) { const o = s.p.m[0]; s.p.m = [o + 100, s.p.m[1]]; s.hist.unshift(['2026/10/9', `中型犬 NT$${fmt(o)} → NT$${fmt(o + 100)}（另一台裝置）`, '陳老闆']); } state.edit = null; openEdit(s, k); say(m ? `已載入最新價格：中型犬剛剛被改成 NT$${fmt(s.p.m[0])}` : '已載入最新價格'); },
+  saveRow() {
+    const e = state.edit, s = sv(e.id); e.err = validate(s, e);
+    if (Object.keys(e.err).length) { render(); const k = Object.keys(e.err)[0]; $(`e-${k}-${e.err[k] === 't' ? 't' : 'p'}`)?.focus(); announce('有格子還沒填完'); return; }
+    if (s.st === 'on' && !sizesOf(s).some(k => parseN(e.v[k][0]) > 0)) { say('至少要提供一種體型；不再提供請改用停用服務'); return; }
+    e.busy = true; render('e-save'); setTimeout(commitRow, STEP_MS);
+  },
+  cancelSch(el) {
+    const s = sv(state.panel.id), d = +el.dataset.d, x = schsOf(s).find(y => y.d === d), rest = s.schs.filter(y => y.d !== d);
+    openDlg({kind:'sch', id:s.id, d, title:`取消 ${dShort(d)} 起的排程改價？`, rows:[['排程', Object.entries(x.p).filter(([k]) => !s.same || k === 's').map(([k, v]) => `${s.same ? '各體型' : SZ[k]} → ${v ? `NT$${fmt(v[0])}` : '不提供'}`).join('・')], ['其他排程', rest.length ? `${rest.map(y => dShort(y.d)).join('、')} 起的排程照舊，不受影響` : '沒有'], ['之後', rest.length ? `${dShort(d)} 起建立的預約改用當時有效的價格；要再改可以重新排程` : '維持現在的價格；要再改可以重新排程']], ok:'取消這個排程', no:'保留排程'});
+  },
+  brTog(el) {
+    const s = sv(state.panel.id), b = el.dataset.b, on = s.br.includes(b);
+    if (on && s.br.length === 1 && s.st === 'on') { say('至少要有一家分店提供；不再提供請改用停用服務'); return; }
+    if (!on) { s.br.push(b); s.br.sort(); H(s, `${BR[b]}開始提供`); render(el.dataset.key); say(`${BR[b]}開始提供「${s.name}」`); return; }
+    const list = future(s.id, null).filter(a => a.br === b);
+    if (!list.length || s.st !== 'on') { s.br = s.br.filter(x => x !== b); H(s, `${BR[b]}不再提供`); render(el.dataset.key); say(`${BR[b]}不再提供「${s.name}」`); return; }
+    openDlg({kind:'br', id:s.id, b, danger:true, title:`${BR[b]}不再提供「${esc(s.name)}」？`, lede:`之後${BR[b]}的新預約看不到這個服務。`, rows:[['已建立', `${BR[b]}有 ${list.length} 筆預約照常進行，價格不變`], ['飼主', `${BR[b]}的 LIFF 與公開網頁立即不顯示`], ['稽核', '寫入分店異動紀錄']], body:apptList(list), ok:`${BR[b]}不再提供`, no:'返回'});
+  },
+  stopSvc() {
+    const s = sv(state.panel.id), list = future(s.id, null);
+    const orphan = s.tpl.filter(k => !SV.some(x => x.id !== s.id && x.st !== 'off' && x.tpl.includes(k)));
+    const rows = [['已建立', list.length ? `${list.length} 筆預約照常進行，價格不變` : '沒有未來的預約'], ['飼主', 'LIFF 與公開網頁立即不顯示；店員新增預約也選不到']];
+    if (schsOf(s).length) rows.push(['排程改價', `${s.schs.map(x => dShort(x.d)).join('、')} 起的排程一併取消`]);
+    if (orphan.length) rows.push(['契約模板', `「${orphan.map(k => TPLS[k][0]).join('、')}」只用在${esc(s.name)}，停用後沒有服務使用它；要的話可以到契約模板作廢`]);
+    rows.push(['之後', '隨時可以重新啟用']);
+    openDlg({kind:'stop', id:s.id, danger:true, title:`停用「${esc(s.name)}」？`, lede:'停用後新預約看不到這個服務；已建立的預約不會被取消。', rows, body:apptList(list), ok:'確認停用', no:'保留'});
+  },
+  reEnable() {
+    const s = sv(state.panel.id);
+    if (missingOf(s).length || !offered(s).length) { s.st = 'draft'; s.offAt = null; H(s, '重新啟用前改為未完成'); render('p-on'); say('資料不齊，先改成未完成；補齊後再啟用'); return; }
+    s.st = 'on'; s.offAt = null; H(s, '重新啟用'); state.fresh = s.id; render('stop'); say(`已重新啟用「${s.name}」`);
+  },
+  enableSvc() { const s = sv(state.panel.id); s.st = 'on'; H(s, '啟用'); state.fresh = s.id; render('stop'); document.querySelector('[data-key="stop"]')?.focus(); say(`已啟用「${s.name}」，${s.online ? 'LIFF 與公開網頁會顯示' : '店員新增預約時可以選'}`); if (s.id === 'catshave') lifeSay('enabled'); },
+  pCat(el) { const d = state.pe; d.cat = el.dataset.v; if (d.cat === 'groom') { d.need = true; if (!d.tpl.length) d.tpl = ['groom']; } render(el.dataset.key); },
+  pRes(el) { state.pe.res = el.dataset.v; render(el.dataset.key); },
+  pOnline() { state.pe.online = !state.pe.online; render('p-online'); },
+  pNeed() { const d = state.pe; d.need = !d.need; if (d.need && !d.tpl.length) d.tpl = [TPL_FOR[d.cat][0]]; if (!d.need) d.tpl = []; render('p-need'); },
+  resetPe() { state.pe = peOf(sv(state.panel.id)); render('pe-name'); announce('已放棄變更'); },
+  savePe() {
+    const s = sv(state.panel.id), d = state.pe;
+    d.err = {};
+    if (!d.name.trim()) d.err.name = '請寫服務名稱';
+    else if (SV.some(x => x.id !== s.id && x.name === d.name.trim())) d.err.name = '已經有同名的服務';
+    if (d.need && !d.tpl.length) { say('需要簽約時要選一份契約'); return; }
+    if (d.err.name) { render('pe-name'); $('pe-name')?.focus(); announce(d.err.name); return; }
+    if (takeConflict()) { d.conflict = `${s.name} 11:24 在另一台裝置被修改，這次沒有存。關閉面板再打開會看到最新內容。`; render('pe-save'); announce(d.conflict); return; }
+    const before = peOf(s), parts = [];
+    if (before.name !== d.name.trim()) parts.push(`名稱改為「${d.name.trim()}」`);
+    if (before.cat !== d.cat) parts.push(`分類改為${CATS[d.cat].n}`);
+    if (JSON.stringify(before.tpl) !== JSON.stringify(d.tpl) || before.need !== d.need) parts.push(d.need ? `契約：${d.tpl.map(k => TPLS[k][0]).join('、')}` : '改為不需簽約');
+    if (before.online !== d.online) parts.push(d.online ? '開放飼主自己預約' : '只能由店內建立');
+    if (before.desc !== d.desc || before.res !== d.res || JSON.stringify(before.ao) !== JSON.stringify(d.ao)) parts.push('更新預約設定');
+    Object.assign(s, {name:d.name.trim(), desc:d.desc, cat:d.cat, need:d.cat === 'groom' ? true : d.need, tpl:[...d.tpl], res:d.res, online:d.online, ao:[...d.ao]});
+    H(s, parts.join('・') || '更新設定'); state.pe = peOf(s); state.fresh = s.id;
+    render('pe-name'); $('dp-h')?.focus(); say(`已儲存「${s.name}」`);
+  },
+  newSvc() { if (state.edit && changesOf(sv(state.edit.id), state.edit).length) { say(`先儲存或取消「${sv(state.edit.id).name}」的改價`); return; } if (colBusy()) { say(`先儲存或取消${SZ[state.col.k]}的整欄調價`); return; } state.edit = null; state.col = null; state.panel = {kind:'new'}; state.pe = null; state.nd = ndInit(); render(); (state.wide ? $('dp-h') : document.querySelector('.pnl-s #dp-h'))?.focus(); },
+  nCat(el) { const d = state.nd; d.cat = el.dataset.v; if (d.cat === 'stay') { d.br = ['zs']; d.same = false; d.need = true; d.tpl = ['stay']; d.res = 'cage'; } else { if (d.res === 'cage') d.res = 'table'; d.need = d.cat === 'groom'; d.tpl = d.need ? ['groom'] : []; } render(el.dataset.key); },
+  nBr(el) { const d = state.nd, b = el.dataset.b, i = d.br.indexOf(b); if (i >= 0) d.br.splice(i, 1); else d.br.push(b); if (d.err) delete d.err.br; render(el.dataset.key); },
+  newGo(el) {
+    const d = state.nd, on = el.dataset.v === 'on'; d.err = ndCheck(d, on);
+    const k = Object.keys(d.err);
+    if (k.length) { render(); const f = k[0] === 'name' ? 'nd-name' : k[0] === 'size' ? `n-${d.same ? 's' : 's'}-p` : k[0] === 'br' ? 'nb-zs' : `n-${k[0]}-${d.err[k[0]] === 't' ? 't' : 'p'}`; document.querySelector(`[data-key="${f}"]`)?.focus(); announce(Object.values(d.err).map(x => typeof x === 'string' && x.length > 1 ? x : '').filter(Boolean)[0] || '有格子還沒填完'); return; }
+    commitNew(on);
+  },
+  /* 加購・費用・折扣 */
+  feEdit(el) { const g = el.dataset.g, x = FEES[g].find(y => y.id === el.dataset.id); state.fe = {g, id:x.id, n:x.n, a:String(Math.abs(x.a)), err:{}}; render('fe-a'); const i = $('fe-a'); i?.focus(); i?.select(); },
+  feNew(el) { const g = el.dataset.g; state.fe = {g, id:`f${++state.seq}`, n:'', a:'', isNew:true, err:{}}; render('fe-n'); $('fe-n')?.focus(); },
+  feCancel() { const id = state.fe.id, nw = state.fe.isNew, g = state.fe.g; state.fe = null; render(); document.querySelector(`[data-key="${nw ? `fa-${g}` : `f-${id}`}"]`)?.focus(); },
+  feSave() {
+    const e = state.fe, a = parseN(e.a); e.err = {};
+    if (!e.n.trim()) e.err.n = '請寫名稱';
+    else if (FEES[e.g].some(x => x.id !== e.id && x.n === e.n.trim())) e.err.n = '已經有同名的項目';
+    if (a == null || Number.isNaN(a) || a === 0) e.err.a = '金額要是大於 0 的整數';
+    if (Object.keys(e.err).length) { render(); $(e.err.n ? 'fe-n' : 'fe-a')?.focus(); announce(e.err.n || e.err.a); return; }
+    if (!canWrite()) { say('需連線'); return; }
+    e.busy = true; render('fe-save');
+    setTimeout(() => {
+      if (takeConflict()) { e.busy = false; e.err = {a:'剛剛被其他人修改，這次沒有存；取消後再試一次'}; render('fe-cancel'); announce(e.err.a); return; }
+      const val = e.g === 'disc' ? -a : a;
+      if (e.isNew) FEES[e.g].push({id:e.id, n:e.n.trim(), a:val, d:''}); else { const x = FEES[e.g].find(y => y.id === e.id); x.n = e.n.trim(); x.a = val; }
+      state.fe = null; state.fresh = e.id; render(`f-${e.id}`); document.querySelector(`[data-key="f-${e.id}"]`)?.focus();
+      say(e.isNew ? `已新增「${e.n.trim()}」，收款畫面就能選` : `「${e.n.trim()}」改為 NT$${fmt(a)}，已加在預約上的明細不變`);
+    }, STEP_MS);
+  },
+  feOff(el) { const x = FEES[el.dataset.g].find(y => y.id === el.dataset.id); x.off = true; render(`fo-${x.id}`); document.querySelector(`[data-key="fo-${x.id}"]`)?.focus(); say(`已停用「${x.n}」，收款畫面不再顯示；已加的明細不變`); },
+  feOn(el) { const x = FEES[el.dataset.g].find(y => y.id === el.dataset.id); x.off = false; state.fresh = x.id; render(`fx-${x.id}`); document.querySelector(`[data-key="fx-${x.id}"]`)?.focus(); say(`已重新啟用「${x.n}」`); },
+  /* 住宿計價 */
+  stRule(el) { state.st = state.st || clone(STAY); state.st.rule = el.dataset.v; render(el.dataset.key); announce(el.dataset.v === 'rolling' ? '1 晚，24 小時制' : '2 晚，日曆夜'); },
+  stReset() { state.st = null; render('st-late'); announce('已放棄變更'); },
+  stSave() {
+    const d = state.st; if (takeConflict()) { say('住宿計價剛剛被其他人修改，這次沒有存；已載入最新設定'); state.st = null; render(); return; }
+    STAY = {rule:d.rule, late:parseN(d.late)}; state.st = null; render('st-late'); say(`已儲存住宿計價：${STAY.rule === 'rolling' ? '24 小時制' : '日曆夜'}・逾時每小時 NT$${fmt(STAY.late)}；只影響之後新建立的住宿預約`);
+  },
+  toStayRow() { state.tab = 'svc'; state.st = null; render(); openEdit(sv('stay'), 's'); },
+  dlgOk() {
+    const d = state.dlg; if (!d || d.busy || d.okOff) return;
+    d.busy = true; renderDlg('dg-ok');
+    setTimeout(() => ({stop:commitStop, br:commitBr, sch:commitSch})[d.kind](), STEP_MS);
+  },
+  closeDlg() { closeDlg(); },
+  scrimDlg(el, ev) { if (ev.target === el && !state.dlg?.busy) closeDlg(); },
+  retry() { state.retrying = true; render('retry'); setTimeout(() => { state.retrying = false; state.loadFail = false; $('p-fail').checked = false; render(); announce('服務與價格已重新載入'); }, STEP_MS); },
+  openNav() { openNavDrawer(); },
+  navScrim(el, ev) { if (ev.target === el) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); } }
+};
+const confirmLeave = () => { if (!changesOf(sv(state.edit.id), state.edit).length) return true; say(`先儲存或取消「${sv(state.edit.id).name}」的改價`); return false; };
+function openNavDrawer() {
+  const l = $('layer'); l.querySelector('.nav-scrim')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="scrim nav-scrim" data-do="navScrim" style="padding:0;justify-content:flex-start;align-items:stretch"><div class="drawer-nav" role="dialog" aria-modal="true" aria-label="主選單">${sideNav()}</div></div>`);
+  l.querySelector('.drawer-nav .sitem[aria-current]')?.focus();
+}
+function closeNavDrawer() { $('layer').querySelector('.nav-scrim')?.remove(); }
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-do]');
+  if (el && el.getAttribute('aria-disabled') !== 'true') act[el.dataset.do]?.(el, ev);
+  else if (el && ['editRow', 'colOpen'].includes(el.dataset.do) && !canWrite()) say('離線中不能改價');
+});
+/* inputs re-render the open row so the struck old price and the tray stay true; caret is restored */
+function refresh(el) {
+  const id = el.id, s0 = el.selectionStart, s1 = el.selectionEnd;
+  render(); const n = $(id); if (n) { n.focus({preventScroll:true}); if (s0 != null && n.setSelectionRange) try { n.setSelectionRange(s0, s1); } catch (_) {} }
+}
+document.addEventListener('input', ev => {
+  const el = ev.target;
+  if (el.id === 'c-n' && state.col) { state.col.n = el.value; state.col.showList = false; refresh(el); return; }
+  if (el.dataset.ek && state.edit) { state.edit.touched[el.dataset.ek] = 1; state.edit.v[el.dataset.ek][+el.dataset.ei] = el.value; delete state.edit.err[el.dataset.ek]; state.edit.conflict = null; if (el.tagName === 'INPUT') refresh(el); return; }
+  if (el.dataset.nk && state.nd) { state.nd.v[el.dataset.nk][+el.dataset.ni] = el.value; delete state.nd.err[el.dataset.nk]; delete state.nd.err.size; return; }
+  if (el.dataset.nd && state.nd) { state.nd[el.dataset.nd] = el.value; delete state.nd.err[el.dataset.nd]; return; }
+  if (el.dataset.pe && state.pe) { state.pe[el.dataset.pe] = el.value; if (state.pe.err) delete state.pe.err[el.dataset.pe]; if (!ev.isComposing) laterRender(el); return; }
+  if (el.dataset.fe && state.fe) { state.fe[el.dataset.fe] = el.value; delete state.fe.err[el.dataset.fe]; if (el.dataset.fe === 'a') refresh(el); return; }
+  if (el.id === 'st-late') { state.st = state.st || clone(STAY); state.st.late = el.value; refresh(el); }
+});
+/* text fields in the panel re-render after typing settles, never during IME composition */
+function laterRender(el) { clearTimeout(laterRender.t); laterRender.t = setTimeout(() => refresh(document.activeElement?.id ? document.activeElement : el), 450); }
+document.addEventListener('compositionend', ev => { if (ev.target.dataset?.pe) laterRender(ev.target); });
+document.addEventListener('change', ev => {
+  const el = ev.target;
+  if (el.id === 'scope') { state.scope = el.value; render('scope'); announce(el.value === 'all' ? '全部分店' : `${BR[el.value]}提供的服務`); return; }
+  if (el.dataset.ek && el.tagName === 'SELECT' && state.edit) { state.edit.touched[el.dataset.ek] = 1; state.edit.v[el.dataset.ek][1] = el.value; delete state.edit.err[el.dataset.ek]; render(el.dataset.key); return; }
+  if (el.id === 'e-date' && state.edit) { state.edit.date = el.value; rebase(sv(state.edit.id), state.edit); render('e-date'); return; }
+  if (el.id === 'c-date' && state.col) { state.col.date = el.value; render('c-date'); return; }
+  if (el.id === 'nd-same' && state.nd) { state.nd.same = el.checked; state.nd.err = {}; render('nd-same'); return; }
+  if (el.dataset.nk && el.tagName === 'SELECT' && state.nd) { state.nd.v[el.dataset.nk][1] = el.value; delete state.nd.err[el.dataset.nk]; render(el.dataset.key); return; }
+  if (el.dataset.pt) {
+    const d = state.panel?.kind === 'new' ? state.nd : state.pe; if (!d) return;
+    const i = d.tpl.indexOf(el.dataset.pt);
+    if (i >= 0 && d.tpl.length === 1 && d.need) { el.checked = true; say('需要簽約時至少要選一份契約'); return; }
+    if (i >= 0) d.tpl.splice(i, 1); else d.tpl.push(el.dataset.pt);
+    render(el.dataset.key); return;
+  }
+  if (el.dataset.pa && state.pe) { const d = state.pe, i = d.ao.indexOf(el.dataset.pa); if (i >= 0) d.ao.splice(i, 1); else d.ao.push(el.dataset.pa); render(el.dataset.key); }
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Enter' && ev.target.dataset?.ek && state.edit) { ev.preventDefault(); act.saveRow(); return; }
+  if (ev.key === 'Enter' && ev.target.id === 'c-n' && state.col) { ev.preventDefault(); act.colSave(); return; }
+  if (ev.key === 'Enter' && ev.target.dataset?.fe && state.fe) { ev.preventDefault(); act.feSave(); return; }
+  const modal = state.dlg ? '.dialog' : $('layer').querySelector('.drawer-nav') ? '.drawer-nav' : $('layer').querySelector('.pnl-s') ? '.pnl-s .dp' : null;
+  if (ev.key === 'Escape') {
+    if (state.dlg) { if (!state.dlg.busy) closeDlg(); return; }
+    if ($('layer').querySelector('.drawer-nav')) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); return; }
+    if (state.col && !state.col.busy && ev.target.closest?.('tr.colt, thead')) { act.colCancel(); return; }
+    if (state.edit && !state.edit.busy && ev.target.closest?.('tr.cur, tr.tray')) { act.cancelRow(); return; }
+    if (state.fe && !state.fe.busy) { act.feCancel(); return; }
+    if (state.panel) { act.closePanel(); return; }
+  }
+  if (modal && ev.key === 'Tab') {
+    const f = [...document.querySelectorAll(`${modal} button, ${modal} a[href], ${modal} input, ${modal} textarea, ${modal} select, ${modal} [tabindex="0"]`)].filter(x => x.getAttribute('aria-disabled') !== 'true' && x.offsetParent);
+    if (!f.length) return;
+    if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); }
+    else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); }
+  }
+  const opt = ev.target.closest?.('[role="radiogroup"] [role="radio"], [role="tablist"] [role="tab"]');
+  if (opt && ['ArrowDown','ArrowUp','ArrowLeft','ArrowRight'].includes(ev.key)) {
+    ev.preventDefault();
+    const all = [...opt.parentElement.closest('[role="radiogroup"], [role="tablist"]').querySelectorAll('[role="radio"], [role="tab"]')].filter(x => x.getAttribute('aria-disabled') !== 'true');
+    const i = all.indexOf(opt), fwd = ev.key === 'ArrowDown' || ev.key === 'ArrowRight';
+    const n = all[(i + (fwd ? 1 : all.length - 1)) % all.length]; if (n) { n.click(); document.querySelector(`[data-key="${n.dataset.key}"]`)?.focus(); }
+  }
+});
+
+/* ---------- prototype controls ---------- */
+function syncUrl() {
+  const u = new URL(location);
+  u.searchParams.set('role', state.role);
+  state.tab !== 'svc' ? u.searchParams.set('tab', state.tab) : u.searchParams.delete('tab');
+  state.panel?.id ? u.searchParams.set('s', state.panel.id) : u.searchParams.delete('s');
+  history.replaceState(null, '', u);
+}
+const resetAll = () => { state.tab = 'svc'; state.panel = null; state.pe = null; state.nd = null; state.edit = null; state.col = null; state.fe = null; state.st = null; state.dlg = null; renderDlg(); };
+function applyQs() {
+  if (qs.get('role') in ROLES) state.role = qs.get('role');
+  if (state.role === 'mgr') state.scope = 'zs';
+  if (qs.get('off') === '1') state.offline = true;
+  if (qs.get('fail') === '1') state.loadFail = true;
+  if (qs.get('susp') === '1') state.susp = true;
+  if (['fee', 'stay'].includes(qs.get('tab'))) state.tab = qs.get('tab');
+  const s = qs.get('s') && sv(qs.get('s')); if (s && state.tab === 'svc') { state.panel = {kind:'svc', id:s.id}; state.pe = peOf(s); }
+}
+applyQs();
+$('p-role').value = state.role; $('p-off').checked = state.offline; $('p-fail').checked = state.loadFail; $('p-susp').value = state.susp ? 'susp' : 'ok';
+$('p-role').onchange = e => { state.role = e.target.value; state.scope = state.role === 'mgr' ? 'zs' : 'all'; resetAll(); render(); };
+$('p-write').onchange = e => { state.nextWrite = e.target.value; };
+$('p-susp').onchange = e => { state.susp = e.target.value === 'susp'; render(); };
+$('p-fail').onchange = e => { state.loadFail = e.target.checked; render(); };
+$('p-off').onchange = e => { state.offline = e.target.checked; render(); };
+$('p-theme').onchange = e => { if (e.target.value) document.documentElement.dataset.theme = e.target.value; else delete document.documentElement.dataset.theme; };
+$('p-go').onchange = e => {
+  const v = e.target.value; e.target.value = '';
+  resetAll();
+  if (me().none) { render(); say('櫃台沒有服務與價格權限'); return; }
+  if (v === 'fee' || v === 'stay') { state.tab = v; render(); return; }
+  if (v === 'list') { render(); return; }
+  const w = admin() && canWrite();
+  if (v === 'spa') { render(); if (w) openEdit(sv('spa'), 's'); else say('只有店家管理者能在電腦上改價'); return; }
+  if (v === 'new') { render(); if (w) act.newSvc(); else say('只有店家管理者能在電腦上新增服務'); return; }
+  const id = {sched:'bath', draft:'catshave', stop:'spa', off:'herb'}[v];
+  const s = sv(id); if (!s) { render(); return; }
+  if (!inScope(s)) state.scope = 'all';
+  state.panel = {kind:'svc', id}; state.pe = peOf(s); render(); $('dp-h')?.focus();
+  if (v === 'stop') { if (admin() && s.st !== 'off') act.stopSvc(); else say(admin() ? '精緻美容已經停用' : '只有店家管理者能停用服務'); }
+};
+/* layout follows the width in text units, so 200% text (browser setting or the 字級 control) gets the layout of half the width:
+   1440 at 200% lays out like 720, the table with its branch column folded, instead of squeezing the sizes together */
+const textScale = () => parseFloat(getComputedStyle(document.documentElement).fontSize) / 16 || 1;
+const layout = () => { const w = innerWidth / textScale(); return {compact:w < 1024, rail:w >= 1024 && w < 1280, phone:w < 720, wide:w >= 1280}; };
+const setCompact = force => {
+  const l = layout(); if (!force && ['compact', 'rail', 'phone', 'wide'].every(k => state[k] === l[k])) return;
+  Object.assign(state, l); if (!state.compact) closeNavDrawer(); if (state.phone) { state.edit = null; state.fe = null; state.col = null; } render();
+};
+addEventListener('resize', () => setCompact());
+const applyScale = v => { document.documentElement.style.fontSize = v > 1 ? `${v * 100}%` : ''; $('p-scale').value = String(v); };
+if (qs.get('scale') === '2') applyScale(2);
+$('p-scale').onchange = e => { applyScale(+e.target.value); setCompact(true); };
+Object.assign(state, layout());
+render();
+if (qs.get('new') === '1' && admin() && canWrite()) act.newSvc();
+else if (qs.get('edit') && admin() && canWrite() && sv(qs.get('edit'))) openEdit(sv(qs.get('edit')), qs.get('k') || 's');
+</script>
+</body>
+</html>

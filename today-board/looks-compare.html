@@ -1,0 +1,1352 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>今日看板原型</title>
+<style>
+@font-face{font-family:"Alfa Slab One";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/AlfaSlabOne-Regular.woff2) format("woff2");unicode-range:U+0000-00FF,U+2013-2014,U+2018-201D,U+2022,U+2026}
+/* 手寫價目牌 world. Status colors are the fixed set shared by every surface and shop. */
+:root{
+  --background:#E8EBE5;--surface:#FFFFFF;--surface-variant:#DCE0D8;--ink:#17150F;--ink-muted:#4B5046;
+  --border:#C2C7BC;--control-border:#6F7568;--track:#D3D8CD;
+  --primary:#17150F;--primary-hover:#38352B;--on-primary:#FFFFFF;--primary-tint:#DDE1D5;--focus-ring:#1D5FA8;
+  --sign:#FFCF1A;--sign-hover:#FFDB4D;--on-sign:#17150F;
+  --rail-bg:#17150F;--rail-ink:#CFD2C6;--rail-line:#38352B;--rail-on:#FFFFFF;--rail-cur:#FFFFFF;--rail-cur-ink:#17150F;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;--boarding:#5B3BA6;--boarding-bg:#EDE7FA;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FDF0EE;
+  --toast:#17150F;--on-toast:#FFFFFF;--scrim:#17150F99;
+  --owner-surface:#FFFFFF;--owner-surface-variant:#F4F4F6;--owner-ink:#1B1C1F;--owner-ink-muted:#5E6168;--owner-border:#E2E3E7;--owner-control-border:#8A8D94;
+  --brand:#C2386B;--on-brand:#FFFFFF;--brand-tint:#FBECF2;
+  --proto-bg:#2A2820;--proto-ink:#ECEBE2;--proto-muted:#ABAE9F;--proto-line:#4A473B;
+  --font:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --display:"Alfa Slab One","Rockwell","Roboto Slab","Noto Serif TC",serif;
+  --r-sm:3px;--r-md:5px;--r-lg:7px;--r-owner-md:12px;--r-owner-lg:16px;
+  --rail:4.75rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --background:#11120E;--surface:#1B1C17;--surface-variant:#262820;--ink:#F3F1E7;--ink-muted:#B3B7AA;
+  --border:#363930;--control-border:#80857A;--track:#2D3028;
+  --primary:#F3F1E7;--primary-hover:#FFFFFF;--on-primary:#17150F;--primary-tint:#2D3028;--focus-ring:#8CC2F5;
+  --sign:#FFCF1A;--sign-hover:#FFDB4D;--on-sign:#17150F;
+  --rail-bg:#090A07;--rail-ink:#B3B7AA;--rail-line:#2D3028;--rail-on:#F3F1E7;--rail-cur:#F3F1E7;--rail-cur-ink:#17150F;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;--boarding:#C6B3F5;--boarding-bg:#2D2347;
+  --danger-solid:#FF8A80;--on-danger-solid:#2B0806;--border-danger:#6B2A27;--danger-tint:#2A1A1A;
+  --toast:#F3F1E7;--on-toast:#17150F;--scrim:#000000B3;
+  --owner-surface:#1B1C20;--owner-surface-variant:#24262B;--owner-ink:#EDEEF1;--owner-ink-muted:#A2A6AF;--owner-border:#33363C;--owner-control-border:#6C7078;
+  --brand:#F28CB1;--on-brand:#3A0A1E;--brand-tint:#3A2330;
+  --proto-bg:#ECEBE2;--proto-ink:#17150F;--proto-muted:#4B5046;--proto-line:#C9CCBF;color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --background:#11120E;--surface:#1B1C17;--surface-variant:#262820;--ink:#F3F1E7;--ink-muted:#B3B7AA;
+    --border:#363930;--control-border:#80857A;--track:#2D3028;
+    --primary:#F3F1E7;--primary-hover:#FFFFFF;--on-primary:#17150F;--primary-tint:#2D3028;--focus-ring:#8CC2F5;
+    --sign:#FFCF1A;--sign-hover:#FFDB4D;--on-sign:#17150F;
+    --rail-bg:#090A07;--rail-ink:#B3B7AA;--rail-line:#2D3028;--rail-on:#F3F1E7;--rail-cur:#F3F1E7;--rail-cur-ink:#17150F;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;--boarding:#C6B3F5;--boarding-bg:#2D2347;
+    --danger-solid:#FF8A80;--on-danger-solid:#2B0806;--border-danger:#6B2A27;--danger-tint:#2A1A1A;
+    --toast:#F3F1E7;--on-toast:#17150F;--scrim:#000000B3;
+    --owner-surface:#1B1C20;--owner-surface-variant:#24262B;--owner-ink:#EDEEF1;--owner-ink-muted:#A2A6AF;--owner-border:#33363C;--owner-control-border:#6C7078;
+    --brand:#F28CB1;--on-brand:#3A0A1E;--brand-tint:#3A2330;
+    --proto-bg:#ECEBE2;--proto-ink:#17150F;--proto-muted:#4B5046;--proto-line:#C9CCBF;color-scheme:dark;
+  }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:56px;scroll-padding-bottom:96px}
+body{font-family:var(--font);background:var(--background);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+a{color:inherit}
+::selection{background:var(--sign);color:var(--on-sign)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+.num{font-feature-settings:"tnum"}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:600}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select,.proto .pbtn{background:transparent;border:1px solid var(--proto-line);border-radius:var(--r-sm);padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#14211F;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .sp{flex:1}
+
+/* ---------- shell ---------- */
+#app{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:calc(100vh - 44px)}
+#app.phone{display:block;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+.rail{position:sticky;top:0;height:100vh;background:var(--rail-bg);display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 0}
+.mark{width:40px;height:40px;border-radius:var(--r-sm);background:var(--rail-cur);color:var(--rail-cur-ink);display:grid;place-items:center;font-size:1.125rem;font-weight:700;margin-bottom:14px;border:2px solid var(--rail-cur)}
+.rail-item{width:3.25rem;min-height:3.25rem;border-radius:var(--r-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--rail-ink);font-size:.75rem;text-align:center;line-height:1.25;padding:4px 0}
+.rail-item:hover{color:var(--rail-on);background:var(--rail-line)}
+.rail-item[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:700}
+.rail-item[aria-current="page"]{--cut:var(--rail-cur)}
+.rail :focus-visible{outline-color:var(--rail-on)}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--rail-bg);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom)}
+.bnav button{min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.75rem;color:var(--rail-ink)}
+.bnav button[aria-current="page"]{color:var(--rail-cur-ink);background:var(--rail-cur);font-weight:700}
+.bnav button[aria-current="page"]{--cut:var(--rail-cur)}
+.bnav :focus-visible{outline-color:var(--rail-on);outline-offset:-4px}
+main{min-width:0}
+
+/* ---------- header ---------- */
+.head{display:flex;align-items:center;gap:12px;padding:20px 24px 16px;flex-wrap:wrap}
+.head-title{display:flex;align-items:baseline;gap:12px;margin-right:auto;flex-wrap:wrap}
+.head h1{font-size:1.5rem;font-weight:800;line-height:1.3;letter-spacing:0}
+.updated{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;font-weight:500;color:var(--ink-muted)}
+.iconbtn{width:44px;height:44px;border-radius:var(--r-md);display:inline-grid;place-items:center;color:var(--ink-muted)}
+.iconbtn:hover{background:var(--surface);color:var(--ink)}
+.search{position:relative;width:clamp(200px,26vw,320px)}
+.search .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-muted);pointer-events:none}
+.search input{text-overflow:ellipsis;width:100%;min-height:44px;border:2px solid var(--ink);border-radius:var(--r-md);background:var(--surface);padding:0 12px 0 40px;font-size:.9375rem}
+.search input::placeholder{color:var(--ink-muted)}
+.branch{position:relative}
+.branch select{appearance:none;min-height:44px;border:2px solid var(--ink);border-radius:var(--r-md);background:var(--surface);padding:0 36px 0 14px;font-size:.9375rem;cursor:pointer}
+.branch .ico{position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--ink-muted)}
+@media (min-width:768px) and (max-width:1099px){.head-title{width:100%}.search{flex:1;width:auto}}
+.phone .head{padding:12px 16px 10px;gap:8px;flex-wrap:nowrap}
+.phone .head h1{font-size:1.125rem}
+.phone .head-title{flex-direction:column;align-items:flex-start;gap:0}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:12px 16px;border-radius:var(--r-md);font-size:.9375rem;font-weight:600;line-height:1.3;text-align:center}
+.btn{border:2px solid transparent}
+.btn.primary{background:var(--primary);color:var(--on-primary);border-color:var(--primary);min-height:48px}
+.btn.primary:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
+.btn.next{background:var(--sign);color:var(--on-sign);border-color:var(--ink);min-height:48px;font-weight:700}
+.btn.next:hover{background:var(--sign-hover)}
+.btn.secondary{background:var(--surface);color:var(--ink);border:2px solid var(--ink);font-weight:600}
+.btn.secondary:hover{background:var(--background)}
+.btn.destructive{background:var(--danger-solid);color:var(--on-danger-solid)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:2px dashed var(--control-border)}
+.btn[aria-busy="true"]{cursor:progress}
+.btn .spin{width:16px;height:16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.textbtn{min-height:44px;min-width:44px;padding:0 8px;color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px;font-size:.9375rem;border-radius:var(--r-md)}
+.textbtn:hover{background:var(--primary-tint)}
+.tertiary{min-height:44px;padding:0 4px;color:var(--ink-muted);font-size:.8125rem;font-weight:500;text-decoration:underline;text-underline-offset:3px}
+.reason{font-size:.8125rem;font-weight:500;color:var(--ink-muted);margin-top:4px;line-height:1.4}
+
+/* ---------- chips & tags ---------- */
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:var(--r-sm);font-size:.8125rem;font-weight:500;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.warning{color:var(--warning);background:var(--warning-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.boarding{color:var(--boarding);background:var(--boarding-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:var(--r-sm);font-size:.8125rem;line-height:1.4;white-space:nowrap}
+.tag.safety{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:600}
+.tag.care{background:var(--warning-bg);color:var(--warning);font-weight:500}
+.tag .ico{width:16px;height:16px}
+
+/* ---------- exception / request bars ---------- */
+.bars{display:flex;flex-direction:column;gap:8px;padding:0 24px 12px}
+.bar{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px;border-radius:var(--r-lg);min-height:52px;font-size:.875rem}
+.bar.exc{background:var(--rail-bg);color:var(--rail-on);border:2px solid var(--rail-bg)}
+.bar.req{background:var(--surface);border:2px solid var(--ink)}
+.bar-title{display:inline-flex;align-items:center;gap:8px;color:var(--sign);font-weight:800;white-space:nowrap}
+.bar.req .bar-title{color:var(--ink)}
+.bar-sum{flex:1;color:inherit;line-height:1.5;min-width:0}
+.bar.exc .textbtn{color:var(--sign)}
+.reqchip{min-height:44px;padding:0 12px;border:2px solid var(--sign);border-radius:var(--r-sm);color:var(--sign);font-weight:700;white-space:nowrap}
+.reqchip:hover{background:var(--rail-line)}
+.bar.exc .textbtn:hover{background:var(--rail-line)}
+.bar.exc :focus-visible{outline-color:var(--sign)}
+.phone .bars{padding:0 16px 10px}
+.phone .bar{padding:6px 6px 6px 12px;gap:8px}
+
+/* ---------- tabs ---------- */
+.tabs-wrap{position:sticky;top:0;z-index:5;background:var(--background);border-bottom:2px solid var(--ink)}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:0 24px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs{scroll-snap-type:x proximity;scroll-padding-inline:24px}
+.phone .tabs{scroll-padding-inline:12px}
+.tab{scroll-snap-align:start}
+.tabs.fade-r{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 48px),transparent)}
+.tabs.fade-l{-webkit-mask-image:linear-gradient(to right,transparent,#000 48px);mask-image:linear-gradient(to right,transparent,#000 48px)}
+.tabs.fade-l.fade-r{-webkit-mask-image:linear-gradient(to right,transparent,#000 48px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,transparent,#000 48px,#000 calc(100% - 48px),transparent)}
+.tab{position:relative;display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 10px;color:var(--ink-muted);white-space:nowrap;font-size:.9375rem}
+.tab .count{min-width:26px;padding:1px 7px;border-radius:var(--r-sm);background:var(--surface-variant);font-size:.8125rem;font-weight:600;text-align:center;color:var(--ink)}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);font-weight:800}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:4px;right:4px;bottom:-2px;height:5px;background:var(--ink)}
+.tab[aria-selected="true"] .count{background:var(--ink);color:var(--background);font-weight:700}
+.phone .tabs{padding:0 12px}
+.filterrow{display:flex;align-items:center;gap:8px;padding:12px 24px 0;font-size:.875rem;color:var(--ink-muted)}
+.phone .filterrow{padding:10px 16px 0}
+
+/* ---------- list & cards ---------- */
+.list{display:flex;flex-direction:column;gap:10px;padding:14px 24px 120px}
+.phone .list{padding:12px 16px 120px}
+.group-label{font-size:.8125rem;font-weight:500;color:var(--ink-muted);padding:14px 4px 2px}
+.now{display:flex;align-items:center;gap:0;font-size:0;font-weight:800;color:var(--background);padding:2px 0}
+.now::before{content:attr(aria-label);font-size:.875rem;background:var(--ink);border:2px solid var(--ink);border-radius:var(--r-sm);padding:2px 12px;white-space:nowrap}
+.now::after{content:"";flex:1;height:2px;background:var(--ink)}
+.cardwrap{container-type:inline-size}
+.card{position:relative;display:grid;grid-template-columns:8.5rem minmax(0,1fr) minmax(0,1.45fr) minmax(0,1.15fr) 13.5rem;grid-template-areas:"time pet svc tags act";gap:4px 20px;align-items:center;padding:14px 20px 14px 14px;min-height:96px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);transition:background-color .25s ease-out,border-color .25s ease-out}
+.card.exc{background:var(--danger-tint);border:2px solid var(--danger-solid)}
+.card.ended{background:transparent}
+.card:has(.c-link:focus-visible){outline:2px solid var(--focus-ring);outline-offset:2px}
+.card:hover:not(.exc){border-color:var(--ink)}
+/* numeral plate: state lives in the plate's form, not only its hue */
+.c-time{grid-area:time;display:flex;flex-direction:column;gap:3px;align-items:flex-start;justify-content:center;align-self:stretch;padding:10px 12px;border:2px solid var(--ink);border-radius:var(--r-md);background:var(--surface);color:var(--ink)}
+.c-time .t{font-family:var(--display);font-size:1.625rem;font-weight:400;line-height:1.05;letter-spacing:0}
+.c-time .t2{font-size:.8125rem;font-weight:600;color:inherit;opacity:.85}
+.c-time .stage{font-size:.8125rem;font-weight:800;line-height:1.3}
+.card.blocked .c-time{border:3px dashed var(--ink);padding:9px 11px}
+.card.next .c-time{background:var(--sign);color:var(--on-sign);border-color:var(--ink);border-style:solid}
+.card.exc .c-time{background:var(--rail-bg);color:var(--sign);border-color:var(--ink);border-style:solid;box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--danger-solid)}
+.card.ended .c-time{background:var(--surface-variant);border:2px solid var(--border);color:var(--ink-muted)}
+.c-pet{grid-area:pet;min-width:0}
+.c-link{text-decoration:none;outline:none}
+.c-link::after{content:"";position:absolute;inset:0;border-radius:var(--r-lg)}
+.c-pet .name{font-size:1.1875rem;font-weight:800;line-height:1.4}
+.c-pet .breed{font-size:.875rem;font-weight:500;color:var(--ink-muted);margin-left:6px}
+.c-pet .owner{font-size:.875rem;font-weight:500;color:var(--ink-muted);margin-top:2px}
+.c-svc{grid-area:svc;min-width:0;font-size:.9375rem;line-height:1.45}
+.c-svc .res{color:var(--ink-muted);font-size:.875rem;font-weight:500}
+.c-svc .ctx{color:var(--ink-muted);font-size:.875rem;font-weight:500;margin-top:2px}
+.c-svc .ctx.danger{color:var(--danger);font-size:.9375rem;font-weight:800}
+.c-tags{grid-area:tags;display:flex;flex-wrap:wrap;gap:6px}
+.c-act{grid-area:act;position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;margin-left:8px}
+.act-row{display:flex;gap:12px;align-items:center}
+.act-row .btn.primary,.act-row .btn.next,.act-row .btn.secondary,.act-row .btn[aria-disabled]{min-width:9.5rem;min-height:52px}
+.more{width:48px;height:48px;border:2px solid var(--ink);border-radius:var(--r-md);background:var(--surface);color:var(--ink);display:grid;place-items:center}
+.more:hover{background:var(--primary-tint)}
+.more[aria-expanded="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.c-act .reason{text-align:right;max-width:13rem}
+.ended-note{font-size:.875rem;font-weight:500;color:var(--ink-muted)}
+
+/* lifecycle track: drawn with currentColor so it reads on any plate; hollow = next to press, solid = happening now */
+.track{display:flex;gap:3px;margin-top:4px;align-items:center;height:10px}
+.track i{display:block;width:10px;height:5px;border-radius:0;background:currentColor;opacity:.6;transform-origin:left;transition:opacity .35s cubic-bezier(.16,1,.3,1)}
+.track i.done{height:7px;opacity:1}
+.track i.cur{width:22px;height:10px;background:transparent;opacity:1;outline:2px solid currentColor;outline-offset:-2px}
+.track i.cur.active{background:currentColor;outline:0;animation:fill .5s cubic-bezier(.16,1,.3,1)}
+@keyframes fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.card.flash{outline:3px solid var(--sign);outline-offset:2px;animation:lit 4s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes lit{70%{outline-color:var(--sign)}to{outline-color:transparent}}
+
+/* medium width: 3-column card */
+@container (max-width: 880px){
+  .card{grid-template-columns:7.5rem minmax(0,1fr) 13.5rem;grid-template-areas:"time pet act" "time svc act" "time tags act";gap:6px 16px}
+}
+/* narrow / large text: stacked card, primary + ⋯ on one row */
+@container (max-width: 560px){
+  .card{grid-template-columns:minmax(0,1fr);grid-template-areas:"time" "pet" "svc" "tags" "act";gap:8px;padding:14px 16px}
+  .c-time{flex-direction:row;align-items:center;gap:10px;flex-wrap:wrap;align-self:auto;padding:8px 12px}
+  .c-time .track{margin:0 0 0 auto}
+  .c-act{align-items:stretch;margin-left:0}
+  .act-row{width:100%}
+  .act-row .btn.primary,.act-row .btn.next,.act-row .btn.secondary,.act-row .btn[aria-disabled]{flex:1;min-width:0}
+  .c-act .reason{text-align:left;max-width:none}
+}
+.stacked .card{grid-template-columns:minmax(0,1fr);grid-template-areas:"time" "pet" "svc" "tags" "act";gap:8px;padding:14px 16px}
+.stacked .c-time{flex-direction:row;align-items:center;gap:10px;flex-wrap:wrap;align-self:auto;padding:8px 12px}
+.stacked .c-time .track{margin:0 0 0 auto}
+.stacked .c-act{align-items:stretch;margin-left:0}
+.stacked .act-row{width:100%}
+.stacked .act-row .btn.primary,.stacked .act-row .btn.next,.stacked .act-row .btn.secondary,.stacked .act-row .btn[aria-disabled]{flex:1;min-width:0}
+.stacked .c-act .reason{text-align:left;max-width:none}
+
+.empty{padding:40px 16px;text-align:center;color:var(--ink-muted);display:flex;flex-direction:column;align-items:center;gap:12px}
+.skel{height:84px;border-radius:var(--r-lg);background:var(--surface-variant);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.6}}
+
+/* ---------- overflow menu (portalled) ---------- */
+.menu{position:fixed;z-index:40;width:220px;background:var(--surface);border:2px solid var(--ink);border-radius:var(--r-md);padding:4px 0;overflow:hidden}
+.menu button{display:flex;align-items:center;width:100%;min-height:44px;padding:0 16px;font-size:.9375rem;text-align:left;color:var(--ink)}
+.menu button+button{border-top:1px solid var(--border)}
+.menu button:hover,.menu button:focus-visible{background:var(--background);outline:none}
+.menu button[aria-disabled="true"]{color:var(--ink-muted);cursor:not-allowed}
+.menu .mreason{font-size:.8125rem;color:var(--ink-muted);margin-left:auto;padding-left:12px}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;z-index:30;left:calc(var(--rail) + (100vw - var(--rail)) / 2);bottom:24px;transform:translateX(-50%);width:min(480px,calc(100vw - var(--rail) - 48px));background:var(--toast);color:var(--on-toast);border-radius:var(--r-md);min-height:48px;display:flex;align-items:center;gap:12px;padding:4px 8px 4px 16px;overflow:hidden;animation:rise .22s cubic-bezier(.16,1,.3,1)}
+.phone-toast{left:50%;bottom:calc(76px + env(safe-area-inset-bottom));width:calc(100vw - 32px)}
+.toast .msg{flex:1;font-size:.9375rem}
+.toast .undo{min-height:44px;min-width:44px;padding:0 10px;color:var(--on-toast);font-weight:600;text-decoration:underline;text-underline-offset:3px;border-radius:0}
+.toast .undo:focus-visible{outline-color:var(--on-toast)}
+.toast .left{position:absolute;left:0;bottom:0;height:2px;background:var(--on-toast);opacity:.5;transform-origin:left}
+@keyframes rise{from{transform:translate(-50%,12px);opacity:0}}
+
+/* ---------- sub pages ---------- */
+.sub{padding:12px 24px 120px;max-width:1100px}
+.phone .sub{padding:8px 16px 140px}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 8px 0 2px;color:var(--ink-muted);font-weight:500;border-radius:var(--r-md)}
+.back:hover{color:var(--ink)}
+.sub h1{font-size:1.375rem;font-weight:600;line-height:1.3;margin:8px 0 4px}
+.phone .sub h1{font-size:1.125rem}
+.sub .lede{color:var(--ink-muted);font-size:.875rem;margin-bottom:20px}
+.sub h2{font-size:1.0625rem;font-weight:600;margin-bottom:12px}
+.panel{background:var(--surface);border:2px solid var(--ink);border-radius:var(--r-lg);padding:20px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:20px;align-items:start}
+.phone .cols,.stacked .cols{grid-template-columns:minmax(0,1fr)}
+.stack{display:flex;flex-direction:column;gap:16px}
+.rows{display:flex;flex-direction:column}
+.row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;font-size:.875rem;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:0}
+.row .k{color:var(--ink-muted)}
+.row.total{font-size:1.0625rem;font-weight:600;border-top:1px solid var(--ink);border-bottom:0;margin-top:4px}
+.dl{display:grid;grid-template-columns:7rem 1fr;gap:10px 16px;font-size:.9375rem}
+.dl dt{color:var(--ink-muted);font-size:.875rem}
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;min-height:44px}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.success{background:var(--success-bg);color:var(--success)}
+.notice.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.steps{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.875rem;color:var(--ink-muted);margin-bottom:20px}
+.steps .on{color:var(--ink);font-weight:600}
+.steps .ok{color:var(--success)}
+.bigtrack{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.bigtrack div{font-size:.8125rem;color:var(--ink-muted);padding-top:8px;border-top:3px solid var(--track)}
+.bigtrack .done{border-color:var(--ink-muted)}
+.bigtrack .cur{border-color:var(--ink);color:var(--ink);font-weight:600}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+.actions .cell{display:flex;flex-direction:column}
+
+/* pickers */
+.picker{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.opt{min-height:48px;border:1px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);display:flex;align-items:center;gap:10px;padding:0 14px;font-size:.9375rem;text-align:left}
+.opt .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--control-border);flex:none;display:grid;place-items:center}
+.opt[aria-checked="true"]{background:var(--primary-tint);border-color:var(--ink);font-weight:700}
+.opt[aria-checked="true"] .radio{border-color:var(--ink)}
+.opt[aria-checked="true"] .radio::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--surface-variant);border-radius:var(--r-md);padding:4px;gap:4px}
+.seg button{min-height:44px;border-radius:var(--r-sm);color:var(--ink-muted);font-size:.9375rem;padding:0 8px}
+.seg button[aria-checked="true"]{background:var(--surface);border:2px solid var(--ink);color:var(--ink);font-weight:700}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.875rem;color:var(--ink-muted)}
+.field input,.field textarea{min-height:44px;border:1px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 12px;font-size:1rem}
+.field textarea{min-height:120px;resize:vertical;line-height:1.6}
+.field .err{color:var(--danger);font-size:.8125rem;font-weight:500}
+.field input[aria-invalid="true"]{border-color:var(--danger)}
+.change{display:flex;justify-content:space-between;font-size:.9375rem;padding:10px 0}
+.checklist{display:flex;flex-direction:column}
+.checkrow{display:grid;grid-template-columns:1fr 220px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.checkrow:last-child{border-bottom:0}
+.checkrow .seg{width:100%}
+.phone .checkrow{grid-template-columns:1fr}
+.result{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:16px 0 4px}
+.result .badge{width:56px;height:56px;border-radius:50%;background:var(--success-bg);color:var(--success);display:grid;place-items:center}
+.result h2{font-size:1.375rem;margin:0}
+.result p{color:var(--ink-muted)}
+.result .btn{width:100%;margin-top:8px}
+.camera{aspect-ratio:4/3;max-height:320px;border-radius:var(--r-lg);background:var(--ink);display:grid;place-items:center;color:var(--surface);font-size:.9375rem;position:relative;overflow:hidden}
+.camera .frame{width:52%;aspect-ratio:1;border:3px solid var(--surface);border-radius:var(--r-lg)}
+.camera p{position:absolute;bottom:14px;left:0;right:0;text-align:center}
+.results{display:flex;flex-direction:column;gap:8px}
+.rrow{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:56px;padding:8px 14px;border:1px solid var(--border);border-radius:var(--r-lg);background:var(--surface);text-align:left;width:100%}
+.rrow:hover{border-color:var(--control-border)}
+
+/* ---------- modal ---------- */
+.scrim{position:fixed;inset:0;z-index:50;background:var(--scrim);display:grid;place-items:center;padding:16px}
+.dialog{width:min(440px,100%);background:var(--surface);border:2px solid var(--ink);border-radius:var(--r-lg);padding:24px}
+.dialog h2{font-size:1.125rem;font-weight:600;margin-bottom:8px}
+.dialog p{color:var(--ink-muted);font-size:.9375rem;margin-bottom:20px}
+.dialog .dbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+/* ---------- tablet sign mode (owner tokens + merchant brand) ---------- */
+.handover{position:fixed;inset:0;z-index:60;background:var(--owner-surface);color:var(--owner-ink);display:flex;flex-direction:column;--focus-ring:var(--owner-ink)}
+.handover .center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center}
+.logo{width:56px;height:56px;border-radius:var(--r-owner-md);background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-size:1.375rem;font-weight:600}
+.logo.s{width:36px;height:36px;font-size:1.125rem}
+.handover .store{font-size:1rem}
+.handover .store small{display:block;font-size:.875rem;color:var(--owner-ink-muted);font-weight:500}
+.handover h2{font-size:1.375rem;font-weight:600;line-height:1.3}
+.handover p{font-size:1rem;color:var(--owner-ink-muted);line-height:1.6;max-width:30em}
+.obtn{min-height:52px;padding:14px 20px;border-radius:var(--r-owner-md);background:var(--brand);color:var(--on-brand);font-size:1.0625rem;font-weight:600;width:min(400px,100%)}
+.obtn.big{min-height:64px}
+.obtn.sec{background:var(--owner-surface);color:var(--owner-ink);border:1px solid var(--owner-control-border);font-weight:500}
+.signbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--owner-border)}
+.signbar .who{display:flex;align-items:center;gap:10px;font-size:1rem}
+.signbar .step{font-size:1.125rem;font-weight:600}
+.signbar .n{justify-self:end;font-size:.875rem;font-weight:500;color:var(--owner-ink-muted)}
+.protonote{max-width:640px;width:100%;border:1px dashed var(--owner-ink-muted);border-radius:var(--r-owner-md);padding:16px;font-size:.875rem;color:var(--owner-ink-muted);text-align:left;line-height:1.6}
+.avatar{position:relative;width:72px;height:72px;border-radius:var(--r-owner-md);background:var(--owner-surface-variant);display:grid;place-items:center;font-size:1.375rem;font-weight:600}
+.avatar .ok{position:absolute;right:-8px;bottom:-8px;width:40px;height:40px;border-radius:50%;background:var(--success-bg);color:var(--success);border:3px solid var(--owner-surface);display:grid;place-items:center}
+
+
+/* ================= alternative looks (data-skin) ================= */
+:root[data-skin="metro"]{--background:#F3F5F8;--surface:#FFFFFF;--surface-variant:#E3E8F0;--ink:#0B1F3A;--ink-muted:#465670;--border:#D3DAE5;--control-border:#667792;--track:#D9E0EA;--primary:#0B1F3A;--primary-hover:#1B3358;--on-primary:#FFFFFF;--primary-tint:#E3E8F0;--focus-ring:#2B50C8;--sign:#2B50C8;--sign-hover:#3E63DA;--on-sign:#FFFFFF;--rail-bg:#0B1F3A;--rail-ink:#BAC6DA;--rail-line:#223A5E;--rail-on:#FFFFFF;--rail-cur:#FFFFFF;--rail-cur-ink:#0B1F3A;--danger-tint:#FDF1EF;--border-danger:#E9A9A3;--r-sm:6px;--r-md:9px;--r-lg:14px;--line:#2B50C8;color-scheme:light}
+:root[data-skin="metro"][data-theme="dark"]{--background:#0A1426;--surface:#111E37;--surface-variant:#192947;--ink:#E8EEF8;--ink-muted:#A6B4CC;--border:#223152;--control-border:#7384A3;--track:#1E2D4C;--primary:#E8EEF8;--primary-hover:#FFFFFF;--on-primary:#0B1F3A;--primary-tint:#192947;--focus-ring:#8FA8FF;--sign:#6D8BFF;--sign-hover:#8CA3FF;--on-sign:#0A1426;--rail-bg:#060D1B;--rail-ink:#A6B4CC;--rail-line:#192947;--rail-on:#E8EEF8;--rail-cur:#E8EEF8;--rail-cur-ink:#0A1426;--danger-tint:#2A1A22;--border-danger:#6B2A27;--line:#6D8BFF;color-scheme:dark}
+@media (prefers-color-scheme: dark){:root[data-skin="metro"]:not([data-theme="light"]){--background:#0A1426;--surface:#111E37;--surface-variant:#192947;--ink:#E8EEF8;--ink-muted:#A6B4CC;--border:#223152;--control-border:#7384A3;--track:#1E2D4C;--primary:#E8EEF8;--primary-hover:#FFFFFF;--on-primary:#0B1F3A;--primary-tint:#192947;--focus-ring:#8FA8FF;--sign:#6D8BFF;--sign-hover:#8CA3FF;--on-sign:#0A1426;--rail-bg:#060D1B;--rail-ink:#A6B4CC;--rail-line:#192947;--rail-on:#E8EEF8;--rail-cur:#E8EEF8;--rail-cur-ink:#0A1426;--danger-tint:#2A1A22;--border-danger:#6B2A27;--line:#6D8BFF;color-scheme:dark}}
+:root[data-skin="warm"]{--background:#F4F0EE;--surface:#FFFFFF;--surface-variant:#EBE4E0;--ink:#2B2420;--ink-muted:#675B54;--border:#E6DDD7;--control-border:#8A7D75;--track:#E3DAD4;--primary:#2B2420;--primary-hover:#443932;--on-primary:#FFFFFF;--primary-tint:#F3E6DF;--focus-ring:#B8431F;--sign:#F26B3A;--sign-hover:#F6804F;--on-sign:#2B1A12;--rail-bg:#FFFFFF;--rail-ink:#675B54;--rail-line:#F3E6DF;--rail-on:#2B2420;--rail-cur:#F3E6DF;--rail-cur-ink:#2B2420;--danger-tint:#FFF3F1;--border-danger:#F0B8B2;--r-sm:8px;--r-md:12px;--r-lg:20px;--line:#F26B3A;color-scheme:light}
+:root[data-skin="warm"][data-theme="dark"]{--background:#1C1816;--surface:#27211E;--surface-variant:#322B27;--ink:#F5EFEB;--ink-muted:#BCB0A8;--border:#3B332E;--control-border:#8A7D75;--track:#3A322D;--primary:#F5EFEB;--primary-hover:#FFFFFF;--on-primary:#2B2420;--primary-tint:#3A2F29;--focus-ring:#FFB08F;--sign:#FF8A5C;--sign-hover:#FFA07B;--on-sign:#2B1A12;--rail-bg:#14110F;--rail-ink:#BCB0A8;--rail-line:#322B27;--rail-on:#F5EFEB;--rail-cur:#3A2F29;--rail-cur-ink:#F5EFEB;--danger-tint:#2E1D1C;--border-danger:#6B2A27;--line:#FF8A5C;color-scheme:dark}
+@media (prefers-color-scheme: dark){:root[data-skin="warm"]:not([data-theme="light"]){--background:#1C1816;--surface:#27211E;--surface-variant:#322B27;--ink:#F5EFEB;--ink-muted:#BCB0A8;--border:#3B332E;--control-border:#8A7D75;--track:#3A322D;--primary:#F5EFEB;--primary-hover:#FFFFFF;--on-primary:#2B2420;--primary-tint:#3A2F29;--focus-ring:#FFB08F;--sign:#FF8A5C;--sign-hover:#FFA07B;--on-sign:#2B1A12;--rail-bg:#14110F;--rail-ink:#BCB0A8;--rail-line:#322B27;--rail-on:#F5EFEB;--rail-cur:#3A2F29;--rail-cur-ink:#F5EFEB;--danger-tint:#2E1D1C;--border-danger:#6B2A27;--line:#FF8A5C;color-scheme:dark}}
+:root[data-skin="planner"]{--background:#F6F7F9;--surface:#FFFFFF;--surface-variant:#E8EBF0;--ink:#171B26;--ink-muted:#4D5568;--border:#DADEE6;--control-border:#6D7589;--track:#DDE1E9;--primary:#1F3A8A;--primary-hover:#2B4BA6;--on-primary:#FFFFFF;--primary-tint:#E6EBF8;--focus-ring:#1F3A8A;--sign:#1F3A8A;--sign-hover:#2B4BA6;--on-sign:#FFFFFF;--rail-bg:#FFFFFF;--rail-ink:#4D5568;--rail-line:#E8EBF0;--rail-on:#171B26;--rail-cur:#E6EBF8;--rail-cur-ink:#1F3A8A;--danger-tint:#FDF1EF;--border-danger:#E9A9A3;--r-sm:4px;--r-md:8px;--r-lg:10px;--line:#1F3A8A;--hl:#CFF1DE;color-scheme:light}
+:root[data-skin="planner"][data-theme="dark"]{--background:#0F1115;--surface:#171A21;--surface-variant:#20242D;--ink:#E9ECF2;--ink-muted:#A7AEBF;--border:#272C37;--control-border:#7B8397;--track:#252A35;--primary:#8FA8FF;--primary-hover:#A9BCFF;--on-primary:#0F1115;--primary-tint:#1D2540;--focus-ring:#8FA8FF;--sign:#8FA8FF;--sign-hover:#A9BCFF;--on-sign:#0F1115;--rail-bg:#0B0D11;--rail-ink:#A7AEBF;--rail-line:#20242D;--rail-on:#E9ECF2;--rail-cur:#1D2540;--rail-cur-ink:#C9D5FF;--danger-tint:#2A1A1A;--border-danger:#6B2A27;--line:#8FA8FF;--hl:#1F3D33;color-scheme:dark}
+@media (prefers-color-scheme: dark){:root[data-skin="planner"]:not([data-theme="light"]){--background:#0F1115;--surface:#171A21;--surface-variant:#20242D;--ink:#E9ECF2;--ink-muted:#A7AEBF;--border:#272C37;--control-border:#7B8397;--track:#252A35;--primary:#8FA8FF;--primary-hover:#A9BCFF;--on-primary:#0F1115;--primary-tint:#1D2540;--focus-ring:#8FA8FF;--sign:#8FA8FF;--sign-hover:#A9BCFF;--on-sign:#0F1115;--rail-bg:#0B0D11;--rail-ink:#A7AEBF;--rail-line:#20242D;--rail-on:#E9ECF2;--rail-cur:#1D2540;--rail-cur-ink:#C9D5FF;--danger-tint:#2A1A1A;--border-danger:#6B2A27;--line:#8FA8FF;--hl:#1F3D33;color-scheme:dark}}
+:root[data-skin] .c-time .t{font-family:var(--font);font-weight:800;letter-spacing:0}
+
+/* ---- metro 捷運線: the day is a line, each pet rides it station by station ---- */
+:root[data-skin="metro"] .c-time{border:0;background:transparent;padding:0;box-shadow:none;color:var(--ink)}
+:root[data-skin="metro"] .c-time .t{font-size:1.5rem;line-height:1.15}
+:root[data-skin="metro"] .c-time .t2{opacity:1;color:var(--ink-muted);font-weight:500}
+:root[data-skin="metro"] .c-time .stage{color:var(--line);font-weight:800}
+:root[data-skin="metro"] .card.exc .c-time,:root[data-skin="metro"] .card.next .c-time,:root[data-skin="metro"] .card.blocked .c-time,:root[data-skin="metro"] .card.ended .c-time{background:transparent;border:0;padding:0;box-shadow:none}
+:root[data-skin="metro"] .card.exc .c-time,:root[data-skin="metro"] .card.exc .c-time .stage{color:var(--danger)}
+:root[data-skin="metro"] .card.ended .c-time{color:var(--ink-muted)}
+:root[data-skin="metro"] .card{border-radius:var(--r-lg);padding:16px 20px}
+:root[data-skin="metro"] .card.next{border:2px solid var(--line)}
+:root[data-skin="metro"] .card.exc{border:2px solid var(--danger-solid)}
+:root[data-skin="metro"] .card.blocked:not(.exc):not(.next){border-style:dashed;border-color:var(--control-border)}
+:root[data-skin="metro"] .track{gap:0;height:18px;margin-top:8px}
+:root[data-skin="metro"] .track i,:root[data-skin="metro"] .track i.done,:root[data-skin="metro"] .track i.cur,:root[data-skin="metro"] .track i.cur.active{position:relative;flex:none;width:12px;height:12px;margin-right:12px;border-radius:50%;background:var(--surface);border:2px solid var(--control-border);outline:0;opacity:1;animation:none}
+:root[data-skin="metro"] .track i:not(:last-child)::after{content:"";position:absolute;left:100%;top:50%;width:12px;height:3px;margin-top:-1.5px;background:var(--control-border)}
+:root[data-skin="metro"] .track i.done{background:var(--line);border-color:var(--line)}
+:root[data-skin="metro"] .track i.done::after{background:var(--line)!important}
+:root[data-skin="metro"] .track i.cur{width:18px;height:18px;margin-right:8px;margin-left:-3px;border:4px solid var(--line);background:var(--surface)}
+:root[data-skin="metro"] .track i.cur::after{width:8px}
+:root[data-skin="metro"] .track i.cur.active{background:var(--line)}
+:root[data-skin="metro"] .card.exc .track i.cur{border-color:var(--danger-solid)}
+:root[data-skin="metro"] .bar.exc{border-radius:var(--r-lg)}
+:root[data-skin="metro"] .bar.exc .bar-title{color:#FFB4A8}
+:root[data-skin="metro"] .bar.exc .textbtn,:root[data-skin="metro"] .reqchip{color:#fff}
+:root[data-skin="metro"] .reqchip{border-color:#fff}
+:root[data-skin="metro"] .now::before{background:var(--line);border-color:var(--line);color:var(--on-sign)}
+:root[data-skin="metro"] .now{color:var(--on-sign)}
+:root[data-skin="metro"] .now::after{background:var(--line)}
+:root[data-skin="metro"] .btn.next{border-color:var(--sign)}
+:root[data-skin="metro"] .btn.secondary,:root[data-skin="metro"] .search input,:root[data-skin="metro"] .branch select,:root[data-skin="metro"] .more{border-width:1.5px;border-color:var(--control-border)}
+:root[data-skin="metro"] .tab[aria-selected="true"]::after{background:var(--line);height:4px}
+:root[data-skin="metro"] .tabs-wrap{border-bottom:1px solid var(--border)}
+:root[data-skin="metro"] .tab[aria-selected="true"] .count{background:var(--line);color:var(--on-sign)}
+:root[data-skin="metro"] .panel,:root[data-skin="metro"] .dialog,:root[data-skin="metro"] .menu{border-width:1px;border-color:var(--border)}
+
+/* ---- warm 暖暖: soft cards, one saturated color that only ever means "you can press this" ---- */
+:root[data-skin="warm"] .rail{border-right:1px solid var(--border)}
+:root[data-skin="warm"] .bnav{border-top:1px solid var(--border)}
+:root[data-skin="warm"] .mark{background:var(--sign);color:var(--on-sign);border-color:var(--sign);border-radius:14px}
+:root[data-skin="warm"] .card{border-radius:var(--r-lg);border:1px solid var(--border);padding:18px 22px 18px 18px;gap:6px 20px}
+:root[data-skin="warm"] .card:hover:not(.exc){border-color:var(--control-border)}
+:root[data-skin="warm"] .c-time{border:0;border-radius:16px;background:var(--surface-variant);padding:12px 14px;box-shadow:none;color:var(--ink)}
+:root[data-skin="warm"] .c-time .t{font-size:1.5rem}
+:root[data-skin="warm"] .card.next .c-time{background:var(--sign);color:var(--on-sign)}
+:root[data-skin="warm"] .card.blocked .c-time{background:var(--surface-variant);border:2px dashed var(--control-border);padding:10px 12px}
+:root[data-skin="warm"] .card.exc{border:2px solid var(--danger-solid)}
+:root[data-skin="warm"] .card.exc .c-time{background:var(--danger-solid);color:var(--on-danger-solid);border:0;box-shadow:none}
+:root[data-skin="warm"] .card.ended .c-time{background:transparent;border:0;color:var(--ink-muted)}
+:root[data-skin="warm"] .track{gap:4px;height:8px}
+:root[data-skin="warm"] .track i,:root[data-skin="warm"] .track i.done{border-radius:9999px;height:6px;width:12px}
+:root[data-skin="warm"] .track i.cur{border-radius:9999px;width:22px;height:8px}
+:root[data-skin="warm"] .btn{border-radius:9999px;padding:12px 22px;border-width:1.5px}
+:root[data-skin="warm"] .btn.secondary{border-color:var(--control-border);font-weight:600}
+:root[data-skin="warm"] .btn.next{border-color:var(--sign);font-weight:800}
+:root[data-skin="warm"] .more{border-radius:9999px;border-width:1.5px;border-color:var(--control-border)}
+:root[data-skin="warm"] .search input,:root[data-skin="warm"] .branch select{border-radius:9999px;border-width:1.5px;border-color:var(--control-border)}
+:root[data-skin="warm"] .bar{border-radius:var(--r-lg)}
+:root[data-skin="warm"] .bar.exc{background:var(--danger-tint);border:2px solid var(--danger-solid);color:var(--ink)}
+:root[data-skin="warm"] .bar.exc .bar-title{color:var(--danger)}
+:root[data-skin="warm"] .bar.exc .textbtn,:root[data-skin="warm"] .reqchip{color:var(--ink)}
+:root[data-skin="warm"] .reqchip{border-color:var(--control-border);border-radius:9999px}
+:root[data-skin="warm"] .bar.exc .textbtn:hover,:root[data-skin="warm"] .reqchip:hover{background:var(--primary-tint)}
+:root[data-skin="warm"] .bar.req{border-width:1px;border-color:var(--border)}
+:root[data-skin="warm"] .tabs-wrap{border-bottom:0}
+:root[data-skin="warm"] .tab{border-radius:9999px;margin:6px 0}
+:root[data-skin="warm"] .tab[aria-selected="true"]{background:var(--ink);color:var(--background)}
+:root[data-skin="warm"] .tab[aria-selected="true"]::after{display:none}
+:root[data-skin="warm"] .tab[aria-selected="true"] .count{background:var(--background);color:var(--ink)}
+:root[data-skin="warm"] .now::before{background:var(--surface-variant);border:0;color:var(--ink);border-radius:9999px}
+:root[data-skin="warm"] .now{color:var(--ink)}
+:root[data-skin="warm"] .now::after{height:1px;background:var(--control-border)}
+:root[data-skin="warm"] .panel,:root[data-skin="warm"] .dialog,:root[data-skin="warm"] .menu{border-width:1px;border-color:var(--border)}
+:root[data-skin="warm"] .panel,:root[data-skin="warm"] .dialog{border-radius:var(--r-lg)}
+
+/* ---- planner 手帳: a day laid out on a time ruler, rows not boxes, one highlighter for what is next ---- */
+:root[data-skin="planner"] .list{gap:0;padding-top:8px}
+:root[data-skin="planner"] .card{border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent;padding:18px 8px 18px 0;min-height:88px}
+:root[data-skin="planner"] .card:hover:not(.exc){border-color:var(--border);background:var(--surface)}
+:root[data-skin="planner"] .c-time{border:0;background:transparent;padding:0 16px 0 0;box-shadow:none;color:var(--ink);align-self:stretch;border-right:1px solid var(--border)}
+:root[data-skin="planner"] .c-time .t{font-size:1.5rem;line-height:1.15}
+:root[data-skin="planner"] .c-time .t2{opacity:1;color:var(--ink-muted);font-weight:500}
+:root[data-skin="planner"] .c-time .stage{font-weight:700;color:var(--ink-muted)}
+:root[data-skin="planner"] .track{display:none}
+:root[data-skin="planner"] .card.next{background:var(--hl);border-radius:var(--r-md);border-bottom-color:transparent;padding-left:14px}
+:root[data-skin="planner"] .card.next .c-time{background:transparent;color:var(--ink);border-right-color:var(--ink-muted)}
+:root[data-skin="planner"] .card.next .c-time .stage{color:var(--ink)}
+:root[data-skin="planner"] .card.blocked .c-time{border:0;border-right:2px dashed var(--control-border);padding:0 16px 0 0}
+:root[data-skin="planner"] .card.blocked .c-time .stage{color:var(--warning)}
+:root[data-skin="planner"] .card.exc{background:var(--danger-tint);border:0;border-top:2px solid var(--danger-solid);border-bottom:2px solid var(--danger-solid);margin:6px 0}
+:root[data-skin="planner"] .card.exc .c-time{background:transparent;color:var(--danger);box-shadow:none;border:0;border-right:2px solid var(--danger-solid)}
+:root[data-skin="planner"] .card.exc .c-time .stage,:root[data-skin="planner"] .card.exc .c-time .t2{color:var(--danger)}
+:root[data-skin="planner"] .card.ended .c-time{background:transparent;border:0;border-right:1px solid var(--border);color:var(--ink-muted)}
+:root[data-skin="planner"] .btn{border-radius:var(--r-md)}
+:root[data-skin="planner"] .btn.next{border-color:var(--sign);font-weight:700}
+:root[data-skin="planner"] .btn.secondary,:root[data-skin="planner"] .more,:root[data-skin="planner"] .search input,:root[data-skin="planner"] .branch select{border-width:1px;border-color:var(--control-border)}
+:root[data-skin="planner"] .bar{border-radius:var(--r-md)}
+:root[data-skin="planner"] .bar.exc{background:var(--danger-tint);border:1px solid var(--danger-solid);color:var(--ink)}
+:root[data-skin="planner"] .bar.exc .bar-title{color:var(--danger)}
+:root[data-skin="planner"] .bar.exc .textbtn,:root[data-skin="planner"] .reqchip{color:var(--primary)}
+:root[data-skin="planner"] .reqchip{border-color:var(--primary)}
+:root[data-skin="planner"] .bar.exc .textbtn:hover,:root[data-skin="planner"] .reqchip:hover{background:var(--primary-tint)}
+:root[data-skin="planner"] .bar.req{border-width:1px;border-color:var(--border)}
+:root[data-skin="planner"] .tabs-wrap{border-bottom:1px solid var(--border)}
+:root[data-skin="planner"] .tab[aria-selected="true"]::after{background:var(--primary);height:3px;bottom:-1px}
+:root[data-skin="planner"] .tab[aria-selected="true"] .count{background:var(--primary);color:var(--on-primary)}
+:root[data-skin="planner"] .now::before{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+:root[data-skin="planner"] .now{color:var(--on-primary)}
+:root[data-skin="planner"] .now::after{height:2px;background:var(--primary)}
+:root[data-skin="planner"] .panel,:root[data-skin="planner"] .dialog,:root[data-skin="planner"] .menu{border-width:1px;border-color:var(--border)}
+
+@container (max-width: 560px){:root[data-skin="planner"] .c-time,:root[data-skin="planner"] .card.exc .c-time,:root[data-skin="planner"] .card.blocked .c-time,:root[data-skin="planner"] .card.ended .c-time{border:0;padding:0}}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+  .toast .left{display:none}
+}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>S-02 今日看板・互動原型</b><span class="muted">毛孩日和・中山店，資料全為虛構</span>
+  <span class="sp"></span>
+  <label>角色 <select id="p-role"><option value="mgr">店長 阿凱</option><option value="clerk">櫃台 小芸</option></select></label>
+  <label>外觀 <select id="p-skin"><option value="">價目牌</option><option value="metro">捷運線</option><option value="warm">暖暖</option><option value="planner">手帳</option></select></label>
+  <label>主題 <select id="p-theme"><option value="">跟隨系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <label>字級 <select id="p-scale"><option value="1">100%</option><option value="1.3">130%</option></select></label>
+  <label><input type="checkbox" id="p-offline"> 離線</label>
+  <button class="pbtn" id="p-reset" type="button">重設資料</button>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div class="sr" aria-live="polite" id="live"></div>
+
+<script>
+(() => {
+let NOW = '09:55';
+const TODAY = '10/5（一）';
+const hm = m => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+const advance = () => { NOW = hm(mins(NOW) + 1); };
+const late = a => a.overdue ? mins(NOW) - mins(a.overdue.due) : 0;
+const I = {
+  board:'<path d="M4 5h16v14H4z"/><path d="M4 10h16M9 10v9"/>',
+  scan:'<path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/>',
+  send:'<path d="M20 4 3 11l7 2 2 7 8-16Z"/><path d="m10 13 4-4"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/>',
+  walk:'<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>',
+  search:'<circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  paw:'<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>',
+  more:'<circle cx="5.5" cy="12" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="18.5" cy="12" r="1.2" fill="currentColor"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  refresh:'<path d="M19 12a7 7 0 1 1-2.1-5"/><path d="M19 4v4h-4"/>',
+  boardF:'<path d="M4 5h16v14H4z" fill="currentColor"/><path d="M4 10h16M9 10v9" style="stroke:var(--cut)"/>',
+  scanF:'<path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><rect x="7" y="7" width="10" height="10" rx="1.5" fill="currentColor"/>',
+  sendF:'<path d="M20 4 3 11l7 2 2 7 8-16Z" fill="currentColor"/><path d="m10 13 4-4" style="stroke:var(--cut)"/>',
+  userF:'<circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5Z" fill="currentColor"/>',
+  walkF:'<circle cx="12" cy="12" r="8" fill="currentColor"/><path d="M12 8v8M8 12h8" style="stroke:var(--cut)"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>'
+};
+const ic = (n, c='') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const fmt = n => n.toLocaleString('en-US');
+const nt = n => `NT$${fmt(n)}`;
+const mins = t => { const [h,m] = t.split(':').map(Number); return h*60+m; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- synthetic day: 毛孩日和・中山店 ---------- */
+const SEED = () => ([
+  {id:'doupi',pet:'豆皮',breed:'柴犬',owner:'林小姐',ph:'0640',code:'K7Q2',cat:'boarding',status:'in_service',start:'09:00',t:'09:00',t2:'退房',outToday:true,svc:'寵物住宿・2 晚',res:'狗房 1',contract:'signed',items:[['住宿 2 晚 × NT$1,200',2400]],paid:0,overdue:{kind:'checkout',due:'09:00'},ctx:'10/3 入住・預計 09:00 退房',safety:[],care:[],line:true},
+  {id:'doudou',pet:'豆豆',breed:'臘腸犬',owner:'黃先生',ph:'5318',code:'M3D8',cat:'grooming',status:'booked',start:'09:30',t:'09:30',t2:'–10:30',svc:'基礎洗澡・小型犬',res:'美容台 B・小芸',contract:'signed',items:[['基礎洗澡・小型犬',700]],paid:0,overdue:{kind:'late',due:'09:30'},notifyFailed:true,ctx:'提醒簡訊發送失敗，飼主可能沒收到提醒',safety:[],care:[],line:true},
+  {id:'xiaohei',pet:'小黑',breed:'米克斯',owner:'林先生',ph:'2716',code:'P9H4',cat:'grooming',status:'service_completed',start:'09:00',t:'09:00',t2:'–10:00',svc:'基礎洗澡・中型犬',res:'美容台 A・阿哲',contract:'signed',petCheck:true,recordSigned:true,items:[['基礎洗澡・中型犬',800]],paid:0,ctx:'09:52 完成・已通知接回',safety:[],care:[],line:true},
+  {id:'lucky',pet:'Lucky',breed:'迷你雪納瑞',owner:'周先生',ph:'0093',code:'L2C6',cat:'grooming',status:'in_service',start:'09:15',t:'09:15',t2:'–11:15',svc:'精緻美容・小型犬',res:'美容台 C・阿哲',contract:'signed',petCheck:true,original:'failed',items:[['精緻美容・小型犬',1500],['加購・耳道清潔',150]],paid:0,ctx:'09:20 開始・詢問紀錄正本 LINE 傳送失敗',safety:[],care:[],line:true},
+  {id:'naicha',pet:'奶茶',breed:'博美',owner:'李小姐',ph:'4471',code:'R5N1',cat:'grooming',status:'booked',start:'09:40',t:'09:40',t2:'–10:40',svc:'基礎洗澡・小型犬',res:'美容台 B・小芸',contract:'pending',staffConfirm:true,items:[['基礎洗澡・小型犬',600]],paid:0,ctx:'平板簽署 09:48・已交還',safety:[],care:[],line:true},
+  {id:'xiaomi',pet:'小米',breed:'柯基',owner:'鄭小姐',ph:'7702',code:'T8V3',cat:'grooming',status:'checked_in',start:'09:45',t:'09:45',t2:'–10:45',svc:'基礎洗澡・中型犬',res:'美容台 D・小芸',contract:'signed',petCheck:false,items:[['基礎洗澡・中型犬',750]],paid:0,ctx:'09:47 報到',safety:[],care:[],line:true},
+  {id:'maomao',pet:'毛毛',breed:'貴賓犬',owner:'王太太',ph:'8821',code:'W4M7',cat:'grooming',status:'booked',start:'10:00',t:'10:00',t2:'–12:00',svc:'洗澡＋剪毛・小型犬',res:'美容台 A・阿哲',contract:'signed',items:[['洗澡＋剪毛・小型犬',1200]],paid:0,ctx:'',safety:[],care:['怕剪刀'],line:true},
+  {id:'momo',pet:'Momo',breed:'貴賓犬',owner:'陳先生',ph:'2207',code:'C6B9',cat:'grooming',status:'booked',start:'10:00',t:'10:00',t2:'–11:00',svc:'洗澡＋修腳底毛',res:'美容台 C・阿哲',contract:'pending',expired:true,items:[['洗澡＋修腳底毛・小型犬',900]],paid:0,ctx:'未在家閱讀，到店走平板即時審閱',safety:['會咬人'],care:['需戴頭套'],line:true},
+  {id:'qiuqiu',pet:'球球',breed:'比熊',owner:'許小姐',ph:'3390',code:'F1J5',cat:'grooming',status:'booked',start:'10:15',t:'10:15',t2:'–11:15',svc:'基礎洗澡・小型犬',res:'美容台 D・小芸',contract:'pending',read:true,items:[['基礎洗澡・小型犬',650]],paid:0,ctx:'10/4 已在 LINE 讀完，到店簽名約 1 分鐘',safety:[],care:[],line:true},
+  {id:'buding',pet:'布丁',breed:'柴犬',owner:'吳小姐',ph:'6610',code:'D3G8',cat:'grooming',status:'booked',start:'10:30',t:'10:30',t2:'–12:30',svc:'精緻美容・中型犬',res:'美容台 B・小芸',contract:'signed',items:[['精緻美容・中型犬',1800]],paid:0,request:{to:'10/12（日）14:00',toRange:'10/12（日）14:00–16:00'},ctx:'申請改到 10/12（日）14:00',safety:[],care:[],line:true},
+  {id:'afu',pet:'阿福',breed:'黃金獵犬',owner:'蔡先生',ph:'1180',code:'H7K2',cat:'grooming',status:'booked',start:'11:00',t:'11:00',t2:'–13:00',svc:'精緻美容・大型犬',res:'美容台 A・阿哲',contract:'signed',items:[['精緻美容・大型犬',2200]],paid:0,ctx:'',safety:[],care:['皮膚敏感'],line:true},
+  {id:'heitang',pet:'黑糖',breed:'米克斯',owner:'劉先生',ph:'3055',code:'B5S4',cat:'boarding',status:'booked',start:'14:00',t:'14:00',t2:'入住',inToday:true,svc:'寵物住宿・3 晚',res:'狗房 2',contract:'signed',items:[['住宿 3 晚 × NT$1,200',3600]],paid:0,ctx:'10/5 → 10/8・住宿及醫療授權已簽',safety:[],care:[],line:true},
+  {id:'mimi',pet:'咪咪',breed:'英國短毛貓',owner:'張太太',ph:'0112',code:'E2Y6',cat:'boarding',status:'in_service',start:'99:00',t:'10/4',t2:'→ 10/7',svc:'寵物住宿・第 2 晚',res:'貓房 3',contract:'signed',items:[['住宿 3 晚 × NT$1,000',3000]],paid:1000,ctx:'08:30 餵食・正常進食',safety:[],care:['皮膚病'],line:true},
+  {id:'tangtang',pet:'糖糖',breed:'馬爾濟斯',owner:'郭太太',ph:'4126',code:'A9Z3',cat:'grooming',status:'completed',start:'08:30',t:'08:30',t2:'–09:30',svc:'基礎洗澡・小型犬',res:'美容台 A・阿哲',contract:'signed',petCheck:true,recordSigned:true,items:[['基礎洗澡・小型犬',600]],paid:600,ctx:'09:41 已離店',safety:[],care:[],line:true}
+]);
+
+const state = {
+  appts: SEED(), tab:'all', filter:null, q:'', role:'mgr', offline:false, scale:1, branch:'中山店',
+  view:{name:'board'}, menu:null, confirm:null, handover:null, toast:null, loading:true, phone:false, pay:null, check:null, note:null
+};
+let NEXT_ID = null;
+const byId = id => state.appts.find(a => a.id === id);
+const staff = () => state.role === 'mgr' ? '阿凱' : '小芸';
+
+/* ---------- derived ---------- */
+const due = a => a.items.reduce((s, x) => s + x[1], 0);
+const owed = a => due(a) - a.paid;
+const contractOk = a => a.contract !== 'pending';
+const isExc = a => !!a.overdue || !!a.notifyFailed;
+const ended = a => a.status === 'completed' || a.status === 'no_show';
+const inHouse = a => a.cat === 'boarding' && a.status === 'in_service' && !a.outToday;
+const TABS = [['all','全部'],['wait','待報到'],['in','已報到'],['sign','待簽署'],['svc','服務中'],['pick','待接回'],['pay','待收款'],['stay','住宿中'],['arrive','今日入住'],['leave','今日退房']];
+const inTab = (a, t) => {
+  const b = a.cat === 'boarding';
+  switch (t) {
+    case 'all': return true;
+    case 'wait': return a.status === 'booked' && contractOk(a) && !b;
+    case 'in': return a.status === 'checked_in';
+    case 'sign': return a.status === 'booked' && a.contract === 'pending';
+    case 'svc': return a.status === 'in_service' && !b;
+    case 'pick': return a.status === 'service_completed';
+    case 'pay': return (a.status === 'service_completed' || a.status === 'checked_out') && owed(a) > 0;
+    case 'stay': return a.status === 'in_service' && b;
+    case 'arrive': return a.status === 'booked' && b && a.inToday;
+    case 'leave': return a.status === 'in_service' && b && a.outToday;
+  }
+};
+const branchAppts = () => state.branch === '中山店' ? state.appts : [];
+
+function lifecycle(a) {
+  const b = a.cat === 'boarding';
+  const labels = b ? ['入住','在住','退房','計費','收款','離店'] : ['報到','現況','服務','完成','收款','離店'];
+  let i, active = false;
+  if (ended(a)) i = 6;
+  else if (a.status === 'booked') i = 0;
+  else if (a.status === 'checked_in') i = a.petCheck ? 2 : 1;
+  else if (a.status === 'in_service') { if (b) { i = a.outToday ? 2 : 1; active = !a.outToday; } else { i = 2; active = true; } }
+  else i = !a.recordSigned && !b ? 3 : owed(a) > 0 ? 4 : 5;
+  return {labels, i, active};
+}
+function stateChip(a) {
+  const b = a.cat === 'boarding';
+  if (a.status === 'no_show') return ['未到','danger'];
+  if (a.status === 'completed') return ['已完成','success'];
+  if (a.status === 'booked') return b ? ['今日入住','boarding'] : ['待報到','neutral'];
+  if (a.status === 'checked_in') return ['已報到','info'];
+  if (a.status === 'in_service') return b ? (a.outToday ? ['今日退房','boarding'] : ['住宿中','boarding']) : ['服務中','info'];
+  if (a.status === 'service_completed') return ['待接回','success'];
+  return ['待收款','warning'];
+}
+const payActionable = a => a.status === 'service_completed' || a.status === 'checked_out' || (a.cat === 'boarding' && a.outToday && a.status === 'in_service');
+
+/* tag rules: EXPERIENCE.md appointment-card — action/safety only, safety → care → exception → contract → payment → other */
+function tagsOf(a, full) {
+  const out = [];
+  a.safety.forEach(t => out.push({k:'safety', t}));
+  a.care.forEach(t => out.push({k:'care', t}));
+  if (a.overdue) out.push({k:'danger', t: a.overdue.kind === 'checkout' ? `退房逾時 ${late(a)} 分` : `逾時 ${late(a)} 分未到`});
+  if (a.notifyFailed) out.push({k:'danger', t:'通知失敗'});
+  if (a.contract === 'pending') {
+    if (a.staffConfirm) out.push({k:'warning', t:'待店員確認'});
+    else if (a.later) out.push({k:'warning', t:'飼主選擇之後再簽'});
+    else {
+      out.push({k:'warning', t:'待簽'});
+      if (a.read) out.push({k:'neutral', t:'已閱讀'});
+      if (a.expired) out.push({k:'danger', t:'連結過期'});
+    }
+  } else if (full) out.push({k:'success', t:'已簽'});
+  if (a.original === 'failed') out.push({k:'danger', t:'正本未交付'});
+  else if (full && a.original === 'sending') out.push({k:'neutral', t:'正本傳送中'});
+  else if (full && a.original === 'delivered') out.push({k:'success', t:'正本已交付'});
+  if (owed(a) > 0 && (full || payActionable(a) || a.paid > 0)) out.push({k:'warning', t: a.paid > 0 ? `部分收款・未收 ${nt(owed(a))}` : `未收 ${nt(owed(a))}`});
+  else if (full && owed(a) === 0) out.push({k:'success', t:'已收'});
+  if (a.request) out.push({k:'warning', t:'待審改期'});
+  return out;
+}
+function tagHtml(x) {
+  if (x.k === 'safety') return `<span class="tag safety">${ic('warn','sm')}${esc(x.t)}</span>`;
+  if (x.k === 'care') return `<span class="tag care">${ic('paw','sm')}${esc(x.t)}</span>`;
+  return `<span class="chip ${x.k}">${esc(x.t)}</span>`;
+}
+function boardTags(a) {
+  const all = tagsOf(a, false);
+  const safety = all.filter(x => x.k === 'safety'), rest = all.filter(x => x.k !== 'safety');
+  const room = Math.max(0, 3 - safety.length);
+  const shown = safety.concat(rest.slice(0, room)), hidden = rest.slice(room);
+  let h = shown.map(tagHtml).join('');
+  if (hidden.length) h += `<span class="chip neutral" role="img" aria-label="另有 ${hidden.length} 個標籤：${hidden.map(x => x.t).join('、')}">+${hidden.length}</span>`;
+  return h;
+}
+
+/* one primary per card: the most urgent next step */
+function primaryOf(a) {
+  const ph = state.phone, off = state.offline;
+  if (a.request) return {label:'審核改期', act:'review', dis: state.role === 'mgr' ? null : '需店長以上權限'};
+  switch (a.status) {
+    case 'booked':
+      if (a.contract === 'pending') {
+        if (a.staffConfirm) return {label:'店員確認完成', act:'confirmSign'};
+        if (a.later) return {label:'改期', act:'reschedule'};
+        return {label:'現場簽名', act:'sign', dis: ph ? '請用櫃台平板' : off ? '需連線' : null};
+      }
+      return {label: a.cat === 'boarding' ? '入住' : '報到', act:'checkin'};
+    case 'checked_in':
+      return a.petCheck ? {label:'開始服務', act:'start'} : {label:'記錄現況', act:'petcheck'};
+    case 'in_service':
+      if (a.cat === 'boarding') return a.outToday ? {label:'開始退房', act:'checkoutB'} : {label:'新增照護備註', act:'note'};
+      return {label:'完成服務', act:'complete'};
+    case 'service_completed':
+      if (!a.recordSigned) return {label:'服務紀錄簽名', act:'recordSign', dis: ph ? '請用櫃台平板' : off ? '需連線' : null};
+      if (owed(a) > 0) return {label:`收款 ${nt(owed(a))}`, act:'pay', dis: off ? '需連線' : null};
+      return {label:'離店', act:'checkout'};
+  }
+  return null;
+}
+function overflowOf(a) {
+  const m = [];
+  if (ended(a)) return m;
+  if (a.notifyFailed) m.push({label:'補發通知', act:'resendNotify'});
+  if (a.status === 'booked' && a.overdue) m.push({label:'標記未到', act:'noShow'});
+  if (a.contract === 'pending' && !a.staffConfirm) {
+    if (a.later) m.push({label:'現場簽名', act:'sign', dis: state.phone ? '請用櫃台平板' : state.offline ? '需連線' : null});
+    if (!a.read || a.later) m.push({label:'補發契約連結', act:'resendLink'});
+  }
+  if (a.original === 'failed') m.push({label:'補發正本', act:'resendOriginal'});
+  if ((a.status === 'checked_in' || a.status === 'in_service') && a.cat !== 'boarding') m.push({label:'新增備註', act:'note'});
+  return m;
+}
+
+/* ---------- rendering ---------- */
+const app = document.getElementById('app'), layer = document.getElementById('layer'), live = document.getElementById('live');
+const say = msg => { live.textContent = ''; setTimeout(() => live.textContent = msg, 30); };
+let focusAfter = null;
+function keepFocus(fn) {
+  const k = focusAfter || document.activeElement?.dataset?.key;
+  focusAfter = null;
+  const y = window.scrollY;
+  fn();
+  if (k) { const el = document.querySelector(`[data-key="${CSS.escape(k)}"]`); if (el) { el.focus({preventScroll:true}); } }
+  window.scrollTo(0, y);
+}
+
+function render() {
+  keepFocus(() => {
+    app.className = (state.phone ? 'phone' : '') + (state.scale >= 1.3 ? ' stacked' : '');
+    const v = state.view.name;
+    const nav = state.phone ? bottomNav(v) : rail(v);
+    app.innerHTML = (state.phone ? '' : nav) + `<main id="main">${view()}</main>` + (state.phone && (v === 'board' || v === 'search' || v === 'stub') ? nav : '');
+    if (v === 'board') renderBoardBody(false);
+    renderLayer();
+  });
+}
+function rail(v) {
+  const it = (key, label, icon, cur) => `<button class="rail-item" data-key="nav-${key}" data-nav="${key}" ${cur ? 'aria-current="page"' : ''}>${ic(cur ? icon + 'F' : icon,'lg')}<span>${label}</span></button>`;
+  return `<nav class="rail" aria-label="主導覽"><div class="mark" aria-hidden="true">寵</div>
+    ${it('board','今日看板','board', v !== 'search' && !(v === 'stub' && state.view.nav))}
+    ${it('search','查詢預約','scan', v === 'search')}
+    ${it('notify','通知補發','send', v === 'stub' && state.view.nav === 'notify')}
+    ${it('me','個人帳號','user', v === 'stub' && state.view.nav === 'me')}</nav>`;
+}
+function bottomNav(v) {
+  const it = (key, label, icon, cur) => `<button data-key="nav-${key}" data-nav="${key}" ${cur ? 'aria-current="page"' : ''}>${ic(cur ? icon + 'F' : icon)}<span>${label}</span></button>`;
+  return `<nav class="bnav" aria-label="主導覽">
+    ${it('board','看板','board', v === 'board')}${it('search','掃 QR / 查詢','scan', v === 'search')}
+    ${it('walkin','新增現場預約','walk', v === 'stub' && state.view.nav === 'walkin')}${it('me','我的','user', v === 'stub' && state.view.nav === 'me')}</nav>`;
+}
+function updatedHtml() {
+  return state.offline
+    ? `<span class="chip warning" data-updated>${'離線・' + NOW + ' 更新'}</span>`
+    : `<span class="updated" data-updated>${NOW} 更新</span>`;
+}
+function view() {
+  const v = state.view;
+  if (v.name === 'board') return boardHead() + `<div id="board-body"></div>`;
+  if (v.name === 'detail') return detailView(byId(v.id));
+  if (v.name === 'petcheck') return checkView(byId(v.id));
+  if (v.name === 'pay') return payView(byId(v.id));
+  if (v.name === 'review') return reviewView(byId(v.id));
+  if (v.name === 'note') return noteView(byId(v.id));
+  if (v.name === 'search') return searchView();
+  if (v.name === 'stub') return stubView(v);
+  return '';
+}
+function boardHead() {
+  if (state.phone) return `<header class="head"><div class="head-title"><h1 id="board-title" tabindex="-1">今日看板</h1><span class="updated">${TODAY}</span>${updatedHtml()}</div>
+    ${branchHtml()}</header>`;
+  return `<header class="head">
+    <div class="head-title"><h1 id="board-title" tabindex="-1">今日看板</h1><span class="updated">${TODAY}</span>${updatedHtml()}
+      <button class="iconbtn" data-key="refresh" data-do="refresh" aria-label="重新整理">${ic('refresh')}</button></div>
+    <div class="search">${ic('search')}<input id="q" data-key="q" type="search" placeholder="末四碼、寵物名、預約碼" aria-label="搜尋今日預約：手機末四碼、寵物名或預約碼" value="${esc(state.q)}"></div>
+    ${branchHtml()}
+    <button class="btn primary" data-key="walkin" data-do="walkin">${ic('plus','sm')}新增現場預約</button>
+  </header>`;
+}
+function branchHtml() {
+  return `<div class="branch"><select data-key="branch" id="branch" aria-label="分店">${['中山店','信義店'].map(b => `<option ${b === state.branch ? 'selected' : ''}>${b}</option>`).join('')}</select>${ic('chev','sm')}</div>`;
+}
+
+function sorted(list) {
+  const rank = a => isExc(a) ? 0 : ended(a) ? 3 : inHouse(a) ? 2 : 1;
+  return list.slice().sort((x, y) => rank(x) - rank(y) || (rank(x) === 0 ? late(y) - late(x) : 0) || mins(x.start) - mins(y.start));
+}
+function renderBoardBody(wrap = true) {
+  const body = document.getElementById('board-body');
+  if (!body) return;
+  const go = () => {
+    const appts = branchAppts();
+    const exc = appts.filter(a => isExc(a) && !ended(a));
+    const reqs = appts.filter(a => a.request);
+    let html = '';
+    if (exc.length || reqs.length) html += `<div class="bars">${barsHtml(exc, reqs)}</div>`;
+    html += `<div class="tabs-wrap"><div class="tabs" role="tablist" aria-label="看板篩選">${TABS.map(([k, l]) => {
+      const n = appts.filter(a => inTab(a, k) && (k !== 'all' || !ended(a))).length;
+      const sel = state.tab === k && !state.filter;
+      return `<button class="tab" role="tab" data-key="tab-${k}" data-tab="${k}" aria-selected="${sel}" aria-controls="list" aria-label="${l}，${n} 筆" tabindex="${sel || (state.filter && k === 'all') ? 0 : -1}">${l}<span class="count" aria-hidden="true">${n}</span></button>`;
+    }).join('')}</div></div>`;
+    if (state.filter) {
+      const lbl = state.filter === 'exc' ? `只顯示需要處理的 ${exc.length} 筆` : `只顯示待審申請 ${reqs.length} 筆`;
+      html += `<div class="filterrow">${lbl}<button class="textbtn" data-key="clearfilter" data-do="clearFilter">顯示全部</button></div>`;
+    }
+    html += `<div class="list" id="list" role="tabpanel" aria-label="${state.filter ? '篩選結果' : TABS.find(t => t[0] === state.tab)[1]}">${state.loading ? skeleton() : listHtml(appts)}</div>`;
+    const prev = document.querySelector('.tabs')?.scrollLeft || 0;
+    body.innerHTML = html;
+    const tb = body.querySelector('.tabs');
+    if (tb) { tb.scrollLeft = prev; requestAnimationFrame(() => fadeTabs(tb)); tb.addEventListener('scroll', () => fadeTabs(tb), {passive:true}); }
+  };
+  wrap ? keepFocus(go) : go();
+}
+function fadeTabs(tb) {
+  tb.classList.toggle('fade-r', tb.scrollLeft + tb.clientWidth < tb.scrollWidth - 2);
+  tb.classList.toggle('fade-l', tb.scrollLeft > 8);
+}
+function barsHtml(exc, reqs) {
+  const excSum = exc.map(a => {
+    let d = '';
+    if (a.overdue?.kind === 'checkout') d = `退房逾時 ${late(a)} 分`;
+    else if (a.overdue) d = `${a.start} 逾時 ${late(a)} 分未到`;
+    if (a.notifyFailed) d += (d ? '，' : '') + '提醒簡訊發送失敗';
+    return `${a.pet} ${d}`;
+  }).join('・');
+  const reqSum = reqs.map(a => `${a.pet} 10/5 ${a.start} → ${a.request.to}`).join('・');
+  if (state.phone) {
+    return `<div class="bar ${exc.length ? 'exc' : 'req'}" role="region" aria-label="需要處理">
+      ${exc.length ? `<span class="bar-title">${ic('warn')}${exc.length} 筆需要處理</span>` : ''}
+      ${reqs.length ? `<span class="chip warning">待審改期 ${reqs.length}</span>` : ''}<span style="flex:1"></span>
+      <button class="textbtn" data-key="bar-view" data-do="${exc.length ? 'filterExc' : 'filterReq'}">查看</button></div>`;
+  }
+  let h = '';
+  if (exc.length) h += `<div class="bar exc" role="region" aria-labelledby="exc-t"><span class="bar-title" id="exc-t">${ic('warn')}${exc.length} 筆需要處理</span><span class="bar-sum">${esc(excSum)}</span>${reqs.length ? `<button class="reqchip" data-key="req-view" data-do="filterReq" aria-label="查看待審改期 ${reqs.length} 筆">待審改期 ${reqs.length}</button>` : ''}<button class="textbtn" data-key="exc-view" data-do="filterExc" aria-label="查看需要處理的 ${exc.length} 筆">查看</button></div>`;
+  if (reqs.length && !exc.length) h += `<div class="bar req" role="region" aria-label="待審改期"><span class="chip warning">待審改期 ${reqs.length}</span><span class="bar-sum">${esc(reqSum)}</span><button class="textbtn" data-key="req-view" data-do="filterReq" aria-label="查看待審改期 ${reqs.length} 筆">查看</button></div>`;
+  return h;
+}
+function skeleton() { return Array.from({length:6}, () => '<div class="skel" aria-hidden="true"></div>').join('') + '<span class="sr">載入中</span>'; }
+function listHtml(appts) {
+  const q = state.q.trim();
+  let list = appts.filter(a => state.filter === 'exc' ? isExc(a) && !ended(a) : state.filter === 'req' ? !!a.request : inTab(a, state.tab));
+  if (q) list = list.filter(a => a.pet.toLowerCase().includes(q.toLowerCase()) || a.ph.includes(q) || a.code.toLowerCase() === q.toLowerCase());
+  if (state.branch !== '中山店') return `<div class="empty"><p>信義店今天沒有預約。</p><button class="btn secondary" data-key="empty-walkin" data-do="walkin">新增現場預約</button></div>`;
+  if (!list.length) {
+    if (q) return `<div class="empty"><p>查無資料。確認手機末四碼或預約碼。</p></div>`;
+    const name = TABS.find(t => t[0] === state.tab)[1];
+    return state.tab === 'wait'
+      ? `<div class="empty"><p>今天沒有待報到。</p><button class="btn secondary" data-key="empty-walkin" data-do="walkin">新增現場預約</button></div>`
+      : `<div class="empty"><p>今天沒有${name}。</p><button class="btn secondary" data-key="empty-all" data-tab="all">查看全部</button></div>`;
+  }
+  const s = sorted(list);
+  let out = '', nowDone = false, endedOpen = false;
+  const showNow = !state.filter && !q;
+  NEXT_ID = showNow ? (s.find(a => !isExc(a) && !ended(a) && !inHouse(a) && mins(a.start) >= mins(NOW)) || {}).id || null : null;
+  s.forEach(a => {
+    if (showNow && !nowDone && !isExc(a) && !ended(a) && !inHouse(a) && mins(a.start) >= mins(NOW)) { out += `<div class="now" role="separator" aria-label="現在 ${NOW}">現在 ${NOW}</div>`; nowDone = true; }
+    if (showNow && !nowDone && (inHouse(a) || ended(a)) && out.includes('cardwrap')) { out += `<div class="now" role="separator" aria-label="現在 ${NOW}">現在 ${NOW}</div>`; nowDone = true; }
+    if (inHouse(a) && !endedOpen && !out.includes('data-g="stay"')) out += `<div class="group-label" data-g="stay">在住中・今天沒有入住或退房</div>`;
+    if (ended(a) && !endedOpen) { out += `<div class="group-label">已結束</div>`; endedOpen = true; }
+    out += cardHtml(a);
+  });
+  return out;
+}
+function cardHtml(a) {
+  const exc = isExc(a) && !ended(a);
+  const lc = lifecycle(a);
+  const p = primaryOf(a), m = overflowOf(a);
+  const track = `<div class="track" role="img" aria-label="進度 ${Math.min(lc.i + 1, 6)} / 6：${ended(a) ? '已結束' : lc.labels[lc.i] + (lc.active ? '進行中' : '待處理')}">${lc.labels.map((l, i) => `<i class="${i < lc.i ? 'done' : i === lc.i ? (lc.active ? 'cur active' : 'cur') : ''}"></i>`).join('')}</div>`;
+  const ctxDanger = exc && (a.overdue || a.notifyFailed);
+  let ctx = a.ctx;
+  if (a.overdue?.kind === 'checkout') ctx = `預計 09:00 退房，已逾時 ${late(a)} 分`;
+  else if (a.notifyFailed) ctx = '提醒簡訊發送失敗，飼主可能沒收到提醒';
+  else if (a.overdue) ctx = `${a.start} 預約，逾時 ${late(a)} 分未到`;
+  let act = '';
+  if (p) {
+    const rid = `r-${a.id}`;
+    const btn = p.dis
+      ? `<button class="btn" data-key="p-${a.id}" data-act="${p.act}" data-id="${a.id}" aria-disabled="true" aria-describedby="${rid}">${esc(p.label)}</button>`
+      : `<button class="btn ${exc || NEXT_ID === a.id ? 'next' : 'secondary'}" data-key="p-${a.id}" data-act="${p.act}" data-id="${a.id}">${esc(p.label)}</button>`;
+    const more = m.length ? `<button class="more" data-key="m-${a.id}" data-more="${a.id}" aria-haspopup="menu" aria-expanded="${state.menu?.id === a.id}" aria-label="更多動作：${esc(a.pet)}">${ic('more')}</button>` : '';
+    act = `<div class="act-row">${btn}${more}</div>${p.dis ? `<div class="reason" id="${rid}">${esc(p.dis)}</div>` : ''}`;
+  } else {
+    act = `<span class="ended-note">${esc(a.ctx)}</span>`;
+  }
+  const blocked = !ended(a) && (!!p?.dis || a.contract === 'pending');
+  const stage = ended(a) ? '已結束' : a.contract === 'pending' && a.status === 'booked' ? (a.staffConfirm ? '待確認' : '待簽') : lc.labels[lc.i] + (lc.active ? '中' : '');
+  return `<div class="cardwrap"><article class="card${exc ? ' exc' : ''}${ended(a) ? ' ended' : ''}${blocked ? ' blocked' : ''}${NEXT_ID === a.id ? ' next' : ''}${a.flash ? ' flash' : ''}" aria-labelledby="n-${a.id}">
+    <div class="c-time"><span class="t num">${esc(a.t)}</span><span class="t2 num">${esc(a.t2)}</span>${stage !== a.t2 ? `<span class="stage" aria-hidden="true">${esc(stage)}</span>` : ''}${track}</div>
+    <div class="c-pet"><a class="c-link" href="#${a.id}" id="n-${a.id}" data-key="l-${a.id}" data-open="${a.id}">${exc ? '<span class="sr">需要處理：</span>' : ''}<span class="name">${esc(a.pet)}</span></a><span class="breed">${esc(a.breed)}</span>
+      <div class="owner">${esc(a.owner)}・<span class="num" aria-label="手機末四碼 ${a.ph.split('').join(' ')}">••••${a.ph}</span></div></div>
+    <div class="c-svc"><div>${esc(a.svc)}</div><div class="res">${esc(a.res)}</div>${ctx && !ended(a) ? `<div class="ctx${ctxDanger ? ' danger' : ''}">${esc(ctx)}</div>` : ''}</div>
+    <div class="c-tags">${ended(a) ? `<span class="chip ${stateChip(a)[1]}">${stateChip(a)[0]}</span>` : boardTags(a)}</div>
+    <div class="c-act">${act}</div>
+  </article></div>`;
+}
+
+/* ---------- sub views ---------- */
+const backBtn = (label = '今日看板') => `<button class="back" data-key="back" data-do="back">${ic('back')}${label}</button>`;
+function detailView(a) {
+  const lc = lifecycle(a), p = primaryOf(a), m = overflowOf(a);
+  const gated = [];
+  if (a.cat !== 'boarding' && a.status === 'checked_in' && !a.petCheck) gated.push({label:'開始服務', dis:'請先記錄寵物現況'});
+  if (a.status === 'booked' && a.contract === 'pending') gated.push({label:'報到', dis:'需完成契約簽署'});
+  if (a.status === 'service_completed' && (owed(a) > 0 || !a.recordSigned)) gated.push({label:'離店', dis: !a.recordSigned ? '需完成服務內容紀錄簽名' : `未收 ${nt(owed(a))}`});
+  const notes = {'會咬人':'剪指甲與吹耳朵時會咬，需兩人保定','需戴頭套':'吹風時請戴頭套','怕剪刀':'剪刀靠近臉部會掙扎，臉部改用電剪','皮膚病':'背部濕疹，用院方藥浴，勿用一般洗劑','皮膚敏感':'只用低敏洗劑'};
+  const sens = a.safety.concat(a.care);
+  return `<div class="sub">${backBtn()}
+    <h1 tabindex="-1" id="sub-title">${esc(a.pet)}・${esc(a.breed)}</h1>
+    <p class="lede">預約碼 ${a.code}・${esc(a.owner)}・<span aria-label="手機末四碼 ${a.ph.split('').join(' ')}">••••${a.ph}</span></p>
+    <div class="cols"><div class="stack">
+      ${sens.length ? `<section class="panel" aria-labelledby="h-sens"><h2 id="h-sens">注意事項</h2><div class="rows">${sens.map(t => `<div class="row"><span>${a.safety.includes(t) ? tagHtml({k:'safety', t}) : tagHtml({k:'care', t})}</span><span>${esc(notes[t] || '')}</span></div>`).join('')}</div></section>` : ''}
+      <section class="panel" aria-labelledby="h-appt"><h2 id="h-appt">預約</h2><dl class="dl">
+        <dt>時間</dt><dd>${a.cat === 'boarding' ? esc(a.t + ' ' + a.t2) : `10/5（一）${a.t}${a.t2}`}</dd>
+        <dt>服務</dt><dd>${esc(a.svc)}</dd><dt>資源</dt><dd>${esc(a.res)}</dd>
+        <dt>最新</dt><dd>${esc(a.ctx || '—')}</dd>
+        ${a.notes?.length ? `<dt>備註</dt><dd>${a.notes.map(esc).join('<br>')}</dd>` : ''}</dl></section>
+      <section class="panel" aria-labelledby="h-prog"><h2 id="h-prog">進度</h2><div class="bigtrack">${lc.labels.map((l, i) => `<div class="${i < lc.i ? 'done' : i === lc.i ? 'cur' : ''}">${l}</div>`).join('')}</div></section>
+    </div><div class="stack">
+      <section class="panel" aria-labelledby="h-st"><h2 id="h-st">全部狀態</h2><div class="chips"><span class="chip ${stateChip(a)[1]}">${stateChip(a)[0]}</span>${tagsOf(a, true).filter(x => x.k !== 'safety' && x.k !== 'care').map(tagHtml).join('')}</div></section>
+      <section class="panel" aria-labelledby="h-act"><h2 id="h-act">動作</h2><div class="actions">
+        ${p ? `<div class="cell"><button class="btn ${p.dis ? '' : 'primary'}" data-key="dp-${a.id}" data-act="${p.act}" data-id="${a.id}" ${p.dis ? 'aria-disabled="true" aria-describedby="dr-p"' : ''}>${esc(p.label)}</button>${p.dis ? `<span class="reason" id="dr-p">${esc(p.dis)}</span>` : ''}</div>` : '<p class="reason">這筆預約已結束。</p>'}
+        ${gated.map((g, i) => `<div class="cell"><button class="btn" aria-disabled="true" aria-describedby="dr-g${i}" data-key="dg-${i}">${g.label}</button><span class="reason" id="dr-g${i}">${esc(g.dis)}</span></div>`).join('')}
+        ${m.map(x => `<div class="cell"><button class="btn secondary" data-key="dm-${x.act}" data-act="${x.act}" data-id="${a.id}" ${x.dis ? 'aria-disabled="true"' : ''}>${esc(x.label)}</button>${x.dis ? `<span class="reason">${esc(x.dis)}</span>` : ''}</div>`).join('')}
+      </div></section>
+    </div></div></div>`;
+}
+const CHECK_ITEMS = ['皮膚','耳朵','眼睛','指甲','毛結','外傷或腫塊'];
+function checkView(a) {
+  const c = state.check;
+  const left = CHECK_ITEMS.filter(k => !c[k]).length;
+  return `<div class="sub">${backBtn()}
+    <h1 tabindex="-1" id="sub-title">記錄現況：${esc(a.pet)}</h1>
+    <p class="lede">美容前逐項檢查。這份紀錄會放進詢問紀錄，飼主接回時一起簽名確認。</p>
+    <div class="cols"><section class="panel" aria-labelledby="h-chk"><h2 id="h-chk">檢查結果</h2><div class="checklist">
+      ${CHECK_ITEMS.map(k => `<div class="checkrow"><span id="ck-${k}">${k}</span><div class="seg" role="radiogroup" aria-labelledby="ck-${k}">
+        ${['正常','異常'].map(v => `<button role="radio" aria-checked="${c[k] === v}" data-key="ck-${k}-${v}" data-check="${k}" data-val="${v}">${v}</button>`).join('')}</div></div>
+        ${c[k] === '異常' ? `<div class="field" style="padding-bottom:12px"><label for="ckn-${k}">${k}：異常說明</label><input id="ckn-${k}" data-key="ckn-${k}" data-checknote="${k}" value="${esc(c[k + '_n'] || '')}" placeholder="例：右耳紅腫、有分泌物"></div>` : ''}`).join('')}
+    </div></section>
+    <section class="panel stack"><h2>儲存</h2><p class="reason" style="margin:0">${a.safety.concat(a.care).length ? `注意：${a.safety.concat(a.care).join('、')}` : '這隻毛孩沒有特別注意事項。'}</p>
+      <div class="cell" style="display:flex;flex-direction:column">${left
+        ? `<button class="btn" aria-disabled="true" aria-describedby="ck-r" data-key="ck-save">儲存現況</button><span class="reason" id="ck-r">還有 ${left} 項未選</span>`
+        : `<button class="btn primary" data-key="ck-save" data-do="saveCheck">儲存現況</button>`}</div></section></div></div>`;
+}
+function payView(a) {
+  const s = state.pay, b = a.cat === 'boarding';
+  const rows = a.items.map(([k, v]) => `<div class="row"><span>${esc(k)}</span><span class="num">${nt(v)}</span></div>`).join('');
+  const steps = b ? `<div class="steps" aria-label="退房步驟">${['開始退房','計費','收款','確認退房'].map((x, i) => {
+      const cur = s.done && owed(a) === 0 ? 3 : 2;
+      return `<span class="${i < cur ? 'ok' : i === cur ? 'on' : ''}">${i < cur ? ic('check','sm') : ''}${x}</span>${i < 3 ? '<span aria-hidden="true">›</span>' : ''}`;
+    }).join('')}</div>` : '';
+  const recs = a.records?.length ? a.records.map(r => `<div class="row"><span>${r.m}・${r.t}・${r.by}</span><span class="num">${nt(r.amt)}</span></div>`).join('') : `<p class="reason" style="margin:0">還沒有收款紀錄。</p>`;
+  return `<div class="sub">${backBtn()}
+    <h1 tabindex="-1" id="sub-title">${b ? '退房' : '收款'}：${esc(a.pet)}</h1>
+    <p class="lede">${esc(a.owner)}・${esc(a.svc)}</p>${steps}
+    <div class="cols"><div class="stack">
+      <section class="panel" aria-labelledby="h-fee"><h2 id="h-fee">費用明細</h2>
+        ${b ? `<p class="reason" style="margin:0 0 8px">10/3 09:00 入住 → 10/5 ${NOW} 退房・24 小時制・逾時費為示範費率</p>` : ''}
+        <div class="rows">${rows}<div class="row total"><span>合計</span><span class="num">${nt(due(a))}</span></div>
+        ${a.paid ? `<div class="row"><span class="k">已收</span><span class="num">${nt(a.paid)}</span></div>` : ''}
+        <div class="row"><span class="k">未收</span><span class="num" style="font-weight:600">${nt(owed(a))}</span></div></div></section>
+      <section class="panel" aria-labelledby="h-rec"><h2 id="h-rec">收款紀錄</h2><div class="rows">${recs}</div></section>
+    </div>
+    <section class="panel" aria-label="收款" id="paycol">${s.done ? payResult(a) : payForm(a)}</section></div></div>`;
+}
+function payForm(a) {
+  const s = state.pay, max = owed(a);
+  const methods = ['現金','轉帳','刷卡','其他'];
+  return `<h2 id="h-pay">收款</h2><div class="stack">
+    <div><div class="field"><label id="pm-l">收款方式</label></div>
+    <div class="picker" role="radiogroup" aria-labelledby="pm-l" style="margin-top:6px">${methods.map(m => `<button class="opt" role="radio" aria-checked="${s.method === m}" data-key="pm-${m}" data-method="${m}"><span class="radio"></span>${m}</button>`).join('')}</div></div>
+    <div class="seg" role="radiogroup" aria-label="收款金額">
+      <button role="radio" aria-checked="${s.mode === 'full'}" data-key="pmode-full" data-mode="full">全額 ${nt(max)}</button>
+      <button role="radio" aria-checked="${s.mode === 'part'}" data-key="pmode-part" data-mode="part">部分收款</button></div>
+    ${s.mode === 'part' ? `<div class="field"><label for="pamt">收款金額（NT$）</label><input id="pamt" data-key="pamt" inputmode="numeric" data-payin="part" value="${esc(s.part)}"><span class="err" id="pamt-e"></span><span class="reason" id="pamt-h"></span></div>` : ''}
+    ${s.method === '現金' ? `<div class="field"><label for="pcash">收現（選填，NT$）</label><input id="pcash" data-key="pcash" inputmode="numeric" data-payin="cash" value="${esc(s.cash)}"></div><div class="change num" id="pchange" aria-live="polite"></div>` : ''}
+    <div id="paybtn"></div></div>`;
+}
+function payAmount(a) { const s = state.pay; return s.mode === 'full' ? owed(a) : parseInt(s.part || '0', 10) || 0; }
+function payDisabled(a) {
+  const s = state.pay, amt = payAmount(a);
+  if (state.offline) return '需連線';
+  if (!s.method) return '請選擇收款方式';
+  if (s.mode === 'part' && !s.part) return '請輸入金額';
+  if (amt > owed(a)) return `超過未收 ${nt(owed(a))}`;
+  if (amt <= 0) return '請輸入金額';
+  return null;
+}
+function updatePayUI() {
+  const a = byId(state.view.id), s = state.pay;
+  const box = document.getElementById('paybtn'); if (!box) return;
+  const amt = payAmount(a), dis = payDisabled(a);
+  const e = document.getElementById('pamt-e'), h = document.getElementById('pamt-h'), inp = document.getElementById('pamt');
+  if (e) { const over = amt > owed(a); e.textContent = over ? `超過未收 ${nt(owed(a))}` : ''; inp.setAttribute('aria-invalid', over); h.textContent = !over && amt > 0 && amt < owed(a) ? `收款後還有 ${nt(owed(a) - amt)} 未收` : ''; }
+  const ch = document.getElementById('pchange');
+  if (ch) { const c = parseInt(s.cash || '0', 10); ch.innerHTML = c ? (c >= amt ? `<span>找零</span><b>${nt(c - amt)}</b>` : `<span class="reason" style="margin:0">收現少於收款金額</span>`) : ''; }
+  const label = `收款 ${nt(amt || owed(a))}`;
+  const had = document.activeElement?.dataset?.key === 'paysubmit';
+  box.innerHTML = s.busy
+    ? `<button class="btn primary" style="width:100%" aria-busy="true" data-key="paysubmit"><span class="spin" aria-hidden="true"></span>收款中</button>`
+    : dis ? `<button class="btn" style="width:100%" aria-disabled="true" aria-describedby="pay-r" data-key="paysubmit">${label}</button><div class="reason" id="pay-r">${dis}</div>`
+          : `<button class="btn primary" style="width:100%" data-key="paysubmit" data-do="paySubmit">${label}</button>`;
+  if (had) box.querySelector('button').focus();
+}
+function payResult(a) {
+  const r = a.records[a.records.length - 1], b = a.cat === 'boarding', rest = owed(a);
+  const next = rest > 0 ? `<button class="btn primary" data-key="pr-next" data-do="back">回到看板</button>`
+    : b ? `<button class="btn primary" data-key="pr-next" data-do="confirmCheckoutB">確認退房</button>`
+        : `<button class="btn primary" data-key="pr-next" data-act="checkout" data-id="${a.id}">離店</button>`;
+  return `<div class="result"><div class="badge">${ic('check','lg')}</div><h2 tabindex="-1" id="pay-done">已收款 ${nt(r.amt)}</h2><p>${r.m}・${r.t}・${r.by}${rest > 0 ? `<br>還有 ${nt(rest)} 未收` : ''}</p>${next}</div>`;
+}
+function reviewView(a) {
+  const mgr = state.role === 'mgr';
+  return `<div class="sub">${backBtn()}
+    <h1 tabindex="-1" id="sub-title">審核改期：${esc(a.pet)}</h1><p class="lede">${esc(a.owner)} 透過 LINE 申請・10/4 21:12</p>
+    <div class="cols"><section class="panel" aria-labelledby="h-rv"><h2 id="h-rv">時段</h2><dl class="dl">
+      <dt>原時段</dt><dd>10/5（一）${a.t}${a.t2}・${esc(a.res)}</dd>
+      <dt>新時段</dt><dd>${esc(a.request.toRange)}・美容台 B<div style="margin-top:6px"><span class="chip success">時段可用</span></div></dd></dl>
+      <div class="rows" style="margin-top:16px"><div class="row"><span>改期費（申請時間在免費期限內）</span><span class="num">NT$0</span></div></div>
+      <div class="notice warning" style="margin-top:16px">${ic('warn','sm')}<span>日期變更：核准後舊契約作廢，新契約連結會傳到飼主 LINE，到店前需重新簽署。</span></div></section>
+    <section class="panel stack" aria-labelledby="h-dec"><h2 id="h-dec">決定</h2>
+      ${mgr ? `<button class="btn primary" data-key="rv-ok" data-do="approve">核准改期</button>` : `<button class="btn" aria-disabled="true" aria-describedby="rv-r" data-key="rv-ok">核准改期</button><span class="reason" id="rv-r">需店長以上權限</span>`}
+      <div class="field"><label for="rv-why">拒絕原因（拒絕時必填）</label><textarea id="rv-why" data-key="rv-why" style="min-height:88px" placeholder="例：當天美容師休假，請改選其他時段"></textarea></div>
+      ${mgr ? `<button class="btn secondary" data-key="rv-no" data-do="reject">拒絕</button><span class="reason" id="rv-no-r"></span>` : ''}</section></div></div>`;
+}
+function noteView(a) {
+  const care = a.cat === 'boarding';
+  return `<div class="sub">${backBtn()}<h1 tabindex="-1" id="sub-title">${care ? '新增照護備註' : '新增備註'}：${esc(a.pet)}</h1><p class="lede">${care ? '餵食、排泄、精神與異常狀況。' : '寫給下一位接手的同事；飼主看不到。'}</p>
+    <div class="cols"><section class="panel stack"><div class="field"><label for="note">備註</label><textarea id="note" data-key="note" placeholder="${care ? '例：10:30 排便正常，午餐吃完' : '例：左後腳毛結較多，已預留時間'}">${esc(state.note || '')}</textarea></div>
+    <div id="notebtn">${noteBtn()}</div></section></div></div>`;
+}
+const noteBtn = () => (state.note || '').trim()
+  ? `<button class="btn primary" data-key="note-save" data-do="saveNote">新增備註</button>`
+  : `<button class="btn" aria-disabled="true" aria-describedby="nr" data-key="note-save">新增備註</button><div class="reason" id="nr">請輸入內容</div>`;
+function searchView() {
+  const q = state.sq || '';
+  const res = q ? state.appts.filter(a => a.pet.includes(q) || a.ph.includes(q) || a.code.toLowerCase() === q.toLowerCase()) : [];
+  return `<div class="sub"><h1 tabindex="-1" id="sub-title">掃 QR / 查詢預約</h1><p class="lede">對準飼主 LINE 裡的預約 QR。掃不到時用下面的欄位查。</p>
+    <div class="cols"><div class="stack"><div class="camera" role="img" aria-label="相機預覽（原型沒有相機）"><div class="frame"></div><p>把 QR 放進框內</p></div></div>
+    <section class="panel stack"><div class="search" style="width:100%">${ic('search')}<input id="sq" data-key="sq" type="search" placeholder="手機末四碼、寵物名、預約碼" aria-label="手動輸入預約碼" value="${esc(q)}"></div>
+      <div class="results" id="sres">${searchResults(res, q)}</div></section></div></div>`;
+}
+function searchResults(res, q) {
+  if (!q) return `<p class="reason" style="margin:0">試試「5318」或「毛毛」。</p>`;
+  if (!res.length) return `<p class="reason" style="margin:0">查無資料。確認手機末四碼或預約碼。</p>`;
+  return res.map(a => `<button class="rrow" data-key="sr-${a.id}" data-open="${a.id}"><span><b>${esc(a.pet)}</b>　<span class="reason">${esc(a.owner)}・••••${a.ph}・${a.t}</span></span><span class="chip ${stateChip(a)[1]}">${stateChip(a)[0]}</span></button>`).join('');
+}
+function stubView(v) {
+  const t = {walkin:['新增現場預約','S-05：以手機號碼查找或建立客戶與毛孩，選服務與資源，需要時現場簽約，直接建立已報到的預約。這個原型只做到今日看板。'],
+    notify:['通知補發','S-09：查看通知送達狀態、補發或改用簡訊 / Email。這個原型只做到今日看板。'],
+    me:['個人帳號','登入裝置、分店權限與登出。這個原型只做到今日看板。'],
+    reschedule:['改期',`取消費 NT$0（飼主選擇之後再簽，不收取消費）。改期選時段在 S-03；這個原型只做到今日看板。`]}[v.kind];
+  return `<div class="sub">${v.kind === 'walkin' || v.kind === 'reschedule' ? backBtn() : ''}<h1 tabindex="-1" id="sub-title">${t[0]}</h1><p class="lede" style="max-width:40em">${t[1]}</p></div>`;
+}
+
+/* ---------- overlays ---------- */
+function renderLayer() {
+  let h = '';
+  if (state.menu) {
+    const a = byId(state.menu.id);
+    h += `<div class="menu" role="menu" aria-label="更多動作：${esc(a.pet)}" id="menu" style="top:${state.menu.top}px;left:${state.menu.left}px">${overflowOf(a).map((x, i) => `<button role="menuitem" tabindex="-1" data-mi="${i}" data-act="${x.act}" data-id="${a.id}" ${x.dis ? 'aria-disabled="true"' : ''}>${esc(x.label)}${x.dis ? `<span class="mreason">${esc(x.dis)}</span>` : ''}</button>`).join('')}</div>`;
+  }
+  if (state.toast) h += toastHtml();
+  if (state.confirm) h += `<div class="scrim"><div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dlg-t" aria-describedby="dlg-d"><h2 id="dlg-t">${esc(state.confirm.title)}</h2><p id="dlg-d">${esc(state.confirm.body)}</p>
+    <div class="dbtns"><button class="btn secondary" data-key="dlg-no" data-do="dlgNo">${esc(state.confirm.no)}</button><button class="btn destructive" data-key="dlg-yes" data-do="dlgYes">${esc(state.confirm.yes)}</button></div></div></div>`;
+  if (state.handover) h += handoverHtml();
+  layer.innerHTML = h;
+  const blocked = !!(state.confirm || state.handover);
+  app.inert = blocked; document.querySelector('.proto').inert = !!state.handover;
+}
+function toastHtml() {
+  const t = state.toast;
+  return `<div class="toast ${state.phone ? 'phone-toast' : ''}" role="status" id="toast"><span class="msg">${esc(t.text)}</span>${t.undo ? `<button class="undo" data-key="undo" data-do="undo">復原</button>` : ''}${t.undo ? `<span class="left" id="tleft" style="transform:scaleX(${t.remain / t.total})"></span>` : ''}</div>`;
+}
+function handoverHtml() {
+  const h = state.handover, a = byId(h.id), N = h.kind === 'record' ? 3 : a.read ? 4 : 5;
+  const fin = h.step === 'done' || h.step === 'later';
+  const head = `<div class="signbar"><div class="who"><div class="logo s" aria-hidden="true">毛</div>毛孩日和</div><div class="step">${fin ? (h.step === 'later' ? '帶回家之後再簽' : '簽署完成') : h.kind === 'record' ? '服務內容紀錄' : '契約摘要'}</div><div class="n num">${fin && h.step === 'done' ? N : 1} / ${N}</div></div>`;
+  if (h.step === 'start') return `<div class="handover" role="dialog" aria-modal="true" aria-labelledby="ho-t"><div class="center">
+    <div class="logo" aria-hidden="true">毛</div><div class="store">毛孩日和<small>中山店</small></div>
+    <h2 id="ho-t" tabindex="-1">請將平板交給飼主</h2><button class="obtn big" data-key="ho-start" data-do="hoStart">開始</button></div></div>`;
+  if (h.step === 'sign') return `<div class="handover" role="dialog" aria-modal="true" aria-labelledby="ho-t">${head}<div class="center">
+    <h2 id="ho-t" tabindex="-1">${h.kind === 'record' ? `請確認${esc(a.pet)}今天的服務內容` : `${esc(a.pet)}的${a.cat === 'boarding' ? '住宿契約' : '美容契約'}`}</h2>
+    <div class="protonote">原型略過簽署步驟。實際流程：${h.kind === 'record' ? '服務內容紀錄 → 手寫簽名 → 簡訊驗證' : a.read ? '摘要確認（你已在 10/4 讀完）→ 毛孩資料確認 → 手寫簽名 → 簡訊驗證' : '契約摘要 → 契約全文即時審閱 → 毛孩資料確認 → 手寫簽名 → 簡訊驗證'}。完整畫面見 key-tablet-handover.html。</div>
+    <button class="obtn" data-key="ho-done" data-do="hoDone">模擬：簽署完成</button>
+    ${h.kind === 'contract' && a.line ? `<button class="obtn sec" data-key="ho-later" data-do="hoLater">模擬：帶回家之後再簽</button>` : ''}</div></div>`;
+  const later = h.step === 'later';
+  return `<div class="handover" role="dialog" aria-modal="true" aria-labelledby="ho-t">${head}<div class="center">
+    ${later ? `<div class="avatar" aria-hidden="true">${esc(a.pet[0])}</div>` : `<div class="avatar" aria-hidden="true">${esc(a.pet[0])}<span class="ok">${ic('check')}</span></div>`}
+    <h2 id="ho-t" tabindex="-1">${later ? '契約已傳到你的 LINE' : '簽署完成'}</h2>
+    <p>${later ? '可以慢慢看。簽約後才能開始服務。' : '正本會傳到你的 LINE'}</p>
+    <button class="obtn" data-key="ho-back" data-do="hoBack">交還店員</button></div></div>`;
+}
+
+/* ---------- toast with deferred commit (undo whitelist: 報到, 新增備註) ---------- */
+let tick = null;
+function toast(text, undo, announce) {
+  if (state.toast?.undo) commitPending();
+  clearInterval(tick);
+  state.toast = {text, undo: undo || null, total: undo ? 10000 : 4000, remain: undo ? 10000 : 4000, paused:false};
+  renderLayer();
+  say(announce || text);
+  let last = Date.now();
+  tick = setInterval(() => {
+    const now = Date.now(), t = state.toast;
+    if (!t) return clearInterval(tick);
+    if (!t.paused) t.remain -= now - last;
+    last = now;
+    const bar = document.getElementById('tleft'); if (bar) bar.style.transform = `scaleX(${Math.max(0, t.remain / t.total)})`;
+    if (t.remain <= 0) { if (t.undo) commitPending(); state.toast = null; clearInterval(tick); renderLayer(); }
+  }, 100);
+}
+function commitPending() { if (state.toast?.undo) { state.toast.undo.commit?.(); state.toast.undo = null; } }
+function doUndo() {
+  const u = state.toast?.undo; if (!u) return;
+  u.revert(); state.toast = null; clearInterval(tick);
+  focusAfter = u.focus; render(); say('已復原');
+}
+
+/* ---------- actions ---------- */
+const snap = a => JSON.parse(JSON.stringify(a));
+const restore = (a, s) => { Object.keys(a).forEach(k => delete a[k]); Object.assign(a, s); };
+function flash(a) { a.flash = true; setTimeout(() => { a.flash = false; }, 1300); }
+function toBoard(id) {
+  state.view = {name:'board'}; state.pay = null; state.check = null; state.note = null;
+  focusAfter = id ? (primaryOf(byId(id)) && byId(id).status !== 'completed' ? `p-${id}` : `l-${id}`) : null;
+  render();
+  if (id && !document.querySelector(`[data-key="${focusAfter}"]`)) document.getElementById('board-title')?.focus();
+}
+function open(view) { closeMenu(false); state.view = view; render(); window.scrollTo(0, 0); (document.getElementById('sub-title') || document.getElementById('board-title'))?.focus(); }
+
+const ACTIONS = {
+  checkin(a) {
+    const before = snap(a);
+    a.status = a.cat === 'boarding' ? 'in_service' : 'checked_in';
+    if (a.cat === 'boarding') { a.inToday = false; a.t = '10/5'; a.t2 = '→ 10/8'; a.start = '99:00'; a.ctx = `${NOW} 入住・10/8 退房`; }
+    else { a.ctx = `${NOW} 報到${a.overdue ? `・晚到 ${late(a)} 分` : ''}`; }
+    delete a.overdue; a.notifyFailed = false; flash(a);
+    const verb = a.cat === 'boarding' ? '已入住' : '已報到';
+    toast(`${verb}。${a.pet}`, {revert: () => restore(a, before), focus:`p-${a.id}`}, `${verb}，${a.pet}，可復原`);
+    focusAfter = `p-${a.id}`; render();
+  },
+  petcheck(a) { state.check = {}; open({name:'petcheck', id:a.id}); },
+  start(a) { a.status = 'in_service'; a.ctx = `${NOW} 開始・${a.res}`; flash(a); toast(`已開始服務。${a.pet}`); focusAfter = `p-${a.id}`; render(); },
+  complete(a) { a.status = 'service_completed'; a.recordSigned = false; a.ctx = `${NOW} 完成・已通知接回`; flash(a); toast(`已完成服務。${a.pet}・已通知接回`); focusAfter = `p-${a.id}`; render(); },
+  sign(a) { if (state.phone || state.offline) return; closeMenu(false); state.handover = {id:a.id, kind:'contract', step:'start'}; renderLayer(); document.getElementById('ho-t')?.focus(); },
+  recordSign(a) { if (state.phone || state.offline) return; state.handover = {id:a.id, kind:'record', step:'start'}; renderLayer(); document.getElementById('ho-t')?.focus(); },
+  confirmSign(a) { a.contract = 'signed'; a.staffConfirm = false; a.expired = false; a.read = false; a.ctx = `契約已簽 ${NOW}・正本傳送中`; flash(a); toast(`已確認簽署。${a.pet}`); focusAfter = `p-${a.id}`; render(); },
+  pay(a) { if (state.offline) return; state.pay = {method:null, mode:'full', part:'', cash:'', busy:false, done:false}; open({name:'pay', id:a.id}); updatePayUI(); },
+  checkoutB(a) {
+    if (!a.lateAdded && a.overdue) { a.items.push([`逾時退房費（逾時 ${late(a)} 分，系統自動加收）`, 600]); a.lateAdded = true; }
+    ACTIONS.pay(a);
+  },
+  checkout(a) {
+    a.status = 'completed'; a.ctx = `${NOW} 已離店`; delete a.overdue;
+    toast(`已離店。${a.pet}`); toBoard(a.id);
+  },
+  review(a) { if (state.role !== 'mgr') return; open({name:'review', id:a.id}); },
+  reschedule(a) { open({name:'stub', kind:'reschedule'}); },
+  note(a) { state.note = ''; open({name:'note', id:a.id}); },
+  resendNotify(a) { a.notifyFailed = false; a.ctx = `${NOW} 已補發提醒（改用簡訊）`; closeMenu(false); toast(`已補發通知。${a.pet}`); focusAfter = `p-${a.id}`; render(); },
+  resendLink(a) { a.expired = false; a.ctx = `${NOW} 已補發契約連結，舊連結失效`; closeMenu(false); toast(`已補發契約連結。${a.pet}`); focusAfter = `p-${a.id}`; render(); },
+  resendOriginal(a) {
+    a.original = 'sending'; a.ctx = `${NOW} 補發正本（改用簡訊）`; closeMenu(false); toast(`已補發正本。${a.pet}`); focusAfter = `p-${a.id}`; render();
+    setTimeout(() => { a.original = 'delivered'; if (state.view.name === 'board') renderBoardBody(); }, 2500);
+  },
+  noShow(a) {
+    closeMenu(false);
+    state.confirm = {title:`把${a.pet}標記為未到？`, body:`會釋放 ${a.res.split('・')[0]} 這個時段，並依取消政策計算費用。之後要取消標記需店長以上權限。`, yes:'確認標記', no:'返回', id:a.id, ret:`p-${a.id}`,
+      run: () => { a.status = 'no_show'; a.ctx = `${NOW} 標記未到・${staff()}`; delete a.overdue; a.notifyFailed = false; toast(`已標記未到。${a.pet}・已記錄操作紀錄`); }};
+    renderLayer(); document.querySelector('[data-key="dlg-no"]')?.focus();
+  }
+};
+
+const DO = {
+  refresh() { state.loading = true; renderBoardBody(); setTimeout(() => { state.loading = false; renderBoardBody(); say(`已更新，${NOW}`); }, 600); },
+  walkin() { open({name:'stub', kind:'walkin', nav: state.phone ? 'walkin' : null}); },
+  filterExc() { state.filter = 'exc'; focusAfter = 'clearfilter'; renderBoardBody(); },
+  filterReq() { state.filter = 'req'; focusAfter = 'clearfilter'; renderBoardBody(); },
+  clearFilter() { state.filter = null; focusAfter = `tab-${state.tab}`; renderBoardBody(); },
+  back() { const id = state.view.id; toBoard(id); },
+  undo: doUndo,
+  saveCheck() {
+    const a = byId(state.view.id); a.petCheck = true;
+    const ab = CHECK_ITEMS.filter(k => state.check[k] === '異常');
+    a.ctx = `${NOW} 現況已記錄${ab.length ? `・${ab.join('、')}異常` : '・全部正常'}`; flash(a);
+    toast(`已記錄現況。${a.pet}`); toBoard(a.id);
+  },
+  paySubmit() {
+    const a = byId(state.view.id), s = state.pay; if (payDisabled(a) || s.busy) return;
+    s.busy = true; updatePayUI();
+    setTimeout(() => {
+      const amt = payAmount(a);
+      a.paid += amt; (a.records ||= []).push({m:s.method, t:NOW, by:staff(), amt});
+      s.busy = false; s.done = true;
+      if (a.cat !== 'boarding') a.ctx = owed(a) ? `${NOW} 收款 ${nt(amt)}・還有 ${nt(owed(a))} 未收` : `${NOW} 已收清`;
+      render(); document.getElementById('pay-done')?.focus(); say(`已收款，新台幣 ${fmt(amt)} 元`);
+    }, 700);
+  },
+  confirmCheckoutB() {
+    const a = byId(state.view.id); a.status = 'completed'; a.ctx = `${NOW} 已退房`; delete a.overdue; a.outToday = false;
+    toast(`已退房。${a.pet}・已記錄操作紀錄`); toBoard(a.id);
+  },
+  approve() {
+    const a = byId(state.view.id), to = a.request.to;
+    state.appts = state.appts.filter(x => x !== a);
+    toast(`已核准改期。${a.pet} → ${to}`); toBoard(null); document.getElementById('board-title')?.focus();
+  },
+  reject() {
+    const why = document.getElementById('rv-why'), r = document.getElementById('rv-no-r');
+    if (!why.value.trim()) { r.textContent = '請填寫拒絕原因'; why.setAttribute('aria-invalid', 'true'); why.setAttribute('aria-describedby', 'rv-no-r'); why.focus(); return; }
+    const a = byId(state.view.id); delete a.request; a.ctx = `${NOW} 已拒絕改期・原時段保留`;
+    toast(`已拒絕改期。${a.pet}・已通知飼主`); toBoard(a.id);
+  },
+  saveNote() {
+    const a = byId(state.view.id), text = state.note.trim(), before = snap(a);
+    (a.notes ||= []).push(`${NOW} ${staff()}：${text}`);
+    if (a.cat === 'boarding') a.ctx = `${NOW} ${text}`.slice(0, 40);
+    toast(`已新增備註。${a.pet}`, {revert: () => restore(a, before), focus:`p-${a.id}`}, `已新增備註，${a.pet}，可復原`); toBoard(a.id);
+  },
+  dlgNo() { const r = state.confirm.ret; state.confirm = null; renderLayer(); document.querySelector(`[data-key="${r}"]`)?.focus(); },
+  dlgYes() { const c = state.confirm; state.confirm = null; c.run(); focusAfter = null; render(); document.getElementById('board-title')?.focus(); },
+  hoStart() { state.handover.step = 'sign'; renderLayer(); document.getElementById('ho-t')?.focus(); },
+  hoDone() { state.handover.step = 'done'; renderLayer(); document.getElementById('ho-t')?.focus(); },
+  hoLater() { state.handover.step = 'later'; renderLayer(); document.getElementById('ho-t')?.focus(); },
+  hoBack() {
+    const h = state.handover, a = byId(h.id); state.handover = null;
+    if (h.step === 'later') { a.later = true; a.expired = false; a.ctx = `契約已傳到 LINE・${NOW}`; }
+    else if (h.kind === 'contract') { a.staffConfirm = true; a.ctx = `平板簽署 ${NOW}・已交還`; }
+    else { a.recordSigned = true; a.original = 'sending'; a.ctx = `服務內容紀錄已簽 ${NOW}・正本傳送中`; setTimeout(() => { a.original = 'delivered'; }, 2500); }
+    flash(a); state.view = {name:'board'}; focusAfter = `p-${a.id}`; render();
+    say(h.step === 'later' ? `${a.pet}，飼主選擇之後再簽` : `${a.pet}，已交還，${h.kind === 'contract' ? '待店員確認' : '服務紀錄已簽'}`);
+  }
+};
+
+const WRITES = new Set(['checkin','start','complete','confirmSign','checkout','resendNotify','resendLink','resendOriginal','saveCheck','paySubmit','confirmCheckoutB','approve','reject','saveNote','dlgYes','hoBack']);
+
+/* ---------- overflow menu ---------- */
+function openMenu(id, trigger) {
+  const r = trigger.getBoundingClientRect(), w = 220, items = overflowOf(byId(id)).length;
+  const hgt = items * 45 + 10;
+  let top = r.bottom + 6; if (top + hgt > innerHeight - 8) top = Math.max(8, r.top - hgt - 6);
+  state.menu = {id, top, y: scrollY, left: Math.max(8, Math.min(r.right - w, innerWidth - w - 8))};
+  trigger.setAttribute('aria-expanded', 'true');
+  renderLayer();
+  placeMenu(trigger);
+  document.querySelector('#menu [data-mi="0"]')?.focus();
+}
+function placeMenu(trigger) {
+  const m = document.getElementById('menu'); if (!m) return;
+  const r = trigger.getBoundingClientRect(), h = m.offsetHeight, left = state.menu.left, right = left + m.offsetWidth;
+  const btns = [...document.querySelectorAll('.c-act .btn, .c-act .more')].filter(b => b !== trigger).map(b => b.getBoundingClientRect()).filter(b => b.right > left && b.left < right);
+  const cuts = (top, bottom) => btns.some(b => (b.top < bottom && b.bottom > bottom) || (b.top < top && b.bottom > top));
+  const below = r.bottom + 6, above = r.top - 6 - h;
+  let top = below, pad = 0;
+  if (cuts(below, below + h) || below + h > innerHeight - 8) {
+    if (above >= 8 && !cuts(above, above + h)) top = above;
+    else { const hit = btns.find(b => b.top < below + h && b.bottom > below + h); if (hit) pad = hit.bottom + 6 - (below + h); }
+  }
+  state.menu.top = top; m.style.top = top + 'px'; if (pad) m.style.paddingBottom = (4 + pad) + 'px';
+}
+function closeMenu(returnFocus = true) {
+  if (!state.menu) return;
+  const id = state.menu.id; state.menu = null; renderLayer();
+  const t = document.querySelector(`[data-key="m-${id}"]`);
+  if (t) { t.setAttribute('aria-expanded', 'false'); if (returnFocus) t.focus(); }
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act],[data-do],[data-more],[data-open],[data-tab],[data-nav],[data-check],[data-method],[data-mode]');
+  if (state.menu && !e.target.closest('#menu') && !e.target.closest('[data-more]')) closeMenu(false);
+  if (!el) return;
+  if (el.getAttribute('aria-disabled') === 'true') { const r = el.getAttribute('aria-describedby'); if (r) say(document.getElementById(r)?.textContent || ''); return; }
+  const d = el.dataset;
+  if (d.more) { e.preventDefault(); state.menu?.id === d.more ? closeMenu() : (closeMenu(false), openMenu(d.more, el)); return; }
+  if (d.open) { e.preventDefault(); open({name:'detail', id:d.open}); return; }
+  if (d.act) { e.preventDefault(); const a = byId(d.id); closeMenu(false); if (WRITES.has(d.act)) advance(); ACTIONS[d.act]?.(a); return; }
+  if (d.do) { e.preventDefault(); if (WRITES.has(d.do)) advance(); DO[d.do]?.(); return; }
+  if (d.tab) { state.tab = d.tab; state.filter = null; if (state.view.name !== 'board') open({name:'board'}); focusAfter = `tab-${d.tab}`; renderBoardBody(); return; }
+  if (d.nav) {
+    if (d.nav === 'board') { state.view = {name:'board'}; render(); document.getElementById('board-title')?.focus(); }
+    else if (d.nav === 'search') open({name:'search'});
+    else open({name:'stub', kind:d.nav, nav:d.nav});
+    return;
+  }
+  if (d.check) { state.check[d.check] = d.val; focusAfter = `ck-${d.check}-${d.val}`; render(); return; }
+  if (d.method) { state.pay.method = d.method; focusAfter = `pm-${d.method}`; document.getElementById('paycol').innerHTML = payForm(byId(state.view.id)); document.querySelector(`[data-key="pm-${d.method}"]`)?.focus(); updatePayUI(); return; }
+  if (d.mode) { state.pay.mode = d.mode; document.getElementById('paycol').innerHTML = payForm(byId(state.view.id)); (document.getElementById('pamt') || document.querySelector(`[data-key="pmode-${d.mode}"]`))?.focus(); updatePayUI(); return; }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'q') { state.q = t.value; renderBoardBody(); return; }
+  if (t.id === 'sq') { state.sq = t.value; const q = t.value; document.getElementById('sres').innerHTML = searchResults(q ? state.appts.filter(a => a.pet.includes(q) || a.ph.includes(q) || a.code.toLowerCase() === q.toLowerCase()) : [], q); return; }
+  if (t.dataset.payin) { t.value = t.value.replace(/\D/g, ''); state.pay[t.dataset.payin] = t.value; updatePayUI(); return; }
+  if (t.dataset.checknote) { state.check[t.dataset.checknote + '_n'] = t.value; return; }
+  if (t.id === 'note') { const had = !!state.note.trim(); state.note = t.value; if (had !== !!state.note.trim()) document.getElementById('notebtn').innerHTML = noteBtn(); return; }
+  if (t.id === 'rv-why') { document.getElementById('rv-no-r').textContent = ''; t.removeAttribute('aria-invalid'); }
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'branch') { state.branch = e.target.value; state.tab = 'all'; state.filter = null; focusAfter = 'branch'; render(); say(`已切換到${state.branch}`); }
+});
+document.addEventListener('keydown', e => {
+  if (state.menu) {
+    const items = [...document.querySelectorAll('#menu [role=menuitem]')], i = items.indexOf(document.activeElement);
+    if (e.key === 'Escape') { e.preventDefault(); closeMenu(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'Tab') closeMenu();
+    return;
+  }
+  if (state.confirm && e.key === 'Escape') { DO.dlgNo(); return; }
+  if (state.confirm && e.key === 'Tab') {
+    const f = [...document.querySelectorAll('.dialog button')], i = f.indexOf(document.activeElement);
+    e.preventDefault(); f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus(); return;
+  }
+  const tab = e.target.closest?.('[role=tab]');
+  if (tab && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+    const tabs = [...document.querySelectorAll('[role=tab]')], i = tabs.indexOf(tab);
+    const n = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+    n.click();
+  }
+});
+/* toast pauses while touched, hovered or focused */
+['pointerenter','focusin','pointerdown'].forEach(ev => layer.addEventListener(ev, e => { if (e.target.closest?.('#toast') && state.toast) state.toast.paused = true; }, true));
+['pointerleave','focusout'].forEach(ev => layer.addEventListener(ev, e => { if (e.target.closest?.('#toast') && state.toast && !document.getElementById('toast')?.matches(':hover,:focus-within')) state.toast.paused = false; }, true));
+addEventListener('scroll', () => state.menu && Math.abs(scrollY - state.menu.y) > 24 && closeMenu(false), {passive:true});
+addEventListener('resize', () => { state.menu && closeMenu(false); const tb = document.querySelector('.tabs'); if (tb) fadeTabs(tb); });
+
+/* ---------- prototype controls ---------- */
+const mq = matchMedia('(max-width: 767px)');
+const params = new URLSearchParams(location.search);
+function setTheme(v) { v ? document.documentElement.setAttribute('data-theme', v) : document.documentElement.removeAttribute('data-theme'); }
+const $ = id => document.getElementById(id);
+$('p-role').value = state.role = params.get('role') === 'clerk' ? 'clerk' : 'mgr';
+$('p-theme').value = params.get('theme') || ''; setTheme($('p-theme').value);
+function setSkin(v) { v ? document.documentElement.setAttribute('data-skin', v) : document.documentElement.removeAttribute('data-skin'); }
+{ const sk = params.get('skin') || ''; $('p-skin').value = ['metro','warm','planner'].includes(sk) ? sk : ''; setSkin($('p-skin').value); }
+$('p-skin').onchange = e => setSkin(e.target.value);
+$('p-scale').value = String(state.scale = params.get('scale') === '1.3' ? 1.3 : 1);
+$('p-offline').checked = state.offline = params.get('offline') === '1';
+document.documentElement.style.fontSize = state.scale === 1.3 ? '130%' : '';
+$('p-role').onchange = e => { state.role = e.target.value; render(); };
+$('p-theme').onchange = e => setTheme(e.target.value);
+$('p-scale').onchange = e => { state.scale = +e.target.value; document.documentElement.style.fontSize = state.scale === 1.3 ? '130%' : ''; render(); };
+$('p-offline').onchange = e => { state.offline = e.target.checked; render(); say(state.offline ? `離線，${NOW} 更新` : '已連線'); };
+$('p-reset').onclick = () => { commitPending(); state.toast = null; clearInterval(tick); Object.assign(state, {appts: SEED(), tab:'all', filter:null, q:'', view:{name:'board'}, menu:null, confirm:null, handover:null}); render(); say('已重設'); };
+state.phone = mq.matches;
+mq.addEventListener('change', () => { state.phone = mq.matches; closeMenu(false); render(); });
+render();
+setTimeout(() => { state.loading = false; renderBoardBody(); }, 450);
+})();
+</script>
+</body>
+</html>

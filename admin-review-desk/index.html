@@ -1,0 +1,1721 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>審核台原型</title>
+<script src="../test-kit/kit.js" data-proto="admin-review-desk"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens copied from the today board. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+:root{--sidew:15rem;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+.nw{white-space:nowrap}
+.muted{color:var(--ink-muted)}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .tagp{border:1.5px dashed var(--proto-muted);border-radius:999px;padding:1px 8px;font-weight:800;color:var(--proto-muted)}
+
+/* ---------- shell: labeled cocoa sidebar (管理 Web) ---------- */
+#app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+#app.compact{display:block}
+.side{position:sticky;top:0;height:calc(100vh - 44px);height:calc(100dvh - 44px);overflow:hidden;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;padding:18px 12px 0;color:var(--rail-ink)}
+/* the items scroll on their own above the user footer, so the last one (稽核紀錄) is never hidden under it */
+.snav{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:2px;margin:0 -12px;padding:0 12px 10px;scrollbar-color:var(--rail-hover) transparent}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+.mark{width:40px;height:40px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;flex:none}
+.mark .ico{width:24px;height:24px;stroke-width:0;fill:currentColor}
+.brand small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+.brand b{display:block;color:var(--rail-cur);font-size:1rem;font-weight:900;line-height:1.3}
+.sgrp{font-size:.75rem;font-weight:800;letter-spacing:.04em;padding:8px 12px 2px;color:var(--rail-ink);opacity:.82}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 12px;border-radius:12px;font-size:.9375rem;font-weight:700;line-height:1.3;color:var(--rail-ink);transition:background-color .2s var(--out),color .2s var(--out)}
+.sitem:hover{background:var(--rail-hover);color:var(--rail-cur)}
+.sitem[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.sitem .n{margin-left:auto;min-width:24px;padding:0 8px;border-radius:999px;background:var(--rail-hover);color:var(--rail-cur);font-size:.75rem;font-weight:900;text-align:center;line-height:1.6}
+.sitem .n.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.sitem[aria-current="page"] .n:not(.hot){background:var(--sunk);color:var(--ink)}
+.side :focus-visible{outline-color:var(--rail-cur)}
+.me{flex:none;display:flex;align-items:center;gap:10px;padding:12px 8px 16px;border-top:1px solid var(--rail-hover);background:var(--rail)}
+.me .av{width:36px;height:36px;border-radius:50%;background:var(--rail-hover);color:var(--rail-cur);display:grid;place-items:center;font-weight:900;flex:none}
+.me b{display:block;color:var(--rail-cur);font-weight:800;line-height:1.3}
+.me small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+/* compact: the sidebar becomes a top bar and a drawer */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--rail);color:var(--rail-cur)}
+.topbar .mark{width:36px;height:36px;border-radius:12px}
+.topbar b{font-weight:900}
+.topbar .ibtn{color:var(--rail-cur)}
+.topbar .ibtn:hover{background:var(--rail-hover)}
+.topbar :focus-visible{outline-color:var(--rail-cur)}
+/* phone detail: the top bar carries the one back row instead of repeating the page head */
+.topbar .back{color:var(--rail-cur);font-size:1rem}
+.topbar .back:hover{background:var(--rail-hover);color:var(--rail-cur)}
+.topbar .back .pos{margin-left:6px;color:var(--rail-ink);font-weight:700;font-size:.875rem}
+/* sticky top bar and docked verdicts: focus and anchors land clear of both, at any text size */
+html{scroll-padding-top:calc(var(--toph, 0px) + 24px);scroll-padding-bottom:max(120px, calc(var(--dockh, 0px) + 24px))}
+.ibtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;transition:background-color .2s var(--out)}
+.ibtn:hover{background:var(--sunk)}
+.drawer-nav{position:fixed;inset:0 auto 0 0;z-index:80;width:min(18rem,86vw);box-shadow:var(--lift-hi);animation:slidein .32s var(--out)}
+.drawer-nav .side{height:100%}
+@keyframes slidein{from{transform:translateX(-100%)}}
+main{min-width:0;container:main / inline-size}
+/* 1024–1279: the labeled sidebar folds into the world's icon rail so the detail keeps its width */
+#app.rail{--sidew:5.25rem}
+#app.rail .side{padding:16px 6px 0;align-items:center}
+#app.rail .snav{align-items:center;gap:4px;margin:0 -6px;padding:0 6px 10px;align-self:stretch}
+#app.rail .brand{padding:0 0 10px}
+#app.rail .brand>span:not(.mark),#app.rail .sgrp,#app.rail .me>span:not(.av){display:none}
+#app.rail .sitem{flex-direction:column;justify-content:center;gap:4px;width:4.25rem;min-height:3.75rem;padding:6px 2px;border-radius:16px;font-size:.75rem;font-weight:700;text-align:center;line-height:1.25;position:relative}
+#app.rail .sitem[aria-current="page"]{font-weight:900}
+#app.rail .sitem .n{position:absolute;top:2px;right:2px;margin:0;padding:0 6px;font-size:.75rem}
+#app.rail .me{padding:12px 0 16px;justify-content:center;align-self:stretch}
+
+
+/* ---------- page head ---------- */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 16px;padding:22px 28px 0}
+.compact .head{padding:16px 16px 0}
+.head h1{font-size:1.75rem;font-weight:900;line-height:1.25;display:flex;align-items:center;gap:10px}
+.compact .head h1{font-size:1.375rem}
+.compact .head .tools{margin-left:0;order:4;flex-basis:100%}
+.head .sub{flex-basis:100%;order:3;font-size:.875rem;font-weight:600;color:var(--ink-muted);margin-top:-6px}
+.head .tools{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.scope{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--control-border);font-weight:800;font-size:.875rem}
+select.scope{appearance:none;padding-right:36px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;cursor:pointer}
+select.scope:hover{border-color:var(--ink)}
+.scope.fixed{border-style:dashed;color:var(--ink-muted)}
+.updated{font-size:.8125rem;font-weight:700;color:var(--ink-muted);display:inline-flex;align-items:center;gap:6px}
+.updated.off{color:var(--warning)}
+.banner{display:flex;gap:10px;align-items:flex-start;margin:14px 28px 0;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:700;line-height:1.5}
+.compact .banner{margin:12px 16px 0}
+.banner.warning{background:var(--warning-bg);color:var(--warning)}
+.banner.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.banner .ico{margin-top:1px}
+
+/* ---------- buttons, chips, tags ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:var(--r-md);font-size:.9375rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out),border-color .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.quiet{background:var(--surface);color:var(--ink);border-color:var(--control-border)}
+.btn.quiet:hover{border-color:var(--ink)}
+a.btn{text-decoration:none}
+.btn.danger{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.btn.danger:hover{filter:brightness(1.08)}
+/* a final step that keeps things as they are (確認拒絕): firm, but not red */
+.btn.ink{background:var(--ink);color:var(--surface);font-weight:800}
+.btn.ink:hover{filter:brightness(1.15)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none;filter:none}
+.btn.busy{pointer-events:none}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(1turn)}}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.textbtn[aria-disabled="true"]{color:var(--ink-muted);background:transparent;border:1.5px dashed var(--control-border);cursor:not-allowed}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4;text-wrap:pretty}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.warning{color:var(--warning);background:var(--warning-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.chip.plain{background:var(--sunk);color:var(--ink)}
+.chip.plain::before{display:none}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 9px;border-radius:999px;font-size:.875rem;line-height:1.4;white-space:nowrap}
+.tag.safety{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.tag.care{background:var(--warning-bg);color:var(--warning);font-weight:700}
+.cnt{min-width:26px;padding:1px 9px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;text-align:center;line-height:1.5}
+.cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.masked{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--sunk);color:var(--ink-muted);font-size:.8125rem;font-weight:800;border:1.5px dashed var(--control-border)}
+.masked .ico{width:14px;height:14px;stroke-width:2.2}
+
+/* filter pills and segmented control */
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--border);font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out),border-color .2s var(--out),transform .35s var(--spring)}
+.pill:hover{border-color:var(--control-border);color:var(--ink)}
+.pill:active{transform:scale(.96);transition-duration:.08s}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface);font-weight:900}
+.pill[aria-pressed="true"] .cnt{background:var(--surface);color:var(--ink)}
+.pill[aria-pressed="true"] .cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.pill .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);flex-wrap:wrap}
+.seg button{min-height:40px;padding:0 16px;border-radius:999px;font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+:root[data-theme="dark"] .seg button[aria-pressed="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button[aria-pressed="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+/* ---------- 臉環 ---------- */
+.face{--s:56px;position:relative;flex:none;width:var(--s);height:var(--s);display:inline-grid;place-items:center;border-radius:50%}
+.face>svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.face circle{fill:none;stroke:var(--track);stroke-width:7;stroke-linecap:round}
+.face circle.done{stroke:var(--ink)}
+.face circle.cur{stroke:var(--ink);stroke-width:9;stroke-dasharray:0 600;animation:seg .7s var(--out) .15s forwards}
+@keyframes seg{to{stroke-dasharray:var(--dash) 600}}
+.face img,.face .ini{width:calc(var(--s) * .74);height:calc(var(--s) * .74);border-radius:50%;object-fit:cover;background:var(--sunk);display:grid;place-items:center;font-weight:900;color:var(--ink-muted);font-size:calc(var(--s) * .3)}
+.face.plain img,.face.plain .ini{width:calc(var(--s) * .9);height:calc(var(--s) * .9)}
+.face.person .ini{background:var(--sunk);color:var(--ink)}
+.face.pair .ini{position:absolute;width:calc(var(--s) * .64);height:calc(var(--s) * .64);font-size:calc(var(--s) * .26);box-shadow:0 0 0 2px var(--surface)}
+.face.pair .ini:first-child{left:0;top:0}
+.face.pair .ini+.ini{right:0;bottom:0}
+.face.pair .ini.drop{background:var(--surface);color:var(--ink-muted);border:1.5px dashed var(--control-border);box-shadow:none}
+.qrow[aria-current="true"] .face.pair .ini,.qrow:hover .face.pair .ini{box-shadow:0 0 0 2px var(--surface-2)}
+.qrow[aria-current="true"] .face.pair .ini.drop,.qrow:hover .face.pair .ini.drop{box-shadow:none}
+.face .badge{position:absolute;right:-2px;bottom:-2px;width:calc(var(--s) * .32);height:calc(var(--s) * .32);min-width:20px;min-height:20px;border-radius:50%;display:grid;place-items:center;background:var(--danger-solid);color:var(--on-danger-solid);border:2.5px solid var(--surface)}
+.face .badge .ico{width:62%;height:62%;stroke-width:2.4}
+.face .step{position:absolute;left:-2px;bottom:-2px;padding:1px 7px;border-radius:999px;background:var(--surface);color:var(--ink);border:2px solid var(--ink);font-size:.75rem;font-weight:900;line-height:1.25}
+button.face{cursor:pointer;transition:transform .35s var(--spring)}
+button.face:hover{transform:scale(1.04)}
+button.face:active{transform:scale(.95);transition-duration:.08s}
+
+/* ---------- money ---------- */
+.money{font-weight:900;white-space:nowrap;font-feature-settings:"tnum"}
+.money .cur{font-size:.78em;font-weight:700;color:var(--ink-muted);margin-right:1px}
+.money.neg{color:var(--ink)}
+
+/* ---------- panels ---------- */
+.panel{background:var(--surface);border-radius:var(--r-lg);padding:22px;box-shadow:var(--lift)}
+.panel-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.panel-h h2,.panel-h h3{font-size:1.0625rem;font-weight:900;line-height:1.3;display:inline-flex;align-items:center;gap:8px}
+.panel-h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+/* ================= 待處理: queue + detail ================= */
+.desk{display:grid;grid-template-columns:minmax(300px,348px) minmax(0,1fr);gap:20px;align-items:start;padding:18px 28px 48px}
+@container main (max-width: 1080px){.desk{grid-template-columns:minmax(280px,304px) minmax(0,1fr);gap:16px}}
+.desk.one{grid-template-columns:minmax(0,1fr);padding:14px 16px 48px}
+.qcol{position:sticky;top:16px;display:flex;flex-direction:column;max-height:calc(100dvh - 32px);background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);overflow:hidden}
+.desk.one .qcol{position:static;max-height:none;overflow:visible}
+.qtop{padding:16px 16px 12px;border-bottom:1px solid var(--border)}
+.qtop .order{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.qlist{overflow-y:auto;padding:8px;overscroll-behavior:contain}
+.qul{list-style:none;display:flex;flex-direction:column;gap:4px}
+/* 櫃台: what they may decide first, their own requests (waiting on someone else) in a group of their own */
+.qgh{display:flex;align-items:center;gap:8px;padding:8px 12px 6px;font-size:.8125rem;font-weight:900;color:var(--ink-muted);line-height:1.4}
+.qgh:not(:first-child){margin-top:10px;padding-top:14px;border-top:1px solid var(--border)}
+.qnone{padding:4px 12px 8px;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.qrow{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;width:100%;padding:12px;border-radius:16px;transition:background-color .2s var(--out)}
+.qrow:hover{background:var(--surface-2)}
+.qrow[aria-current="true"]{background:var(--surface-2);box-shadow:inset 0 0 0 2px var(--ink)}
+.qrow .face{--s:48px}
+.qrow .l1{display:flex;align-items:baseline;gap:8px;min-width:0}
+.qrow .nm{font-size:1.0625rem;font-weight:900;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qrow .ow{font-size:.8125rem;font-weight:700;color:var(--ink-muted);white-space:nowrap}
+.due{margin-left:auto;flex:none;font-size:.8125rem;font-weight:800;color:var(--ink-muted);white-space:nowrap}
+.due.soon{color:var(--warning)}
+.due.hot{color:var(--on-danger-solid);background:var(--danger-solid);padding:1px 9px;border-radius:999px;font-weight:900;display:inline-flex;align-items:center;gap:4px}
+.due.hot .ico{width:14px;height:14px;stroke-width:2.4}
+.qrow .l2{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:4px;font-size:.875rem;font-weight:800;line-height:1.45}
+.qrow .l3{margin-top:4px;font-size:.8125rem;font-weight:600;color:var(--ink-muted);line-height:1.4}
+.qrow .brt{display:inline-block;margin-right:6px;padding:0 7px;border-radius:8px;background:var(--sunk);color:var(--ink);font-weight:800;font-size:.75rem}
+.kind{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 7px;border-radius:999px;font-size:.75rem;font-weight:900;line-height:1.5;white-space:nowrap;background:var(--sunk);color:var(--ink)}
+.kind .ico{width:14px;height:14px;stroke-width:2.2}
+.qempty{padding:28px 18px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;font-weight:700;color:var(--ink-muted)}
+.qempty .ok{width:44px;height:44px;border-radius:50%;background:var(--success-bg);color:var(--success);display:grid;place-items:center;margin-bottom:6px}
+.qempty b{color:var(--ink);font-size:1.0625rem;font-weight:900}
+.done-fold{border-top:1px solid var(--border);padding:8px 12px 12px}
+.done-fold .textbtn{width:100%;justify-content:flex-start;background:transparent}
+.done-fold .textbtn:hover{background:var(--sunk)}
+.done-list{list-style:none;display:flex;flex-direction:column;gap:2px;padding:4px 2px}
+.done-list li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;padding:8px;border-radius:12px;font-size:.875rem;font-weight:700}
+.done-list .face{--s:36px}
+.done-list small{display:block;color:var(--ink-muted);font-weight:600;font-size:.8125rem}
+
+/* detail */
+.det{display:flex;flex-direction:column;gap:16px;min-width:0;container:det / inline-size}
+.dhead{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center}
+.dhead .face{--s:76px}
+.req{margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.req .panel-h{margin-bottom:10px}
+.req .panel-h h3{font-size:.9375rem}
+.dhead h2{font-size:1.5rem;font-weight:900;line-height:1.25;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.dhead .who{margin-top:4px;font-size:.9375rem;font-weight:700;color:var(--ink-muted)}
+.dhead .chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+/* in the decision head the tags are outlined and small: the deadline leads, the pet's notes stay readable */
+.dhead .tag{padding:2px 10px 2px 7px;font-size:.8125rem;font-weight:800;background:transparent;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,currentColor 55%,transparent)}
+.dhead .tag.safety{color:var(--danger)}
+.dhead .tag.care{color:var(--warning)}
+.dnav{display:flex;gap:6px;align-self:start}
+@container det (max-width: 620px){.dhead{gap:12px}.dhead .face{--s:56px !important}.dhead h2{font-size:1.25rem !important}}
+.dnav .ibtn{background:var(--sunk)}
+.dnav .ibtn:hover{background:var(--sunk-hover)}
+.dnav .ibtn[aria-disabled="true"]{background:transparent;color:var(--control-border);cursor:not-allowed}
+.req-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px}
+@container det (max-width: 600px){.req-grid{grid-template-columns:minmax(0,1fr)}}
+.swap{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:stretch}
+@container det (max-width: 1000px){.swap{grid-template-columns:minmax(0,1fr);gap:6px}.swap .arw{transform:rotate(90deg);justify-self:start;margin-left:16px}}
+@container det (max-width: 520px){.swap{grid-template-columns:minmax(0,1fr)}.swap .arw{transform:rotate(90deg);justify-self:center}}
+.tile{padding:10px 14px;border-radius:var(--r-md);background:var(--sunk)}
+.tile.to{background:var(--surface);box-shadow:inset 0 0 0 2px var(--ink)}
+.tile.drop{background:var(--surface);border:1.5px dashed var(--control-border)}
+.tile.drop .d{color:var(--ink-muted)}
+a.rlink{display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.swap.fam .arw{transform:none !important}
+.req .panel-h .rlink{margin-left:auto}
+.tile .k{display:block;font-size:.8125rem;font-weight:800;color:var(--ink-muted)}
+.tile .d{display:block;margin-top:2px;font-size:1.125rem;font-weight:900;line-height:1.3}
+.tile .t{display:block;font-size:1rem;font-weight:900}
+.tile .r{display:block;margin-top:2px;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.arw{align-self:center;color:var(--ink-muted)}
+.facts{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px 14px;font-size:.9375rem;font-weight:700;align-content:start}
+.facts dt{color:var(--ink-muted);font-size:.875rem;font-weight:700;padding-top:1px}
+.facts dd{text-wrap:pretty}
+.quote{display:block;margin-top:2px;padding:8px 12px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border);font-weight:700}
+.checks{list-style:none;display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:8px}
+.checks li{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:800}
+.checks .ok{color:var(--success)}
+.checks .bad{color:var(--danger)}
+.checks .wait{color:var(--warning)}
+.notice{display:flex;gap:10px;align-items:flex-start;padding:14px 16px;border-radius:var(--r-md);font-size:.9375rem;font-weight:700;line-height:1.5}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.notice.danger{background:var(--danger-bg);color:var(--danger)}
+.notice.success{background:var(--success-bg);color:var(--success)}
+.notice b{font-weight:900}
+.notice .ico{margin-top:2px}
+.notice .act{margin-top:8px}
+
+/* 後果預覽: each verdict lists what it will do, and ends in its own button */
+.conseq h3{font-size:1.125rem;font-weight:900;line-height:1.3}
+.conseq .lede{margin-top:2px;font-size:.875rem;font-weight:600;color:var(--ink-muted)}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:14px}
+@container det (max-width: 580px){.cols{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:20px 20px 20px}
+.col.lead{box-shadow:var(--lift-hi)}
+.col-h{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:900;line-height:1.3;margin-bottom:6px}
+.col-h .dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--surface);flex:none}
+.col-h .dot.alt{background:var(--sunk);color:var(--ink)}
+.col-h .dot .ico{width:18px;height:18px;stroke-width:2.4}
+.cq{list-style:none;display:flex;flex-direction:column;margin-bottom:18px}
+.cq li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:4px 10px;align-items:start;padding:11px 0;border-bottom:1px solid var(--border);font-size:.9375rem;font-weight:700;line-height:1.5}
+.cq li:last-child{border-bottom:0}
+.cq .ci{width:28px;height:28px;border-radius:50%;background:var(--sunk);display:grid;place-items:center;color:var(--ink)}
+.cq .ci .ico{width:16px;height:16px}
+.cq .tx{text-wrap:pretty}
+.cq .tx small{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.cq .amt{text-align:right;padding-top:1px}
+.cq li.irrev{color:var(--danger)}
+.cq li.irrev .ci{background:var(--danger-bg);color:var(--danger)}
+.col .go{margin-top:auto;display:flex;flex-direction:column}
+.col .go .btn{width:100%;min-height:56px;font-size:1rem}
+.col .go .reason{text-align:left}
+.col .go .irr{display:flex;gap:6px;align-items:flex-start;margin-top:8px;font-size:.8125rem;font-weight:800;color:var(--danger);line-height:1.4}
+.col .go .irr .ico{margin-top:1px}
+.col.gone{opacity:.62}
+/* phone: the verdicts dock at the bottom; the first press brings its column up and frames it, the second opens the confirm */
+.col.armed{box-shadow:inset 0 0 0 2.5px var(--ink),var(--lift-hi);animation:armed .9s var(--out)}
+@keyframes armed{from{box-shadow:inset 0 0 0 7px var(--ink),var(--lift-hi)}}
+.desk.one.docked{padding-bottom:calc(var(--dockh, 120px) + 28px)}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;flex-direction:column;gap:8px;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--surface);box-shadow:var(--lift-up)}
+.dock-btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.dock .btn{min-height:52px;padding:10px 12px;font-size:1rem}
+.dock-hint{display:flex;gap:6px;align-items:flex-start;font-size:.8125rem;font-weight:800;line-height:1.4;text-wrap:pretty}
+.dock-hint .ico{margin-top:1px}
+.docked .toast{bottom:calc(var(--dockh, 0px) + 12px)}
+.trail{list-style:none;display:flex;flex-direction:column;gap:0;font-size:.875rem;font-weight:700}
+.trail li{display:grid;grid-template-columns:4.5rem 14px minmax(0,1fr);gap:10px;align-items:start;padding:6px 0;position:relative}
+.trail .tt{color:var(--ink-muted);font-weight:800}
+.trail .pt{width:10px;height:10px;border-radius:50%;background:var(--ink);margin-top:6px;justify-self:center;position:relative;z-index:1}
+.trail li:not(:last-child)::after{content:"";position:absolute;left:calc(4.5rem + 10px + 6px);top:20px;bottom:-8px;width:2px;background:var(--border)}
+.trail .pt.wait{background:transparent;border:2px dashed var(--control-border)}
+.det-empty{padding:48px 28px;text-align:left;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.det-empty b{font-size:1.25rem;font-weight:900}
+.det-empty span{color:var(--ink-muted);font-weight:700}
+.contact{list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.contact li{padding:8px 12px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border);font-weight:700}
+.contact small{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.minis{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.mini{display:inline-flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border);font-weight:800}
+.mini .face{--s:36px}
+
+/* ================= 收款對帳 ================= */
+.money-page{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,400px);gap:20px;align-items:start;padding:18px 28px 48px}
+@container main (max-width: 1100px){.money-page{grid-template-columns:minmax(0,1fr)}.owed{order:-1;position:static}}
+.compact .money-page{padding:14px 16px 48px}
+.filters{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;margin-bottom:16px}
+.filters .lbl{font-size:.8125rem;font-weight:800;color:var(--ink-muted);margin-right:4px}
+.fgrp{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sums{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;padding:14px 16px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border);margin-bottom:12px}
+.sums .net{font-size:1.375rem}
+.sums .net-l{font-size:.875rem;font-weight:800}
+.sums .by{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.sums .by .money{color:var(--ink)}
+.ledger{width:100%;border-collapse:collapse;font-size:.9375rem}
+.ledger th{text-align:left;font-size:.8125rem;font-weight:800;color:var(--ink-muted);padding:8px 10px;border-bottom:1.5px solid var(--border);white-space:nowrap}
+.ledger td{padding:11px 10px;border-bottom:1px solid var(--border);font-weight:700;vertical-align:top}
+.ledger th.n,.ledger td.n{text-align:right}
+.ledger tr.day td{padding:16px 10px 6px;border-bottom:0;font-size:.875rem;font-weight:900}
+.ledger tr.day .money{font-size:.875rem}
+.ledger tr.day .dsum{float:right;color:var(--ink-muted);font-weight:800}
+.ledger .who{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.ledger .kd{display:inline-flex;align-items:center;gap:4px;font-weight:800}
+.ledger .kd.rev{color:var(--info)}
+.ledger tr.sub td{border-bottom:0;padding-top:14px;font-weight:900}
+.ledger .ref{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+@container main (max-width: 760px){
+  .ledger thead{display:none}
+  .ledger,.ledger tbody{display:block}
+  .ledger tr{display:grid;grid-template-columns:3.5rem minmax(0,1fr) auto;gap:2px 10px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .ledger td{display:block;padding:0;border:0}
+  .ledger td.c-t{grid-column:1;grid-row:1;font-size:.875rem}
+  .ledger td.c-t .who{display:none}
+  .ledger td.c-by{grid-column:1;grid-row:2;font-size:.8125rem;color:var(--ink-muted)}
+  .ledger td.c-p{grid-column:2;grid-row:1}
+  .ledger td.c-p .who,.ledger td.c-m .ref{display:inline;margin-left:6px}
+  .ledger td.c-m{grid-column:2;grid-row:2;font-size:.875rem}
+  .ledger td.n{grid-column:3;grid-row:1}
+  .ledger tr.day{border-bottom:0;padding:14px 0 0}
+  .ledger tr.day td{padding:0;grid-column:1 / -1}
+  .ledger tr.sub{border-bottom:0}
+  .ledger tr.sub td{padding:0}
+}
+.owed{position:sticky;top:16px}
+.owed .total{display:flex;align-items:baseline;gap:10px;margin:-4px 0 12px;font-weight:800;color:var(--ink-muted);font-size:.875rem}
+.owed .total .money{font-size:1.5rem;color:var(--ink)}
+.olist{list-style:none;display:flex;flex-direction:column}
+.orow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:12px 0;border-top:1px solid var(--border)}
+.orow:first-child{border-top:0}
+.orow .face{--s:44px;grid-row:1 / span 2}
+.orow b{font-weight:900}
+.orow .amt{text-align:right;font-size:1.0625rem}
+.orow .why{grid-column:2 / -1;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.orow .why.hot{color:var(--danger)}
+.orow .textbtn{grid-column:2 / -1;justify-self:start;margin-top:4px;min-height:40px}
+.empty-line{padding:14px 0 4px;font-weight:700;color:var(--ink-muted)}
+
+/* ================= 稽核紀錄 ================= */
+.audit-page{padding:18px 28px 48px}
+.compact .audit-page{padding:14px 16px 48px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.ev-grid{display:grid;grid-template-columns:minmax(280px,360px) minmax(0,1fr);gap:20px;align-items:start}
+@container main (max-width: 960px){.ev-grid{grid-template-columns:minmax(0,1fr)}}
+.search{position:relative}
+.search input{width:100%;min-height:48px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);padding:0 16px 0 44px;font-weight:700}
+.search input:hover{border-color:var(--ink)}
+.search input::placeholder{color:var(--ink-muted)}
+.search .ico{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--ink-muted)}
+.clist{list-style:none;display:flex;flex-direction:column;gap:4px;margin-top:10px}
+.crow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:10px;border-radius:16px;transition:background-color .2s var(--out)}
+.crow:hover{background:var(--surface-2)}
+.crow[aria-current="true"]{background:var(--surface-2);box-shadow:inset 0 0 0 2px var(--ink)}
+.crow .face{--s:40px}
+.crow b{display:block;font-weight:900}
+.crow small{display:block;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.chain-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.chain-h h2{font-size:1.375rem;font-weight:900;line-height:1.3}
+.chain-h .meta{flex-basis:100%;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.chain{list-style:none;margin-top:18px;display:flex;flex-direction:column}
+.link{display:grid;grid-template-columns:32px minmax(0,1fr);gap:14px;position:relative;padding-bottom:18px}
+.link:not(:last-child)::before{content:"";position:absolute;left:15px;top:34px;bottom:2px;width:2px;background:var(--ink)}
+.link.gap:not(:last-child)::before,.link.gap + .link::before{background:none;width:0;border-left:2px dashed var(--control-border)}
+.link .nd{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--surface)}
+.link .nd .ico{width:18px;height:18px;stroke-width:2.4}
+.link.gap .nd{background:var(--danger-bg);color:var(--danger);box-shadow:inset 0 0 0 2px var(--danger)}
+.link h4{font-size:1rem;font-weight:900;line-height:1.35;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding-top:4px}
+.link dl{display:grid;grid-template-columns:7rem minmax(0,1fr);gap:4px 12px;margin-top:6px;font-size:.875rem;font-weight:700}
+.link dt{color:var(--ink-muted)}
+.link .gapline{margin-top:6px;font-size:.875rem;font-weight:800;color:var(--danger)}
+@container main (max-width: 560px){.link dl{grid-template-columns:minmax(0,1fr)}.link dt{margin-top:4px}}
+.hash{font-family:var(--mono);font-size:.8125rem;font-weight:600;letter-spacing:.02em;word-break:break-all;line-height:1.6;font-feature-settings:normal}
+.verify{margin-top:10px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.verify .notice{width:100%}
+.verify .hashpair{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:4px 12px;font-size:.8125rem;font-weight:700;margin-top:6px}
+.glist{list-style:none;display:flex;flex-direction:column}
+.grow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:14px 0;border-top:1px solid var(--border)}
+.grow:first-child{border-top:0}
+.grow .face{--s:44px;grid-row:1 / span 2}
+.grow b{font-weight:900}
+.grow .what{grid-column:2;font-size:.875rem;font-weight:700;color:var(--danger)}
+.grow .what small{display:block;color:var(--ink-muted);font-weight:600}
+.grow .acts{grid-column:3;grid-row:1 / span 2;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+@container main (max-width: 640px){.grow{grid-template-columns:auto minmax(0,1fr)}.grow .acts{grid-column:1 / -1;grid-row:auto;justify-content:flex-start}}
+.alog{list-style:none;display:flex;flex-direction:column}
+.arow{border-top:1px solid var(--border)}
+.arow:first-child{border-top:0}
+.arow>button{display:grid;grid-template-columns:6.5rem minmax(0,1fr) auto;gap:4px 14px;align-items:baseline;width:100%;padding:12px 6px;border-radius:12px;font-weight:700}
+.arow>button:hover{background:var(--surface-2)}
+.arow .at{font-size:.875rem;font-weight:800;color:var(--ink-muted)}
+.arow .ev{font-weight:900}
+.arow .ev small{font-weight:700;color:var(--ink-muted);margin-left:8px}
+.arow .by{font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-align:right}
+.arow .ico.chev{transition:transform .2s var(--out)}
+.arow [aria-expanded="true"] .ico.chev{transform:rotate(180deg)}
+.arow .ba{margin:0 6px 14px calc(6.5rem + 20px);padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border);font-size:.875rem;font-weight:700;display:flex;flex-direction:column;gap:6px}
+.arow .ba .b{text-decoration:line-through;color:var(--ink-muted)}
+.arow .ba .k{font-weight:900}
+.arow .ba .ids{font-size:.8125rem;color:var(--ink-muted);font-weight:600}
+@container main (max-width: 640px){.arow>button{grid-template-columns:minmax(0,1fr) auto}.arow .at{grid-column:1 / -1}.arow .ba{margin-left:6px}}
+.new-row{animation:wash 1.6s var(--out)}
+@keyframes wash{from{background:var(--sunk)}}
+
+/* ---------- drawer: M-03 寵物資料 ---------- */
+.scrim{position:fixed;inset:0;z-index:70;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s var(--out)}
+@keyframes fade{from{opacity:0}}
+.scrim.side-r{justify-content:flex-end;align-items:stretch;padding:0}
+.sheet{width:min(460px,100vw);height:100%;overflow:auto;background:var(--bg);box-shadow:var(--lift-hi);display:flex;flex-direction:column;gap:14px;padding:18px 18px 28px;animation:slidein-r .36s var(--out)}
+@keyframes slidein-r{from{transform:translateX(40px);opacity:0}}
+.sheet .top{display:flex;align-items:center;gap:8px}
+.sheet .top h2{font-size:1.125rem;font-weight:900;flex:1}
+.pid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+.pid .face{--s:88px}
+.pid h3{font-size:1.5rem;font-weight:900;line-height:1.2}
+.pid small{display:block;margin-top:4px;font-size:.9375rem;font-weight:700;color:var(--ink-muted)}
+.nrows{list-style:none;display:flex;flex-direction:column}
+.nrow{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:10px 0;border-top:1px solid var(--border)}
+.nrow:first-child{border-top:0;padding-top:0}
+.nrow .say{font-weight:800;line-height:1.5}
+.nrow.s .say{color:var(--danger)}
+.mask-note{display:flex;gap:8px;align-items:flex-start;margin-top:12px;padding:10px 12px;border-radius:var(--r-md);background:var(--neutral-bg);color:var(--neutral);font-size:.8125rem;font-weight:700;line-height:1.5}
+.mask-note .ico{margin-top:1px}
+.dl{display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:8px 14px;font-size:.9375rem;font-weight:700}
+.dl dt{color:var(--ink-muted);font-size:.875rem}
+.vis{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:.875rem;font-weight:700}
+.vis li{display:flex;gap:10px}
+.vis b{min-width:3.25rem;font-weight:900}
+
+/* ---------- dialog ---------- */
+.dialog{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:24px;display:flex;flex-direction:column;gap:16px;animation:pop .35s var(--spring)}
+@keyframes pop{from{transform:translateY(16px) scale(.98);opacity:0}}
+.dialog h2{font-size:1.25rem;font-weight:900;line-height:1.35;text-wrap:balance}
+.dialog .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.cdl{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px 14px;padding:14px 16px;border-radius:var(--r-md);background:var(--sunk);font-size:.9375rem;font-weight:700}
+.cdl dt{color:var(--ink-muted);font-size:.875rem}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:.875rem;font-weight:800}
+.field input,.field textarea{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:.9375rem;font-weight:600}
+.field textarea{min-height:84px;resize:vertical;line-height:1.5}
+.field input:hover,.field textarea:hover{border-color:var(--ink)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink-muted)}
+.field [aria-invalid="true"]{border-color:var(--danger)}
+.field .err{font-size:.8125rem;font-weight:800;color:var(--danger)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.dbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:flex-start}
+.dbtns .cell{display:flex;flex-direction:column;align-items:flex-end}
+@media (max-width: 600px){
+  .dlg-s{align-items:flex-end;padding:0}
+  .dialog{border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:92dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+  .dbtns{flex-direction:column-reverse;align-items:stretch}
+  .dbtns .cell{align-items:stretch}
+}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(560px,calc(100vw - 32px));padding:10px 18px;border-radius:18px;background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .4s var(--spring)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+#app:not(.compact) ~ #layer .toast{left:calc(50% + var(--sidew) / 2)}
+#app.rail ~ #layer .toast{left:calc(50% + 2.625rem)}
+
+
+.whoami{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 6px;border-radius:999px;background:var(--sunk);font-weight:800;font-size:.875rem}
+.whoami .av{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900}
+.hg{display:inline-block;white-space:nowrap}
+.hg.diff{background:var(--danger-bg);color:var(--danger);border-radius:8px;padding:0 3px;margin:0 -3px;font-weight:800}
+.reqline{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-weight:800}
+.reqline span{flex:1 1 16rem}
+.textbtn[aria-expanded="true"] .ico{transform:rotate(180deg)}
+.jump{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-top:10px;font-size:.875rem;font-weight:800;color:var(--ink-muted)}
+/* in-page anchors, drawn as links with a down arrow so they never read as dropdowns */
+.jump a{display:inline-flex;align-items:center;gap:4px;min-height:44px;color:var(--ink);font-weight:800;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:4px;text-decoration-color:var(--control-border)}
+.jump a:hover{text-decoration-color:var(--ink)}
+/* compact detail on desktop: the signature lands in the first viewport */
+#app:not(.compact) .head{padding-top:16px}
+#app:not(.compact) .desk{padding-top:12px}
+#app:not(.compact) .det .panel{padding:18px 20px}
+#app:not(.compact) .dhead .face{--s:64px}
+#app:not(.compact) .dhead h2{font-size:1.375rem}
+#app:not(.compact) .dhead .chips{margin-top:6px}
+#app:not(.compact) .req{margin-top:14px;padding-top:12px}
+#app:not(.compact) .tile{padding:8px 12px}
+#app:not(.compact) .tile .d,#app:not(.compact) .tile .t{display:inline;font-size:1rem}
+#app:not(.compact) .tile .t::before{content:" "}
+#app:not(.compact) .facts{gap:4px 14px}
+#app:not(.compact) .quote{padding:4px 10px}
+#app:not(.compact) .conseq .lede{display:none}
+#app:not(.compact) .conseq .jump{flex-basis:100%;margin-top:4px}
+@container det (min-width: 581px){.jump{display:none}}
+#app:not(.compact) .conseq{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px}
+#app:not(.compact) .conseq .cols{flex-basis:100%}
+#app:not(.compact) .conseq .checks{margin-top:0}
+#app:not(.compact) .cols{margin-top:10px}
+#app:not(.compact) .col{padding:16px 18px}
+#app:not(.compact) .cq{margin-bottom:12px}
+#app:not(.compact) .cq li{padding:7px 0;line-height:1.4}
+#app:not(.compact) .col .go .btn{min-height:52px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}.new-row{animation-duration:1.6s !important}.face circle.cur{stroke-dasharray:var(--dash) 600}}
+/* touch: DESIGN.md touch-target is 44px; mouse density stays as drawn */
+@media (pointer: coarse){.pills .pill{min-height:44px !important}}
+/* mouse: 42px nav rows let all fourteen items fit at 1440×900 without scrolling */
+@media (pointer: fine){.side .sitem{min-height:42px;padding-block:7px}}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>管理 Web 審核台・互動原型</b><span class="muted">毛孩日和，資料全為虛構；示範時間 10/9（五）11:20</span>
+  <label>身分 <select id="p-role"><option value="admin">陳老闆・店家管理者（兩家分店）</option><option value="mgr">林店長・店長（中山店）</option><option value="desk">阿凱・櫃台（中山店）</option></select></label>
+  <label>下一次裁決回應 <select id="p-sim"><option value="ok">正常寫入</option><option value="taken">新時段剛被訂走</option><option value="withdrawn">飼主剛撤回申請</option><option value="other">已被別人處理</option></select></label>
+  <label><input type="checkbox" id="p-tamper"> 模擬 PDF 被改過</label>
+  <label><input type="checkbox" id="p-off"> 離線</label>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <span class="tagp">原型</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+const I = {
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  inbox:'<path d="M4 13h4l1.5 2.5h5L16 13h4"/><path d="M5.5 5h13L20 13v6H4v-6l1.5-8Z"/>',
+  coins:'<ellipse cx="9" cy="7" rx="5" ry="2.5"/><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7"/><path d="M10 15.4c.9 1.3 3 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  dash:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 19c1-3.5 3.4-5 6-5s5 1.5 6 5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.3c1.7.7 2.9 2.2 3.5 4.7"/>',
+  scis:'<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17M8.6 15.6 20 7"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  doc:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  team:'<circle cx="10" cy="8" r="4"/><path d="M3 20c1.4-3.5 4-5 7-5 1.5 0 2.9.4 4 1.1M18 14v6M15 17h6"/>',
+  plan:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  fwd:'<path d="m10 6 6 6-6 6"/>',
+  up:'<path d="m6 14 6-6 6 6"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  paw:'<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  unlock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',
+  ban:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4V5Z"/>',
+  receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  stamp:'<path d="M9 4h6l-1 7h-4L9 4Z"/><path d="M5 15h14v3H5zM7 21h10"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  erase:'<path d="M8 20h12M4.5 15.5 14 6l5 5-7.5 7.5H8.5l-4-3Z"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/>',
+  swap:'<path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/>',
+  otp:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  layers:'<path d="m12 4 9 5-9 5-9-5 9-5Z"/><path d="m3 14 9 5 9-5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>'
+};
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+I.bell = '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>';
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* a person's initial: skip the 阿 / 小 prefix so 阿凱 and 阿楷 stay apart (user decision 2026-10-11); pets keep their first character */
+const initialOf = n => /^[阿小]./.test(n) ? n[1] : n[0];
+const $ = id => document.getElementById(id);
+const fmt = n => Math.abs(n).toLocaleString('en-US');
+/* Money: NT$ one step smaller, true minus and a word for reversals; screen readers hear 新台幣 */
+const money = (n, word) => `<span class="money${n < 0 ? ' neg' : ''}"><span aria-hidden="true">${n < 0 ? '−' : ''}<span class="cur">NT$</span>${fmt(n)}</span><span class="sr">${n < 0 ? '負' : ''}新台幣 ${fmt(n)} 元</span></span>${word ? ` ${word}` : ''}`;
+/* 一份契約的一生 (prototypes/contract-life): ?life=ct-verify is 10/10（六）19:30, after closing on the day 王太太 signed 毛毛's 第 4 版 */
+const CT = new URLSearchParams(location.search).get('life') === 'ct-verify';
+const CT_DAY = CT ? '10/10' : '10/9';
+const nowT = () => { if (CT) return '19:32'; const d = new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+
+/* ---------- demo data (fictional) ---------- */
+const BR = {zs:'中山店', xy:'信義店'};
+const ROLES = {
+  admin:{who:'陳老闆', role:'店家管理者', br:null},
+  mgr:{who:'林店長', role:'店長', br:'zs'},
+  desk:{who:'阿凱', role:'櫃台', br:'zs'}
+};
+/* pets the S-04 寵物卡 prototype carries; others open its first pet */
+const PETCARD = ['afu', 'huasheng', 'buding', 'heipi'];
+const PETS = {
+  maomao:{name:'毛毛', breed:'貴賓犬', owner:'王太太', ph:'8821', photo:true, safety:[], care:[{t:'怕剪刀', note:'剪刀靠近臉部會掙扎，臉部改用電剪'}], ill:'無', allergy:'無', internal:'', visits:[['9/26','洗澡＋剪毛・小型犬'],['8/29','洗澡＋剪毛・小型犬'],['8/1','基礎洗澡・小型犬']]},
+  xiaomi:{name:'小米', breed:'柯基', owner:'鄭小姐', ph:'7702', photo:true, today:0, safety:[{t:'護食', note:'服務中不要給零食，碗靠近會撲咬'}], care:[{t:'關節不好', note:'抱上美容台要托住後腿'}], ill:'髖關節發育不良（觀察中）', allergy:'無', internal:'', visits:[['9/11','基礎洗澡・中型犬'],['8/14','基礎洗澡・中型犬']]},
+  buding:{name:'布丁', breed:'柴犬', owner:'吳小姐', ph:'6610', photo:true, safety:[], care:[], ill:'無', allergy:'無', internal:'', visits:[['9/27','精緻美容・中型犬'],['7/31','精緻美容・中型犬']]},
+  doudou:{name:'豆豆', breed:'臘腸犬', owner:'黃先生', ph:'5318', photo:true, safety:[{t:'會咬人', note:'剪指甲時會咬，需兩人保定'}], care:[], ill:'椎間盤突出（已手術，避免跳躍）', allergy:'無', internal:'住宿期間每天兩次確認後腿力氣', visits:[['10/6','精緻美容・小型犬'],['9/8','基礎洗澡・小型犬']]},
+  afu:{name:'阿福', breed:'黃金獵犬', owner:'蔡先生', ph:'1180', photo:true, today:2, safety:[{t:'會咬人', note:'剪指甲與吹耳朵時會咬，需兩人保定'}], care:[{t:'怕吹風機', note:'改用低風量分段吹'}], ill:'異位性皮膚炎，背部易起疹（服藥中）', allergy:'雞肉', internal:'飼主上次覺得剪太短，修剪長度先跟飼主確認', visits:[['9/14','精緻美容・大型犬'],['8/30','基礎洗澡・大型犬']]},
+  xiaohei:{name:'小黑', breed:'米克斯', owner:'林先生', ph:'2716', photo:true, today:1, safety:[], care:[{t:'怕吹風機', note:'吹風改低風量，分三段吹'}], ill:'無', allergy:'不確定', internal:'', visits:[]},
+  huasheng:{name:'花生', breed:'臘腸犬', owner:'何先生', ph:'3047', photo:false, today:0, safety:[], care:[{t:'皮膚敏感', note:'只用低敏洗劑，洗後檢查腹部'}], ill:'無', allergy:'無', internal:'', visits:[['10/8','基礎洗澡・小型犬']]},
+  tangtang:{name:'糖糖', breed:'馬爾濟斯', owner:'郭太太', ph:'4126', photo:false, safety:[], care:[], ill:'未填', allergy:'未填', internal:'', visits:[['10/5','基礎洗澡・小型犬']]},
+  kafei:{name:'咖啡', breed:'臘腸犬', owner:'葉小姐', ph:'7359', photo:false, safety:[], care:[], ill:'未填', allergy:'未填', internal:'', visits:[['10/3','洗澡＋剪毛・小型犬'],['9/5','基礎洗澡・小型犬']]},
+  yutou:{name:'芋頭', breed:'米克斯（貓）', owner:'何志明', ph:'3047', photo:false, safety:[], care:[], ill:'無', allergy:'無', internal:'', visits:[['9/20','洗澡＋剪毛・貓'],['8/25','洗澡＋剪毛・貓']]},
+  douhua:{name:'豆花', breed:'英國短毛貓', owner:'鄭先生', ph:'7702', photo:false, safety:[{t:'會抓人', note:'剪指甲會抓，需包毛巾'}], care:[], ill:'無', allergy:'無', internal:'', visits:[['9/18','修指甲']]},
+  mochi:{name:'麻糬', breed:'西施犬', owner:'游小姐', ph:'4870', photo:false, today:0, safety:[], care:[], ill:'未填', allergy:'未填', internal:'', visits:[['9/22','洗澡＋剪毛・小型犬'],['8/6','精緻美容・小型犬'],['6/30','洗澡＋剪毛・小型犬']]},
+  qiuqiu:{name:'球球', breed:'比熊', owner:'許小姐', ph:'3390', photo:false, today:0, safety:[], care:[{t:'怕陌生人', note:'先讓牠聞手再抱'}], ill:'氣管塌陷（避免勒頸）', allergy:'無', internal:'', visits:[['9/20','精緻美容・小型犬'],['8/16','精緻美容・小型犬']]},
+  dudu:{name:'嘟嘟', breed:'雪納瑞', owner:'劉小姐', ph:'3317', photo:false, today:2, safety:[], care:[], ill:'未填', allergy:'未填', internal:'', visits:[['9/29','洗澡＋剪毛・小型犬'],['8/9','精緻美容・小型犬'],['6/16','洗澡＋剪毛・小型犬']]},
+  niuniu:{name:'妞妞', breed:'西施犬', owner:'蘇先生', ph:'1826', photo:false, today:4, safety:[], care:[{t:'關節不好', note:'不要讓牠自己跳下美容台'}], ill:'未填', allergy:'未填', internal:'', visits:[['9/28','洗澡＋剪毛・小型犬'],['9/3','洗澡＋剪毛・小型犬']]}
+};
+
+/* the queue: what waits on a decision. due = minutes from 11:20 today, for urgency order */
+const Q0 = [
+  {id:'cx-xiaomi', kind:'cx', br:'zs', pet:'xiaomi', by:'阿凱', byRole:'櫃台', via:'在櫃台送出', at:'10:40', due:160, dueL:'今天 14:00', tone:'soon',
+   slot:{d:'10/9（五）', t:'14:00–15:00', res:'美容台 B・小葵'}, svc:'基礎洗澡・中型犬', price:800, who:'飼主要求', why:'小米昨晚開始拉肚子，飼主想先帶去看醫生',
+   fee:160, rule:'飼主要求・預約前 24 小時內・服務費 20%', deposit:300, free:'14:00–17:00 空著，可以接現場預約', signed:true},
+  {id:'rs-mochi', kind:'rs', br:'zs', pet:'mochi', by:'游小姐', byRole:'飼主', via:'飼主在 LINE 申請', at:'09:40', due:70, dueL:'今天 12:30', tone:'soon',
+   from:{d:'10/9（五）', t:'12:30–14:30', res:'美容台 C・阿楷'}, to:{d:'10/9（五）', t:'15:00–17:00', res:'美容台 B・小葵'},
+   svc:'洗澡＋剪毛・小型犬', price:1200, who:'飼主要求', why:'下午要先去接小孩', fee:0, rule:'飼主選擇之後再簽，不收改期費',
+   contract:'deferred'},
+  /* the two 可能重複 pairs in M-03 客戶與寵物, sent by the clerk from its 合併工作台; a = the record that stays */
+  {id:'mg-he', kind:'mg', br:'zs', ph:'3047', by:'阿凱', byRole:'櫃台', via:'在客戶與寵物送出', at:'11:20', due:160, dueL:'花生 14:00 到店前', tone:'',
+   a:{name:'何志明', src:'LINE 預約建檔', since:'2025/11/23', line:true, pets:['yutou'], appts:0, visits:2, contracts:2},
+   b:{name:'何先生', src:'現場預約建檔', since:'2026/8/2', line:false, pets:['huasheng'], appts:1, visits:2, contracts:2},
+   next:{pet:'huasheng', t:'今天 14:00', svc:'基礎洗澡', res:'美容台 A・阿哲'}, why:'何先生說之前用 LINE 預約過'},
+  {id:'bd-zheng', kind:'mg', bind:true, br:'zs', ph:'7702', by:'阿凱', byRole:'櫃台', via:'在客戶與寵物送出', at:'11:20', due:99999, dueL:'沒有期限', tone:'',
+   a:{name:'鄭小姐', src:'LINE 預約建檔', since:'2025/8/25', line:true, pets:['xiaomi'], appts:1, visits:3, contracts:3},
+   b:{name:'鄭先生', src:'LINE 預約建檔', since:'2026/8/30', line:true, pets:['douhua'], appts:0, visits:1, contracts:1}, why:'鄭小姐說是先生的手機'},
+  {id:'rs-maomao', kind:'rs', br:'zs', pet:'maomao', by:'王太太', byRole:'飼主', via:'飼主在 LINE 申請', at:'10:05', due:1360, dueL:'明天 10:00', tone:'',
+   from:{d:'10/10（六）', t:'10:00–12:00', res:'美容台 A・阿哲'}, to:{d:'10/12（一）', t:'14:00–16:00', res:'美容台 A・阿哲'},
+   svc:'洗澡＋剪毛・小型犬', price:1200, who:'飼主要求', why:'週六臨時要出差', fee:240, rule:'飼主要求・預約前 24 小時內・服務費 20%',
+   contract:'unsigned-read'},
+  {id:'rs-buding', kind:'rs', br:'zs', pet:'buding', by:'阿凱', byRole:'櫃台', via:'在櫃台送出', at:'昨天 18:20', due:3040, dueL:'後天 14:00', tone:'',
+   from:{d:'10/11（日）', t:'14:00–16:00', res:'美容台 B・小葵'}, to:{d:'10/18（日）', t:'14:00–16:00', res:'美容台 B・小葵'},
+   svc:'精緻美容・中型犬', price:1800, who:'飼主要求', why:'飼主打電話說那週要回南部', fee:0, rule:'飼主要求・預約前 24 小時以上・不收費',
+   contract:'unsigned'},
+  {id:'del-huang', kind:'del', br:'zs', person:'許小姐', ph:'3390', pets:['qiuqiu'], by:'許小姐', byRole:'飼主', via:'飼主在 LINE「我的資料」申請', at:'9/12（六）', due:4320, dueL:'剩 3 天', tone:'hot',
+   deadline:'10/12（一）', bookings:3, last:'9/20', contracts:3, future:'今天 16:00 精緻美容'},
+  {id:'ec-doudou', kind:'ec', br:'zs', pet:'doudou', by:'林店長', byRole:'店長', via:'緊急離店', at:'10/6（二）17:40', due:9000, dueL:'未收 3 天', tone:'',
+   total:1500, paid:600, owed:900, why:'飼主忘了帶錢包，說週六前轉帳', svc:'精緻美容・小型犬',
+   contacts:[{at:'10/8 10:15', by:'阿凱', x:'打電話提醒，飼主說週六前轉帳'}]},
+  {id:'del-zhou', kind:'del', br:'zs', person:'郭太太', ph:'4126', pets:['tangtang'], by:'郭太太', byRole:'飼主', via:'飼主在 LINE「我的資料」申請', at:'10/3（六）', due:34560, dueL:'剩 24 天', tone:'',
+   deadline:'11/2（一）', bookings:2, last:'10/5', contracts:2, future:null},
+  {id:'del-ye', kind:'del', br:'xy', person:'葉小姐', ph:'7359', pets:['kafei'], by:'葉小姐', byRole:'飼主', via:'飼主在 LINE「我的資料」申請', at:'10/8（四）', due:41760, dueL:'剩 29 天', tone:'',
+   deadline:'11/7（六）', bookings:7, last:'10/3', contracts:7, future:null}
+];
+const KIND = {
+  rs:{l:'改期申請', s:'改期', icon:'swap'},
+  cx:{l:'有費取消申請', s:'取消', icon:'ban'},
+  ec:{l:'緊急離店未收', s:'未收', icon:'coins'},
+  del:{l:'個資刪除請求', s:'刪除', icon:'erase'},
+  mg:{l:'合併申請', s:'合併・綁定', icon:'users'}
+};
+
+/* 收款流水 */
+const L = (d, t, br, pet, owner, k, m, ref, by, amt) => ({d, t, br, pet, owner, k, m, ref, by, amt});
+const LEDGER0 = [
+  L('10/9','11:02','zs','年糕','方小姐','收款','轉帳','末五碼 70214','林店長',1500),
+  L('10/9','11:00','zs','拿鐵','施小姐','收款','現金','','阿凱',600),
+  L('10/9','10:45','zs','小黑','林先生','部分收款','刷卡','授權碼 228611','阿凱',600),
+  L('10/9','10:20','zs','Momo','陳先生','訂金','轉帳','末五碼 38215','阿凱',300),
+  L('10/9','10:05','zs','可可','洪先生','收款','現金','','阿凱',800),
+  L('10/8','17:15','zs','球球','許小姐','收款','現金','','阿凱',900),
+  L('10/8','16:40','zs','花生','何先生','收款','其他','街口支付・飼主傳了截圖','阿凱',600),
+  L('10/8','14:10','zs','黑糖','劉先生','收款','刷卡','授權碼 551902','阿凱',3600),
+  L('10/8','12:30','zs','Lucky','周先生','退款','現金','撤銷未到，退回未到費','林店長',-300),
+  L('10/8','09:55','xy','嘟嘟','劉小姐','收款','現金','','小芸',1200),
+  L('10/6','17:40','zs','豆豆','黃先生','部分收款','現金','','林店長',600),
+  L('10/6','15:20','zs','糖糖','郭太太','訂金','轉帳','末五碼 11902','阿凱',300),
+  L('10/6','10:30','zs','皮皮','曾先生','收款','刷卡','授權碼 109384','阿凱',1800),
+  L('10/5','13:45','zs','可樂','楊小姐','收款','轉帳','末五碼 66120','阿凱',2600),
+  L('10/3','16:00','zs','奶茶','李小姐','退款','轉帳','改期後多收，退回差額','陳老闆',-200),
+  L('10/3','15:10','xy','小白','戴先生','收款','刷卡','授權碼 640217','小芸',1500),
+  L('10/3','11:00','zs','麻糬','游小姐','收款','現金','','阿凱',1100),
+  L('10/3','10:10','zs','布朗尼','溫小姐','收款','刷卡','授權碼 772013','阿凱',1300),
+  L('10/2','15:30','zs','球球','許小姐','訂金','轉帳','末五碼 40021','阿凱',500),
+  L('10/1','12:00','zs','小米','鄭小姐','訂金','現金','','阿凱',300)
+];
+const DAY = {'10/9':'10/9（五）','10/8':'10/8（四）','10/6':'10/6（二）','10/5':'10/5（一）','10/3':'10/3（六）','10/2':'10/2（五）','10/1':'10/1（四）'};
+const RANGE = {today:['今天', ['10/9']], yest:['昨天', ['10/8']], week:['本週', ['10/5','10/6','10/7','10/8','10/9']], month:['本月', Object.keys(DAY)]};
+const METHODS = ['現金','轉帳','刷卡','其他'];
+/* 未結清: money still out, per booking */
+const OWED0 = [
+  {id:'o-doudou', br:'zs', pet:'doudou', amt:900, why:'10/6 緊急離店・未收 3 天', hot:true, q:'ec-doudou'},
+  {id:'o-afu', br:'zs', pet:'afu', amt:2200, why:'服務中・接回時在櫃台收'},
+  {id:'o-xiaohei', br:'zs', pet:'xiaohei', amt:900, why:'今天先收 NT$600・剩下接回時付'},
+  {id:'o-dudu', br:'xy', pet:'dudu', amt:600, why:'服務中・接回時在櫃台收'},
+  {id:'o-niuniu', br:'xy', pet:'niuniu', amt:1200, why:'服務完成・飼主 15:00 來接'}
+];
+
+/* 已簽契約: the evidence chain, one per signing */
+const CONTRACTS = [
+  {id:'C-1009-0412', pet:'afu', br:'zs', ver:'v3', signed:'10/9（五）10:52', read:{via:'LINE', sent:'10/7（三）20:14 已交給 LINE', stay:'20:16–20:24・停留 7 分 48 秒・讀到最後', ticks:'3 / 3・20:21、20:22、20:24'}, otp:'10:53 通過', dev:'中山店 櫃台平板 2', ip:'203.0.113.24', tsa:'10/9（五）10:53:41', gaps:[]},
+  {id:'C-1009-0408', pet:'xiaohei', br:'zs', ver:'v3', signed:'10/9（五）10:44', read:{via:'現場', sent:'沒有事前審閱，到店後在櫃台平板看完', stay:'10:31–10:43・櫃台平板即時審閱 12 分', ticks:'3 / 3・10:38、10:40、10:43'}, otp:'10:44 通過', dev:'中山店 櫃台平板 1', ip:'203.0.113.24', tsa:'10/9（五）10:44:52', gaps:[]},
+  {id:'C-1008-0377', pet:'huasheng', br:'zs', ver:'v3', signed:'10/8（四）14:02', read:{via:'簡訊', sent:'10/6（二）21:30 已用簡訊傳送', stay:'21:31–21:37・停留 6 分 05 秒・讀到最後', ticks:'3 / 3・21:34、21:35、21:37'}, otp:'14:03 通過', dev:'中山店 櫃台平板 1', ip:'203.0.113.24', tsa:null, gaps:['tsa']},
+  {id:'C-1006-0352', pet:'doudou', br:'zs', ver:'v3', signed:'10/6（二）11:05', read:{via:'簡訊', sent:'10/4（日）19:02 已用簡訊傳送', stay:'19:05–19:13・停留 8 分 20 秒・讀到最後', ticks:'3 / 3・19:09、19:11、19:13'}, otp:'11:06 通過', dev:'中山店 櫃台平板 2', ip:'203.0.113.24', tsa:'10/6（二）11:06:17', gaps:['deliver']},
+  {id:'C-1005-0339', pet:'tangtang', br:'zs', ver:'v3', signed:'10/5（一）08:24', read:{via:'LINE', sent:'10/3（六）18:40 已交給 LINE', stay:'18:41–18:43・只記到 2 分 10 秒（連線中斷）', ticks:'3 / 3・18:42、18:42、18:43'}, otp:'08:25 通過', dev:'中山店 櫃台平板 1', ip:'203.0.113.24', tsa:'10/5（一）08:25:30', gaps:['read']},
+  {id:'C-1003-0327', pet:'kafei', br:'xy', ver:'v3', signed:'10/3（六）13:52', read:{via:'LINE', sent:'10/1（四）19:30 已交給 LINE', stay:'19:32–19:38・停留 6 分 12 秒・讀到最後', ticks:'3 / 3・19:35、19:36、19:38'}, otp:'13:53 通過', dev:'信義店 櫃台平板', ip:'198.51.100.7', tsa:'10/3（六）13:53:20', gaps:[]},
+  {id:'C-0927-0301', pet:'buding', br:'zs', ver:'v2', signed:'9/27（日）14:10', read:{via:'LINE', sent:'9/25（五）12:00 已交給 LINE', stay:'12:05–12:14・停留 9 分 02 秒・讀到最後', ticks:'3 / 3・12:09、12:11、12:14'}, otp:'14:11 通過', dev:'中山店 櫃台平板 1', ip:'203.0.113.24', tsa:'9/27（日）14:11:08', gaps:[]},
+  {id:'C-0920-0255', pet:'qiuqiu', br:'zs', ver:'v2', signed:'9/20（日）10:15', read:{via:'LINE', sent:'9/18（五）20:00 已交給 LINE', stay:'20:02–20:09・停留 7 分 11 秒・讀到最後', ticks:'3 / 3・20:05、20:07、20:09'}, otp:'10:16 通過', dev:'中山店 櫃台平板 1', ip:'203.0.113.24', tsa:'9/20（日）10:16:44', gaps:[]}
+];
+const GAP = {
+  tsa:{l:'時間戳記未取得', say:'可信時間戳記服務逾時，系統每小時自動重試（已重試 3 次）'},
+  deliver:{l:'正本未送達', say:'飼主沒有加入 LINE 官方帳號，正本改用簡訊寄出也沒送到'},
+  hash:{l:'雜湊不一致', say:'最近一次驗證時，算出的雜湊和簽署時記下的不同'},
+  read:{l:'審閱紀錄不完整', say:'閱讀停留只記到 2 分 10 秒，之後連線中斷；是否足夠待法務確認'}
+};
+
+/* 操作紀錄 (audit log), newest first; br null = 全店層級 */
+const A = (at, by, role, br, ev, target, sum, ba) => ({at, by, role, br, ev, target, sum, ba: ba || []});
+const AUDIT0 = [
+  A('10/9 11:02','林店長','店長','zs','人工收款','年糕・方小姐','NT$1,500・轉帳・末五碼 70214'),
+  A('10/9 10:52','系統','—','zs','簽署完成','阿福・蔡先生','犬貓美容定型化契約 v3・PDF 雜湊與時間戳記已綁定'),
+  A('10/9 10:42','阿凱','櫃台','zs','報到','小黑・林先生','LINE 預約・美容台 B・小葵'),
+  A('10/9 09:31','林店長','店長','zs','修改注意事項','豆豆・黃先生','原因：飼主今天告知', [{k:'會咬人說明', b:'剪指甲會咬', a:'剪指甲時會咬，需兩人保定'}]),
+  A('10/8 21:40','陳老闆','店家管理者',null,'儲存契約草稿','犬貓美容定型化契約','v4 草稿・新增毛髮狀況，尚未發布'),
+  A('10/8 12:30','林店長','店長','zs','退款','Lucky・周先生','−NT$300・現金・撤銷未到，退回未到費'),
+  A('10/8 09:10','林店長','店長','zs','撤銷未到','Lucky・周先生','原因：飼主事先有聯絡，店裡漏看'),
+  A('10/6 17:40','林店長','店長','zs','緊急離店','豆豆・黃先生','未收 NT$900・原因：飼主忘了帶錢包，說週六前轉帳'),
+  A('10/3 16:00','陳老闆','店家管理者','zs','退款','奶茶・李小姐','−NT$200・轉帳・改期後多收，退回差額'),
+  A('10/2 14:20','小芸','櫃台','xy','合併客戶','葉小姐・手機 ••••7359','兩筆同手機紀錄合併為一筆', [{k:'客戶', b:'葉小姐、葉小姐（舊）', a:'葉小姐'}]),
+  A('9/30 10:00','陳老闆','店家管理者',null,'匯出對帳表','9 月對帳表','CSV・兩家分店')
+];
+
+/* ---------- state ---------- */
+const clone = o => JSON.parse(JSON.stringify(o));
+const state = {role:'admin', page:'queue', branch:'all', kind:'all', sel:null, view:'list', doneOpen:false,
+  sim:'ok', offline:false, tamper:false, compact:false, navOpen:false,
+  mRange:'week', mMethods:[], aTab:'chain', cSel:'C-1009-0412', cq:'', gapKind:'all', verify:null,
+  aWho:'', aEv:'', aRange:'all', aOpen:null, dlg:null, sheet:null};
+let QUEUE = clone(Q0), DONE = [], LEDGER = clone(LEDGER0), OWED = clone(OWED0), AUDIT = clone(AUDIT0);
+const me = () => ROLES[state.role];
+const scopeBr = () => me().br || (state.branch === 'all' ? null : state.branch);
+const inScope = br => { const s = scopeBr(); return !s || !br || br === s; };
+const inScopeStrict = br => { const s = scopeBr(); return !s ? true : br === s; };
+const kindsFor = () => state.role === 'desk' ? ['rs','cx','mg'] : ['rs','cx','mg','ec','del'];
+const canAudit = () => state.role !== 'desk';
+const canExport = () => state.role !== 'desk';
+const canSens = () => state.role !== 'desk';
+const visibleQ = () => QUEUE.filter(q => kindsFor().includes(q.kind) && inScopeStrict(q.br)).sort((a, b) => a.due - b.due);
+/* nobody decides a request they sent (緊急離店 is a debt, not a request) */
+const selfSent = q => q.byRole !== '飼主' && q.by === me().who && q.kind !== 'ec';
+const toDecide = () => visibleQ().filter(q => !selfSent(q));
+/* list order: what the viewer may decide first, then their own requests waiting on someone else */
+const shownQ = () => { const l = visibleQ().filter(q => state.kind === 'all' || q.kind === state.kind); return [...l.filter(q => !selfSent(q)), ...l.filter(selfSent)]; };
+const item = () => QUEUE.find(q => q.id === state.sel);
+const subjectName = q => q.kind === 'del' ? q.person : q.kind === 'mg' ? `${q.b.name}、${q.a.name}` : PETS[q.pet].name;
+const pairNames = q => q.bind ? `${q.a.name}和${q.b.name}` : `「${q.b.name}」併入「${q.a.name}」`;
+const pairPets = q => [...q.a.pets, ...q.b.pets];
+const hotCount = () => visibleQ().filter(q => q.tone === 'hot').length;
+
+/* ---------- pieces ---------- */
+const imgOf = (key, name, photo) => photo ? `<img src="pets/${key}.webp" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ini',textContent:'${esc(name[0])}'}))">` : `<span class="ini" aria-hidden="true">${esc(name[0])}</span>`;
+const LC = ['報到','現況','服務','完成','收款','離店'];
+/* 臉環 only when the pet has a visit today; otherwise the face is just the pet */
+function face(key, opts = {}) {
+  const p = PETS[key];
+  const badge = p.safety.length ? `<span class="badge">${ic('warn')}</span>` : '';
+  const tagName = opts.btn ? 'button' : 'span';
+  const attrs = opts.btn ? `class="face{C}" data-do="openPet" data-pet="${key}" data-key="${opts.key || 'face-' + key}" aria-label="看${esc(p.name)}的寵物資料"` : `class="face{C}" role="img" aria-label="${esc(p.name)}${p.today !== undefined ? `今天已完成 ${p.today} / 6，現在：${LC[p.today]}` : '的照片'}"`;
+  if (p.today === undefined) return `<${tagName} ${attrs.replace('{C}', ' plain')}>${imgOf(key, p.name, p.photo)}${badge}</${tagName}>`;
+  const segs = LC.map((l, i) => `<circle cx="50" cy="50" r="46" pathLength="600" class="${i < p.today ? 'done' : i === p.today ? 'cur' : ''}" stroke-dasharray="82 600" stroke-dashoffset="${-(i * 100 + 9)}" style="--dash:82"/>`).join('');
+  return `<${tagName} ${attrs.replace('{C}', '')}><svg viewBox="0 0 100 100" aria-hidden="true">${segs}</svg>${imgOf(key, p.name, p.photo)}${badge}${opts.step ? `<span class="step" aria-hidden="true">${p.today}/6</span>` : ''}</${tagName}>`;
+}
+const personFace = name => `<span class="face plain person" role="img" aria-label="${esc(name)}"><span class="ini">${esc(initialOf(name))}</span></span>`;
+const nameFace = name => `<span class="face plain" role="img" aria-label="${esc(name)}"><span class="ini">${esc(name[0])}</span></span>`;
+const pairFace = q => `<span class="face plain person pair" role="img" aria-label="${esc(q.bind ? `${q.a.name}和${q.b.name}，同一支手機的家人` : `${q.b.name}要併入${q.a.name}`)}"><span class="ini${q.bind ? '' : ' drop'}">${esc(initialOf(q.b.name))}</span><span class="ini">${esc(initialOf(q.a.name))}</span></span>`;
+const subjectFace = (q, btn) => q.kind === 'del' ? personFace(q.person) : q.kind === 'mg' ? pairFace(q) : face(q.pet, {btn, key: btn ? 'dface' : undefined});
+const kindChip = q => `<span class="kind">${ic(KIND[q.kind].icon)}${q.bind ? '綁定家人申請' : KIND[q.kind].l}</span>`;
+const phoneMask = ph => `<span class="nw" aria-label="手機末四碼 ${ph.split('').join(' ')}">••••${ph}</span>`;
+const masked = what => `<span class="masked" role="img" aria-label="${esc(what)}已遮罩，需敏感資料權限">${ic('lock')}需敏感資料權限</span>`;
+const tagH = (k, t) => k === 'safety' ? `<span class="tag safety">${ic('warn','sm')}${esc(t)}</span>` : `<span class="tag care">${ic('paw','sm')}${esc(t)}</span>`;
+const brTag = br => state.role === 'admin' && state.branch === 'all' && br ? `<span class="brt">${BR[br]}</span>` : '';
+const off = () => state.offline;
+const phoneDetail = () => state.page === 'queue' && state.compact && state.view === 'detail' && !!item();
+/* at phone width the two verdicts dock at the bottom instead of ending their columns */
+const docked = () => phoneDetail() && state.narrow;
+
+/* ---------- shell ---------- */
+const NAV = [
+  ['營運', [['dash','儀表板','dash'],['cal','預約','cal'],['queue','待處理','inbox'],['cust','客戶與寵物','users'],['money','收款對帳','coins']]],
+  ['設定', [['svc','服務與價格','scis'],['hours','營業時間','clock'],['res','資源','res'],['tpl','契約模板','doc'],['pol','取消與改期政策','cxl'],['notify','通知設定','bell']]],
+  ['帳務', [['staff','員工與權限','team'],['plan','方案與用量','plan'],['audit','稽核紀錄','shield']]]
+];
+function sideNav() {
+  const groups = NAV.map(([g, items]) => {
+    const vis = items.filter(([k]) => state.role !== 'desk' || ['dash','cal','queue','cust','money'].includes(k));
+    if (!vis.length) return '';
+    return `<div class="sgrp" aria-hidden="true">${g}</div>${vis.map(([k, l, icon]) => {
+      const n = k === 'queue' ? toDecide().length : 0, hot = k === 'queue' && hotCount();
+      return `<button class="sitem" data-key="nav-${k}" data-do="nav" data-page="${k}" ${state.page === k ? 'aria-current="page"' : ''}>${ic(icon)}<span>${l}</span>${n ? `<span class="n${hot ? ' hot' : ''}" aria-label="${n} 筆可以決定${hot ? `，${hot} 筆快到期` : ''}">${n}</span>` : ''}</button>`;
+    }).join('')}`;
+  }).join('');
+  const m = me();
+  return `<nav class="side" aria-label="主選單"><div class="brand"><span class="mark" aria-hidden="true">${ic('mark')}</span><span><small>寵派商家中心</small><b>毛孩日和</b></span></div><div class="snav">${groups}</div>
+    <div class="me"><span class="av" aria-hidden="true">${initialOf(m.who)}</span><span><b>${m.who}</b><small>${m.role}・${m.br ? BR[m.br] : '兩家分店'}</small></span></div></nav>`;
+}
+const TITLES = {queue:'待處理', money:'收款對帳', audit:'稽核紀錄'};
+function pageHead() {
+  const offBanner = off() ? `<p class="banner warning" role="status">${ic('off','sm')}<span>目前離線，可以查看；核准、拒絕、補收與匯出都需連線。</span></p>` : '';
+  /* phone detail: the top bar's back row replaces the whole head */
+  if (phoneDetail()) return offBanner;
+  const m = me(), n = toDecide().length, mine = visibleQ().length - n;
+  const scope = m.br ? `<span class="scope fixed" title="只看所屬分店">${ic('lock','sm')}${BR[m.br]}</span>`
+    : `<label class="sr" for="scope">分店範圍</label><select id="scope" class="scope" data-key="scope"><option value="all">全部分店</option><option value="zs">中山店</option><option value="xy">信義店</option></select>`;
+  const sub = {
+    queue: mine ? `${n ? `${n} 筆可以決定` : '沒有你可以決定的'}・${mine} 筆等店長或其他同事` : n ? `${n} 筆等你決定・最急的在最上面` : '目前沒有等待決定的事',
+    money: '收款流水與還沒收齊的錢・金額由系統計算',
+    audit: '已簽契約的證據鏈、缺口與每一筆操作紀錄'
+  }[state.page];
+  return `<header class="head"><h1 id="page-title" tabindex="-1">${TITLES[state.page]}${state.page === 'queue' && n ? `<span class="cnt${hotCount() ? ' hot' : ''}">${n}</span>` : ''}</h1>
+    <div class="tools">${scope}<span class="whoami"><span class="av" aria-hidden="true">${initialOf(m.who)}</span>${m.who}・${m.role}</span><span class="updated${off() ? ' off' : ''}">${off() ? `${ic('off','sm')}離線・資料停在 ${CT ? '19:30' : '11:20'}` : `${ic('refresh','sm')}${CT ? '19:30' : '11:20'} 更新`}</span></div>
+    <p class="sub">${sub}</p></header>
+    ${offBanner}`;
+}
+
+/* ================= 待處理 ================= */
+function queueRow(q) {
+  const p = q.pet && PETS[q.pet];
+  const name = subjectName(q), ow = q.kind === 'del' ? '飼主本人' : q.kind === 'mg' ? '' : p.owner;
+  const due = q.tone === 'hot' ? `<span class="due hot">${ic('clock')}${q.dueL}</span>` : `<span class="due${q.tone === 'soon' ? ' soon' : ''}">${q.dueL}</span>`;
+  const what = {
+    rs: () => q.from.d === q.to.d ? `${q.from.d.replace(/（.）/, '')} ${q.from.t.slice(0,5)} <span aria-label="改到">→</span> ${q.to.t.slice(0,5)}` : `${q.from.d.replace(/（.）/, '')} ${q.from.t.slice(0,5)} <span aria-label="改到">→</span> ${q.to.d.replace(/（.）/, '')} ${q.to.t.slice(0,5)}`,
+    cx: () => `取消 ${q.slot.t.slice(0,5)}・取消費 ${money(q.fee)}`,
+    ec: () => `未收 ${money(q.owed)}`,
+    del: () => `${q.deadline.replace(/（.）/, '')} 前要有結果`,
+    mg: () => q.bind ? `綁定為家人・${phoneMask(q.ph)}` : `併入「${esc(q.a.name)}」・${phoneMask(q.ph)}`
+  }[q.kind]();
+  const cur = q.id === state.sel && !(state.compact && state.view === 'list');
+  return `<li><button class="qrow" data-key="q-${q.id}" data-do="pick" data-id="${q.id}" ${cur ? 'aria-current="true"' : ''}>
+    ${subjectFace(q)}<span style="min-width:0"><span class="l1"><span class="nm">${esc(name)}</span>${ow ? `<span class="ow">${esc(ow)}</span>` : ''}${due}</span>
+    <span class="l2">${kindChip(q)}<span>${what}</span></span>
+    <span class="l3">${brTag(q.br)}${selfSent(q) ? '你送出' : `${esc(q.by)}${q.byRole === '飼主' ? '' : `（${q.byRole}）`}`}・${esc(q.at)}${q.withdrawn || q.taken ? '・<b style="color:var(--warning)">狀態有變</b>' : ''}</span></span></button></li>`;
+}
+function queueCol() {
+  const vis = visibleQ(), shown = shownQ();
+  const count = k => vis.filter(q => q.kind === k).length;
+  const pills = [['all', '全部', vis.length], ...kindsFor().map(k => [k, KIND[k].s, count(k)])]
+    .map(([k, l, n]) => `<button class="pill" data-key="kf-${k}" data-do="kindFilter" data-k="${k}" aria-pressed="${state.kind === k}">${l}<span class="cnt${k === 'del' && vis.some(q => q.kind === 'del' && q.tone === 'hot') ? ' hot' : ''}">${n}</span></button>`).join('');
+  const can = shown.filter(q => !selfSent(q)), sent = shown.filter(selfSent);
+  const ul = (l, label) => `<ul class="qul" aria-label="${label}">${l.map(queueRow).join('')}</ul>`;
+  const list = sent.length ? `<div class="qlist"><h3 class="qgh">你可以決定<span class="cnt">${can.length}</span></h3>${can.length ? ul(can, '你可以決定的申請') : '<p class="qnone">目前沒有你可以決定的申請。</p>'}
+      <h3 class="qgh">你送出的・等店長或其他同事<span class="cnt">${sent.length}</span></h3>${ul(sent, '你送出的申請')}</div>`
+    : shown.length ? `<div class="qlist">${ul(shown, '待處理清單')}</div>`
+    : `<div class="qempty" role="status"><span class="ok">${ic('check','lg')}</span><b>${vis.length ? '這一類都處理完了' : '都處理完了'}</b><span>新的改期、取消${state.role === 'desk' ? '與合併申請' : '、合併申請、未收與刪除請求'}會出現在這裡。</span></div>`;
+  const mine = DONE.filter(d => kindsFor().includes(d.kind) && inScopeStrict(d.br));
+  const done = mine.length ? `<div class="done-fold"><button class="textbtn" data-key="done" data-do="toggleDone" aria-expanded="${state.doneOpen}" aria-controls="done-l">${ic('chev','sm')}今天已處理<span class="cnt">${mine.length}</span></button>
+    ${state.doneOpen ? `<ul class="done-list" id="done-l">${mine.map(d => `<li>${subjectFace(d)}<span><b>${esc(subjectName(d))}・${d.verdict}</b><small>${esc(d.dby)}・${d.dat}${d.dwhy ? `・${esc(d.dwhy)}` : ''}</small></span></li>`).join('')}</ul>` : ''}</div>` : '';
+  return `<section class="qcol" aria-labelledby="q-h"><div class="qtop"><h2 id="q-h" class="sr">待處理清單</h2><div class="pills" role="group" aria-label="依類別篩選">${pills}</div>
+    <p class="order">${ic('clock','sm')}依期限排序，最急的在最上面</p></div>${list}${done}</section>`;
+}
+
+/* consequence rows: [icon, text, sub, amount, irreversible] */
+const cq = (icon, tx, sub, amt, irrev) => ({icon, tx, sub, amt, irrev});
+function verdicts(q) {
+  const p = q.pet && PETS[q.pet];
+  if (q.kind === 'rs') {
+    const contract = q.contract === 'unsigned-read'
+      ? cq('doc', '契約：改用新日期的版本，飼主要再讀一次', '飼主已在 LINE 讀完舊日期的版本，改期後視為未讀')
+      : q.contract === 'deferred' ? cq('doc', '契約：改用新日期的版本，仍是之後再簽', '飼主在新時段到店前簽就可以')
+      : cq('doc', '契約：改用新日期的版本', '還沒簽，到店時在平板簽');
+    return {
+      a:{h:'核准改期', items:[
+        cq('unlock', `釋放 ${q.from.d} ${q.from.t}`, `${q.from.res}，可以接別的預約`),
+        cq('lock', `鎖住 ${q.to.d} ${q.to.t}`, q.taken ? `${q.to.res}・剛被別的預約訂走` : `${q.to.res}・現在有空`),
+        q.fee ? cq('receipt', '改期費加到帳單', q.rule, q.fee) : cq('receipt', '不收改期費', q.rule),
+        contract,
+        cq('msg', `通知${p.owner}（LINE）`, `「${p.name}的預約改到 ${q.to.d} ${q.to.t.slice(0,5)}」`),
+],
+        btn:'核准改期', irr:'核准後不能復原；要再改，請飼主重新申請'},
+      r:{h:'拒絕', items:[
+        cq('lock', `預約保留在 ${q.from.d} ${q.from.t}`, q.from.res),
+        cq('receipt', '不收改期費'),
+        cq('doc', q.contract === 'unsigned-read' ? '契約不變，飼主讀過的版本仍然有效' : q.contract === 'deferred' ? '契約不變，仍是之後再簽' : '契約不變'),
+        cq('msg', `通知${p.owner}（LINE），附上你寫的原因`, q.byRole === '飼主' ? '' : `${q.by}也會在看板看到結果`)],
+        btn:'拒絕改期'}};
+  }
+  if (q.kind === 'cx') {
+    const back = q.deposit - q.fee;
+    return {
+      a:{h:'核准取消', items:[
+        cq('unlock', `釋放 ${q.slot.d} ${q.slot.t}`, `${q.slot.res}・${q.free}`),
+        cq('receipt', '取消費記到帳單', q.rule, q.fee),
+        back > 0 ? cq('coins', `訂金 ${'NT$' + fmt(q.deposit)} 扣掉取消費，要退`, '核准後到「退款／轉抵」處理', back)
+                 : cq('coins', '訂金不夠付取消費，還要收', '核准後到收款處理', -back),
+        cq('doc', q.signed ? '已簽的契約保留為紀錄，不再生效' : '簽署連結作廢'),
+        cq('msg', `通知${p.owner}（LINE），停發到店前提醒`, `「${p.name} ${q.slot.d} ${q.slot.t.slice(0,5)} 的預約已取消」`),
+],
+        btn:'核准取消', irr:'核准後不能復原；要再來，請重新預約'},
+      r:{h:'拒絕，預約保留', items:[
+        cq('lock', `預約保留在 ${q.slot.d} ${q.slot.t}`, q.slot.res),
+        cq('receipt', q.deposit ? `不收取消費，訂金 ${'NT$' + fmt(q.deposit)} 照舊` : '不收取消費'),
+        cq('msg', `通知${p.owner}（LINE），附上你寫的原因`, `${q.by}也會在看板看到結果`),
+        cq('swap', '飼主之後仍可以再申請取消或改期')],
+        btn:'拒絕取消'}};
+  }
+  if (q.kind === 'mg' && q.bind) return {
+    a:{h:'核准綁定', items:[
+      cq('users', '互相標示為家人', `「${q.a.name}」與「${q.b.name}」的客戶資料會顯示對方，櫃台查這支手機時一次看到兩位`),
+      cq('lock', '姓名、寵物、預約與契約各自保留', '綁定只加上家人標示，不搬動任何資料'),
+      cq('msg', '通知照舊', '各自用自己的 LINE 收確認與契約，不會互傳'),
+      cq('shield', '寫入稽核紀錄', '記下誰在何時綁定、原因；手機只記末四碼')],
+      btn:'核准綁定'},
+    r:{h:'拒絕', items:[
+      cq('lock', '兩筆資料維持原樣', '客戶與寵物仍會把兩位列為可能重複'),
+      cq('msg', `${q.by}會在客戶與寵物看到你寫的原因`, '不通知飼主'),
+      cq('swap', '櫃台問清楚後可以再送申請')],
+      btn:'拒絕綁定'}};
+  if (q.kind === 'mg') {
+    const n = q.next && PETS[q.next.pet];
+    return {
+      a:{h:'核准合併', items:[
+        cq('paw', `寵物：${pairPets(q).map(k => PETS[k].name).join('、')} 都歸到「${q.a.name}」`, '寵物資料、注意事項與照片原封不動搬過去'),
+        n ? cq('cal', `預約：${n.name} ${q.next.t} 改掛到「${q.a.name}」`, '時段、美容台與已收款項都不變') : cq('cal', '沒有未來預約要改掛'),
+        cq('doc', `已簽契約 ${q.a.contracts + q.b.contracts} 份維持原文`, '簽署人姓名、PDF 與雜湊、時戳都不改寫，證據鏈保持完整'),
+        cq('msg', q.a.line ? `通知：之後都用 LINE 傳給「${q.a.name}」` : '通知：維持用簡訊', '這一步不會傳訊息給飼主'),
+        cq('erase', `「${q.b.name}」那筆停用，寫入稽核紀錄`, '合併前後的資料都記下（手機只記末四碼）', null, true)],
+        btn:'核准合併', irr:'合併後不能在這裡拆回'},
+      r:{h:'拒絕', items:[
+        cq('lock', '兩筆資料維持原樣', '客戶與寵物仍會把兩位列為可能重複'),
+        cq('msg', `${q.by}會在客戶與寵物看到你寫的原因`, '不通知飼主'),
+        cq('swap', '確定是家人共用手機的話，櫃台可以改送綁定申請')],
+        btn:'拒絕合併'}};
+  }
+  if (q.kind === 'del') {
+    const pets = q.pets.map(k => PETS[k].name).join('、');
+    return {
+      a:{h:'核准刪除', items:[
+        cq('erase', '姓名、手機、LINE 綁定改成去識別化', `之後只顯示「已刪除的飼主」`),
+        cq('erase', `寵物 ${pets} 的名字、照片與注意事項一併去識別化`),
+        cq('receipt', `${q.bookings} 筆預約保留日期與金額`, '對帳不受影響，只是看不到是誰'),
+        cq('lock', `${q.contracts} 份已簽契約與證據鏈依法保留`, '保存年限由法務訂定，訂定前不清除（系統設定）'),
+        cq('msg', `通知${q.person}（LINE）：刪除已完成`, '之後解除綁定，不再發送任何訊息'),
+],
+        btn:'核准刪除', irr:'去識別化後找不回來，這一步不能復原'},
+      r:{h:'不刪除', items:[
+        cq('lock', '資料維持原樣'),
+        cq('doc', '一定要寫法定理由', '例：有未結清款項、無法確認是本人'),
+        cq('msg', `通知${q.person}（LINE），附上理由`, '拒絕也算在期限內給了結果'),
+        cq('swap', '飼主可以再申請')],
+        btn:'不刪除'}};
+  }
+  /* ec: 補收 or 記下聯絡 */
+  return {
+    a:{h:'收到錢了', items:[
+      cq('coins', '記下收款方式與金額', '全額或部分都可以'),
+      cq('check', '收齊就結清，從這裡和「未結清」移除', `目前未收 ${'NT$' + fmt(q.owed)}`),
+      cq('receipt', '寫進收款流水', '方式・參考・經手人'),
+      cq('msg', `傳收據給${p.owner}（LINE）`)],
+      btn:`記錄補收 NT$${fmt(q.owed)}`},
+    r:{h:'還沒收到', items:[
+      cq('phone', '記下這次怎麼聯絡、結果如何'),
+      cq('clock', '留在待處理，天數繼續算'),
+      cq('coins', '「收款對帳」的未結清照樣列出')],
+      btn:'記下聯絡'}};
+}
+function guard(q, side) {
+  if (q.withdrawn || q.closedBy) return '這筆已經不用處理';
+  if (off()) return '需連線';
+  if (q.byRole !== '飼主' && q.by === me().who && q.kind !== 'ec') return '這筆是你送出的，要由店長或其他同事審核';
+  if (side === 'a' && q.taken) return `${q.to.d} ${q.to.t.slice(0,5)} 已被占用，只能拒絕，或請飼主另選時段`;
+  if (side === 'a' && q.kind === 'del' && q.future) return `${q.person}還有 ${q.future} 的預約，先取消或完成後才能刪除`;
+  return '';
+}
+function verdictCol(q, side, v) {
+  const g = guard(q, side), lead = side === 'a';
+  const key = `v-${side}`;
+  /* docked: the column keeps its reason and lock line, the button lives in the dock */
+  const btn = docked() ? (g ? `<span class="reason" id="${key}-r">${esc(v.btn)}：${esc(g)}</span>` : '')
+    : g ? `<button class="btn" aria-disabled="true" aria-describedby="${key}-r" data-key="${key}">${esc(v.btn)}</button><span class="reason" id="${key}-r">${esc(g)}</span>`
+    : `<button class="btn ${lead ? 'primary' : 'secondary'}" data-key="${key}" data-do="decide" data-side="${side}">${esc(v.btn)}</button>`;
+  return `<section class="col${lead ? ' lead' : ''}${docked() && state.armed === side ? ' armed' : ''}" aria-labelledby="${key}-h"><h4 class="col-h" id="${key}-h"><span class="dot${lead ? '' : ' alt'}">${ic(lead ? 'check' : q.kind === 'ec' ? 'phone' : 'x')}</span>${q.kind === 'ec' ? v.h : '如果' + v.h}</h4>
+    <ul class="cq">${v.items.map(c => `<li class="${c.irrev ? 'irrev' : ''}"><span class="ci">${ic(c.icon)}</span><span class="tx">${esc(c.tx)}${c.sub ? `<small>${esc(c.sub)}</small>` : ''}</span><span class="amt">${c.amt != null ? money(c.amt) : ''}</span></li>`).join('')}</ul>
+    <div class="go">${btn}${v.irr && !g ? `<span class="irr">${ic('lock','sm')}${esc(v.irr)}</span>` : ''}</div></section>`;
+}
+const colTitle = (q, v) => q.kind === 'ec' ? v.h : '如果' + v.h;
+function dockBar(q, v) {
+  const b = side => {
+    const g = guard(q, side), key = `v-${side}`;
+    return g ? `<button class="btn" aria-disabled="true" aria-describedby="${key}-r" data-key="${key}">${esc(v[side].btn)}</button>`
+      : `<button class="btn ${side === 'a' ? 'primary' : 'secondary'}" data-key="${key}" data-do="dock" data-side="${side}"${state.armed === side ? ' aria-describedby="dock-hint"' : ''}>${esc(v[side].btn)}</button>`;
+  };
+  const a = state.armed && !guard(q, state.armed) ? v[state.armed] : null;
+  return `<div class="dock" role="group" aria-label="做決定">${a ? `<p class="dock-hint" id="dock-hint">${ic('up','sm')}<span>上面是「${esc(colTitle(q, a))}」會發生的事；看完再按一次「${esc(a.btn)}」</span></p>` : ''}<div class="dock-btns">${b('a')}${b('r')}</div></div>`;
+}
+function reqLine(q) {
+  return {
+    rs: () => `${q.from.d} ${q.from.t.slice(0,5)} → ${q.to.d} ${q.to.t.slice(0,5)}・${q.to.res}・${q.who}`,
+    cx: () => `取消 ${q.slot.d} ${q.slot.t}・${q.slot.res}・${q.who}`,
+    del: () => `${q.deadline} 前要有結果・${q.bookings} 筆預約・${q.contracts} 份已簽契約`,
+    ec: () => `10/6（二）緊急離店・合計 NT$${fmt(q.total)}・已收 NT$${fmt(q.paid)}・未收 NT$${fmt(q.owed)}`,
+    mg: () => `${q.bind ? `${q.a.name}、${q.b.name}綁定為家人` : `把「${q.b.name}」併入「${q.a.name}」`}・同一支手機 ••••${q.ph}・${q.by}（${q.byRole}）${q.at} 送出`
+  }[q.kind]();
+}
+function reqPanel(q) {
+  const p = q.pet && PETS[q.pet];
+  let left = '', facts = '';
+  if (q.kind === 'rs') {
+    left = `<div class="swap"><div class="tile"><span class="k">原本</span><span class="d">${q.from.d}</span><span class="t">${q.from.t}</span><span class="r">${q.from.res}</span></div>
+      <span class="arw">${ic('arrow','lg')}</span><div class="tile to"><span class="k">改成</span><span class="d">${q.to.d}</span><span class="t">${q.to.t}</span><span class="r">${q.to.res}</span></div></div>`;
+    facts = `<dt>服務</dt><dd>${q.svc}・${money(q.price)}</dd><dt>誰提出</dt><dd>${q.who}</dd><dt>送出</dt><dd>${esc(q.via)}・${esc(q.at)}${q.byRole === '飼主' ? '' : `・${esc(q.by)}`}</dd><dt>原因</dt><dd><span class="quote">${esc(q.why)}</span></dd>`;
+  } else if (q.kind === 'cx') {
+    left = `<div class="tile"><span class="k">要取消的預約</span><span class="d">${q.slot.d}</span><span class="t">${q.slot.t}</span><span class="r">${q.slot.res}</span></div>`;
+    facts = `<dt>服務</dt><dd>${q.svc}・${money(q.price)}</dd><dt>誰提出</dt><dd>${q.who}</dd><dt>送出</dt><dd>${esc(q.by)}${esc(q.via)}・${esc(q.at)}</dd><dt>原因</dt><dd><span class="quote">${esc(q.why)}</span></dd><dt>已收訂金</dt><dd>${money(q.deposit)}</dd>`;
+  } else if (q.kind === 'mg') {
+    const rec = (c, k, cls) => `<div class="tile${cls}"><span class="k">${k}</span><span class="d">${esc(c.name)}</span><span class="t">${c.src}・${c.line ? '有 LINE' : '沒有 LINE'}</span><span class="r">${c.since} 起・${c.pets.map(x => PETS[x].name).join('、')}・${c.appts} 筆預約</span></div>`;
+    left = `<div class="swap${q.bind ? ' fam' : ''}">${q.bind ? `${rec(q.a, '家人', '')}<span class="arw">${ic('users','lg')}</span>${rec(q.b, '家人', '')}` : `${rec(q.b, '停用這筆', ' drop')}<span class="arw">${ic('arrow','lg')}</span>${rec(q.a, '保留這筆', ' to')}`}</div>
+      <div style="margin-top:14px"><span class="k" style="font-size:.8125rem;font-weight:800;color:var(--ink-muted)">${q.bind ? '兩位的寵物' : '合併後的寵物'}</span><div class="minis">${pairPets(q).map(k => `<span class="mini">${face(k, {btn:true, key:'mf-' + k})}${PETS[k].name}</span>`).join('')}</div></div>`;
+    const n = q.next && PETS[q.next.pet];
+    facts = `<dt>手機</dt><dd>兩位相同・${phoneMask(q.ph)}</dd><dt>未來預約</dt><dd>${n ? `${n.name} ${q.next.t}・${q.next.svc}・${q.next.res}` : `${q.a.appts + q.b.appts ? `${q.a.appts ? q.a.name : q.b.name}名下 ${q.a.appts + q.b.appts} 筆` : '無'}`}</dd><dt>已簽契約</dt><dd>${esc(q.a.name)} ${q.a.contracts} 份・${esc(q.b.name)} ${q.b.contracts} 份</dd><dt>送出</dt><dd>${esc(q.by)}（${q.byRole}）${esc(q.via)}・${esc(q.at)}</dd><dt>原因</dt><dd><span class="quote">${esc(q.why)}</span></dd>`;
+  } else if (q.kind === 'del') {
+    left = `<dl class="facts"><dt>申請人</dt><dd>${esc(q.person)}・${phoneMask(q.ph)}</dd><dt>申請</dt><dd>${esc(q.via)}・${esc(q.at)}</dd><dt>期限</dt><dd>${q.deadline} 前要有結果（個資法 30 天）</dd></dl>
+      <div style="margin-top:14px"><span class="k" style="font-size:.8125rem;font-weight:800;color:var(--ink-muted)">名下寵物</span><div class="minis">${q.pets.map(k => `<span class="mini">${face(k, {btn:true, key:'mf-' + k})}${PETS[k].name}</span>`).join('')}</div></div>`;
+    facts = `<dt>預約</dt><dd>${q.bookings} 筆・最近一次 ${q.last}</dd><dt>已簽契約</dt><dd>${q.contracts} 份</dd><dt>未結清</dt><dd>無</dd><dt>未來預約</dt><dd>${q.future ? esc(q.future) : '無'}</dd>`;
+  } else {
+    left = `<div class="tile"><span class="k">緊急離店</span><span class="d">${q.at}</span><span class="r">覆核 ${q.by}・${q.svc}</span></div>
+      <dl class="cdl" style="margin-top:12px"><dt>合計</dt><dd>${money(q.total)}</dd><dt>已收</dt><dd>${money(q.paid)}</dd><dt>未收</dt><dd>${money(q.owed)}</dd></dl>`;
+    facts = `<dt>原因</dt><dd><span class="quote">${esc(q.why)}</span></dd><dt>聯絡紀錄</dt><dd>${q.contacts.length ? `<ul class="contact">${q.contacts.map(c => `<li>${esc(c.x)}<small>${esc(c.by)}・${esc(c.at)}</small></li>`).join('')}</ul>` : '還沒有聯絡過'}</dd>`;
+  }
+  return `<div class="req"><div class="panel-h"><h3 id="req-h">${q.kind === 'del' ? '請求內容' : q.kind === 'ec' ? '欠款內容' : '申請內容'}</h3>${q.kind === 'mg' ? `<a class="textbtn rlink" href="../m03-customers/index.html?role=${state.role}&bench=${q.bind ? 'c-zhang' : 'c-hezm'}" data-key="to-bench">在客戶與寵物比對${ic('fwd','sm')}</a>` : ''}${q.kind === 'cx' || q.kind === 'rs' ? `<span class="aside">${p.owner}・${phoneMask(p.ph)}</span>` : ''}</div>
+    <div class="req-grid"><div>${left}</div><dl class="facts">${facts}</dl></div></div>`;
+}
+function sysChecks(q) {
+  const c = {
+    rs: () => `<li class="${q.taken ? 'bad' : 'ok'}">${ic(q.taken ? 'ban' : 'check','sm')}${q.taken ? '新時段已被占用' : '新時段現在有空'}</li><li class="ok">${ic('check','sm')}美容照護 ${q.to.res.split('・')[1]} 當天有班</li><li class="wait">${ic('doc','sm')}${q.contract === 'unsigned-read' ? '契約已讀未簽' : q.contract === 'deferred' ? '契約之後再簽' : '契約未簽'}</li>`,
+    mg: () => `<li class="ok">${ic('check','sm')}同一支手機・同一家店</li>${q.bind ? `<li class="ok">${ic('check','sm')}兩位各自綁了 LINE：不能合併，只能綁定為家人</li>` : `<li class="ok">${ic('check','sm')}只有「${esc(q.a.name)}」綁 LINE，可以合併</li>`}`,
+    cx: () => `<li class="ok">${ic('check','sm')}還沒報到</li><li class="ok">${ic('check','sm')}取消費依政策計算，不能手改</li>`,
+    del: () => `<li class="ok">${ic('check','sm')}本人透過 LINE 綁定送出</li><li class="${q.future ? 'bad' : 'ok'}">${ic(q.future ? 'ban' : 'check','sm')}${q.future ? '還有未來預約' : '沒有未來預約'}</li><li class="ok">${ic('check','sm')}沒有未結清款項</li>`,
+    ec: () => ''
+  }[q.kind]();
+  return c ? `<ul class="checks" aria-label="系統檢查">${c}</ul>` : '';
+}
+function trail(q) {
+  const rows = q.kind === 'mg' ? [[q.at, `${q.by}在客戶與寵物的比對工作台送出${q.bind ? '綁定' : '合併'}申請`], [q.at, q.bind ? '系統比對：同一支手機、兩位各有 LINE' : `系統比對：同一支手機、只有「${q.a.name}」有 LINE`], ['', '等待店長審核・審核前兩筆資料不變']] : {
+    rs:[[q.at, `${q.byRole === '飼主' ? q.by + '在 LINE' : q.by + '在櫃台'}送出改期申請`], [q.at, '系統保留原時段，檢查新時段'], ['', '等待審核']],
+    cx:[[q.at, `${q.by}在櫃台送出取消申請`], [q.at, '系統依政策算出取消費'], ['', '等待審核']],
+    del:[[q.at, `${q.person}在 LINE 申請刪除個資`], [q.at, '系統確認身分與名下資料'], ['', `等待處理・${q.deadline} 前`]],
+    ec:[[q.at, `${q.by}覆核緊急離店`], ...(q.contacts || []).map(c => [c.at, `${c.by}：${c.x}`]), ['', '等待補收']]
+  }[q.kind];
+  return `<section class="panel" aria-labelledby="tr-h"><div class="panel-h"><h3 id="tr-h">${ic('clock','sm')}這筆的經過</h3></div><ol class="trail">${rows.map(([t, x]) => `<li><span class="tt">${esc(t || '現在')}</span><span class="pt${t ? '' : ' wait'}"></span><span>${esc(x)}</span></li>`).join('')}</ol></section>`;
+}
+function detail() {
+  const q = item();
+  if (!q) return `<section class="det"><div class="panel det-empty" role="status"><b>沒有選取的項目</b><span>從左邊的清單選一筆，這裡會列出核准或拒絕之後會發生什麼。</span></div></section>`;
+  const p = q.pet && PETS[q.pet], v = verdicts(q);
+  const list = shownQ(), i = list.findIndex(x => x.id === q.id);
+  const nav = state.compact ? '' : `<div class="dnav"><button class="ibtn" data-key="prev" data-do="step" data-d="-1" aria-label="上一筆" ${i <= 0 ? 'aria-disabled="true"' : ''}>${ic('up')}</button><button class="ibtn" data-key="next" data-do="step" data-d="1" aria-label="下一筆" ${i >= list.length - 1 ? 'aria-disabled="true"' : ''}>${ic('chev')}</button></div>`;
+  const who = q.kind === 'del' ? `飼主本人・${phoneMask(q.ph)}・${BR[q.br]}` : q.kind === 'mg' ? `同一支手機 ${phoneMask(q.ph)}・${BR[q.br]}` : `${p.breed}・${p.owner}・${BR[q.br]}`;
+  const dueChip = q.tone === 'hot' ? `<span class="chip danger">${q.dueL}</span>` : q.tone === 'soon' ? `<span class="chip warning">${q.dueL}</span>` : `<span class="chip neutral">${q.dueL}</span>`;
+  const tags = p ? [...p.safety.map(x => tagH('safety', x.t)), ...p.care.map(x => tagH('care', x.t))].join('') : '';
+  let notice = '';
+  if (q.taken) notice = `<div class="notice warning" id="dn" tabindex="-1" role="alert">${ic('warn')}<span><b>${q.to.d} ${q.to.t.slice(0,5)} ${q.to.res.split('・')[0]} 剛被別的預約訂走。</b>沒有寫入任何變更，${p.name}仍在原時段。可以拒絕並請飼主另選時段。</span></div>`;
+  if (q.withdrawn) notice = `<div class="notice neutral" id="dn" tabindex="-1" role="alert">${ic('info')}<span><b>${q.byRole === '飼主' ? '飼主剛在 LINE 撤回這筆申請。' : `${esc(q.by)}剛在櫃台撤回這筆申請。`}</b>沒有寫入任何變更，預約維持原樣。<span class="act" style="display:block"><button class="btn secondary" data-key="dismiss" data-do="dismiss">從清單移除</button></span></span></div>`;
+  if (q.closedBy) notice = `<div class="notice neutral" id="dn" tabindex="-1" role="alert">${ic('info')}<span><b>${q.closedBy}剛處理了這筆（${q.closedHow}）。</b>你的決定沒有寫入。<span class="act" style="display:block"><button class="btn secondary" data-key="dismiss" data-do="dismiss">從清單移除</button></span></span></div>`;
+  const settled = q.withdrawn || q.closedBy;
+  return `<section class="det" aria-labelledby="det-h">
+    <div class="panel"><div class="dhead">${subjectFace(q, !!q.pet)}<div style="min-width:0"><h2 id="det-h" tabindex="-1">${esc(subjectName(q))}${kindChip(q)}</h2><p class="who">${who}</p><div class="chips">${dueChip}${tags}${q.pet ? `<button class="textbtn" data-key="petdata" data-do="openPet" data-pet="${q.pet}">${ic('eye','sm')}寵物資料</button>` : ''}</div></div>${nav}</div>
+    ${state.reqOpen ? reqPanel(q) : ''}<div class="reqline"><span>${esc(reqLine(q))}</span><button class="textbtn" data-key="reqToggle" data-do="reqToggle" aria-expanded="${!!state.reqOpen}">${ic('chev','sm')}${state.reqOpen ? '收起申請內容' : '申請內容'}</button></div></div>
+    ${notice}
+    <section class="conseq" aria-labelledby="cq-h"><h3 id="cq-h">${q.kind === 'ec' ? '收到或還沒收到' : '按下去之後會發生什麼'}</h3><p class="lede">${q.kind === 'ec' ? '補收會寫進收款流水；聯絡紀錄會留在這筆欠款上。' : q.kind === 'mg' ? '兩邊寫的都會真的發生。這是店內的客戶資料整理，不會傳訊息給飼主。' : '兩邊寫的都會真的發生，而且都會通知飼主。先看清楚再按。'}</p>${sysChecks(q)}
+      <p class="jump">兩種結果：<a href="#v-a-h" data-key="j-a">${ic('down','sm')}${esc(colTitle(q, v.a))}</a><a href="#v-r-h" data-key="j-r">${ic('down','sm')}${esc(colTitle(q, v.r))}</a></p><div class="cols${settled ? ' gone' : ''}">${verdictCol(q, 'a', v.a)}${verdictCol(q, 'r', v.r)}</div></section>
+    ${trail(q)}</section>`;
+}
+function queuePage() {
+  if (state.compact) return `<div class="desk one${docked() ? ' docked' : ''}">${phoneDetail() ? detail() : queueCol()}</div>`;
+  return `<div class="desk">${queueCol()}${detail()}</div>`;
+}
+
+/* ================= 收款對帳 ================= */
+function moneyPage() {
+  const days = RANGE[state.mRange][1];
+  const rows = LEDGER.filter(r => days.includes(r.d) && inScopeStrict(r.br) && (!state.mMethods.length || state.mMethods.includes(r.m)));
+  const sum = a => a.reduce((s, r) => s + r.amt, 0);
+  const inc = sum(rows.filter(r => r.amt > 0)), out = sum(rows.filter(r => r.amt < 0));
+  const byM = METHODS.map(m => [m, sum(rows.filter(r => r.m === m))]).filter(([, v]) => v);
+  const seg = Object.entries(RANGE).map(([k, [l]]) => `<button data-key="mr-${k}" data-do="mRange" data-k="${k}" aria-pressed="${state.mRange === k}">${l}</button>`).join('');
+  const mp = [['', '全部'], ...METHODS.map(m => [m, m])].map(([k, l]) => `<button class="pill" data-key="mm-${k || 'all'}" data-do="mMethod" data-k="${k}" aria-pressed="${k ? state.mMethods.includes(k) : !state.mMethods.length}">${l}</button>`).join('');
+  const kindCell = r => r.amt < 0 ? `<span class="kd rev">${ic('back','sm')}${r.k}</span>` : `<span class="kd">${r.k}</span>`;
+  let body = '';
+  [...new Set(rows.map(r => r.d))].forEach(d => {
+    const dr = rows.filter(r => r.d === d);
+    body += `<tr class="day"><td colspan="5">${DAY[d]}<span class="dsum">小計 ${money(sum(dr))}</span></td></tr>`;
+    body += dr.map(r => `<tr${r.fresh ? ' class="new-row"' : ''}><td class="c-t">${r.t}${brTag(r.br) ? `<span class="who">${BR[r.br]}</span>` : ''}</td><td class="c-p"><b>${esc(r.pet)}</b><span class="who">${esc(r.owner)}</span></td><td class="c-m">${kindCell(r)}<span class="ref">${r.m}${r.ref ? `・${esc(r.ref)}` : ''}</span></td><td class="c-by">${esc(r.by)}</td><td class="n">${money(r.amt)}</td></tr>`).join('');
+  });
+  const table = rows.length ? `<table class="ledger"><caption class="sr">收款流水，${RANGE[state.mRange][0]}</caption><thead><tr><th>時間</th><th>寵物・飼主</th><th>項目・方式</th><th>經手</th><th class="n">金額</th></tr></thead><tbody>${body}</tbody></table>`
+    : `<p class="empty-line">這段期間沒有符合的收款紀錄。換個日期或付款方式看看。</p>`;
+  const exp = !canExport() ? `<button class="btn quiet" aria-disabled="true" aria-describedby="ex-r" data-key="export">${ic('dl','sm')}匯出 CSV</button><span class="reason" id="ex-r">匯出對帳表需店長以上</span>`
+    : off() ? `<button class="btn quiet" aria-disabled="true" aria-describedby="ex-r" data-key="export">${ic('dl','sm')}匯出 CSV</button><span class="reason" id="ex-r">需連線</span>`
+    : `<button class="btn quiet" data-key="export" data-do="exportCsv">${ic('dl','sm')}匯出 CSV</button>`;
+  const owed = OWED.filter(o => inScopeStrict(o.br) && !(o.q && state.role === 'desk'));
+  const owedRows = owed.map(o => {
+    const f = o.pet ? face(o.pet) : nameFace(o.name), nm = o.pet ? PETS[o.pet].name : o.name;
+    const act = o.q && QUEUE.some(q => q.id === o.q) ? `<button class="textbtn" data-key="go-${o.id}" data-do="goQueue" data-id="${o.q}">${ic('fwd','sm')}到待處理</button>` : '';
+    return `<li class="orow">${f}<b>${esc(nm)}${o.kind === 'refund' ? ' <span class="chip info">待退</span>' : ''}</b><span class="amt">${money(o.amt)}</span><span class="why${o.hot ? ' hot' : ''}">${esc(o.why)}${brTag(o.br) ? `・${BR[o.br]}` : ''}</span>${act}</li>`;
+  }).join('');
+  const owedTotal = owed.filter(o => o.kind !== 'refund').reduce((s, o) => s + o.amt, 0);
+  return `<div class="money-page"><section class="panel" aria-labelledby="lg-h">
+      <div class="panel-h"><h2 id="lg-h">收款流水</h2><span class="aside" style="display:flex;flex-direction:column;align-items:flex-end">${exp}</span></div>
+      <div class="filters"><div class="fgrp"><span class="lbl" id="mr-l">日期</span><div class="seg" role="group" aria-labelledby="mr-l">${seg}</div></div>
+        <div class="fgrp"><span class="lbl" id="mm-l">方式</span><div class="pills" role="group" aria-labelledby="mm-l">${mp}</div></div></div>
+      <div class="sums" aria-live="polite"><span class="net-l">淨額</span><span class="net">${money(inc + out)}</span><span class="by"><span>收入 ${money(inc)}</span>${out ? `<span>退款 ${money(out)}</span>` : ''}${byM.map(([m, v]) => `<span>${m} ${money(v)}</span>`).join('')}</span></div>
+      ${table}</section>
+    <section class="panel owed" aria-labelledby="ow-h"><div class="panel-h"><h2 id="ow-h">未結清<span class="cnt${owed.some(o => o.hot) ? ' hot' : ''}">${owed.length}</span></h2></div>
+      <p class="total">還沒收 ${money(owedTotal)}</p>
+      ${owed.length ? `<ul class="olist">${owedRows}</ul>` : '<p class="empty-line">沒有未結清的預約。</p>'}</section></div>`;
+}
+
+/* ================= 稽核紀錄 ================= */
+const cPet = c => PETS[c.pet];
+const visC = () => CONTRACTS.filter(c => inScopeStrict(c.br));
+function auditPage() {
+  if (!canAudit()) return `<div class="audit-page"><div class="panel det-empty"><b>查無資料</b><span>稽核紀錄只有店長以上看得到。</span></div></div>`;
+  const gaps = visC().filter(c => c.gaps.length).length;
+  const tabs = [['chain','證據鏈'],['gaps','契約缺口'],['log','操作紀錄']].map(([k, l]) => `<button class="pill" data-key="at-${k}" data-do="aTab" data-k="${k}" aria-pressed="${state.aTab === k}">${l}${k === 'gaps' && gaps ? `<span class="cnt hot">${gaps}</span>` : ''}</button>`).join('');
+  const body = state.aTab === 'chain' ? chainView() : state.aTab === 'gaps' ? gapsView() : logView();
+  return `<div class="audit-page"><div class="tabs" role="group" aria-label="稽核分頁">${tabs}</div>${body}</div>`;
+}
+function chainView() {
+  const q = state.cq.trim();
+  const list = visC().filter(c => !q || [c.id, cPet(c).name, cPet(c).owner].some(s => s.includes(q)));
+  if (!list.some(c => c.id === state.cSel)) state.cSel = list[0]?.id || null;
+  const c = CONTRACTS.find(x => x.id === state.cSel);
+  const rows = list.map(x => `<li><button class="crow" data-key="c-${x.id}" data-do="pickC" data-id="${x.id}" ${x.id === state.cSel ? 'aria-current="true"' : ''}>${face(x.pet)}<span><b>${cPet(x).name}・${cPet(x).owner}</b><small>${x.signed}・${x.ver}</small></span>${x.gaps.length ? `<span class="chip danger">缺 ${x.gaps.length}</span>` : `<span class="chip success">完整</span>`}</button></li>`).join('');
+  return `<div class="ev-grid"><section class="panel" aria-labelledby="cl-h"><h2 id="cl-h" class="sr">已簽契約</h2>
+      <div class="search">${ic('search')}<label class="sr" for="cq">搜尋契約</label><input id="cq" data-key="cq" type="search" placeholder="寵物、飼主或契約編號" value="${esc(state.cq)}" autocomplete="off"></div>
+      ${list.length ? `<ul class="clist">${rows}</ul>` : `<p class="empty-line">找不到「${esc(q)}」。試試寵物名或契約編號。</p>`}</section>
+    ${c ? chainPanel(c) : ''}</div>`;
+}
+function chainPanel(c) {
+  const p = cPet(c), g = k => c.gaps.includes(k);
+  const node = (icon, h, dl, keys, extra) => { const hit = [].concat(keys || []).filter(g);
+    return `<li class="link${hit.length ? ' gap' : ''}"><span class="nd">${ic(hit.length ? 'warn' : icon)}</span><div><h4>${h}${hit.map(k => `<span class="chip danger">${GAP[k].l}</span>`).join('')}</h4>
+    ${dl ? `<dl>${dl.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>` : ''}${hit.map(k => `<p class="gapline">${GAP[k].say}</p>`).join('')}${extra || ''}</div></li>`; };
+  const v = state.verify && state.verify.id === c.id ? state.verify : null;
+  const verifyBox = `<div class="verify">${v ? (v.ok
+      ? `<div class="notice success" role="status" id="vr" tabindex="-1">${ic('check')}<span><b>雜湊一致：這份 PDF 和簽署當時一模一樣。</b>${v.at} 由 ${esc(v.by)} 驗證，已寫入操作紀錄。</span></div>`
+      : `<div class="notice danger" role="alert" id="vr" tabindex="-1">${ic('warn')}<span><b>雜湊不一致：目前存放的 PDF 和簽署當時不同。</b>不要再使用這份檔案，請聯絡寵派客服調出備份。已寫入操作紀錄。</span></div>`)
+      + `<div class="hashpair"><span class="muted">簽署時</span><span class="hash">${groupHash(c.hash)}</span><span class="muted">現在算出</span><span class="hash">${groupHash(v.now, c.hash)}</span></div>` : ''}
+    <button class="btn secondary" data-key="verify" data-do="verify" data-id="${c.id}">${ic('shield','sm')}${v ? '再驗一次' : '驗證雜湊'}</button></div>`;
+  const tsaBtn = g('tsa') ? (off() ? `<button class="btn quiet" aria-disabled="true" data-key="tsa">${ic('refresh','sm')}重新取得時間戳記</button><span class="reason">需連線</span>` : `<button class="btn quiet" data-key="tsa" data-do="retryTsa" data-id="${c.id}" style="margin-top:8px">${ic('refresh','sm')}重新取得時間戳記</button>`) : '';
+  const resend = g('deliver') ? (off() ? '' : `<button class="btn quiet" data-key="resend" data-do="resend" data-id="${c.id}" style="margin-top:8px">${ic('msg','sm')}改用簡訊補發正本</button>`) : '';
+  return `<section class="panel" aria-labelledby="ch-h"><div class="chain-h"><h2 id="ch-h" tabindex="-1">犬貓美容定型化契約 ${c.ver}・${p.name}</h2>${c.gaps.length ? `<span class="chip danger">有 ${c.gaps.length} 個缺口</span>` : '<span class="chip success">證據鏈完整</span>'}
+      <p class="meta">${c.id}・${p.owner} ${phoneMask(p.ph)}・${BR[c.br]}・${c.signed} 簽署</p></div>
+    <ol class="chain" aria-label="證據鏈，從版本到時間戳記">
+      ${node('layers', '契約版本快照', [['版本', c.eff || `${c.ver}${c.ver === 'v3' ? '・10/1 生效' : '・6/1 生效'}`], ['條款', c.cls || '12 條・重點條款 3 條']])}
+      ${node('eye', c.read.via === '現場' ? '即時審閱' : '傳送與審閱', [['傳送', c.read.sent], ['閱讀', c.read.stay], ['重點條款', c.read.ticks]], 'read')}
+      ${node('pen', '簽名', [['方式', '手寫・飼主本人'], ['裝置', c.dev], ['IP', c.ip]])}
+      ${node('otp', '簡訊驗證', [['手機', `••••${p.ph}`], ['結果', c.otp]])}
+      ${node('file', 'PDF 正本', [['SHA-256', `<span class="hash">${groupHash(c.hash)}</span>`], ['交付', g('deliver') ? '未送達' : '已交給 LINE']], ['hash','deliver'], verifyBox + resend)}
+      ${node('stamp', '可信時間戳記', [['時間', c.tsa || '—'], ['來源', '第三方時戳服務（示範）']], 'tsa', tsaBtn)}
+    </ol></section>`;
+}
+const groupHash = (h, vs) => (h || '').match(/.{1,8}/g)?.map((g, i) => `<span class="hg${vs && vs.slice(i * 8, i * 8 + 8) !== g ? ' diff' : ''}">${g}</span>`).join(' ') || '';
+function gapsView() {
+  const all = visC().filter(c => c.gaps.length);
+  const kinds = [...new Set(all.flatMap(c => c.gaps))];
+  const shown = all.filter(c => state.gapKind === 'all' || c.gaps.includes(state.gapKind));
+  const pills = [['all','全部', all.length], ...kinds.map(k => [k, GAP[k].l, all.filter(c => c.gaps.includes(k)).length])].map(([k, l, n]) => `<button class="pill" data-key="gk-${k}" data-do="gapKind" data-k="${k}" aria-pressed="${state.gapKind === k}">${l}<span class="cnt">${n}</span></button>`).join('');
+  return `<section class="panel" aria-labelledby="gp-h"><div class="panel-h"><h2 id="gp-h">契約缺口</h2><span class="aside">缺口不會進待處理，在這裡追到補齊為止</span></div>
+    ${all.length ? `<div class="pills" role="group" aria-label="依缺口類別篩選" style="margin-bottom:8px">${pills}</div><ul class="glist">${shown.map(c => `<li class="grow">${face(c.pet)}<b>${cPet(c).name}・${cPet(c).owner}<span class="muted" style="font-weight:700;font-size:.8125rem;margin-left:8px">${c.signed}${brTag(c.br) ? `・${BR[c.br]}` : ''}</span></b>
+      <span class="what">${c.gaps.map(k => `${GAP[k].l}<small>${GAP[k].say}</small>`).join('')}</span>
+      <span class="acts"><button class="textbtn" data-key="gopen-${c.id}" data-do="openChain" data-id="${c.id}">${ic('fwd','sm')}看證據鏈</button></span></li>`).join('')}</ul>`
+      : `<div class="qempty" role="status"><span class="ok">${ic('check','lg')}</span><b>沒有缺口</b><span>每一份已簽契約的證據鏈都是完整的。</span></div>`}</section>`;
+}
+function logView() {
+  const rows0 = AUDIT.filter(a => inScopeStrict(a.br) || (state.role === 'admin' && !a.br));
+  const people = [...new Set(rows0.map(a => a.by))];
+  const evs = [...new Set(rows0.map(a => a.ev))];
+  const inRange = a => state.aRange === 'all' || (state.aRange === 'today' ? a.at.startsWith(CT_DAY) : [...(CT ? [CT_DAY] : []),'10/9','10/8','10/7','10/6','10/5','10/4','10/3'].some(d => a.at.startsWith(d + ' ')));
+  const rows = rows0.filter(a => (!state.aWho || a.by === state.aWho) && (!state.aEv || a.ev === state.aEv) && inRange(a));
+  const sel = (id, label, cur, opts) => `<label class="fgrp"><span class="lbl">${label}</span><select id="${id}" class="scope" data-key="${id}" data-do-change="${id}"><option value="">全部</option>${opts.map(o => `<option${o === cur ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`;
+  const seg = [['all','30 天'],['week','7 天'],['today','今天']].map(([k, l]) => `<button data-key="ar-${k}" data-do="aRange" data-k="${k}" aria-pressed="${state.aRange === k}">${l}</button>`).join('');
+  const row = (a, i) => {
+    const id = AUDIT.indexOf(a), open = state.aOpen === id;
+    return `<li class="arow${a.fresh ? ' new-row' : ''}"><button data-key="ar-${id}" data-do="aOpen" data-id="${id}" aria-expanded="${open}"><span class="at">${a.at}</span><span class="ev">${esc(a.ev)}<small>${esc(a.target)}</small></span><span class="by">${esc(a.by)}${a.role !== '—' ? `（${a.role}）` : ''} ${ic('chev','sm chev')}</span></button>
+      ${open ? `<div class="ba"><span>${esc(a.sum)}</span>${a.ba.map(c => `<span><span class="k">${esc(c.k)}：</span><span class="b">${esc(c.b)}</span> <span aria-hidden="true">→</span> ${esc(c.a)}</span>`).join('')}<span class="ids">${a.br ? BR[a.br] : '全店'}・手機、LINE 與身分證字號一律遮罩，紀錄寫入後不能修改或刪除</span></div>` : ''}</li>`;
+  };
+  return `<section class="panel" aria-labelledby="lg2-h"><div class="panel-h"><h2 id="lg2-h">操作紀錄<span class="cnt">${rows.length}</span></h2><span class="aside">${canExport() && !off() ? `<button class="btn quiet" data-key="exportLog" data-do="exportLog">${ic('dl','sm')}匯出 CSV</button>` : ''}</span></div>
+    <div class="filters">${sel('aWho', '人員', state.aWho, people)}${sel('aEv', '事件', state.aEv, evs)}<div class="fgrp"><span class="lbl" id="ar-l">期間</span><div class="seg" role="group" aria-labelledby="ar-l">${seg}</div></div></div>
+    ${rows.length ? `<ul class="alog">${rows.map(row).join('')}</ul>` : '<p class="empty-line">沒有符合條件的紀錄。</p>'}</section>`;
+}
+
+/* ---------- render ---------- */
+function render(focusKey) {
+  const app = $('app');
+  const keep = focusKey || document.activeElement?.dataset?.key;
+  app.className = state.compact ? 'compact' : state.rail ? 'rail' : '';
+  const page = state.page === 'money' ? moneyPage() : state.page === 'audit' ? auditPage() : queuePage();
+  let mid = `<span class="mark" aria-hidden="true">${ic('mark')}</span><b>毛孩日和</b>`;
+  if (phoneDetail()) { const l = shownQ(), i = l.findIndex(x => x.id === state.sel);
+    mid = `<button class="back" data-key="toList" data-do="toList" aria-label="回待處理清單，第 ${i + 1} 筆，共 ${l.length} 筆">${ic('back')}待處理<span class="pos" aria-hidden="true">${i + 1}/${l.length}</span></button>`; }
+  const top = state.compact ? `<div class="topbar"><button class="ibtn" data-key="menu" data-do="openNav" aria-label="開啟選單" aria-expanded="${state.navOpen}">${ic('menu')}</button>${mid}</div>` : '';
+  /* the dock sits outside main: main is a size container, which would trap a fixed element */
+  app.innerHTML = `${state.compact ? '' : sideNav()}<main>${top}${pageHead()}${page}</main>${docked() ? dockBar(item(), verdicts(item())) : ''}`;
+  const sc = $('scope'); if (sc) sc.value = state.branch;
+  /* keep the current nav item in view inside its own scroll */
+  navIntoView(app);
+  syncStick();
+  document.title = `${TITLES[state.page]}・寵派商家中心`;
+  if (keep) { const el = app.querySelector(`[data-key="${keep}"]`); if (el && el !== document.activeElement) el.focus({preventScroll: true}); }
+}
+function navIntoView(root) {
+  const sn = root.querySelector('.snav'), cur = sn?.querySelector('[aria-current]');
+  if (cur) { const r = cur.getBoundingClientRect(), s = sn.getBoundingClientRect(); if (r.bottom > s.bottom) sn.scrollTop += r.bottom - s.bottom + 12; }
+}
+/* the sticky top bar and the dock grow with the text size; scroll padding follows their real heights */
+const stickRO = new ResizeObserver(() => syncStick(true));
+function syncStick(fromRO) {
+  const r = document.documentElement, tb = document.querySelector('#app .topbar'), dk = document.querySelector('#app .dock');
+  r.style.setProperty('--toph', `${tb ? tb.offsetHeight : 0}px`);
+  r.style.setProperty('--dockh', `${dk ? dk.offsetHeight : 0}px`);
+  r.classList.toggle('docked', !!dk);
+  if (!fromRO) { stickRO.disconnect(); [tb, dk].forEach(x => x && stickRO.observe(x)); }
+}
+function announce(t) { const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+function say(text) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status">${esc(text)}</div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 4200);
+}
+
+/* ---------- dialogs: confirm / reason / 補收 / 聯絡 ---------- */
+const REJECT_PRESETS = {
+  rs:['新時段的美容照護另有安排','飼主要求的日期店休','請飼主改選其他時段'],
+  cx:['已和飼主確認，改成改期','飼主撤回取消的意思','取消原因與店家政策不符'],
+  del:['有未結清款項','無法確認是本人提出','法令要求保存中的資料'],
+  mg:['兩筆的寵物對不上，不像同一人','請先打電話跟飼主確認','其實是家人共用手機，改送綁定申請'],
+  bd:['飼主說不認識對方','請先跟兩位飼主確認','這支手機已經換人使用']
+};
+const presetsOf = q => REJECT_PRESETS[q.bind ? 'bd' : q.kind];
+function openDlg(kind, extra) { state.dlg = {kind, err:{}, why:'', method:'', full:true, amt:'', ref:'', contact:'', busy:false, ret: document.activeElement?.dataset?.key, ...extra}; renderDlg('dg-h'); }
+function closeDlg() { const ret = state.dlg?.ret; state.dlg = null; renderDlg(); if (ret) document.querySelector(`#app [data-key="${ret}"]`)?.focus(); }
+function renderDlg(focus) {
+  const l = $('layer'); l.querySelector('.dlg-s')?.remove();
+  const d = state.dlg; if (!d) return;
+  const q = item(), p = q?.pet && PETS[q.pet];
+  const confirmBtn = (cls, label) => d.busy ? `<button class="btn ${cls} busy" data-key="dg-ok" aria-disabled="true"><span class="spin" aria-hidden="true"></span>處理中</button>` : `<button class="btn ${cls}" data-key="dg-ok" data-do="dlgOk">${label}</button>`;
+  const cancel = label => `<button class="btn secondary" data-key="dg-no" ${d.busy ? 'aria-disabled="true"' : 'data-do="closeDlg"'}>${label}</button>`;
+  let h = '', body = '', btns = '';
+  if (d.kind === 'approve') {
+    if (q.kind === 'rs') {
+      h = `改期後原時段將釋放，確定改到 ${q.to.d} ${q.to.t.slice(0,5)} 嗎？`;
+      body = `<p class="lede">會通知${p.owner}，而且不能復原。</p><dl class="cdl"><dt>寵物</dt><dd>${p.name}・${q.svc}</dd><dt>原本</dt><dd>${q.from.d} ${q.from.t}</dd><dt>改成</dt><dd>${q.to.d} ${q.to.t}・${q.to.res}</dd><dt>改期費</dt><dd>${q.fee ? money(q.fee) : '不收'}</dd><dt>契約</dt><dd>改用新日期的版本</dd></dl>`;
+      /* a reschedule moves the booking, it does not end it: persimmon, as on M-02 */
+      btns = `${cancel('返回')}${confirmBtn('primary', '確認核准')}`;
+    } else if (q.kind === 'cx') {
+      h = `確定核准取消${p.name} ${q.slot.d} ${q.slot.t.slice(0,5)} 的預約嗎？`;
+      body = `<p class="lede">時段會釋放、取消費會入帳，而且不能復原。</p><dl class="cdl"><dt>取消費</dt><dd>${money(q.fee)}・${q.rule}</dd><dt>已收訂金</dt><dd>${money(q.deposit)}</dd><dt>${q.deposit >= q.fee ? '要退' : '要收'}</dt><dd>${money(Math.abs(q.deposit - q.fee))}</dd></dl>`;
+      btns = `${cancel('返回')}${confirmBtn('danger', `${ic('warn','sm')}確認取消`)}`;
+    } else if (q.kind === 'del') {
+      h = `確定把${q.person}的個資去識別化嗎？`;
+      body = `<p class="lede">姓名、手機、LINE 綁定與寵物資料會改成去識別化，找不回來。已簽契約與證據鏈依法保留，保存年限由法務訂定。</p><dl class="cdl"><dt>飼主</dt><dd>${q.person}・••••${q.ph}</dd><dt>寵物</dt><dd>${q.pets.map(k => PETS[k].name).join('、')}</dd><dt>保留</dt><dd>${q.bookings} 筆預約的金額・${q.contracts} 份契約</dd></dl>`;
+      btns = `${cancel('返回')}${confirmBtn('danger', `${ic('warn','sm')}確認刪除`)}`;
+    } else if (q.kind === 'mg' && q.bind) {
+      h = `確定把${q.a.name}和${q.b.name}綁定為家人嗎？`;
+      body = `<p class="lede">只加上家人標示，不搬動任何資料，也不傳訊息給飼主。</p><dl class="cdl"><dt>手機</dt><dd>••••${q.ph}</dd><dt>${esc(q.a.name)}</dt><dd>${q.a.pets.map(k => PETS[k].name).join('、')}・自己的 LINE</dd><dt>${esc(q.b.name)}</dt><dd>${q.b.pets.map(k => PETS[k].name).join('、')}・自己的 LINE</dd></dl>`;
+      btns = `${cancel('返回')}${confirmBtn('primary', '確認綁定')}`;
+    } else if (q.kind === 'mg') {
+      const n = q.next && PETS[q.next.pet];
+      h = `確定把「${q.b.name}」併入「${q.a.name}」嗎？`;
+      body = `<p class="lede">合併後不能在這裡拆回。已簽契約維持原簽署人與內容。</p><dl class="cdl"><dt>保留</dt><dd>${esc(q.a.name)}・${q.a.line ? 'LINE' : '簡訊'}</dd><dt>停用</dt><dd>${esc(q.b.name)}（${q.b.src}）</dd><dt>寵物</dt><dd>${pairPets(q).map(k => PETS[k].name).join('、')}</dd><dt>預約</dt><dd>${n ? `${n.name} ${q.next.t} 改掛` : '沒有要改掛的'}</dd><dt>已簽契約</dt><dd>${q.a.contracts + q.b.contracts} 份維持原文</dd></dl>`;
+      btns = `${cancel('返回')}${confirmBtn('danger', `${ic('warn','sm')}確認合併`)}`;
+    }
+  } else if (d.kind === 'reject') {
+    const verb = q.kind === 'mg' ? (q.bind ? '拒絕綁定申請' : '拒絕合併申請') : {rs:'拒絕改期申請', cx:'拒絕取消申請', del:'不刪除這筆個資'}[q.kind];
+    h = `${verb}：${esc(subjectName(q))}`;
+    body = `<p class="lede">${q.kind === 'del' ? '理由會傳給飼主，必須是法定理由。' : q.kind === 'mg' ? `原因會傳給${q.by}，不會通知飼主。` : '原因會一起傳給飼主' + (q.byRole === '飼主' ? '。' : `，${q.by}也會看到。`)}</p>
+      <div class="field"><span class="lbl" id="pr-l">常用原因</span><div class="presets" role="group" aria-labelledby="pr-l">${presetsOf(q).map((t, i) => `<button class="pill" data-key="pr-${i}" data-do="preset" data-t="${esc(t)}" aria-pressed="${d.why === t}">${esc(t)}</button>`).join('')}</div></div>
+      <div class="field"><label for="dg-why">${q.kind === 'del' ? '理由（必填）' : '原因（必填）'}</label><textarea id="dg-why" data-key="dg-why" data-field="why" placeholder="${q.kind === 'mg' ? `寫給${esc(q.by)}看的一句話` : '寫給飼主看的一句話'}" ${d.err.why ? 'aria-invalid="true" aria-describedby="why-e"' : ''}>${esc(d.why)}</textarea>${d.err.why ? `<span class="err" id="why-e">${d.err.why}</span>` : ''}</div>`;
+    /* rejecting keeps the booking or the data as it is: firm ink, red is kept for what ends something */
+    btns = `${cancel('返回')}${confirmBtn('ink', q.kind === 'del' ? '確認不刪除' : '確認拒絕')}`;
+  } else if (d.kind === 'pay') {
+    const refL = {轉帳:'帳號末五碼（選填）', 刷卡:'授權碼（選填）', 其他:'收款說明（必填）'}[d.method];
+    h = `記錄補收：${p.name}`;
+    body = `<p class="lede">目前未收 ${money(q.owed)}。寫入後會出現在收款流水，不能刪除，要更正請用退款。</p>
+      <div class="field"><span class="lbl" id="pm-l">收款方式</span><div class="seg" role="group" aria-labelledby="pm-l" ${d.err.method ? 'aria-describedby="pm-e"' : ''}>${METHODS.map(m => `<button data-key="pm-${m}" data-do="pm" data-k="${m}" aria-pressed="${d.method === m}">${m}</button>`).join('')}</div>${d.err.method ? `<span class="err" id="pm-e">${d.err.method}</span>` : ''}</div>
+      <div class="field"><span class="lbl" id="pf-l">金額</span><div class="seg" role="group" aria-labelledby="pf-l"><button data-key="pf-1" data-do="pf" data-k="1" aria-pressed="${d.full}">全額 NT$${fmt(q.owed)}</button><button data-key="pf-0" data-do="pf" data-k="0" aria-pressed="${!d.full}">部分收款</button></div></div>
+      ${d.full ? '' : `<div class="field"><label for="dg-amt">這次收多少</label><input id="dg-amt" data-key="dg-amt" data-field="amt" inputmode="numeric" value="${esc(d.amt)}" placeholder="例：500" ${d.err.amt ? 'aria-invalid="true" aria-describedby="amt-e"' : ''}>${d.err.amt ? `<span class="err" id="amt-e">${d.err.amt}</span>` : ''}</div>`}
+      ${refL ? `<div class="field"><label for="dg-ref">${refL}</label><input id="dg-ref" data-key="dg-ref" data-field="ref" value="${esc(d.ref)}" ${d.err.ref ? 'aria-invalid="true" aria-describedby="ref-e"' : ''}>${d.err.ref ? `<span class="err" id="ref-e">${d.err.ref}</span>` : ''}</div>` : ''}
+      <p class="reason" style="margin:0">將記錄：補收・${d.method || '方式未選'}・${d.full ? 'NT$' + fmt(q.owed) : d.amt ? 'NT$' + fmt(+d.amt || 0) : '金額未填'}・經手 ${me().who}</p>`;
+    btns = `${cancel('返回')}${confirmBtn('primary', '收款')}`;
+  } else if (d.kind === 'contact') {
+    h = `記下聯絡：${p.name}・${p.owner}`;
+    body = `<div class="field"><span class="lbl" id="ct-l">這次怎麼聯絡</span><div class="presets" role="group" aria-labelledby="ct-l">${['傳簡訊提醒','打電話沒接','打通了，飼主說會轉帳'].map((t, i) => `<button class="pill" data-key="ct-${i}" data-do="preset" data-t="${esc(t)}" aria-pressed="${d.why === t}">${esc(t)}</button>`).join('')}</div></div>
+      <div class="field"><label for="dg-why">結果（必填）</label><textarea id="dg-why" data-key="dg-why" data-field="why" placeholder="例：飼主說週六下午會轉帳" ${d.err.why ? 'aria-invalid="true" aria-describedby="why-e"' : ''}>${esc(d.why)}</textarea>${d.err.why ? `<span class="err" id="why-e">${d.err.why}</span>` : ''}</div>`;
+    btns = `${cancel('返回')}${confirmBtn('primary', '儲存聯絡紀錄')}`;
+  }
+  l.insertAdjacentHTML('afterbegin', `<div class="scrim dlg-s" data-do="scrimDlg"><div class="dialog" role="${d.kind === 'approve' ? 'alertdialog' : 'dialog'}" aria-modal="true" aria-labelledby="dg-h"><h2 id="dg-h" tabindex="-1">${h}</h2>${body}<div class="dbtns">${btns}</div></div></div>`);
+  const f = focus && (document.getElementById(focus) || l.querySelector(`[data-key="${focus}"]`)); f?.focus();
+}
+
+/* ---------- M-03 寵物資料 sheet ---------- */
+function renderSheet() {
+  const l = $('layer'); l.querySelector('.scrim.side-r')?.remove();
+  const key = state.sheet; if (!key) return;
+  const p = PETS[key], sens = canSens();
+  const rows = [...p.safety.map(x => `<li class="nrow s">${tagH('safety', x.t)}<span class="say">${sens ? esc(x.note) : masked(x.t + '的說明')}</span></li>`), ...p.care.map(x => `<li class="nrow">${tagH('care', x.t)}<span class="say">${esc(x.note)}</span></li>`)].join('');
+  const val = (k, v) => `<dt>${k}</dt><dd>${sens ? esc(v || '無') : masked(k)}</dd>`;
+  l.insertAdjacentHTML('beforeend', `<div class="scrim side-r" data-do="scrimSheet"><aside class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-h">
+    <div class="top"><h2 id="sh-h" tabindex="-1">寵物資料</h2><button class="ibtn" data-key="sh-x" data-do="closeSheet" aria-label="關閉寵物資料">${ic('x')}</button></div>
+    <div class="panel pid">${face(key, {step:true})}<div><h3>${p.name}</h3><small>${p.breed}・${p.owner} ${phoneMask(p.ph)}</small></div></div>
+    <section class="panel"><div class="panel-h"><h3>注意事項</h3></div>${rows ? `<ul class="nrows">${rows}</ul>` : '<p class="muted" style="font-weight:700">沒有特別注意事項。</p>'}
+      <dl class="dl" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">${val('疾病史', p.ill)}${val('過敏', p.allergy)}${val('內部備註', p.internal)}</dl>
+      ${sens ? '' : `<p class="mask-note">${ic('lock','sm')}<span>櫃台身分看不到攻擊性說明、病史、過敏與內部備註，標籤照常顯示。</span></p>`}</section>
+    <section class="panel"><div class="panel-h"><h3>最近來店</h3></div>${p.visits.length ? `<ul class="vis">${p.visits.map(([d, s]) => `<li><b>${d}</b><span>${s}</span></li>`).join('')}</ul>` : '<p class="muted" style="font-weight:700">第一次來店。</p>'}</section>
+    <a class="btn quiet" href="../pet-card/index.html?role=${state.role === 'desk' ? 'desk' : 'mgr'}${PETCARD.includes(key) ? `&pet=${key}` : ''}" data-key="sh-full">開啟完整寵物卡</a></aside></div>`);
+  $('sh-h').focus();
+}
+
+/* ---------- decisions ---------- */
+function resolve(q, verdict, why) {
+  QUEUE = QUEUE.filter(x => x.id !== q.id);
+  DONE.unshift({...q, verdict, dby: me().who, dat: nowT(), dwhy: why || ''});
+  const list = shownQ(); state.sel = list[0]?.id || null;
+}
+/* 毛毛的一天 (prototypes/life): under ?life=approve this page tells the director page when 毛毛's reschedule is approved */
+/* 郭太太的刪除申請 (prototypes/erase): under ?life=del-approve, 林店長 approving del-zhou (郭太太・糖糖) posts 'approved'; nothing else changes */
+/* 臨時取消和沒來的那天 (prototypes/late-cancel): under ?life=lc-approve 毛毛's reschedule request is gone (user decision 2026-10-16: only in
+   this story); in its place is 王太太's 10:50 LINE 取消 of 10/10（六）10:00, inside 24 hours, so NT$240 with nothing paid ahead. Approving it posts 'approved' */
+const LIFE = (v => ['approve', 'ct-verify', 'del-approve', 'lc-approve'].includes(v) ? v : null)(new URLSearchParams(location.search).get('life'));
+if (LIFE === 'lc-approve') QUEUE.splice(QUEUE.findIndex(x => x.id === 'rs-maomao'), 1, {id:'cx-maomao', kind:'cx', br:'zs', pet:'maomao', by:'王太太', byRole:'飼主', via:'飼主在 LINE 申請', at:'10:50', due:1360, dueL:'明天 10:00', tone:'',
+  slot:{d:'10/10（六）', t:'10:00–12:00', res:'美容台 A・阿哲'}, svc:'洗澡＋剪毛・小型犬', price:1200, who:'飼主要求', why:'臨時有事', fee:240, rule:'飼主要求・預約前 24 小時內・服務費 20%', deposit:0, free:'空出來可以接其他預約', signed:false});
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+function log(ev, target, sum, br, ba) { AUDIT.unshift({...A(`${CT_DAY} ${nowT()}`, me().who, me().role, br, ev, target, sum, ba), fresh:true}); }
+function commit() {
+  const d = state.dlg, q = item(), p = q?.pet && PETS[q.pet];
+  const sim = state.sim; state.sim = 'ok'; $('p-sim').value = 'ok';
+  if ((d.kind === 'approve' || d.kind === 'reject') && sim !== 'ok' && q.kind !== 'ec') {
+    if (sim === 'taken' && d.kind === 'approve' && q.kind === 'rs') q.taken = true;
+    else if (sim === 'withdrawn' && (q.kind === 'rs' || q.kind === 'cx')) q.withdrawn = true;
+    else if (sim === 'other') { q.closedBy = state.role === 'mgr' ? '陳老闆' : '林店長'; q.closedHow = d.kind === 'approve' ? '已核准' : '已拒絕'; }
+    if (q.taken || q.withdrawn || q.closedBy) { state.dlg = null; renderDlg(); render(); $('dn')?.focus(); announce($('dn')?.innerText || ''); return; }
+  }
+  const name = subjectName(q);
+  if (d.kind === 'approve') {
+    if (q.kind === 'rs') {
+      log('核准改期', `${name}・${p.owner}`, `${q.from.d} ${q.from.t.slice(0,5)} → ${q.to.d} ${q.to.t.slice(0,5)}${q.fee ? `・改期費 NT$${fmt(q.fee)}` : ''}`, q.br, [{k:'時段', b:`${q.from.d} ${q.from.t}`, a:`${q.to.d} ${q.to.t}`}]);
+      resolve(q, '已核准改期');
+      if (q.id === 'rs-maomao') lifeSay('approved');
+      say(`已核准改期・${name}改到 ${q.to.d} ${q.to.t.slice(0,5)}・已通知${p.owner}`);
+    } else if (q.kind === 'cx') {
+      log('核准取消', `${name}・${p.owner}`, `取消費 NT$${fmt(q.fee)}・釋放 ${q.slot.d} ${q.slot.t}`, q.br);
+      if (q.deposit > q.fee) OWED.push({id:'o-' + q.id, br:q.br, pet:q.pet, amt:q.deposit - q.fee, why:'取消後要退的訂金・到退款／轉抵處理', kind:'refund'});
+      else if (q.fee > q.deposit) OWED.push({id:'o-' + q.id, br:q.br, pet:q.pet, amt:q.fee - q.deposit, why:'取消費・和飼主聯絡收取'});
+      resolve(q, '已核准取消');
+      if (q.id === 'cx-maomao') lifeSay('approved');
+      say(`已取消・${name} ${q.slot.t.slice(0,5)} 的時段已釋放・${q.deposit >= q.fee ? `要退 NT$${fmt(q.deposit - q.fee)}` : `取消費 NT$${fmt(q.fee - q.deposit)} 記到待收`}`);
+    } else if (q.kind === 'mg' && q.bind) {
+      log('綁定家人', `${q.a.name}、${q.b.name}・手機 ••••${q.ph}`, `互相標示為家人・資料各自保留・申請人 ${q.by}`, q.br);
+      resolve(q, '已綁定為家人');
+      say(`已綁定為家人・${q.a.name}、${q.b.name}各自保留資料・${q.by}會在客戶與寵物看到結果`);
+    } else if (q.kind === 'mg') {
+      const n = q.next && PETS[q.next.pet];
+      q.b.pets.forEach(k => { PETS[k].owner = q.a.name; });
+      log('合併客戶', `${q.a.name}・手機 ••••${q.ph}`, `把「${q.b.name}」（${q.b.src}）合併進來・申請人 ${q.by}`, q.br, [{k:'客戶', b:`${q.a.name}、${q.b.name}`, a:q.a.name}, {k:'寵物', b:q.a.pets.map(k => PETS[k].name).join('、'), a:pairPets(q).map(k => PETS[k].name).join('、')}]);
+      resolve(q, '已合併');
+      say(`已合併成 ${q.a.name}${n ? `・${n.name} ${q.next.t} 的預約已改掛` : ''}`);
+    } else if (q.kind === 'del') {
+      log('核准刪除', '已刪除的飼主', `個資已去識別化・${q.contracts} 份契約依法保留`, q.br);
+      resolve(q, '已去識別化');
+      if (q.id === 'del-zhou') lifeSay('approved');
+      say(`已去識別化・已通知飼主・${q.contracts} 份契約依法保留`);
+    }
+  } else if (d.kind === 'reject') {
+    const ev = q.kind === 'mg' ? (q.bind ? '拒絕綁定' : '拒絕合併') : {rs:'拒絕改期', cx:'拒絕取消', del:'拒絕刪除'}[q.kind];
+    log(ev, q.kind === 'del' ? `${q.person}` : q.kind === 'mg' ? `${name}・手機 ••••${q.ph}` : `${name}・${p.owner}`, `原因：${d.why.trim()}`, q.br);
+    resolve(q, q.kind === 'mg' ? `已${ev}` : {rs:'已拒絕改期', cx:'已拒絕取消', del:'不刪除'}[q.kind], d.why.trim());
+    say(q.kind === 'mg' ? `已${ev}・${q.by}會在客戶與寵物看到原因` : `${ev === '拒絕刪除' ? '已回覆不刪除' : '已' + ev}・已通知${q.kind === 'del' ? q.person : p.owner}`);
+  } else if (d.kind === 'pay') {
+    const amt = d.full ? q.owed : +d.amt;
+    LEDGER.unshift({...L('10/9', nowT(), q.br, name, p.owner, '補收', d.method, d.ref.trim(), me().who, amt), fresh:true});
+    q.owed -= amt; q.paid += amt;
+    const o = OWED.find(x => x.q === q.id);
+    log('補收', `${name}・${p.owner}`, `NT$${fmt(amt)}・${d.method}${d.ref.trim() ? '・' + d.ref.trim() : ''}`, q.br);
+    if (q.owed <= 0) { OWED = OWED.filter(x => x !== o); resolve(q, '已結清'); say(`已收 NT$${fmt(amt)}・${name}已結清・收據已傳給${p.owner}`); }
+    else { o.amt = q.owed; o.why = `10/6 緊急離店・補收後還差 NT$${fmt(q.owed)}`; q.contacts.push({at:`10/9 ${nowT()}`, by:me().who, x:`補收 NT$${fmt(amt)}，還差 NT$${fmt(q.owed)}`}); say(`已收 NT$${fmt(amt)}・還差 NT$${fmt(q.owed)}`); }
+  } else if (d.kind === 'contact') {
+    q.contacts.push({at:`10/9 ${nowT()}`, by:me().who, x:d.why.trim()});
+    log('聯絡紀錄', `${name}・${p.owner}`, d.why.trim(), q.br);
+    say('已記下聯絡紀錄');
+  }
+  state.dlg = null; renderDlg();
+  afterChange(q.id, d.kind === 'contact' ? 'v-r' : null);
+}
+/* after a write: stay on the item if it is still open, otherwise land on the next one (or the list on phone) */
+function afterChange(id, focusKey) {
+  const still = QUEUE.some(x => x.id === id);
+  if (!still) state.armed = null;
+  if (state.compact && !still) state.view = 'list';
+  render();
+  if (still) (focusKey ? document.querySelector(`[data-key="${focusKey}"]`) : $('det-h'))?.focus();
+  else (!state.compact && state.sel ? $('det-h') : $('page-title'))?.focus();
+}
+function validate() {
+  const d = state.dlg, q = item(); d.err = {};
+  if (d.kind === 'reject' || d.kind === 'contact') { if (!d.why.trim()) d.err.why = d.kind === 'contact' ? '寫下聯絡結果，例：飼主說週六會轉帳' : '請寫下原因，飼主會看到這句話'; }
+  if (d.kind === 'pay') {
+    if (!d.method) d.err.method = '請選收款方式';
+    if (!d.full) { const n = +d.amt; if (!d.amt.trim() || !Number.isInteger(n) || n <= 0) d.err.amt = '請填整數金額'; else if (n >= q.owed) d.err.amt = `部分收款要少於 NT$${fmt(q.owed)}；收齊請選全額`; }
+    if (d.method === '其他' && !d.ref.trim()) d.err.ref = '請寫下收款說明，例：街口支付';
+    if (d.method === '轉帳' && d.ref.trim() && !/^\d{5}$/.test(d.ref.trim())) d.err.ref = '末五碼是 5 位數字';
+  }
+  return !Object.keys(d.err).length;
+}
+
+/* ---------- actions ---------- */
+const STUB = '原型只做待處理、收款對帳與稽核紀錄';
+const act = {
+  nav(el) {
+    const pg = el.dataset.page;
+    if (pg === 'plan' && ['admin','mgr'].includes(state.role)) { location.href = `../plan-usage/index.html?role=${state.role}`; return; }
+    if (pg === 'pol' && ['admin','mgr'].includes(state.role)) { location.href = `../cancel-policy/index.html?role=${state.role}`; return; }
+    if (pg === 'notify' && ['admin','mgr'].includes(state.role)) { location.href = `../notify-settings/index.html?role=${state.role}`; return; }
+    if (pg === 'dash') { if (['admin','mgr'].includes(state.role)) location.href = `../m01-dashboard/index.html?live=1&role=${state.role}`; else location.href = '../today-board/index.html?role=clerk'; return; }
+    if (pg === 'cal') { location.href = `../m02-appointments/index.html?role=${state.role}`; return; }
+    if (pg === 'cust') { location.href = `../m03-customers/index.html?role=${state.role}`; return; }
+    const SET = {svc:'m04-services', hours:'m05-hours', res:'m06-resources', tpl:'m07-contract-templates', staff:'m08-staff'};
+    if (SET[pg] && ['admin','mgr'].includes(state.role)) { location.href = `../${SET[pg]}/index.html?role=${state.role}`; return; }
+    if (!['queue','money','audit'].includes(pg)) { say(STUB); return; }
+    state.page = pg; state.navOpen = false; closeNavDrawer(); render(); $('page-title')?.focus(); syncUrl();
+  },
+  openNav() { state.navOpen = true; openNavDrawer(); },
+  stub() { say(STUB); },
+  pick(el) { state.sel = el.dataset.id; state.armed = null; if (state.compact) { state.view = 'detail'; render(); $('det-h')?.focus(); } else { render(el.dataset.key); } syncUrl(); },
+  toList() { state.view = 'list'; state.armed = null; render(); document.querySelector(`[data-key="q-${state.sel}"]`)?.focus(); },
+  step(el) { const list = shownQ(), i = list.findIndex(x => x.id === state.sel), n = list[i + +el.dataset.d]; if (n) { state.sel = n.id; state.armed = null; render(el.dataset.key); announce(`${subjectName(n)}・${KIND[n.kind].l}`); } },
+  kindFilter(el) { state.kind = el.dataset.k; const l = shownQ(); if (!l.some(q => q.id === state.sel)) state.sel = l[0]?.id || null; render(el.dataset.key); },
+  reqToggle() { state.reqOpen = !state.reqOpen; render('reqToggle'); },
+  toggleDone() { state.doneOpen = !state.doneOpen; render('done'); },
+  decide(el) {
+    const q = item(), side = el.dataset.side;
+    if (q.kind === 'ec') { openDlg(side === 'a' ? 'pay' : 'contact'); return; }
+    openDlg(side === 'a' ? 'approve' : 'reject');
+  },
+  /* docked verdict: the first press shows its consequences (scrolls to and frames the column), the second opens the confirm */
+  dock(el) {
+    const side = el.dataset.side;
+    if (state.armed === side) { act.decide(el); return; }
+    state.armed = side; render(el.dataset.key);
+    const q = item(), v = verdicts(q)[side], col = $(`v-${side}-h`)?.closest('.col');
+    col?.scrollIntoView({block:'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+    announce(`${colTitle(q, v)}：${v.items.map(c => c.tx).join('；')}。看完再按一次「${v.btn}」。`);
+  },
+  dismiss() { const q = item(); resolve(q, q.withdrawn ? (q.byRole === '飼主' ? '飼主已撤回' : `${q.by}已撤回`) : `${q.closedBy}${q.closedHow}`); afterChange(q.id); },
+  closeDlg,
+  scrimDlg(el, ev) { if (ev.target === el && !state.dlg?.busy) closeDlg(); },
+  preset(el) { state.dlg.why = el.dataset.t; state.dlg.err = {}; renderDlg(el.dataset.key); },
+  pm(el) { state.dlg.method = el.dataset.k; state.dlg.ref = ''; delete state.dlg.err.method; delete state.dlg.err.ref; renderDlg(el.dataset.key); },
+  pf(el) { state.dlg.full = el.dataset.k === '1'; delete state.dlg.err.amt; renderDlg(state.dlg.full ? el.dataset.key : 'dg-amt'); },
+  dlgOk() {
+    if (off()) { say('需連線'); return; }
+    if (!validate()) { const first = Object.keys(state.dlg.err)[0]; renderDlg({why:'dg-why', amt:'dg-amt', ref:'dg-ref', method:'pm-現金'}[first]); announce(Object.values(state.dlg.err).join('。')); return; }
+    state.dlg.busy = true; renderDlg('dg-ok');
+    setTimeout(commit, 650);
+  },
+  openPet(el) { state.sheet = el.dataset.pet; state.sheetRet = el.dataset.key; renderSheet(); },
+  closeSheet() { state.sheet = null; renderSheet(); document.querySelector(`#app [data-key="${state.sheetRet}"]`)?.focus(); },
+  scrimSheet(el, ev) { if (ev.target === el) act.closeSheet(); },
+  goQueue(el) { state.page = 'queue'; state.kind = 'all'; state.sel = el.dataset.id; state.armed = null; state.view = 'detail'; render(); $('det-h')?.focus(); syncUrl(); },
+  mRange(el) { state.mRange = el.dataset.k; render(el.dataset.key); },
+  mMethod(el) { const k = el.dataset.k; if (!k) state.mMethods = []; else state.mMethods = state.mMethods.includes(k) ? state.mMethods.filter(x => x !== k) : [...state.mMethods, k]; render(el.dataset.key); },
+  exportCsv() {
+    const days = RANGE[state.mRange][1];
+    const rows = LEDGER.filter(r => days.includes(r.d) && inScopeStrict(r.br) && (!state.mMethods.length || state.mMethods.includes(r.m)));
+    download(`對帳表_${RANGE[state.mRange][0]}.csv`, [['日期','時間','分店','寵物','飼主','項目','方式','參考','經手','金額'], ...rows.map(r => [r.d, r.t, BR[r.br], r.pet, r.owner, r.k, r.m, r.ref, r.by, r.amt])]);
+    log('匯出對帳表', `${RANGE[state.mRange][0]}對帳表`, `CSV・${rows.length} 筆`, scopeBr());
+    say(`已匯出 ${rows.length} 筆・已寫入操作紀錄`);
+  },
+  exportLog() {
+    const rows = AUDIT.filter(a => inScopeStrict(a.br) || (state.role === 'admin' && !a.br));
+    download('操作紀錄.csv', [['時間','人員','角色','分店','事件','對象','摘要'], ...rows.map(a => [a.at, a.by, a.role, a.br ? BR[a.br] : '全店', a.ev, a.target, a.sum])]);
+    say(`已匯出 ${rows.length} 筆操作紀錄`);
+  },
+  aTab(el) { state.aTab = el.dataset.k; render(el.dataset.key); },
+  pickC(el) { state.cSel = el.dataset.id; state.verify = null; render(el.dataset.key); if (state.compact) $('ch-h')?.focus(); },
+  openChain(el) { state.aTab = 'chain'; state.cq = ''; state.cSel = el.dataset.id; state.verify = null; render(); $('ch-h')?.focus(); },
+  gapKind(el) { state.gapKind = el.dataset.k; render(el.dataset.key); },
+  async verify(el) {
+    const c = CONTRACTS.find(x => x.id === el.dataset.id);
+    el.innerHTML = '<span class="spin" aria-hidden="true"></span>驗證中'; el.classList.add('busy');
+    const now = await sha(pdfBytes(c, state.tamper));
+    await new Promise(r => setTimeout(r, 400));
+    state.verify = {id:c.id, ok: now === c.hash, now, at: nowT(), by: me().who};
+    c.gaps = c.gaps.filter(g => g !== 'hash'); if (now !== c.hash) c.gaps.push('hash');
+    log('驗證雜湊', `${cPet(c).name}・${c.id}`, now === c.hash ? '雜湊一致' : '雜湊不一致', c.br);
+    render(); $('vr')?.focus();
+    if (LIFE === 'ct-verify' && c.id === 'C-2610-0431' && now === c.hash) lifeSay('verified');
+  },
+  retryTsa(el) {
+    const c = CONTRACTS.find(x => x.id === el.dataset.id);
+    el.innerHTML = '<span class="spin" aria-hidden="true"></span>處理中'; el.classList.add('busy');
+    setTimeout(() => { c.tsa = `10/9（五）${nowT()}:12`; c.gaps = c.gaps.filter(g => g !== 'tsa'); log('補取時間戳記', `${cPet(c).name}・${c.id}`, '可信時間戳記已補上', c.br); render(); $('ch-h')?.focus(); say('時間戳記已補上・已寫入操作紀錄'); }, 650);
+  },
+  resend(el) { say(`已用簡訊補發正本給 ••••${cPet(CONTRACTS.find(x => x.id === el.dataset.id)).ph}・送達後缺口會自動消失`); },
+  aRange(el) { state.aRange = el.dataset.k; render(el.dataset.key); },
+  aOpen(el) { const id = +el.dataset.id; state.aOpen = state.aOpen === id ? null : id; render(el.dataset.key); }
+};
+function download(name, rows) {
+  const csv = '﻿' + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const a = Object.assign(document.createElement('a'), {href: URL.createObjectURL(new Blob([csv], {type:'text/csv'})), download: name});
+  document.body.append(a); a.click(); a.remove();
+}
+/* the stored PDF: a deterministic stand-in for the signed file, so the hash is really computed */
+const pdfBytes = (c, tampered) => new TextEncoder().encode(`%PDF-1.7 犬貓美容定型化契約 ${c.ver}|${c.id}|${cPet(c).owner}|${cPet(c).name}|${c.signed}|簽名影像-${c.id}${tampered && c.id === state.cSel ? '|改' : ''}`);
+const sha = async b => [...new Uint8Array(await crypto.subtle.digest('SHA-256', b))].map(x => x.toString(16).padStart(2, '0')).join('');
+
+function openNavDrawer() {
+  const l = $('layer'); l.querySelector('.nav-scrim')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="scrim nav-scrim" data-do="navScrim" style="padding:0;justify-content:flex-start;align-items:stretch"><div class="drawer-nav" role="dialog" aria-modal="true" aria-label="主選單">${sideNav()}</div></div>`);
+  navIntoView(l);
+  l.querySelector('.drawer-nav .sitem[aria-current]')?.focus() || l.querySelector('.drawer-nav .sitem')?.focus();
+}
+function closeNavDrawer() { $('layer').querySelector('.nav-scrim')?.remove(); }
+act.navScrim = (el, ev) => { if (ev.target === el) { state.navOpen = false; closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); } };
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-do]');
+  if (!el || el.getAttribute('aria-disabled') === 'true') return;
+  act[el.dataset.do]?.(el, ev);
+});
+document.addEventListener('change', ev => {
+  const el = ev.target;
+  if (el.id === 'scope') { state.branch = el.value; const l = shownQ(); if (!l.some(q => q.id === state.sel)) state.sel = l[0]?.id || null; render('scope'); }
+  if (el.id === 'aWho' || el.id === 'aEv') { state[el.id] = el.value; render(el.id); }
+});
+document.addEventListener('input', ev => {
+  const el = ev.target;
+  if (el.id === 'cq') { state.cq = el.value; const pos = el.selectionStart; render('cq'); const t = $('cq'); t?.setSelectionRange(pos, pos); return; }
+  const d = state.dlg; if (!d || !el.dataset.field) return;
+  d[el.dataset.field] = el.value;
+  if (d.err[el.dataset.field] && el.value.trim()) { delete d.err[el.dataset.field]; el.removeAttribute('aria-invalid'); el.parentElement.querySelector('.err')?.remove(); }
+  if (d.kind === 'pay') { const r = document.querySelector('.dialog p.reason'); if (r) r.textContent = `將記錄：補收・${d.method || '方式未選'}・${d.full ? 'NT$' + fmt(item().owed) : d.amt ? 'NT$' + fmt(+d.amt || 0) : '金額未填'}・經手 ${me().who}`; }
+  if (el.dataset.field === 'why') document.querySelectorAll('.dialog .presets .pill').forEach(b => b.setAttribute('aria-pressed', b.dataset.t === d.why));
+});
+/* queue rows move like a list: up / down select the neighbour */
+document.addEventListener('keydown', ev => {
+  const modal = state.dlg ? '.dialog' : state.sheet ? '.sheet' : $('layer').querySelector('.drawer-nav') ? '.drawer-nav' : null;
+  if (modal) {
+    if (ev.key === 'Escape') { if (state.dlg && !state.dlg.busy) closeDlg(); else if (state.sheet) act.closeSheet(); else if (!state.dlg) { closeNavDrawer(); state.navOpen = false; document.querySelector('[data-key="menu"]')?.focus(); } return; }
+    if (ev.key === 'Tab') {
+      const f = [...document.querySelectorAll(`${modal} button, ${modal} textarea, ${modal} input, ${modal} select`)].filter(x => x.tabIndex >= 0 && x.getAttribute('aria-disabled') !== 'true');
+      if (!f.length) return;
+      if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); }
+      else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); }
+    }
+    return;
+  }
+  const row = ev.target.closest?.('.qrow');
+  if (row && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp')) {
+    ev.preventDefault();
+    const rows = [...document.querySelectorAll('.qrow')], i = rows.indexOf(row), n = rows[i + (ev.key === 'ArrowDown' ? 1 : -1)];
+    if (n) { n.focus(); if (!state.compact) { state.sel = n.dataset.id; render(n.dataset.key); } }
+  }
+});
+
+/* ---------- prototype controls ---------- */
+function syncUrl() { const u = new URL(location); u.searchParams.set('role', state.role); u.searchParams.set('page', state.page); if (state.sel) u.searchParams.set('item', state.sel); history.replaceState(null, '', u); }
+const qs = new URLSearchParams(location.search);
+if (qs.get('role') in ROLES) state.role = qs.get('role');
+if (['queue','money','audit'].includes(qs.get('page'))) state.page = qs.get('page');
+if (qs.get('off') === '1') state.offline = true;
+{ const w = (qs.get('why') || '').trim(), t = QUEUE.find(q => q.id === qs.get('item') && q.kind === 'mg'); if (w && t) t.why = w.slice(0, 120); }
+state.sel = visibleQ().some(q => q.id === qs.get('item')) ? qs.get('item') : shownQ()[0]?.id || null;
+if (qs.get('item') && state.sel === qs.get('item')) state.view = 'detail';
+$('p-role').value = state.role; $('p-off').checked = state.offline;
+$('p-role').onchange = e => {
+  state.role = e.target.value; state.branch = 'all'; state.kind = 'all'; state.dlg = null; state.sheet = null; renderDlg(); renderSheet();
+  if (state.page === 'audit' && !canAudit()) state.page = 'queue';
+  state.sel = shownQ()[0]?.id || null; state.view = 'list'; state.armed = null; render(); syncUrl();
+};
+$('p-sim').onchange = e => { state.sim = e.target.value; };
+$('p-tamper').onchange = e => { state.tamper = e.target.checked; state.verify = null; render(); };
+$('p-off').onchange = e => { state.offline = e.target.checked; render(); if (state.dlg) renderDlg(); };
+$('p-theme').onchange = e => { if (e.target.value) document.documentElement.dataset.theme = e.target.value; else delete document.documentElement.dataset.theme; };
+const mq = matchMedia('(max-width: 1023px)');
+const mqR = matchMedia('(min-width: 1024px) and (max-width: 1279px)'), mqN = matchMedia('(max-width: 600px)');
+mqR.addEventListener('change', () => setCompact()); mqN.addEventListener('change', () => setCompact());
+const setCompact = () => { state.compact = mq.matches; state.rail = mqR.matches; state.narrow = mqN.matches; if (!state.compact) { state.navOpen = false; closeNavDrawer(); } render(); };
+mq.addEventListener('change', setCompact);
+/* 一份契約的一生: 毛毛's 第 4 版, signed this morning at the counter after 王太太 read it in LINE the evening before (it reached her less than
+   a day before the booking, so the reading was timed); 陳老闆 published 第 4 版 on 10/9, built at 09:40 on 寵派's 2026-10 template */
+if (CT) {
+  CONTRACTS.unshift({id:'C-2610-0431', pet:'maomao', br:'zs', ver:'v4', eff:'v4・10/9 生效・依平台 2026-10', cls:'13 條・重點條款 6 條', signed:'10/10（六）09:56',
+    read:{via:'LINE', sent:'10/9（五）11:20 已交給 LINE・離服務不到 1 天', stay:'20:24–20:30・即時審閱 6 分 08 秒・讀到最後', ticks:'6 / 6・20:26、20:27、20:27、20:28、20:29、20:29'},
+    otp:'09:56 通過', dev:'中山店 櫃台平板 1', ip:'203.0.113.24', tsa:'10/10（六）09:56:38', gaps:[]});
+  AUDIT = AUDIT.filter(a => a.at !== '10/8 21:40');
+  AUDIT.splice(AUDIT.findIndex(a => a.at === '10/9 09:31'), 0, A('10/9 09:40','陳老闆','店家管理者',null,'建立契約草稿','犬貓美容定型化契約','v4 草稿・依平台範本 2026-10，補充條款新增長毛打結剃短'));
+  AUDIT.unshift(A('10/10 09:56','系統','—','zs','簽署完成','毛毛・王太太','犬貓美容定型化契約 v4・PDF 雜湊與時間戳記已綁定'),
+    A('10/9 11:20','陳老闆','店家管理者',null,'發布契約','犬貓美容定型化契約','v4・依平台範本 2026-10・立即生效；未簽的 7 筆改用 v4，已讀待簽的 2 位收到 LINE'));
+  document.querySelector('.proto .muted').textContent = '毛孩日和，資料全為虛構；示範時間 10/10（六）19:30';
+}
+Promise.all(CONTRACTS.map(async c => { c.hash = await sha(pdfBytes(c, false)); })).then(() => { if (state.page === 'audit') render(); });
+setCompact();
+</script>
+</body>
+</html>

@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>寵派後台登入原型</title>
+<script src="../test-kit/kit.js" data-proto="platform-login"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world. Staff tokens, fields, buttons, notice, toast, the step trace and the prototype strip copied from prototypes/merchant-login;
+   the 寵派後台 banner and sidebar (eleven modules, five groups, who sees what) from prototypes/support-console and prototypes/system-settings;
+   the QR encoder from prototypes/m07-contract-templates. No new color tokens. Status colors are the fixed set shared by every surface. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --sidew:15rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    color-scheme:dark;
+  }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:56px;scroll-padding-bottom:180px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.pbtn{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:8px;border:1px dashed var(--proto-line);background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;font-weight:700}
+.pbtn:hover{border-style:solid}
+.pbtn .tag{font-size:.75rem;color:var(--proto-muted)}
+
+/* ---------- buttons, chips, fields ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:12px 20px;border-radius:var(--r-md);font-size:1rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.wide{width:100%}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.lnk{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 6px;margin:0 -6px;border-radius:999px;color:var(--ink);font-weight:800;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.lnk:hover{background:var(--sunk)}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.9375rem;font-weight:800}
+.field input{width:100%;min-height:52px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:1.0625rem;font-weight:600}
+.field input:hover{border-color:var(--ink)}
+.field input::placeholder{color:var(--ink-muted);font-weight:500}
+.field input[aria-invalid="true"]{border-color:var(--danger);box-shadow:inset 0 0 0 1px var(--danger)}
+.field .err{display:flex;align-items:center;gap:6px;font-size:.875rem;font-weight:800;color:var(--danger)}
+.field .hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.pw{position:relative}
+.pw input{padding-right:56px}
+.pw .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:12px;display:grid;place-items:center;color:var(--ink-muted)}
+.pw .eye:hover{color:var(--ink);background:var(--sunk)}
+.code input{font-family:"Nunito",var(--font);font-size:1.5rem;font-weight:800;letter-spacing:.3em;text-align:center}
+.code.bk input{font-family:var(--mono);font-size:1.25rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.9375rem;font-weight:600;line-height:1.5}
+.notice b{display:block;font-weight:900}
+.notice .ico{flex:none;margin-top:2px}
+.notice>span{flex:1;min-width:0}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.danger{background:var(--danger-bg);color:var(--danger)}
+.notice.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.notice.info{background:var(--info-bg);color:var(--info)}
+.notice.success{background:var(--success-bg);color:var(--success)}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(520px,calc(100vw - 32px));padding:10px 18px;border-radius:var(--r-lg);background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .35s var(--out)}
+#app:not(.compact) ~ #layer .toast{left:calc(50% + var(--sidew) / 2)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+
+/* ---------- shell: 寵派後台 with its lights off ----------
+   The cocoa 「寵派內部」 banner and the eleven-module sidebar are the real 寵派後台 frame, drawn dim before sign-in.
+   Signing in folds away what this role cannot open and lights the rest. */
+#app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);grid-template-rows:auto 1fr;min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+.ibar{grid-column:1 / -1;position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;min-height:40px;padding:0 20px;background:var(--rail);color:var(--rail-cur);font-size:.8125rem;font-weight:800;box-shadow:inset 0 -1px 0 var(--rail-hover)}
+.ibar .in{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:999px;background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.ibar .in .ico{width:15px;height:15px;stroke-width:2.2}
+.ibar .ws{color:var(--rail-ink);font-weight:700}
+.ibar .r{margin-left:auto;color:var(--rail-ink);font-weight:700;white-space:nowrap}
+.side{grid-row:2;position:sticky;top:40px;height:calc(100vh - 84px);height:calc(100dvh - 84px);overflow:hidden;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;padding:18px 12px 16px;color:var(--rail-ink)}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+.mark{width:40px;height:40px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;flex:none}
+.mark .ico{width:24px;height:24px;stroke-width:0;fill:currentColor}
+.brand b{display:block;color:var(--rail-cur);font-size:1rem;font-weight:900;line-height:1.3}
+.ghost{display:flex;flex-direction:column}
+.sgrp,.sitem{overflow:hidden;max-height:44px}
+.sgrp{font-size:.75rem;font-weight:800;letter-spacing:.04em;padding:10px 12px 4px;color:var(--rail-ink);opacity:.82;max-height:34px}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;margin-top:2px;padding:8px 12px;border-radius:12px;font-size:.9375rem;font-weight:700;line-height:1.3;color:var(--rail-ink)}
+.sitem.cur{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+/* lights off: the whole menu is there, dim and inert */
+.side.dark .ghost .sgrp,.side.dark .ghost .sitem{opacity:.26}
+.side.dark .brand b{opacity:.55}
+.side.dark .ghost .sitem.peek{opacity:.72;transition:opacity .4s var(--out)}
+.side .lit{opacity:1 !important;transition:opacity .28s var(--out),background-color .3s var(--out),color .3s var(--out)}
+/* a module this role cannot open folds out of the menu instead of greying */
+.side .fold{max-height:0 !important;min-height:0 !important;margin-top:0 !important;padding-top:0 !important;padding-bottom:0 !important;opacity:0 !important;transition:opacity .14s var(--out),max-height .3s var(--out) .12s,min-height .3s var(--out) .12s,padding .3s var(--out) .12s,margin .3s var(--out) .12s}
+.side-foot{margin-top:auto;padding:14px 8px 0;border-top:1px solid var(--rail-hover);font-size:.8125rem;font-weight:700;line-height:1.45;color:var(--rail-ink)}
+.side-foot b{display:block;color:var(--rail-cur);font-weight:800}
+.me{display:flex;align-items:center;gap:10px}
+.me .av{width:36px;height:36px;border-radius:50%;background:var(--rail-hover);color:var(--rail-cur);display:grid;place-items:center;font-weight:900;flex:none}
+.me small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+main{grid-row:2;min-width:0;display:flex;flex-direction:column}
+.topbar{display:none}
+
+/* ---------- the sheet ---------- */
+.page{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 32px 56px}
+.fsheet{width:100%;max-width:460px;margin:0 auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:34px 36px 30px}
+.fsheet.wide{max-width:560px}
+.fsheet.wider{max-width:640px}
+.fsheet h1{font-size:1.75rem;font-weight:900;line-height:1.25;text-wrap:balance}
+.lede{margin-top:6px;font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.fsheet form,.stack{display:flex;flex-direction:column;gap:18px;margin-top:24px}
+.alts{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;margin-top:-2px}
+.fine{margin-top:22px;padding-top:18px;border-top:1px solid var(--border);font-size:.875rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.fine p+p{margin-top:6px}
+.fine .lnk{font-size:.875rem;min-height:32px}
+.fine .row{display:flex;gap:8px;align-items:flex-start}
+.fine .row .ico{margin-top:2px;color:var(--ink-muted)}
+.back-row{width:100%;max-width:460px;margin:0 auto 8px}
+.back-row.wide{max-width:560px}
+.back-row.wider{max-width:640px}
+.rules{list-style:none;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.rules li{display:flex;align-items:center;gap:6px}
+.rules li .ico{width:16px;height:16px;stroke-width:2.4}
+.rules li.met{color:var(--success)}
+.rules li.miss{color:var(--danger)}
+.rules li.idle .ico{stroke:var(--control-border)}
+.who-line{display:flex;align-items:center;gap:12px;margin-top:18px;padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border)}
+.who-line .av{width:40px;height:40px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900;flex:none}
+.who-line>span:nth-child(2){min-width:0}
+.who-line b{display:block;font-weight:900}
+.who-line span span{display:block;font-size:.8125rem;font-weight:700;color:var(--ink-muted);overflow-wrap:anywhere}
+.who-line .lnk{margin-left:auto;font-size:.875rem;flex:none}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:10px 18px;margin-top:20px;padding:16px 18px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border)}
+.facts dt{font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.facts dd{font-weight:800;margin:0;overflow-wrap:anywhere}
+.facts dd small{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.check{display:flex;gap:12px;align-items:flex-start;font-size:.9375rem;font-weight:700;line-height:1.5;cursor:pointer}
+.check input{width:22px;height:22px;margin-top:1px;accent-color:var(--ink);flex:none}
+.check[aria-invalid="true"] span{color:var(--danger)}
+.big-ico{width:72px;height:72px;border-radius:50%;background:var(--sunk);color:var(--ink-muted);display:grid;place-items:center;margin-bottom:16px}
+.big-ico .ico{width:32px;height:32px}
+.big-ico.ok{background:var(--success-bg);color:var(--success)}
+.btnrow{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+.app-hint{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700;line-height:1.45}
+.app-hint .tile{width:40px;height:40px;border-radius:12px;background:var(--surface);display:grid;place-items:center;flex:none;box-shadow:var(--lift)}
+
+/* setup: named stops, done solid, current persimmon in an ink ring, ahead dashed (the 客服支援 trace vocabulary) */
+.isteps{list-style:none;display:grid;grid-template-columns:repeat(var(--n,4),1fr);margin:0 0 22px}
+.isteps li{position:relative;padding-top:22px;padding-right:6px;font-size:.8125rem;font-weight:800;line-height:1.35;color:var(--ink-muted)}
+.isteps li::before{content:"";position:absolute;left:0;top:6px;width:13px;height:13px;border-radius:50%;border:2px dashed var(--control-border);background:var(--surface);z-index:1}
+.isteps li::after{content:"";position:absolute;left:13px;right:0;top:12px;border-top:2px dashed var(--control-border)}
+.isteps li:last-child::after{display:none}
+.isteps li.done,.isteps li.cur{color:var(--ink)}
+.isteps li.done::before{border:2px solid var(--ink);background:var(--ink)}
+.isteps li.done::after{border-top:2px solid var(--ink)}
+.isteps li.cur::before{border:2px solid var(--ink);background:var(--act)}
+
+/* bind the app: the QR on a white tile beside the three moves */
+.bind{display:grid;grid-template-columns:184px minmax(0,1fr);gap:20px;align-items:start;margin-top:20px}
+.qrbox{width:184px;height:184px;border-radius:var(--r-lg);background:#FFFFFF;padding:8px;box-shadow:inset 0 0 0 1.5px var(--border),var(--lift)}
+.qrbox svg{width:100%;height:100%;display:block}
+.moves{list-style:none;display:flex;flex-direction:column;gap:12px;counter-reset:mv}
+.moves li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;font-size:.9375rem;font-weight:700;line-height:1.45;counter-increment:mv}
+.moves li::before{content:counter(mv);width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-size:.8125rem;font-weight:900}
+.moves small{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.bind.one{grid-template-columns:1fr;justify-items:center;margin-top:12px}
+.bind .hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-align:center}
+.secret{margin-top:4px;padding:14px 16px;border-radius:var(--r-md);background:var(--sunk);display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:.875rem;font-weight:700}
+.secret dt{color:var(--ink-muted)}
+.secret dd{margin:0;overflow-wrap:anywhere}
+.secret .key{font-family:var(--mono);font-size:1rem;font-weight:700;letter-spacing:.08em;word-spacing:.2em;color:var(--ink)}
+
+/* backup codes: a ledger shown once, each pair in system mono so 0/O and 1/I never blur */
+.codes{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;margin-top:18px;padding:6px;border-radius:var(--r-lg);background:var(--sunk)}
+.codes li{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:12px;background:var(--surface);font-family:var(--mono);font-size:1.0625rem;font-weight:700;letter-spacing:.12em;color:var(--ink)}
+.codes.anim li{animation:deal .4s var(--out) both}
+@keyframes deal{from{opacity:0;transform:translateY(6px)}}
+.codes-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.codes-acts .saved{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:800;color:var(--success)}
+.codes-acts .saved:empty{display:none}
+.ledger{list-style:none;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;margin-top:20px;padding:5px;border-radius:var(--r-md);background:var(--sunk)}
+.ledger li{position:relative;height:28px;border-radius:8px;background:var(--surface);border:1.5px solid var(--ink)}
+.ledger li.used{background:transparent;border:1.5px dashed var(--control-border)}
+.ledger li.used::after{content:"";position:absolute;left:4px;right:4px;top:50%;border-top:1.5px solid var(--ink-muted);transform:rotate(-24deg)}
+.ledger li.now{border-color:var(--ink)}
+.left-n{font-weight:900;font-size:1.125rem}
+
+/* leaving: the sheet steps back while the menu sorts itself to the role */
+.page.leave .fsheet,.page.leave .back-row{opacity:0;transform:translateY(8px) scale(.985);transition:opacity .3s var(--out),transform .3s var(--out)}
+.landing{position:fixed;left:calc(var(--sidew) + 50% - var(--sidew) / 2);top:50%;transform:translate(-50%,-50%);font-size:1rem;font-weight:800;color:var(--ink-muted);display:flex;align-items:center;gap:10px;animation:fade .3s var(--out) .5s both}
+@keyframes fade{from{opacity:0}}
+
+/* ---------- compact: no room for the sidebar, the 寵派後台 top bar stands in ---------- */
+#app.compact{display:block;background:none}
+#app.compact .ibar{position:static;padding:0 16px}
+#app.compact .ibar .ws{display:none}
+#app.compact .side{display:none}
+#app.compact .topbar{display:flex;align-items:center;gap:10px;padding:8px 16px 10px;background:var(--rail);color:var(--rail-cur)}
+#app.compact .topbar .mark{width:36px;height:36px;border-radius:12px}
+#app.compact .topbar b{font-weight:900}
+#app.compact .page{justify-content:flex-start;padding:16px 16px 40px}
+#app.compact .fsheet{padding:24px 20px 22px}
+#app.compact .fsheet h1{font-size:1.5rem}
+#app.compact .landing{left:50%}
+@media (max-width: 560px){
+  .bind{grid-template-columns:1fr;justify-items:center}
+  .moves{justify-self:stretch}
+  .isteps li{font-size:.75rem}
+  .facts{grid-template-columns:1fr;gap:2px}.facts dd{margin-bottom:8px}
+  .codes li{font-size:.9375rem;letter-spacing:.08em}
+  .who-line{flex-wrap:wrap}.who-line .lnk{margin-left:52px}
+}
+.bigtext .fsheet,.bigtext .back-row{max-width:680px}
+.bigtext .codes{grid-template-columns:1fr}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}}
+/* touch: DESIGN.md touch-target is 44px; mouse density stays as drawn */
+@media (pointer: coarse){.fine .lnk{position:relative}.fine .lnk::before{content:"";position:absolute;inset:-6px 0}}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>寵派後台登入・互動原型</b><span class="muted">資料全為虛構</span>
+  <label>情境 <select id="p-go">
+    <option value="login">登入</option>
+    <option value="setup">第一次設定・佩君</option>
+    <option value="reset">MFA 重設後・家豪</option>
+    <option value="link-expired">設定連結已過期</option>
+    <option value="link-used">設定連結已用過</option></select></label>
+  <label><input type="checkbox" id="p-off"> 離線</label>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <label>字級 <select id="p-scale"><option value="1">100%</option><option value="1.3">130%</option><option value="2">200%</option></select></label>
+  <span class="muted">Email：guanyu・yizhen・meiling・xiaowen・jiahao・siyu・zhiming（已停用）・peijun（待設定）@chongpai.example・密碼 chongpai2026・驗證碼 246810・備用碼 K7Q2-M9DF</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<script>
+const I = {
+  store:'<path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8h13v-8M10 20v-5h4v5"/>',
+  plan:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  headset:'<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="13" width="4" height="6" rx="1.5"/><rect x="16.5" y="13" width="4" height="6" rx="1.5"/><path d="M18.5 19c0 1.4-1.6 2-4 2h-2"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+  doc:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  coins:'<ellipse cx="9" cy="7" rx="5" ry="2.5"/><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7"/><path d="M10 15.4c.9 1.3 3 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  chart:'<path d="M4 20h16"/><path d="M7 16v-4M12 16V7M17 16v-6"/>',
+  wrench:'<path d="M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5 2.5-2.5Z"/>',
+  otp:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8M16 7l3 3M14 9l2 2"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  fwd:'<path d="m10 6 6 6-6 6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  ban:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff:'<path d="M3 3l18 18M10.6 6a9.8 9.8 0 0 1 1.4-.1c6 0 9.5 6.1 9.5 6.1a17 17 0 0 1-2.6 3.3M6.6 6.6C3.9 8.4 2.5 12 2.5 12S6 18.5 12 18.5c1.6 0 3-.4 4.2-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>',
+  dotI:'<circle cx="12" cy="12" r="3"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  ticket:'<path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4V7Z"/><path d="M10 7v10" stroke-dasharray="2 2"/>',
+  store2:'<path d="M3 10h18M5 10v9h14v-9M4 10l2-5h12l2 5"/>'
+};
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const FAST = params.get('fast') === '1';
+const calm = () => FAST || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clone = o => JSON.parse(JSON.stringify(o));
+const initialOf = n => /^[阿小]./.test(n) ? n[1] : n[0];
+const p2 = n => String(n).padStart(2, '0');
+const hm = d => `${p2(d.getHours())}:${p2(d.getMinutes())}`;
+const TODAY = '10/12（一）';
+
+/* ---------- demo data (fictional; the people are system-settings' 後台管理員) ---------- */
+const DOMAIN = 'chongpai.example';
+const PASS = 'chongpai2026', TOTP = '246810', BACKUP = 'K7Q2M9DF', TRIES = 5;
+/* the 寵派後台 sidebar, module for module, with who can open each */
+const MODS = [
+  ['商家', [['tenants', '商家管理', 'store', ['super']], ['plans', '方案管理', 'plan', ['super', 'finance', 'support']], ['pay', '付款管理', 'card', ['super', 'finance']]]],
+  ['支援', [['support', '客服支援', 'headset', ['support', 'super']], ['notif', 'LINE／通知管理', 'bell', ['support', 'super']]]],
+  ['合規', [['tpl', '契約模板庫', 'doc', ['super', 'compliance', 'support']], ['audit', '稽核中心', 'shield', ['super', 'compliance']]]],
+  ['營運', [['gw', '金流設定', 'coins', ['super', 'finance']], ['usage', '用量監控', 'gauge', ['super', 'finance', 'support']], ['data', '產業數據', 'chart', ['super', 'data']]]],
+  ['系統', [['sys', '系統設定', 'wrench', ['super']]]]
+];
+const ROLE = {super:'最高管理者', compliance:'合規', finance:'財務', support:'客服', data:'資料'};
+const ROLE_DO = {
+  super:'建商家、方案、停權與復權、金流環境、系統設定、建管理員；全平台稽核',
+  compliance:'平台契約模板庫、稽核紀錄、簽署查核',
+  finance:'訂閱付款、補款、退款、發票、方案指派',
+  support:'客服查詢、通知與簽署連結補發、導入支援；不能代簽、代同意，也不能改金流或商家核心設定',
+  data:'匯出去識別化產業報表；看不到任何商家或個人資料'
+};
+/* where each role opens first: its own main module */
+const HOME = {super:['tenants', '商家管理', 'tenant-admin'], support:['support', '客服支援', 'support-console'], finance:['pay', '付款管理', 'payment-admin'], compliance:['audit', '稽核中心', 'audit-center'], data:['data', '產業數據', 'industry-data']};
+const PEOPLE0 = [
+  {id:'az', n:'冠宇', u:'guanyu', role:'super', st:'on', left:9},
+  {id:'yz', n:'宜蓁', u:'yizhen', role:'compliance', st:'on', left:10},
+  {id:'ml', n:'美玲', u:'meiling', role:'finance', st:'on', left:8},
+  {id:'xw', n:'小雯', u:'xiaowen', role:'support', st:'on', left:3},
+  {id:'jh', n:'家豪', u:'jiahao', role:'support', st:'on', left:10},
+  {id:'sy', n:'思妤', u:'siyu', role:'data', st:'on', left:10},
+  {id:'zm', n:'志明', u:'zhiming', role:'support', st:'off', offAt:'9/15', by:'冠宇'},
+  {id:'pj', n:'佩君', u:'peijun', role:'support', st:'pend', since:'10/9', by:'冠宇'}
+];
+/* setup links: a new account (佩君) sets a password and binds the app; a reset (家豪, phone lost) keeps the password and binds again */
+const LINKS = {
+  setup:{id:'pj', kind:'new', by:'冠宇', at:'10/9（五）14:20', until:'10/16（五）23:59'},
+  reset:{id:'jh', kind:'reset', by:'冠宇', at:'10/12（一）09:20', until:'10/19（一）23:59', why:'手機遺失，備用碼放在舊手機的備忘錄裡'}
+};
+const SECRET = 'JBSW Y3DP EHPK 3PXP JBSW Y3DP';
+const NEW_CODES = ['4F7K-2QM9', 'X8DP-6RTA', 'B3NW-9HCE', 'P5ZL-7GKU', 'R2VJ-4YMF', 'T9EC-3WQX', 'H6UA-8DNP', 'M4KR-5ZBT', 'W7GF-2EVL', 'C3YH-6PJS'];
+const mailOf = p => `${p.u}@${DOMAIN}`;
+const PW_RULES = [['至少 12 碼', v => v.length >= 12], ['有英文字母', v => /[a-z]/i.test(v)], ['有數字', v => /\d/.test(v)], ['不含 Email 的名字', (v, u) => !u || !v.toLowerCase().includes(u)]];
+
+/* ---------- state ---------- */
+const state = {go:'login', offline:false, compact:false, view:'login', f:null, who:null, leaving:null, used:{}};
+let P = [];
+const byId = id => P.find(p => p.id === id);
+const byMail = v => P.find(p => mailOf(p) === String(v || '').trim().toLowerCase());
+function newForm(pre = {}) { return {mail:'', pw:'', code:'', npw:'', ok:false, show:false, err:{}, top:null, tries:0, codeTries:0, step:1, lockUntil:0, ...pre}; }
+function load(go) {
+  P = clone(PEOPLE0); state.go = go; state.who = null; state.leaving = null; state.used = {};
+  if (go === 'setup' || go === 'reset') {
+    const L = LINKS[go], p = byId(L.id); if (go === 'reset') { p.st = 'pend'; p.reset = true; }
+    state.view = 'setup'; state.f = newForm({link:go, steps: go === 'reset' ? ['確認帳號', '綁定驗證 App', '存好備用碼'] : ['確認帳號', '設定密碼', '綁定驗證 App', '存好備用碼']});
+  } else if (go === 'link-expired' || go === 'link-used') { state.view = go; state.f = newForm(); }
+  else { state.view = 'login'; state.f = newForm(); }
+}
+
+/* ---------- frame ---------- */
+const ibar = () => `<section class="ibar" aria-label="寵派內部提示"><span class="in">${ic('shield','sm')}寵派內部</span><span class="ws">只給寵派員工使用・每次登入都要驗證碼並留下紀錄</span><span class="r">${TODAY} ${hm(new Date())}</span></section>`;
+function sideNav() {
+  const lit = state.leaving, p = state.who && byId(state.who);
+  /* sorted: the menu already folded to this role (the end state); peek: the setup confirm step previews the role's modules */
+  const role = p ? p.role : null, sorted = lit && lit.sorted;
+  const peekRole = !lit && state.view === 'setup' && state.f.step === 1 ? byId(LINKS[state.f.link].id).role : null;
+  const groups = MODS.map(([g, list]) => {
+    const gone = sorted && !list.some(m => m[3].includes(role));
+    return `<div class="sgrp${gone ? ' fold' : ''}" data-grp="${g}">${g}</div>${list.map(([k, l, icon, roles]) =>
+      `<div class="sitem${lit && lit.nav === k ? ' cur' : ''}${sorted && !roles.includes(role) ? ' fold' : ''}${peekRole && roles.includes(peekRole) ? ' peek' : ''}" data-nav="${k}" data-roles="${roles.join(' ')}">${ic(icon)}<span>${l}</span></div>`).join('')}`;
+  }).join('');
+  const foot = p && lit ? `<div class="me"><span class="av">${esc(initialOf(p.n))}</span><span><b>${esc(p.n)}</b><small>${ROLE[p.role]}</small></span></div>`
+    : `<b>登入後，只亮起你能用的模組</b>店家請從寵派商家中心登入。`;
+  return `<aside class="side${lit ? '' : ' dark'}" aria-hidden="true"><div class="brand"><span class="mark">${ic('mark')}</span><span><b>寵派管理後台</b></span></div>
+    <div class="ghost">${groups}</div><div class="side-foot">${foot}</div></aside>`;
+}
+const topbar = () => `<header class="topbar"><span class="mark" aria-hidden="true">${ic('mark')}</span><b>寵派管理後台</b></header>`;
+const fieldErr = (f, k) => f.err[k] ? `<span class="err" id="e-${k}" data-key="e-${k}">${ic('warn','sm')}${esc(f.err[k])}</span>` : '';
+const inv = (f, k) => f.err[k] ? ` aria-invalid="true" aria-describedby="e-${k}"` : '';
+function topNote(f) {
+  if (!f.top) return '';
+  const [tone, b, s, icon] = f.top;
+  return `<div class="notice ${tone}" role="alert" data-key="f-top" tabindex="-1">${ic(icon || (tone === 'neutral' ? 'off' : tone === 'warning' ? 'lock' : 'warn'),'sm')}<span><b>${esc(b)}</b>${s}</span></div>`;
+}
+function sheet(inner, opts = {}) {
+  const w = opts.w ? ` ${opts.w}` : '';
+  const back = opts.back ? `<div class="back-row${w}"><button class="back" data-key="f-back" data-do="${opts.back[0]}"${opts.back[2] ? ' data-keep="1"' : ''}>${ic('back')}${opts.back[1]}</button></div>` : '';
+  return `<div class="page">${back}<section class="fsheet${w}" aria-labelledby="f-title">${inner}</section></div>`;
+}
+const eyeBtn = (f, key) => `<button type="button" class="eye" data-key="${key}" data-do="toggleShow" aria-pressed="${f.show}" aria-label="顯示密碼">${ic(f.show ? 'eyeOff' : 'eye')}</button>`;
+function rulesHtml(v, u, showMiss) {
+  return `<ul class="rules" aria-label="密碼規則">${PW_RULES.map(([t, fn]) => { const c = !v ? 'idle' : fn(v, u) ? 'met' : showMiss ? 'miss' : 'idle'; return `<li class="${c}">${ic(c === 'met' ? 'check' : c === 'miss' ? 'warn' : 'dotI')}${t}</li>`; }).join('')}</ul>`;
+}
+const pwOk = (v, u) => PW_RULES.every(([, fn]) => fn(v, u));
+const whoLine = (p, lnk = '') => `<div class="who-line" data-key="who-line"><span class="av" aria-hidden="true">${esc(initialOf(p.n))}</span><span><b>${esc(p.n)}・${ROLE[p.role]}</b><span>${esc(mailOf(p))}</span></span>${lnk}</div>`;
+const totpField = (f, key, label = '6 位數驗證碼') => `<div class="field code"><label for="${key}">${label}</label><input id="${key}" data-key="${key}" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="${esc(f.code)}"${inv(f,'code')}>${fieldErr(f,'code')}</div>`;
+const locked = f => f.lockUntil > Date.now();
+const lockLeft = f => Math.max(1, Math.ceil((f.lockUntil - Date.now()) / 60000));
+const supers = () => P.filter(p => p.role === 'super' && p.st === 'on');
+
+/* ---------- views ---------- */
+function loginView() {
+  const f = state.f, lock = locked(f);
+  const submit = lock ? `<div><button class="btn wide" aria-disabled="true" aria-describedby="lg-r" data-key="lg-go">下一步</button><span class="reason" id="lg-r" data-key="lg-r">錯太多次，${lockLeft(f)} 分鐘後才能再試。忘記密碼可以先用 Email 重設。</span></div>`
+    : `<button class="btn primary wide" type="submit" data-key="lg-go">下一步</button>`;
+  return sheet(`<h1 id="f-title" tabindex="-1">登入寵派管理後台</h1><p class="lede">寵派員工用公司 Email 登入；接著要輸入驗證 App 上的 6 位數。</p>
+    <form data-form="login" novalidate>${topNote(f)}
+      <div class="field"><label for="lg-mail">公司 Email</label><input id="lg-mail" data-key="lg-mail" name="username" type="email" inputmode="email" autocomplete="username" placeholder="name@${DOMAIN}" value="${esc(f.mail)}"${inv(f,'mail')}>${fieldErr(f,'mail')}</div>
+      <div class="field"><label for="lg-pw">密碼</label><div class="pw"><input id="lg-pw" data-key="lg-pw" name="password" type="${f.show ? 'text' : 'password'}" autocomplete="current-password" value="${esc(f.pw)}"${inv(f,'pw')}>${eyeBtn(f, 'lg-eye')}</div>${fieldErr(f,'pw')}</div>
+      ${submit}
+      <div class="alts"><button type="button" class="lnk" data-key="to-forgot" data-do="toForgot">忘記密碼</button></div>
+    </form>
+    <div class="fine"><p class="row">${ic('otp','sm')}<span>寵派後台每次登入都要驗證碼，不會記住這台電腦。新帳號請先打開 Email 裡的設定連結。</span></p>
+    <p class="row">${ic('store2','sm')}<span>店家管理者、店長請從 <a class="lnk" href="../merchant-login/index.html" data-key="to-merchant">寵派商家中心</a> 登入。</span></p></div>`);
+}
+function mfaView() {
+  const f = state.f, p = byId(f.id), lock = locked(f);
+  const submit = lock ? `<div><button class="btn wide" aria-disabled="true" aria-describedby="mf-r" data-key="mf-go">確認並登入</button><span class="reason" id="mf-r">錯太多次，${lockLeft(f)} 分鐘後才能再試。這幾次嘗試已記在稽核中心。</span></div>`
+    : `<button class="btn primary wide" type="submit" data-key="mf-go">確認並登入</button>`;
+  return sheet(`<h1 id="f-title" tabindex="-1">輸入驗證碼</h1><p class="lede">密碼正確。打開手機上的驗證 App，找「寵派管理後台」這一組。</p>
+    ${whoLine(p)}
+    <form data-form="mfa" novalidate>${topNote(f)}
+      <div class="app-hint"><span class="tile" aria-hidden="true">${ic('otp')}</span><span>App 上的數字每 30 秒換一組；快換的時候，等下一組再輸入。</span></div>
+      ${totpField(f, 'mf-code')}
+      ${submit}
+      <div class="alts"><button type="button" class="lnk" data-key="to-backup" data-do="toBackup">手機不在身邊？用備用碼</button></div>
+    </form>`, {back:['toLogin', '換一個帳號']});
+}
+function backupView() {
+  const f = state.f, p = byId(f.id), lock = locked(f), onlySuper = p.role === 'super' && supers().length === 1;
+  const help = onlySuper
+    ? `<b>備用碼也沒了？</b>你是目前唯一的最高管理者，沒有人能幫你重設 MFA。請先保管好備用碼，登入後在系統設定再加一位最高管理者。`
+    : `<b>備用碼也沒了？</b>請最高管理者${esc(supers().map(s => s.n).join('、'))}在系統設定重設你的 MFA；你會收到新的設定連結，重新綁定手機。`;
+  const submit = lock ? `<div><button class="btn wide" aria-disabled="true" aria-describedby="bk-r" data-key="bk-go">用備用碼登入</button><span class="reason" id="bk-r">錯太多次，${lockLeft(f)} 分鐘後才能再試。這幾次嘗試已記在稽核中心。</span></div>`
+    : `<button class="btn primary wide" type="submit" data-key="bk-go">用備用碼登入</button>`;
+  return sheet(`<h1 id="f-title" tabindex="-1">用備用碼登入</h1><p class="lede">輸入設定 MFA 時存下的 10 組備用碼之一。每組只能用一次。</p>
+    ${whoLine(p)}
+    <form data-form="backup" novalidate>${topNote(f)}
+      <div class="field code bk"><label for="bk-code">備用碼</label><input id="bk-code" data-key="bk-code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="9" placeholder="XXXX-XXXX" value="${esc(f.code)}"${inv(f,'code')}>${fieldErr(f,'code')}</div>
+      ${submit}
+    </form>
+    <p class="notice neutral" style="margin-top:20px" data-key="bk-help">${ic('info','sm')}<span>${help}</span></p>`, {back:['toMfa', '回到驗證碼']});
+}
+function backupOkView() {
+  const p = byId(state.who), n = p.left, low = n <= 3;
+  const tone = n === 0 ? 'danger' : low ? 'warning' : 'neutral';
+  const tail = n === 0 ? '下次手機不在身邊就沒辦法登入。' : low ? '快用完了。' : '';
+  return sheet(`<div class="big-ico ok" aria-hidden="true">${ic('check')}</div><h1 id="f-title" tabindex="-1">已用備用碼登入</h1>
+    <p class="lede">剛才那組已經作廢，這次登入記在稽核中心。</p>
+    <ol class="ledger" aria-label="10 組備用碼：用掉 ${10 - n} 組，還剩 ${n} 組" data-key="bk-ledger">${Array.from({length:10}, (_, i) => `<li class="${i < 10 - n ? 'used' : ''}${i === 10 - n - 1 ? ' now' : ''}"></li>`).join('')}</ol>
+    <div class="notice ${tone}" style="margin-top:14px" data-key="bk-left">${ic(n === 0 || low ? 'warn' : 'ticket','sm')}<span><b>還剩 <span class="left-n">${n}</span> 組備用碼</b>${tail}找不到手機或換了新手機，請最高管理者在系統設定重設你的 MFA，重新綁定後會給你新的 10 組。</span></div>
+    <div class="btnrow"><button class="btn primary wide" data-key="bk-enter" data-do="land">繼續進入寵派管理後台${ic('fwd','sm')}</button></div>`, {w:'wide'});
+}
+function forgotView() {
+  const f = state.f;
+  let body, title = '忘記密碼', lede = '輸入公司 Email，我們會寄出重設連結。重設密碼後，登入一樣要驗證碼。';
+  if (f.step === 1) body = `<div class="field"><label for="fp-mail">公司 Email</label><input id="fp-mail" data-key="fp-mail" type="email" inputmode="email" autocomplete="username" placeholder="name@${DOMAIN}" value="${esc(f.mail)}"${inv(f,'mail')}>${fieldErr(f,'mail')}</div>
+      <button class="btn primary wide" type="submit" data-key="fp-send">寄出重設連結</button>`;
+  else if (f.step === 2) {
+    title = '去收信'; lede = '';
+    body = `<p class="notice info" role="status" data-key="fp-sent">${ic('mail','sm')}<span><b>如果 ${esc(f.mail.trim())} 有後台帳號，重設連結已經寄出</b>30 分鐘內有效。沒收到請看垃圾郵件，或 1 分鐘後再寄一次。</span></p>
+      <button type="button" class="pbtn" data-key="fp-open" data-do="openReset">${ic('mail','sm')}打開信裡的重設連結<span class="tag">原型</span></button>`;
+  } else {
+    const p = byId(f.id); title = '設定新密碼'; lede = `${esc(p.n)}，設定新密碼，再輸入驗證 App 上的 6 位數確認是你。其他裝置上的登入會一併登出。`;
+    body = `<div class="field"><label for="fp-npw">新密碼</label>${rulesHtml(f.npw, p.u, !!f.err.npw)}<div class="pw"><input id="fp-npw" data-key="fp-npw" type="${f.show ? 'text' : 'password'}" autocomplete="new-password" value="${esc(f.npw)}"${inv(f,'npw')}>${eyeBtn(f, 'fp-eye')}</div>${fieldErr(f,'npw')}</div>
+      ${totpField(f, 'fp-code')}
+      <button class="btn primary wide" type="submit" data-key="fp-save">更新密碼</button>`;
+  }
+  return sheet(`<h1 id="f-title" tabindex="-1">${title}</h1>${lede ? `<p class="lede">${lede}</p>` : ''}<form data-form="forgot" novalidate>${topNote(f)}${body}</form>`, {back:['toLogin', '回到登入', true]});
+}
+
+/* first-time setup and MFA reset: one sheet, named stops */
+function setupView() {
+  const f = state.f, L = LINKS[f.link], p = byId(L.id), names = f.steps, n = names.length, reset = L.kind === 'reset';
+  const at = names[f.step - 1];
+  const steps = f.step <= n ? `<ol class="isteps" style="--n:${n}" aria-label="設定步驟，第 ${f.step} 步，共 ${n} 步" data-key="steps">${names.map((s, i) => `<li class="${i + 1 < f.step ? 'done' : i + 1 === f.step ? 'cur' : ''}"${i + 1 === f.step ? ' aria-current="step"' : ''}>${s}</li>`).join('')}</ol>` : '';
+  let body, w = 'wide';
+  if (at === '確認帳號') {
+    body = `<h1 id="f-title" tabindex="-1">${reset ? '重新綁定驗證 App' : '設定你的寵派後台帳號'}</h1>
+      <p class="lede">${reset ? `${esc(L.by)}在 ${esc(L.at)} 重設了你的 MFA。舊手機上的那組驗證碼和剩下的備用碼都已作廢；輸入現在的密碼，再綁定新手機。` : `${esc(L.by)}幫你建立了寵派管理後台的帳號。設定密碼、綁定驗證 App、存好備用碼，三件事做完才能登入。`}</p>
+      <dl class="facts" data-key="su-facts"><dt>你的身分</dt><dd>${esc(p.n)}・${ROLE[p.role]}<small>${ROLE_DO[p.role]}</small></dd><dt>登入帳號</dt><dd>${esc(mailOf(p))}</dd>
+        <dt>${reset ? '重設的人' : '建立的人'}</dt><dd>${esc(L.by)}（最高管理者）・${esc(L.at)}</dd>${reset ? `<dt>原因</dt><dd>「${esc(L.why)}」</dd>` : ''}<dt>連結有效到</dt><dd>${esc(L.until)}</dd></dl>
+      ${reset ? `<form data-form="su-pw-check" novalidate class="stack">${topNote(f)}<div class="field"><label for="su-cur">現在的密碼</label><div class="pw"><input id="su-cur" data-key="su-cur" type="${f.show ? 'text' : 'password'}" autocomplete="current-password" value="${esc(f.pw)}"${inv(f,'pw')}>${eyeBtn(f, 'su-eye')}</div>${fieldErr(f,'pw')}<span class="hint">只有收到信的人知道密碼，才能綁定新手機。</span></div>
+        <button class="btn primary wide" type="submit" data-key="su-start">是我，開始綁定</button></form>`
+      : `${topNote(f)}<div class="btnrow"><button class="btn primary wide" data-key="su-start" data-do="suStart">是我，開始設定</button></div>`}
+      <div style="text-align:center;margin-top:8px">${f.notMe ? '' : `<button class="lnk" data-key="su-notme" data-do="suNotMe">這不是我</button>`}</div>
+      ${f.notMe ? `<p class="notice neutral" role="status" data-key="su-notme-note" tabindex="-1">${ic('info','sm')}<span><b>不要設定，這個連結會自己失效</b>連結在 ${esc(L.until)} 失效，不會開通任何登入。請告訴${esc(L.by)}這封信寄錯了人。</span></p>` : ''}`;
+  } else if (at === '設定密碼') {
+    body = `<h1 id="f-title" tabindex="-1">設定登入密碼</h1><p class="lede">登入時輸入 ${esc(mailOf(p))} 和這組密碼。寵派後台的密碼要比店家帳號長。</p>
+      <form data-form="su-pw" novalidate>${topNote(f)}
+        <div class="field"><label for="su-npw">密碼</label>${rulesHtml(f.npw, p.u, !!f.err.npw)}<div class="pw"><input id="su-npw" data-key="su-npw" type="${f.show ? 'text' : 'password'}" autocomplete="new-password" value="${esc(f.npw)}"${inv(f,'npw')}>${eyeBtn(f, 'su-eye')}</div>${fieldErr(f,'npw')}</div>
+        <button class="btn primary wide" type="submit" data-key="su-pw-go">下一步</button></form>`;
+  } else if (at === '綁定驗證 App') {
+    w = 'wider';
+    const uri = `otpauth://totp/ChongPai:${mailOf(p)}?secret=${SECRET.replace(/ /g, '')}&issuer=ChongPai`, onPhone = state.compact;
+    const secret = `<dl class="secret" data-key="su-secret"><dt>帳號</dt><dd>${esc(mailOf(p))}</dd><dt>金鑰</dt><dd class="key">${SECRET}</dd><dt>類型</dt><dd>以時間為準・6 位數・每 30 秒</dd></dl>`;
+    body = `<h1 id="f-title" tabindex="-1">綁定驗證 App</h1><p class="lede">之後每次登入，都要輸入這個 App 上的 6 位數。用你自己的手機，不要用共用裝置。</p>
+      ${onPhone ? `<ol class="moves" style="margin-top:20px"><li><span>打開這支手機上的驗證 App<small>Google Authenticator、Microsoft Authenticator 都可以；還沒有就先到 App Store 或 Google Play 安裝。</small></span></li>
+          <li><span>按「＋」，選「輸入設定金鑰」，填入下面的帳號和金鑰<small>App 裡會多一組「ChongPai（寵派管理後台）」。</small></span></li>
+          <li><span>輸入 App 顯示的 6 位數<small>對了就綁好了。</small></span></li></ol>
+        <div style="margin-top:14px">${secret}</div>
+        ${f.showQr ? `<div class="bind one"><div class="qrbox" data-key="su-qr">${qrSvg(uri, '綁定寵派管理後台的 QR 碼')}</div><p class="hint">用另一支手機上的驗證 App 掃這個 QR 碼。</p></div>` : `<div style="margin-top:6px"><button class="lnk" data-key="su-showqr" data-do="showQr">驗證 App 在另一支手機？顯示 QR 碼</button></div>`}`
+      : `<div class="bind"><div class="qrbox" data-key="su-qr">${qrSvg(uri, '綁定寵派管理後台的 QR 碼')}</div>
+        <ol class="moves"><li><span>打開手機上的驗證 App<small>Google Authenticator、Microsoft Authenticator 都可以；還沒有就先到 App Store 或 Google Play 安裝。</small></span></li>
+          <li><span>按「＋」，掃左邊的 QR 碼<small>App 裡會多一組「ChongPai（寵派管理後台）」。</small></span></li>
+          <li><span>輸入 App 顯示的 6 位數<small>對了就綁好了。</small></span></li></ol></div>
+      ${f.showKey ? secret : `<div style="margin-top:10px"><button class="lnk" data-key="su-key" data-do="showKey">掃不了？改用手動輸入金鑰</button></div>`}`}
+      <form data-form="su-bind" novalidate>${topNote(f)}${totpField(f, 'su-code', 'App 上的 6 位數')}
+        <button class="btn primary wide" type="submit" data-key="su-bind">綁定</button></form>`;
+  } else if (at === '存好備用碼') {
+    w = 'wide';
+    body = `<h1 id="f-title" tabindex="-1">存好 10 組備用碼</h1><p class="lede">手機不在身邊時，可以用一組備用碼代替驗證碼登入。每組只能用一次。</p>
+      <p class="notice warning" style="margin-top:18px" data-key="su-once">${ic('warn','sm')}<span><b>這些備用碼只會顯示這一次</b>存在密碼管理工具，或印出來放在安全的地方；不要存在這台電腦的桌面，也不要傳給任何人。</span></p>
+      <ol class="codes${f.dealt ? '' : ' anim'}" aria-label="10 組備用碼" data-key="su-codes">${NEW_CODES.map((c, i) => `<li style="animation-delay:${i * 40}ms">${c}</li>`).join('')}</ol>
+      <div class="codes-acts"><button class="textbtn" data-key="su-dl" data-do="dlCodes">${ic('dl','sm')}下載文字檔</button><button class="textbtn" data-key="su-copy" data-do="copyCodes">${ic('copy','sm')}複製全部</button><span class="saved" role="status" data-key="su-saved">${f.saved ? `${ic('check','sm')}${esc(f.saved)}` : ''}</span></div>
+      <form data-form="su-codes" novalidate>${topNote(f)}
+        <label class="check" data-key="su-ok-l"${f.err.ok ? ' aria-invalid="true"' : ''}><input type="checkbox" id="su-ok" data-key="su-ok"${f.ok ? ' checked' : ''}${f.err.ok ? ' aria-describedby="e-ok"' : ''}><span>我已經把 10 組備用碼存在安全的地方</span></label>${fieldErr(f,'ok')}
+        <button class="btn primary wide" type="submit" data-key="su-done">完成設定</button></form>`;
+    f.dealt = true;
+  } else {
+    body = `<div class="big-ico ok" aria-hidden="true">${ic('check')}</div><h1 id="f-title" tabindex="-1">${reset ? '新手機綁好了' : '帳號設定好了'}</h1>
+      <p class="lede">${reset ? '之後用新手機上的驗證碼登入。舊手機就算找回來，上面那組也不能用了。' : `你現在是寵派管理後台的${ROLE[p.role]}。之後登入要輸入 Email、密碼和驗證 App 上的 6 位數。`}</p>
+      <dl class="facts" data-key="su-done-facts"><dt>登入帳號</dt><dd>${esc(mailOf(p))}</dd><dt>驗證 App</dt><dd>${TODAY} ${esc(f.boundAt)} 綁定</dd><dt>備用碼</dt><dd>10 組・每組只能用一次</dd><dt>稽核中心</dt><dd>已記下這次${reset ? '重新綁定' : '設定'}</dd></dl>
+      <div class="btnrow"><button class="btn primary wide" data-key="su-enter" data-do="enter">進入寵派管理後台${ic('fwd','sm')}</button></div>`;
+  }
+  return sheet(steps + body, {w});
+}
+function deadLinkView() {
+  const used = state.view === 'link-used';
+  const body = used
+    ? `<div class="big-ico" aria-hidden="true">${ic('check')}</div><h1 id="f-title" tabindex="-1">這個設定連結已經用過了</h1>
+       <p class="lede">小雯的帳號在 6/1 設定好了。直接用 Email、密碼和驗證碼登入就好。</p>
+       <div class="btnrow"><button class="btn primary wide" data-key="dead-login" data-do="toLoginWith" data-mail="xiaowen@${DOMAIN}">前往登入</button></div>`
+    : `<div class="big-ico" aria-hidden="true">${ic('clock')}</div><h1 id="f-title" tabindex="-1">這個設定連結已經過期</h1>
+       <p class="lede">連結 7 天內有效，這封在 10/8（四）23:59 過期了，帳號還沒設定。請最高管理者在系統設定按「重寄設定連結」；新的連結寄出後，舊的就不能用。</p>
+       <dl class="facts"><dt>帳號</dt><dd>peijun@${DOMAIN}</dd><dt>可以幫你重寄</dt><dd>冠宇（最高管理者）</dd></dl>
+       <p class="fine">已經設定好了？<button class="lnk" data-key="dead-login" data-do="toLogin">直接登入</button></p>`;
+  return sheet(body, {w:'wide'});
+}
+
+/* ---------- QR (byte mode, level M, versions 1–6), copied from prototypes/m07-contract-templates ---------- */
+const QRV = [null, [16, 10, 1], [28, 16, 1], [44, 26, 1], [32, 18, 2], [43, 24, 2], [27, 16, 4]];
+const QRA = [null, [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34]];
+function gmul(x, y) { let z = 0; for (let i = 7; i >= 0; i--) { z = (z << 1) ^ ((z >>> 7) * 0x11D); z ^= ((y >>> i) & 1) * x; } return z; }
+function rsDiv(deg) { const r = new Array(deg).fill(0); r[deg - 1] = 1; let root = 1; for (let i = 0; i < deg; i++) { for (let j = 0; j < deg; j++) { r[j] = gmul(r[j], root); if (j + 1 < deg) r[j] ^= r[j + 1]; } root = gmul(root, 2); } return r; }
+function rsRem(data, div) { const r = div.map(() => 0); for (const b of data) { const f = b ^ r.shift(); r.push(0); div.forEach((c, i) => { r[i] ^= gmul(c, f); }); } return r; }
+function qrPenalty(G) {
+  const n = G.length; let p = 0;
+  const lines = get => { let s = 0; for (let i = 0; i < n; i++) { const row = []; for (let j = 0; j < n; j++) row.push(get(i, j));
+    let run = 1; for (let j = 1; j <= n; j++) { if (j < n && row[j] === row[j - 1]) run++; else { if (run >= 5) s += run - 2; run = 1; } }
+    const str = row.map(v => v ? 1 : 0).join(''); for (const pat of ['10111010000', '00001011101']) { let k = str.indexOf(pat); while (k !== -1) { s += 40; k = str.indexOf(pat, k + 1); } } } return s; };
+  p += lines((i, j) => G[i][j]) + lines((i, j) => G[j][i]);
+  for (let y = 0; y < n - 1; y++) for (let x = 0; x < n - 1; x++) { const c = G[y][x]; if (c === G[y][x + 1] && c === G[y + 1][x] && c === G[y + 1][x + 1]) p += 3; }
+  const dark = G.flat().filter(Boolean).length;
+  return p + Math.floor(Math.abs(dark * 20 - n * n * 10) / (n * n)) * 10;
+}
+function qrMatrix(text) {
+  const bytes = [...new TextEncoder().encode(text)];
+  let ver = 1; while (ver <= 6 && QRV[ver][0] * QRV[ver][2] < bytes.length + 2) ver++;
+  if (ver > 6) return null;
+  const [dpb, ecb, nb] = QRV[ver], cap = dpb * nb, size = ver * 4 + 17;
+  const bits = [], put = (v, n) => { for (let i = n - 1; i >= 0; i--) bits.push((v >>> i) & 1); };
+  put(4, 4); put(bytes.length, 8); bytes.forEach(b => put(b, 8));
+  put(0, Math.min(4, cap * 8 - bits.length)); while (bits.length % 8) bits.push(0);
+  const data = []; for (let i = 0; i < bits.length; i += 8) data.push(parseInt(bits.slice(i, i + 8).join(''), 2));
+  for (let pad = 0xEC; data.length < cap; pad ^= 0xEC ^ 0x11) data.push(pad);
+  const div = rsDiv(ecb), blocks = [], ecs = [];
+  for (let i = 0; i < nb; i++) { const b = data.slice(i * dpb, (i + 1) * dpb); blocks.push(b); ecs.push(rsRem(b, div)); }
+  const all = [];
+  for (let i = 0; i < dpb; i++) blocks.forEach(b => all.push(b[i]));
+  for (let i = 0; i < ecb; i++) ecs.forEach(e => all.push(e[i]));
+  const M = Array.from({length:size}, () => new Array(size).fill(false)), F = Array.from({length:size}, () => new Array(size).fill(false));
+  const set = (x, y, d) => { M[y][x] = d; F[y][x] = true; };
+  for (let i = 0; i < size; i++) { set(6, i, i % 2 === 0); set(i, 6, i % 2 === 0); }
+  const finder = (cx, cy) => { for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) { const x = cx + dx, y = cy + dy; if (x < 0 || y < 0 || x >= size || y >= size) continue; const d = Math.max(Math.abs(dx), Math.abs(dy)); set(x, y, d !== 2 && d !== 4); } };
+  finder(3, 3); finder(size - 4, 3); finder(3, size - 4);
+  const al = QRA[ver], last = al.length - 1;
+  al.forEach((ay, i) => al.forEach((ax, j) => { if ((i === 0 && j === 0) || (i === 0 && j === last) || (i === last && j === 0)) return; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) set(ax + dx, ay + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1); }));
+  const fmt = (put, mask) => {
+    const d = (0 << 3) | mask; let rem = d; for (let i = 0; i < 10; i++) rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
+    const b = ((d << 10) | rem) ^ 0x5412, g = i => ((b >>> i) & 1) === 1;
+    for (let i = 0; i <= 5; i++) put(8, i, g(i));
+    put(8, 7, g(6)); put(8, 8, g(7)); put(7, 8, g(8));
+    for (let i = 9; i < 15; i++) put(14 - i, 8, g(i));
+    for (let i = 0; i < 8; i++) put(size - 1 - i, 8, g(i));
+    for (let i = 8; i < 15; i++) put(8, size - 15 + i, g(i));
+    put(8, size - 8, true);
+  };
+  fmt(set, 0);
+  let k = 0;
+  for (let right = size - 1; right >= 1; right -= 2) {
+    if (right === 6) right = 5;
+    for (let v = 0; v < size; v++) for (let j = 0; j < 2; j++) {
+      const x = right - j, y = ((right + 1) & 2) === 0 ? size - 1 - v : v;
+      if (!F[y][x] && k < all.length * 8) { M[y][x] = ((all[k >>> 3] >>> (7 - (k & 7))) & 1) === 1; k++; }
+    }
+  }
+  const MASK = [(x, y) => (x + y) % 2 === 0, (x, y) => y % 2 === 0, x => x % 3 === 0, (x, y) => (x + y) % 3 === 0, (x, y) => (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0, (x, y) => x * y % 2 + x * y % 3 === 0, (x, y) => (x * y % 2 + x * y % 3) % 2 === 0, (x, y) => ((x + y) % 2 + x * y % 3) % 2 === 0];
+  let best = null, bestP = Infinity;
+  for (let m = 0; m < 8; m++) {
+    const G = M.map((r, y) => r.map((v, x) => F[y][x] ? v : v !== MASK[m](x, y)));
+    fmt((x, y, d) => { G[y][x] = d; }, m);
+    const pen = qrPenalty(G); if (pen < bestP) { bestP = pen; best = G; }
+  }
+  return best;
+}
+function qrSvg(text, label) {
+  const G = qrMatrix(text); if (!G) return '';
+  const n = G.length; let d = '';
+  G.forEach((r, y) => r.forEach((v, x) => { if (v) d += `M${x} ${y}h1v1h-1z`; }));
+  return `<svg viewBox="-4 -4 ${n + 8} ${n + 8}" role="img" aria-label="${esc(label)}" shape-rendering="crispEdges"><rect x="-4" y="-4" width="${n + 8}" height="${n + 8}" fill="#FFFFFF"/><path fill="#2B211C" d="${d}"/></svg>`;
+}
+
+/* ---------- render ---------- */
+function render(focusId) {
+  const app = $('app');
+  state.compact = innerWidth < 1024;
+  app.className = state.compact ? 'compact' : '';
+  const v = state.view;
+  const page = v === 'login' ? loginView() : v === 'mfa' ? mfaView() : v === 'backup' ? backupView() : v === 'bkok' ? backupOkView()
+    : v === 'forgot' ? forgotView() : v === 'setup' ? setupView() : deadLinkView();
+  app.innerHTML = `${ibar()}${sideNav()}<main>${topbar()}${page}</main>`;
+  const f = focusId && document.getElementById(focusId);
+  if (f) f.focus({preventScroll:false});
+}
+function say(text) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status" data-key="toast">${esc(text)}</div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 3600);
+}
+
+/* ---------- the one authored moment ----------
+   What this role cannot open folds out of the menu, one module at a time; then what is left comes on top to bottom,
+   the module this person opens first lifts into the current pill, and the page opens. */
+function land() {
+  const p = byId(state.who), [nav, page, dir] = HOME[p.role], href = `../${dir}/index.html?role=${p.role}`;
+  state.leaving = {nav, page};
+  if (params.get('stay') === '1') { state.leaving.sorted = true; render(); say(`會開啟${page}`); return; }
+  if (calm() || state.compact) { location.href = href; return; }
+  document.querySelector('.page')?.classList.add('leave');
+  setTimeout(() => {
+    const keep = document.querySelector('.page');
+    $('app').querySelector('.side').outerHTML = sideNav();
+    const side = $('app').querySelector('.side');
+    side.classList.add('dark');
+    const out = markRole(p.role);
+    out.forEach((el, i) => setTimeout(() => el.classList.add('fold'), 34 * i));
+    const stay = [...side.querySelectorAll('.brand b, .sgrp, .sitem')].filter(el => !out.includes(el));
+    const t0 = 34 * out.length + 160;
+    stay.forEach((el, i) => setTimeout(() => el.classList.add('lit'), t0 + 30 * i));
+    keep.insertAdjacentHTML('afterend', `<p class="landing" role="status">${ic('fwd','sm')}正在開啟${page}</p>`);
+    setTimeout(() => { location.href = href; }, t0 + 30 * stay.length + 520);
+  }, 160);
+}
+/* which menu rows leave for this role: its closed modules, then any group left empty */
+function markRole(role) {
+  const side = $('app').querySelector('.side'), out = [];
+  side.querySelectorAll('.sitem').forEach(el => { if (!el.dataset.roles.split(' ').includes(role)) out.push(el); });
+  side.querySelectorAll('.sgrp').forEach(g => {
+    let n = g.nextElementSibling, any = false;
+    while (n && n.classList.contains('sitem')) { if (!out.includes(n)) any = true; n = n.nextElementSibling; }
+    if (!any) out.push(g);
+  });
+  out.sort((a, b) => a.compareDocumentPosition(b) & 4 ? -1 : 1);
+  return out;
+}
+
+/* ---------- submit handlers ---------- */
+function mailErr(v) {
+  const s = String(v || '').trim().toLowerCase();
+  if (!s) return '請輸入公司 Email';
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s)) return 'Email 格式不對';
+  if (!s.endsWith('@' + DOMAIN)) return `請用寵派公司 Email（@${DOMAIN}）；店家帳號請到寵派商家中心登入`;
+  return '';
+}
+function submitLogin() {
+  const f = state.f; f.mail = $('lg-mail').value; f.pw = $('lg-pw').value; f.err = {}; f.top = null;
+  const me = mailErr(f.mail); if (me) f.err.mail = me;
+  if (!f.pw) f.err.pw = '請輸入密碼';
+  if (f.err.mail || f.err.pw) return render(f.err.mail ? 'lg-mail' : 'lg-pw');
+  if (state.offline) { f.top = ['neutral', '連不上網路', '登入需要連線。請確認網路後再試，已輸入的 Email 會留著。']; return render('f-top'); }
+  const p = byMail(f.mail);
+  /* an account still waiting for setup has no password yet: it reads like any wrong pair, so the page never says which Emails exist */
+  if (!p || p.st === 'pend' || f.pw !== PASS) {
+    f.tries++; f.pw = '';
+    if (f.tries >= TRIES) { f.lockUntil = Date.now() + 15 * 60 * 1000; f.top = ['warning', '錯太多次，先暫停 15 分鐘', '這是為了保護帳號；這幾次嘗試已記在稽核中心。忘記密碼可以用 Email 重設。']; return render('f-top'); }
+    f.top = ['danger', 'Email 或密碼不正確', f.tries >= 3 ? `再錯 ${TRIES - f.tries} 次要等 15 分鐘。` : '請再檢查一次。'];
+    return render('lg-pw');
+  }
+  if (p.st === 'off') { f.top = ['danger', '這個帳號已停用', `${esc(p.by)}在 ${esc(p.offAt)} 停用了這個帳號，所有裝置都已登出。有問題請聯絡${esc(p.by)}。`, 'ban']; f.pw = ''; return render('f-top'); }
+  f.tries = 0;
+  state.view = 'mfa'; state.f = newForm({id:p.id, mail:f.mail}); render('mf-code');
+}
+function checkTotp(f, key) {
+  f.code = String($(key).value || '').replace(/\D/g, ''); delete f.err.code; f.top = null;
+  if (f.code.length !== 6) { f.err.code = '驗證碼是 6 位數字'; render(key); return false; }
+  if (f.code !== TOTP) {
+    f.codeTries++; f.code = '';
+    if (f.codeTries >= TRIES) { f.lockUntil = Date.now() + 15 * 60 * 1000; f.top = ['warning', '錯太多次，先暫停 15 分鐘', '這幾次嘗試已記在稽核中心。手機的時間要設成自動，App 上的數字才會對。']; render('f-top'); return false; }
+    f.err.code = `驗證碼不對，請輸入 App 上最新的 6 位數（還能試 ${TRIES - f.codeTries} 次）`;
+    render(key); return false;
+  }
+  return true;
+}
+function submitMfa() {
+  const f = state.f;
+  if (state.offline) { f.top = ['neutral', '連不上網路', '驗證需要連線。']; return render('f-top'); }
+  if (!checkTotp(f, 'mf-code')) return;
+  state.who = f.id; land();
+}
+function submitBackup() {
+  const f = state.f, p = byId(f.id);
+  const raw = String($('bk-code').value || '').toUpperCase(), c = raw.replace(/[^A-Z0-9]/g, '');
+  f.code = raw; delete f.err.code; f.top = null;
+  if (c.length !== 8) { f.err.code = '備用碼是 8 個英文字母或數字，例：K7Q2-M9DF'; return render('bk-code'); }
+  if (state.offline) { f.top = ['neutral', '連不上網路', '驗證需要連線。']; return render('f-top'); }
+  if (c === BACKUP && state.used[p.id]) { f.err.code = '這組備用碼已經用過了，請換一組'; return render('bk-code'); }
+  if (c !== BACKUP) {
+    f.codeTries++;
+    if (f.codeTries >= TRIES) { f.lockUntil = Date.now() + 15 * 60 * 1000; f.top = ['warning', '錯太多次，先暫停 15 分鐘', '這幾次嘗試已記在稽核中心。']; return render('f-top'); }
+    f.err.code = `不是你的備用碼，或已經用過（還能試 ${TRIES - f.codeTries} 次）`; return render('bk-code');
+  }
+  state.used[p.id] = true; p.left = Math.max(0, p.left - 1); state.who = p.id; state.view = 'bkok'; render('f-title');
+}
+function submitForgot() {
+  const f = state.f; f.err = {}; f.top = null;
+  if (f.step === 1) {
+    f.mail = $('fp-mail').value; const me = mailErr(f.mail); if (me) { f.err.mail = me; return render('fp-mail'); }
+    if (state.offline) { f.top = ['neutral', '連不上網路', '寄出重設連結需要連線。']; return render('f-top'); }
+    f.step = 2; return render('f-title');
+  }
+  f.npw = $('fp-npw').value; const p = byId(f.id);
+  if (!pwOk(f.npw, p.u)) { f.err.npw = '新密碼還不符合上面的規則'; return render('fp-npw'); }
+  if (f.npw === PASS) { f.err.npw = '不能和舊密碼一樣'; return render('fp-npw'); }
+  if (!checkTotp(f, 'fp-code')) return;
+  state.view = 'login'; state.f = newForm({mail:mailOf(p)}); render('lg-pw'); say('密碼已更新，其他裝置都已登出；請用新密碼登入');
+}
+function submitSetup(kind) {
+  const f = state.f, L = LINKS[f.link], p = byId(L.id); f.err = {}; f.top = null;
+  const next = focus => { f.step++; f.show = false; f.code = ''; f.codeTries = 0; render(focus || 'f-title'); };
+  if (kind === 'su-pw-check') {
+    f.pw = $('su-cur').value;
+    if (!f.pw) { f.err.pw = '請輸入現在的密碼'; return render('su-cur'); }
+    if (state.offline) { f.top = ['neutral', '連不上網路', '綁定需要連線。']; return render('f-top'); }
+    if (f.pw !== PASS) { f.pw = ''; f.err.pw = '密碼不對；忘記了，請先到登入頁用 Email 重設'; return render('su-cur'); }
+    f.pw = ''; return next();
+  }
+  if (kind === 'su-pw') {
+    f.npw = $('su-npw').value;
+    if (!pwOk(f.npw, p.u)) { f.err.npw = '密碼還不符合上面的規則'; return render('su-npw'); }
+    return next();
+  }
+  if (kind === 'su-bind') {
+    if (state.offline) { f.top = ['neutral', '連不上網路', '綁定需要連線；App 裡那一組先留著，恢復連線後再輸入一次。']; return render('f-top'); }
+    if (!checkTotp(f, 'su-code')) { if (f.err.code) f.err.code = f.err.code.replace('請輸入 App 上最新的 6 位數', '請確認手機時間設為自動，再輸入 App 上最新的 6 位數'); render('su-code'); return; }
+    f.boundAt = hm(new Date()); return next();
+  }
+  if (kind === 'su-codes') {
+    f.ok = $('su-ok').checked;
+    if (!f.ok) { f.err.ok = '請先存好備用碼，再勾選這一項'; return render('su-ok'); }
+    if (state.offline) { f.top = ['neutral', '連不上網路', '完成設定需要連線。']; return render('f-top'); }
+    p.st = 'on'; p.left = 10; state.who = p.id; return next();
+  }
+}
+
+/* ---------- actions ---------- */
+function savedNote(t) { state.f.saved = t; const el = document.querySelector('[data-key="su-saved"]'); if (el) el.innerHTML = `${ic('check','sm')}${esc(t)}`; }
+const ACT = {
+  toForgot() { const mail = $('lg-mail')?.value || ''; state.view = 'forgot'; state.f = newForm({mail}); render('f-title'); },
+  toLogin(el) { const mail = el?.dataset?.keep ? state.f?.mail || '' : ''; state.view = 'login'; state.f = newForm({mail}); render(mail ? 'lg-pw' : 'f-title'); },
+  toLoginWith(el) { state.view = 'login'; state.f = newForm({mail:el.dataset.mail}); render('lg-pw'); },
+  toBackup() { const id = state.f.id; state.view = 'backup'; state.f = newForm({id, mail:state.f.mail}); render('bk-code'); },
+  toMfa() { const id = state.f.id; state.view = 'mfa'; state.f = newForm({id, mail:state.f.mail}); render('mf-code'); },
+  toggleShow() {
+    const f = state.f;
+    [['lg-mail','mail'],['lg-pw','pw'],['fp-npw','npw'],['su-npw','npw'],['su-cur','pw']].forEach(([id, k]) => { const el = $(id); if (el) f[k] = el.value; });
+    f.show = !f.show; const k = document.activeElement?.dataset?.key; render(); if (k) document.querySelector(`[data-key="${k}"]`)?.focus();
+  },
+  openReset() {
+    const f = state.f, p = byMail(f.mail);
+    if (!p || p.st !== 'on') { say('（原型）這個 Email 沒有可以重設的帳號，實際上不會收到信'); return; }
+    f.step = 3; f.id = p.id; f.npw = ''; f.code = ''; f.show = false; render('f-title');
+  },
+  suStart() { const f = state.f; if (state.offline) { f.top = ['neutral', '連不上網路', '設定帳號需要連線。']; return render('f-top'); } f.notMe = false; f.step = 2; render('f-title'); },
+  suNotMe() { state.f.notMe = true; render('su-notme-note'); },
+  showQr() { state.f.showQr = true; render(); document.querySelector('[data-key="su-qr"]')?.scrollIntoView({block:'nearest'}); },
+  showKey() { state.f.showKey = true; render(); document.querySelector('[data-key="su-secret"]')?.scrollIntoView({block:'nearest'}); $('su-code')?.focus({preventScroll:true}); },
+  dlCodes() {
+    const p = byId(LINKS[state.f.link].id);
+    const txt = `寵派管理後台 備用碼\n帳號：${mailOf(p)}\n產生時間：2026/${TODAY} ${hm(new Date())}\n每組只能用一次。\n\n${NEW_CODES.join('\n')}\n`;
+    try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], {type:'text/plain'})); a.download = '寵派管理後台-備用碼.txt'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
+    savedNote('已下載文字檔');
+  },
+  copyCodes() {
+    const done = () => savedNote('已複製；貼到密碼管理工具後，記得清掉剪貼簿');
+    try { navigator.clipboard.writeText(NEW_CODES.join('\n')).then(done, done); } catch (e) { done(); }
+  },
+  enter() { land(); },
+  land
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-do]');
+  if (!el || el.getAttribute('aria-disabled') === 'true') return;
+  e.preventDefault(); ACT[el.dataset.do]?.(el);
+});
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const k = e.target.dataset.form;
+  if (k === 'login') submitLogin(); else if (k === 'mfa') submitMfa(); else if (k === 'backup') submitBackup(); else if (k === 'forgot') submitForgot(); else submitSetup(k);
+});
+document.addEventListener('input', e => {
+  const f = state.f; if (!f) return;
+  const t = e.target;
+  if (['mf-code', 'su-code', 'fp-code'].includes(t.id)) t.value = t.value.replace(/\D/g, '').slice(0, 6);
+  if (t.id === 'su-ok') f.ok = t.checked;
+  if (t.id === 'fp-npw' || t.id === 'su-npw') {
+    f.npw = t.value; const u = t.id === 'su-npw' ? byId(LINKS[f.link].id).u : byId(f.id).u;
+    const r = document.querySelector('.rules'); if (r) r.outerHTML = rulesHtml(f.npw, u, false);
+  }
+});
+addEventListener('resize', () => { clearTimeout(render.r); render.r = setTimeout(() => { if (!state.leaving) { const k = document.activeElement?.dataset?.key; render(); if (k) document.querySelector(`[data-key="${k}"]`)?.focus(); } }, 120); });
+
+/* ---------- prototype controls ---------- */
+function setTheme(v) { v ? document.documentElement.setAttribute('data-theme', v) : document.documentElement.removeAttribute('data-theme'); }
+function applyScale(s) { document.documentElement.style.fontSize = s > 1 ? s * 100 + '%' : ''; document.documentElement.classList.toggle('bigtext', s >= 1.3); }
+const GOS = ['login', 'setup', 'reset', 'link-expired', 'link-used'];
+$('p-go').value = GOS.includes(params.get('go')) ? params.get('go') : 'login';
+$('p-off').checked = state.offline = params.get('off') === '1';
+$('p-theme').value = params.get('theme') || ''; setTheme($('p-theme').value);
+$('p-scale').value = ['1.3', '2'].includes(params.get('scale')) ? params.get('scale') : '1'; applyScale(+$('p-scale').value);
+$('p-go').onchange = e => { load(e.target.value); render('f-title'); };
+$('p-off').onchange = e => { state.offline = e.target.checked; };
+$('p-theme').onchange = e => setTheme(e.target.value);
+$('p-scale').onchange = e => { applyScale(+e.target.value); render(); };
+load($('p-go').value);
+render();
+setInterval(() => { const r = document.querySelector('.ibar .r'); if (r) r.textContent = `${TODAY} ${hm(new Date())}`; }, 20000);
+</script>
+</body>
+</html>

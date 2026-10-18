@@ -1,0 +1,1110 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>店員登入原型</title>
+<script src="../test-kit/kit.js" data-proto="staff-login"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens copied from the today board and the pet card. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:24px;scroll-padding-bottom:180px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+
+/* ---------- shell ---------- */
+#app{display:grid;grid-template-columns:var(--railw) minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.phone){background:linear-gradient(to right,var(--rail) var(--railw),transparent 0)}
+#app.phone{display:block;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+.rail{position:sticky;top:0;height:100vh;height:100dvh;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 0}
+.mark{width:44px;height:44px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;margin-bottom:14px}
+.mark .ico{width:26px;height:26px;stroke-width:0;fill:currentColor}
+.rail-item{width:4rem;min-height:3.75rem;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--rail-ink);font-size:.75rem;font-weight:600;text-align:center;line-height:1.25;padding:6px 0;transition:background-color .2s var(--out)}
+.rail-item:hover{color:var(--rail-cur);background:var(--rail-hover)}
+.rail-item[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:800;--cut:var(--rail-cur)}
+.rail :focus-visible{outline-color:var(--rail-cur)}
+.bnav{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:20;background:var(--rail);display:grid;grid-template-columns:repeat(4,1fr);border-radius:var(--r-lg);padding:6px;box-shadow:var(--lift-hi)}
+.bnav button{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 2px;font-size:.75rem;font-weight:600;line-height:1.2;text-align:center;color:var(--rail-ink);border-radius:16px}
+.bnav button[aria-current="page"]{color:var(--rail-cur-ink);background:var(--rail-cur);font-weight:800;--cut:var(--rail-cur)}
+.bnav :focus-visible{outline-color:var(--rail-cur);outline-offset:-3px}
+main{min-width:0}
+
+
+/* pre-login screens have no rail: the device itself is the frame */
+#app.pre{display:block;background:none}
+#app.home:not(.phone){background:linear-gradient(to right,var(--rail) var(--railw),transparent 0)}
+
+/* ---------- buttons, chips, fields ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:12px 20px;border-radius:var(--r-md);font-size:1rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.wide{width:100%}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none}
+.btn.dangerish{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.lnk{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 6px;margin:0 -6px;border-radius:999px;color:var(--ink);font-weight:800;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.lnk:hover{background:var(--sunk)}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.9375rem;font-weight:800}
+.field input{width:100%;min-height:52px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:1.0625rem;font-weight:600}
+.field input:hover{border-color:var(--ink)}
+.field input::placeholder{color:var(--ink-muted);font-weight:500}
+.field input[aria-invalid="true"]{border-color:var(--danger);box-shadow:inset 0 0 0 1px var(--danger)}
+.field .err{display:flex;align-items:center;gap:6px;font-size:.875rem;font-weight:800;color:var(--danger)}
+.field .hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.pw{position:relative}
+.pw input{padding-right:56px}
+.pw .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:12px;display:grid;place-items:center;color:var(--ink-muted)}
+.pw .eye:hover{color:var(--ink);background:var(--sunk)}
+.code input{font-family:"Nunito",var(--font);font-size:1.5rem;font-weight:800;letter-spacing:.3em;text-align:center}
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.9375rem;font-weight:600;line-height:1.5}
+.notice b{display:block;font-weight:900}
+.notice .ico{flex:none;margin-top:2px}
+.notice>span{flex:1;min-width:0}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.danger{background:var(--danger-bg);color:var(--danger)}
+.notice.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.notice.info{background:var(--info-bg);color:var(--info)}
+.notice.success{background:var(--success-bg);color:var(--success)}
+.notice .lnk{color:inherit;margin:-10px 0}
+
+/* ---------- device head: whose device, where, what time ---------- */
+.dev-head{width:100%;display:flex;align-items:center;gap:14px;padding:20px 32px 8px;max-width:1280px;margin:0 auto}
+.shop-mark{width:48px;height:48px;border-radius:14px;background:var(--rail);color:#F6EFE7;display:grid;place-items:center;flex:none}
+.shop-mark .ico{width:28px;height:28px;stroke-width:0;fill:currentColor}
+.shop{min-width:0;line-height:1.3}
+.shop b{display:block;font-size:1.0625rem;font-weight:900}
+.shop span{display:block;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.clock{margin-left:auto;text-align:right;line-height:1.1}
+.clock b{display:block;font-family:"Nunito",var(--font);font-size:2.25rem;font-weight:800;letter-spacing:-.02em}
+.clock span{display:block;margin-top:4px;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.phone .dev-head{padding:14px 16px 4px}
+.phone .clock b{font-size:1.75rem}
+
+/* ---------- 員工牆 ---------- */
+.wall{max-width:1280px;margin:0 auto;padding:20px 32px 40px}
+.wall h1{font-size:2.25rem;font-weight:900;line-height:1.2;text-wrap:balance}
+.lede{margin-top:6px;font-size:1rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty;max-width:60ch}
+.wall .notice{margin-top:18px;max-width:720px}
+.people{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:18px;margin-top:28px}
+.people>li{position:relative;min-width:0}
+.pcard{width:100%;min-height:216px;background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--lift);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:24px 14px 20px;text-align:center;transition:transform .35s var(--spring),box-shadow .2s var(--out);-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+.pcard:hover{box-shadow:var(--lift-hi)}
+.pcard:active{transform:scale(.97);transition-duration:.08s}
+.disc{--s:88px;width:var(--s);height:var(--s);flex:none;border-radius:50%;background:var(--sunk);color:var(--ink);display:grid;place-items:center;font-size:calc(var(--s) * .4);font-weight:900;line-height:1}
+.pcard .disc{margin-bottom:8px}
+.pcard .nm{font-size:1.25rem;font-weight:900;line-height:1.25}
+.pcard .rl{font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.pcard .chip{margin-top:6px}
+.pcard .last{margin-top:6px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.pcard.add{background:transparent;box-shadow:none;border:2px dashed var(--control-border);color:var(--ink-muted)}
+.pcard.add:hover{border-color:var(--ink);color:var(--ink);box-shadow:none}
+.pcard.add .disc{background:transparent;border:2px dashed var(--control-border);color:inherit}
+.pcard.add .disc .ico{width:32px;height:32px}
+.pcard.add .nm{color:var(--ink)}
+.pcard.add[aria-disabled="true"]{cursor:not-allowed}
+.pcard.add[aria-disabled="true"] .nm{color:var(--ink-muted)}
+.wall-foot{margin-top:28px;font-size:.875rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+/* long press: the card turns over to its one quiet action */
+.pmenu{position:absolute;inset:0;border-radius:var(--r-lg);background:var(--surface);box-shadow:inset 0 0 0 2px var(--ink),var(--lift-hi);display:flex;flex-direction:column;justify-content:center;gap:10px;padding:18px;animation:fade .2s var(--out)}
+.pmenu p{font-size:.9375rem;font-weight:900;text-align:center;margin-bottom:4px}
+.pmenu .btn{min-height:48px;font-size:.9375rem}
+/* picking: the others step back into a row of small cards */
+.people.picking{grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:12px}
+.people.picking>li.open{grid-column:1/-1;margin-bottom:6px}
+.people.picking>li:not(.open) .pcard{min-height:68px;flex-direction:row;justify-content:flex-start;gap:12px;padding:10px 16px;text-align:left;box-shadow:none;background:var(--surface-2);border:1px solid var(--border)}
+.people.picking>li:not(.open) .pcard:hover{background:var(--surface);border-color:var(--control-border)}
+.people.picking>li:not(.open) .disc{--s:44px;margin:0}
+.people.picking>li:not(.open) .pcard .nm{font-size:1rem}
+.people.picking>li:not(.open) .pcard .rl{display:none}
+.people.picking>li:not(.open) .pcard .chip,.people.picking>li:not(.open) .pcard .last{display:none}
+.people.picking>li:not(.open) .pcard.add{border:1.5px dashed var(--control-border);background:transparent}
+.people.picking>li:not(.open) .pcard.add .disc{border-width:1.5px}
+.people.picking>li:not(.open) .pcard.add .disc .ico{width:22px;height:22px}
+
+/* ---------- the PIN card: the person's card grown in place ---------- */
+.pin-card{background:var(--surface);border-radius:var(--r-xl);box-shadow:inset 0 0 0 2px var(--ink),var(--lift-hi);display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,380px);gap:24px 48px;align-items:center;padding:32px 40px}
+.pin-who{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+.pin-who .disc{--s:104px;margin-bottom:16px}
+.pin-who h2{font-size:2rem;font-weight:900;line-height:1.2}
+.pin-who .rl{margin-top:2px;font-size:1rem;font-weight:700;color:var(--ink-muted)}
+.pin-who .seen{margin-top:10px;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.pin-who .ask{margin-top:22px;font-size:1.0625rem;font-weight:800}
+.dots{display:flex;gap:16px;margin-top:12px}
+.dot{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--ink);transition:background-color .12s var(--out),transform .25s var(--spring)}
+.dot.on{background:var(--ink);transform:scale(1.08)}
+.dots.bad .dot{border-color:var(--danger)}
+.dots.bad{animation:shake .42s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pin-msg{min-height:1.5em;margin-top:14px;font-size:.9375rem;font-weight:800;line-height:1.5;text-wrap:pretty;max-width:34ch}
+.pin-msg.bad{display:flex;gap:6px;align-items:flex-start;color:var(--danger)}
+.pin-msg.bad .ico{margin-top:2px}
+.pin-links{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:14px}
+.pin-links .lnk{font-size:.9375rem;color:var(--ink-muted)}
+.pin-links .lnk:hover{color:var(--ink)}
+.pin-foot{grid-column:1/-1;justify-self:end;margin-top:-6px}
+.tall .pin-foot,.phone .pin-foot{justify-self:center}
+.pin-foot .lnk{font-size:.875rem;color:var(--ink-muted)}
+.pin-lock{display:flex;flex-direction:column;align-items:flex-start;gap:14px;max-width:420px}
+.pin-lock .notice{width:100%}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%}
+.key{min-height:72px;border-radius:20px;background:var(--sunk);font-family:"Nunito",var(--font);font-size:1.75rem;font-weight:800;line-height:1;transition:background-color .15s var(--out),transform .3s var(--spring)}
+/* hover only where there is a real pointer: on touch a tapped key would keep the shade and show the last digit to whoever looks */
+@media (hover:hover) and (pointer:fine){.key:hover{background:var(--sunk-hover)}}
+.key:active,.key.hit{transform:scale(.93);background:var(--sunk-hover);transition-duration:.06s}
+/* own phone, one person: the name sits in one compact block so the whole keypad, 0 and 刪除 included, is on the first screen */
+.phone .single .pin-card{padding:18px 20px;gap:14px}
+.phone .single .pin-who .disc{--s:64px;margin-bottom:8px}
+.phone .single .pin-who h2{font-size:1.5rem}
+.phone .single .pin-who .seen{margin-top:4px}
+.phone .single .pin-who .ask{margin-top:10px}
+.phone .single .key{min-height:62px}
+.pinset .lnk[data-key="setup-cancel"]{margin-top:14px}
+.key.fn{background:transparent;font-family:var(--font);font-size:1rem;font-weight:800;color:var(--ink-muted);display:grid;place-items:center}
+.key.fn:hover{background:var(--sunk);color:var(--ink)}
+.key.fn .ico{width:28px;height:28px}
+.key[aria-disabled="true"]{opacity:.4;cursor:default}
+.pin-card.remove{box-shadow:inset 0 0 0 2px var(--danger),var(--lift-hi)}
+.pin-card.remove .ask{color:var(--danger)}
+.tall .pin-card,.phone .pin-card{grid-template-columns:minmax(0,1fr);justify-items:center;padding:28px 24px;gap:22px}
+.tall .pin-who,.phone .pin-who{align-items:center;text-align:center}
+.tall .pin-msg,.phone .pin-msg{text-align:center;justify-content:center}
+.tall .pin-links,.phone .pin-links{justify-content:center}
+.tall .keypad,.phone .keypad{max-width:380px}
+.tall .pin-lock,.phone .pin-lock{align-items:center;text-align:center}
+
+/* phone: people as rows, the pad comes up as a sheet */
+.phone .wall{padding:12px 16px 32px}
+.phone .wall h1{font-size:1.625rem}
+.phone .people{grid-template-columns:minmax(0,1fr);gap:10px;margin-top:20px}
+.phone .pcard{min-height:80px;flex-direction:row;justify-content:flex-start;align-items:center;gap:14px;padding:12px 16px;text-align:left}
+.phone .pcard .disc{--s:56px;margin:0}
+.phone .pcard .txt{display:flex;flex-direction:column;min-width:0;flex:1}
+.phone .pcard .chip,.phone .pcard .last{margin-top:4px;align-self:flex-start}
+.phone .pmenu{flex-direction:row;flex-wrap:wrap;align-items:center;padding:12px}
+.phone .pmenu p{flex-basis:100%;margin:0}
+.phone .pmenu .btn{flex:1}
+.phone .single .pin-card{margin-top:4px}
+.sheet-scrim{position:fixed;inset:0;z-index:70;background:var(--scrim);display:flex;align-items:flex-end;animation:fade .2s var(--out)}
+.sheet-scrim .pin-card{width:100%;border-radius:var(--r-xl) var(--r-xl) 0 0;padding:22px 18px calc(20px + env(safe-area-inset-bottom));box-shadow:var(--lift-up);max-height:96dvh;overflow:auto;animation:up .38s var(--out)}
+.sheet-scrim .pin-card.remove{box-shadow:inset 0 2px 0 var(--danger),var(--lift-up)}
+.sheet-scrim .pin-who .disc{--s:64px;margin-bottom:8px}
+.sheet-scrim .pin-who h2{font-size:1.5rem}
+.sheet-scrim .pin-who .ask{margin-top:12px}
+.sheet-scrim .key{min-height:60px}
+.grab{width:40px;height:5px;border-radius:999px;background:var(--track);margin:-6px auto -4px}
+@keyframes up{from{transform:translateY(100%)}}
+@keyframes fade{from{opacity:0}}
+
+/* ---------- form sheets: login, code, forgot, setup ---------- */
+.formpage{width:100%;max-width:1280px;margin:0 auto;padding:12px 32px 48px}
+.phone .formpage{padding:4px 16px 40px}
+.fsheet{max-width:480px;margin:12px auto 0;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:32px 36px 30px}
+.phone .fsheet{padding:24px 20px;margin-top:8px}
+.fsheet.setup{max-width:560px}
+.fsheet h1{font-size:1.75rem;font-weight:900;line-height:1.25;text-wrap:balance}
+.phone .fsheet h1{font-size:1.5rem}
+.fsheet .lede{font-size:.9375rem}
+.fsheet form,.fsheet .stack{display:flex;flex-direction:column;gap:18px;margin-top:24px}
+.alts{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;margin-top:4px}
+.fsheet .fine{margin-top:22px;padding-top:18px;border-top:1px solid var(--border);font-size:.875rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.rules{list-style:none;display:flex;flex-direction:column;gap:4px;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.rules li{display:flex;align-items:center;gap:8px}
+.rules li .ico{width:16px;height:16px;stroke-width:2.4}
+.rules li.met{color:var(--success)}
+.rules li.miss{color:var(--danger)}
+.rules li.idle .ico{stroke:var(--control-border)}
+.form-back{display:block;max-width:480px;margin:0 auto}
+.fsheet.setup+.form-back,.setup-back{max-width:560px}
+
+/* setup steps */
+.steps{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.steps .bars{display:flex;gap:6px;flex:1;max-width:180px}
+.steps .bars i{flex:1;height:6px;border-radius:999px;background:var(--track)}
+.steps .bars i.done,.steps .bars i.cur{background:var(--ink)}
+.steps span{font-size:.875rem;font-weight:800;color:var(--ink-muted)}
+.setup .pinset{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:22px}
+.setup .pinset .ask{font-size:1.0625rem;font-weight:900}
+.setup .pinset .pin-msg{text-align:center}
+.setup .keypad{max-width:340px;margin-top:10px}
+.setup .key{min-height:64px}
+.why-list{list-style:none;display:flex;flex-direction:column;gap:2px;margin-top:20px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border);padding:6px 16px}
+.why-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);font-size:.9375rem;font-weight:700;line-height:1.5}
+.why-list li:last-child{border-bottom:0}
+.why-list .ico{margin-top:2px;color:var(--ink-muted)}
+.btnrow{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+.branches{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+.bopt{display:flex;align-items:center;gap:14px;width:100%;min-height:72px;padding:14px 18px;border-radius:var(--r-lg);border:1.5px solid var(--control-border);background:var(--surface);text-align:left;transition:border-color .2s var(--out),transform .35s var(--spring)}
+.bopt:hover{border-color:var(--ink)}
+.bopt:active{transform:scale(.98);transition-duration:.08s}
+.bopt .radio{width:24px;height:24px;border-radius:50%;border:2px solid var(--control-border);flex:none;display:grid;place-items:center}
+.bopt[aria-checked="true"]{border:2px solid var(--ink);box-shadow:var(--lift)}
+.bopt[aria-checked="true"] .radio{border-color:var(--ink)}
+.bopt[aria-checked="true"] .radio::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--ink)}
+.bopt b{font-size:1.125rem;font-weight:900}
+.bopt .chip{margin-left:auto}
+
+/* system permission ask (simulated OS sheet, not product UI) */
+.os-scrim{position:fixed;inset:0;z-index:80;background:rgb(0 0 0 / .45);display:grid;place-items:center;padding:16px;animation:fade .2s var(--out)}
+.os{width:min(300px,100%);border-radius:16px;background:#F2F2F2;color:#1C1C1E;font-family:-apple-system,BlinkMacSystemFont,"PingFang TC",sans-serif;text-align:center;overflow:hidden;box-shadow:0 20px 40px -12px rgb(0 0 0 / .5)}
+.os .t{padding:18px 16px 4px;font-size:1.0625rem;font-weight:600;line-height:1.35}
+.os .d{padding:0 16px 16px;font-size:.8125rem;line-height:1.45}
+.os .cap{padding:10px 16px 0;font-size:.75rem;color:#6B6B70}
+.os .b{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #C7C7CC}
+.os .b button{min-height:48px;color:#0A60D0;font-size:1.0625rem}
+.os .b button+button{border-left:1px solid #C7C7CC;font-weight:600}
+
+/* ---------- signed in: the board's head ---------- */
+.head{display:flex;align-items:center;gap:12px 14px;padding:22px 28px 18px;flex-wrap:wrap}
+.head-title{margin-right:auto;min-width:0}
+.head h1{font-size:1.75rem;font-weight:900;line-height:1.25}
+.head-meta{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;margin-top:2px;font-size:.875rem;font-weight:600;color:var(--ink-muted)}
+.me{display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:4px 6px 4px 4px;border-radius:999px;background:var(--surface);box-shadow:var(--lift)}
+.me .disc{--s:44px}
+.me .who{display:flex;flex-direction:column;line-height:1.25;padding-right:4px}
+.me .who b{font-size:.9375rem;font-weight:900}
+.me .who span{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.branch{position:relative}
+.branch select{appearance:none;min-height:48px;border:1.5px solid var(--control-border);border-radius:999px;background:var(--surface);padding:0 40px 0 18px;font-size:.9375rem;font-weight:700;cursor:pointer}
+.branch select:hover{border-color:var(--ink)}
+.branch .ico{position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--ink-muted)}
+.walk{display:flex;flex-direction:column;align-items:flex-end}
+.walk .reason{text-align:right;max-width:18em}
+.home-body{padding:0 28px 120px;display:flex;flex-direction:column;gap:12px;max-width:1100px}
+.phone .head{padding:14px 16px 12px}
+.phone .head h1{font-size:1.375rem}
+.phone .home-body{padding:0 16px 120px}
+.phone .walk{align-items:stretch;width:100%}
+.phone .walk .reason{text-align:left}
+.stub{margin-top:8px;padding:18px 20px;border-radius:var(--r-lg);border:1.5px dashed var(--proto-line);background:var(--proto-bg);color:var(--proto-ink);font-size:.875rem;font-weight:600;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.stub b{font-weight:800}
+.stub a{color:inherit;font-weight:800;text-underline-offset:4px;min-height:44px;display:inline-flex;align-items:center}
+
+/* ---------- logged out by someone else ---------- */
+.out .fsheet{text-align:center;display:flex;flex-direction:column;align-items:center}
+.out .disc{--s:80px;margin-bottom:18px;color:var(--ink-muted)}
+.out .disc .ico{width:34px;height:34px}
+.out .lede{margin-top:10px}
+.out .facts{width:100%;margin-top:20px;text-align:left}
+.out .btn{margin-top:22px}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(520px,calc(100vw - 32px));padding:10px 18px;border-radius:var(--r-lg);background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .35s var(--out)}
+#app.phone.home ~ #layer .toast{bottom:calc(96px + env(safe-area-inset-bottom))}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+.bigtext .people{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.bigtext .pin-card{grid-template-columns:minmax(0,1fr);justify-items:center}
+.bigtext .pin-who{align-items:center;text-align:center}
+.proto .pbtn{flex:none;min-height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--proto-line);color:var(--proto-ink);font-size:.8125rem;font-weight:700;white-space:nowrap}
+.proto .pbtn:hover{background:var(--proto-line)}
+.people.picking>li:not(.open) .pcard .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet-scrim .pin-card{grid-template-columns:minmax(0,1fr);justify-items:center;gap:16px}
+.sheet-scrim .pin-who{align-items:center;text-align:center}
+.sheet-scrim .pin-msg{text-align:center;justify-content:center}
+.sheet-scrim .pin-links{justify-content:center}
+.sheet-scrim .dots{margin-top:8px}
+.head-meta>span+span::before{content:"";display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--control-border);vertical-align:middle;margin:0 10px 0 -2px}
+.phone .head-meta>span+span::before{display:none}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>S-01 店員登入・互動原型</b><span class="muted">毛孩日和・中山店，資料全為虛構</span>
+  <label>情境 <select id="p-go"><option value="wall">櫃台平板・已有 4 人</option><option value="fresh">新平板・沒有人登入過</option><option value="solo">個人手機・只有自己</option></select></label>
+  <label><input type="checkbox" id="p-susp"> 店家停權</label>
+  <label><input type="checkbox" id="p-off"> 離線</label>
+  <button class="pbtn" id="p-idle">閒置 5 分鐘</button>
+  <button class="pbtn" id="p-deact">M-08 停用目前的人</button>
+  <button class="pbtn" id="p-unbind">M-08 移除這台裝置</button>
+  <span class="muted">簡訊時間</span><button class="pbtn" id="p-ff1">快轉 1 分鐘</button><button class="pbtn" id="p-ff10">快轉 10 分鐘</button>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <label>字級 <select id="p-scale"><option value="1">100%</option><option value="1.3">130%</option><option value="2">200%</option></select></label>
+  <span class="muted">手機 0912000102（阿凱）・密碼 demo1234・PIN 都是 2580・驗證碼 135790</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="pin-live" class="sr" aria-live="polite"></div>
+<script>
+const I = {
+  board:'<path d="M4 5h16v14H4z"/><path d="M4 10h16M9 10v9"/>',
+  boardF:'<path d="M4 5h16v14H4z" fill="currentColor"/><path d="M4 10h16M9 10v9" style="stroke:var(--cut)"/>',
+  scan:'<path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/>',
+  send:'<path d="M20 4 3 11l7 2 2 7 8-16Z"/><path d="m10 13 4-4"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  walk:'<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  del:'<path d="M9 6h11v12H9l-6-6 6-6Z"/><path d="m12.5 9.5 5 5M17.5 9.5l-5 5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff:'<path d="M3 3l18 18M10.6 6a9.8 9.8 0 0 1 1.4-.1c6 0 9.5 6.1 9.5 6.1a17 17 0 0 1-2.6 3.3M6.6 6.6C3.9 8.4 2.5 12 2.5 12S6 18.5 12 18.5c1.6 0 3-.4 4.2-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  swap:'<path d="M7 7h12l-3-3M17 17H5l3 3"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>',
+  ban:'<circle cx="12" cy="12" r="8.5"/><path d="m6 6 12 12"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+  bellOff:'<path d="M3 3l18 18M8.2 5.9A6 6 0 0 1 18 11v4M6 11v5l-1.5 2H16"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  cash:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  dotI:'<circle cx="12" cy="12" r="3"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  pin:'<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/>',
+  tablet:'<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M11 18h2"/>',
+  out:'<path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l-4-4 4-4M6 12h10"/>'
+};
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const FAST = params.get('fast') === '1';
+const calm = () => FAST || matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- demo data (fictional) ---------- */
+const SHOP = '毛孩日和';
+const PIN_TRIES = 5, IDLE_MS = 5 * 60 * 1000, CODE = '135790', PASS = 'demo1234';
+const MGR_ROLES = ['店長', '店家管理者'];
+const ACCOUNTS0 = [
+  {id:'lin',  name:'林店長', ini:'林', role:'店長',     ph:'0912000101', branches:['中山店','信義店'], status:'active', pin:'2580', last:'今天 09:30'},
+  {id:'akai', name:'阿凱',   ini:'凱', role:'櫃台',     ph:'0912000102', branches:['中山店'], status:'active', pin:'2580', last:'剛剛'},
+  {id:'kui',  name:'小葵',   ini:'葵', role:'美容照護', ph:'0912000103', branches:['中山店'], status:'active', pin:'2580', last:'今天 10:15'},
+  {id:'kai',  name:'阿楷',   ini:'楷', role:'美容照護', ph:'0912000104', branches:['中山店'], status:'active', pin:'2580', last:'昨天 19:05'},
+  {id:'chen', name:'陳老闆', ini:'陳', role:'店家管理者', ph:'0912000100', branches:['中山店','信義店'], status:'active', pin:null, last:null},
+  {id:'zhe',  name:'阿哲',   ini:'哲', role:'美容照護', ph:'0912000105', branches:['中山店'], status:'active', pin:'2580', last:'今天 09:00'},
+  {id:'yun',  name:'小芸',   ini:'芸', role:'櫃台',     ph:'0912000201', branches:['信義店'], status:'active', pin:null, last:null}
+];
+const SCENES = {
+  wall: {device:'櫃台平板', branch:'中山店', bound:['lin','akai','kui','kai']},
+  fresh:{device:'櫃台平板', branch:null, bound:[]},
+  solo: {device:'小葵的手機', branch:'中山店', bound:['kui'], personal:true}
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+
+/* ---------- state ---------- */
+const state = {scene:'wall', suspended:false, offline:false, phone:false, tall:false,
+  view:'wall', sel:null, pad:null, menu:null, form:null, setup:null, session:null, out:null, os:null};
+let A = [], device = {};
+const acc = id => A.find(a => a.id === id);
+const bound = () => A.filter(a => a.bound);
+const byPhone = v => A.find(a => a.ph === v.replace(/\D/g, ''));
+const maskPh = ph => `••••${ph.slice(-4)}`;
+
+function load(scene) {
+  const s = SCENES[scene];
+  A = clone(ACCOUNTS0).map(a => ({...a, bound: s.bound.includes(a.id), fails:0, locked:false, push: s.bound.includes(a.id) ? 'on' : null, branch: a.branches[0]}));
+  device = {name:s.device, branch:s.branch, personal:!!s.personal};
+  Object.assign(state, {scene, view: s.bound.length ? 'wall' : 'login', sel:null, pad:null, menu:null, form: s.bound.length ? null : newForm('login'), setup:null, session:null, out:null, os:null});
+  if (bound().length === 1) openPad(bound()[0].id, 'login', true);
+}
+
+/* ---------- demo clock: starts at 10:52 on 10/11 and keeps real time ---------- */
+/* 毛孩日和開張 (prototypes/open-day): ?life=open-tablet is 10/14（三）09:30, the closed day before the shop opens; 阿凱 is the first on the
+   new counter tablet, and reaching the board posts the act's key action to the director page.
+   阿楷離職那天 (prototypes/last-day): ?life=qt-leave is 10/9（五）11:14, 阿楷's last day. He has just finished 湯圓, his last booking, on
+   this tablet (剛剛用過), and removes himself from it before he goes; removing 阿楷 posts 'removed'. */
+const LIFE = (v => ['open-tablet', 'qt-leave'].includes(v) ? v : null)(params.get('life'));
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+if (LIFE === 'qt-leave') { ACCOUNTS0.find(a => a.id === 'kai').last = '剛剛'; ACCOUNTS0.find(a => a.id === 'akai').last = '今天 10:58'; }
+const T0 = Date.now(), START = LIFE === 'open-tablet' ? new Date(2026, 9, 14, 9, 30) : LIFE === 'qt-leave' ? new Date(2026, 9, 9, 11, 14) : new Date(2026, 9, 11, 10, 52);
+let skew = 0;  /* the strip's 快轉 moves the demo clock forward */
+const now = () => new Date(START.getTime() + (Date.now() - T0) + skew);
+const hm = d => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+const dateLine = d => `${d.getMonth() + 1}/${d.getDate()}（${'日一二三四五六'[d.getDay()]}）`;
+setInterval(() => { const c = document.querySelector('.clock b'); if (c) c.textContent = hm(now()); }, 10000);
+
+/* ---------- SMS codes: the same rule on every surface (店員 App, 管理 Web, M-03 換手機) ----------
+   A code lives 10 minutes; resend opens after 60 s; one number gets at most 5 texts an hour; 5 wrong tries kill a code
+   (after that even the right digits are refused); 10 wrong in total lock the number for 15 minutes, written to the audit log.
+   Kept per phone number, outside any form, so 換一支手機 or going back cannot clear it. */
+const SMS = {life:10 * 60000, gap:60000, cap:5, hour:60 * 60000, perCode:5, lockAt:10, lockFor:15 * 60000};
+const smsBook = {};
+const clockMs = () => now().getTime();
+const hmT = t => hm(new Date(t));
+const smsOf = ph => smsBook[ph] || (smsBook[ph] = {sends:[], code:null, wrong:0, until:0});
+function smsLock(ph) { const s = smsOf(ph); if (s.until && s.until <= clockMs()) { s.until = 0; s.wrong = 0; } return s.until; }
+function smsCapUntil(ph) { const s = smsOf(ph), t = clockMs(); s.sends = s.sends.filter(x => t - x < SMS.hour); return s.sends.length >= SMS.cap ? s.sends[0] + SMS.hour : 0; }
+const capMsg = t => `這支手機一小時內已傳 ${SMS.cap} 次，請 ${hmT(t)} 後再試`;
+/* '' when a new code went out, 'locked', or why not in words */
+function smsSend(ph) {
+  if (smsLock(ph)) return 'locked';
+  const cap = smsCapUntil(ph); if (cap) return capMsg(cap);
+  const s = smsOf(ph); s.sends.push(clockMs()); s.code = {at:clockMs(), tries:0}; return '';
+}
+const smsWait = ph => { const c = smsOf(ph).code; return c ? Math.max(0, Math.ceil((c.at + SMS.gap - clockMs()) / 1000)) : 0; };
+/* '' when right, 'locked' when this try locked the number, otherwise the error in words */
+function smsCheck(ph, v) {
+  const s = smsOf(ph), c = s.code;
+  if (smsLock(ph)) return 'locked';
+  if (!c) return '請重新傳送驗證碼';
+  if (c.tries >= SMS.perCode) return `這組驗證碼輸錯 ${SMS.perCode} 次，已經失效，請重新傳送`;
+  if (clockMs() - c.at > SMS.life) return '驗證碼已過期，請重新傳送';
+  if (v === CODE) { s.code = null; s.wrong = 0; return ''; }
+  c.tries++; s.wrong++;
+  if (s.wrong >= SMS.lockAt) { s.until = clockMs() + SMS.lockFor; s.code = null; return 'locked'; }
+  return c.tries >= SMS.perCode ? `這組驗證碼輸錯 ${SMS.perCode} 次，已經失效，請重新傳送` : `驗證碼不對，請再看一次簡訊（這組還能試 ${SMS.perCode - c.tries} 次）`;
+}
+
+/* ---------- idle: 5 minutes without a touch returns to the wall ---------- */
+let idleT;
+function poke() { clearTimeout(idleT); if (state.session) idleT = setTimeout(() => idleOut(), IDLE_MS); }
+function idleOut() {
+  if (!state.session) return;
+  state.session = null; state.view = 'wall'; state.sel = null; state.pad = null;
+  render('wall-title'); say('閒置 5 分鐘，已回到員工牆');
+}
+['pointerdown','keydown'].forEach(e => addEventListener(e, poke, {passive:true}));
+
+/* ---------- pieces ---------- */
+const disc = (a, s) => `<span class="disc" aria-hidden="true"${s ? ` style="--s:${s}px"` : ''}>${esc(a.ini)}</span>`;
+function devHead() {
+  const where = device.branch ? `${device.branch}・${device.name}` : device.name;
+  return `<header class="dev-head"><span class="shop-mark" aria-hidden="true">${ic('mark')}</span>
+    <div class="shop"><b>${SHOP}</b><span>${esc(where)}</span></div>
+    <div class="clock" aria-label="現在時間"><b>${hm(now())}</b><span>${dateLine(now())}</span></div></header>`;
+}
+function personCard(a) {
+  const last = a.locked ? `<span class="chip danger">PIN 已鎖定</span>` : a.last === '剛剛' ? `<span class="chip success">剛剛用過</span>` : a.last ? `<span class="last">${esc(a.last)} 用過</span>` : '';
+  const label = `${a.name}・${a.role}${a.locked ? '・PIN 已鎖定' : ''}`;
+  const inner = state.phone ? `${disc(a)}<span class="txt"><span class="nm">${esc(a.name)}</span><span class="rl">${esc(a.role)}</span>${last}</span>`
+    : `${disc(a)}<span class="nm">${esc(a.name)}</span><span class="rl">${esc(a.role)}</span>${last}`;
+  const menu = state.menu === a.id ? `<div class="pmenu" role="group" aria-label="${esc(a.name)}的選項"><p>${esc(a.name)}</p>
+      <button class="btn secondary" data-key="m-remove-${a.id}" data-do="menuRemove" data-id="${a.id}">從這台移除</button>
+      <button class="btn secondary" data-key="m-cancel-${a.id}" data-do="menuClose">取消</button></div>` : '';
+  return `<li data-pid="${a.id}"><button class="pcard" data-key="p-${a.id}" data-do="pick" data-id="${a.id}" aria-label="${esc(label)}" aria-haspopup="true">${inner}</button>${menu}</li>`;
+}
+function addCard() {
+  const off = state.offline;
+  /* in the row of small cards beside an open PIN card the label is short, so it is never cut to 「加入這台…」 */
+  const small = !!state.sel && !state.phone && bound().length > 1;
+  return `<li data-pid="_add"><button class="pcard add" data-key="add-person" aria-label="加入這台裝置${off ? '，需要連線' : ''}" ${off ? 'aria-disabled="true" aria-describedby="add-r"' : 'data-do="addPerson"'}>
+    <span class="disc">${ic('plus')}</span>${state.phone ? '<span class="txt">' : ''}<span class="nm">${small ? '加入' : '加入這台裝置'}</span><span class="rl" id="add-r">${off ? '需要連線' : '第一次用，手機和密碼登入'}</span>${state.phone ? '</span>' : ''}</button></li>`;
+}
+
+/* the PIN card: the person's own card, grown */
+function pinCard(a, solo) {
+  const p = state.pad, remove = p.mode === 'remove';
+  /* locked: a manager on this device can lift it with their own PIN (recorded); the phone-and-password road stays */
+  const mgrs = bound().filter(m => m.id !== a.id && MGR_ROLES.includes(m.role) && !m.locked);
+  if (a.locked && !remove && p.mode !== 'unlock') return `<div class="pin-card" role="group" aria-labelledby="pin-name">
+    <div class="pin-who">${disc(a)}<h2 id="pin-name" tabindex="-1">${esc(a.name)}</h2><span class="rl">${esc(a.role)}</span></div>
+    <div class="pin-lock"><div class="notice danger" role="alert">${ic('lock','sm')}<span><b>這台裝置上的 PIN 已鎖定</b>連續輸錯 ${PIN_TRIES} 次。${mgrs.length ? '請店長在這台輸入自己的 PIN 解鎖；或用手機和密碼登入後，重新設定 PIN。' : '用手機和密碼登入後，重新設定 PIN。'}</span></div>
+      ${mgrs.map((m, i) => `<button class="btn ${i ? 'secondary' : 'primary'} wide" data-key="unlock-${m.id}" data-do="askUnlock" data-by="${m.id}">請${esc(m.name)}解鎖</button>`).join('')}
+      <button class="btn ${mgrs.length ? 'secondary' : 'primary'} wide" data-key="lock-login" data-do="toPassword" data-id="${a.id}">用手機和密碼登入</button>
+      ${solo ? '' : `<button class="lnk" data-key="pin-cancel" data-do="closePad">不是我，回到員工牆</button>`}</div></div>`;
+  if (p.mode === 'unlock') {
+    const m = acc(p.by), dots = [0,1,2,3].map(i => `<span class="dot${i < p.val.length ? ' on' : ''}"></span>`).join('');
+    return `<div class="pin-card" role="group" aria-labelledby="pin-name">
+    <div class="pin-who">${disc(a)}<h2 id="pin-name" tabindex="-1">${esc(a.name)}</h2><span class="rl">PIN 已鎖定</span>
+      <p class="ask" id="pin-ask">請${esc(m.name)}輸入自己的 PIN，解鎖${esc(a.name)}</p>
+      <p class="lede" style="margin-top:8px;max-width:34ch">解鎖會記錄是誰、幾點解的。${esc(a.name)}之後用原本的 PIN 登入。</p>
+      <div class="dots${p.err ? ' bad' : ''}" data-key="dots" role="img" aria-label="已輸入 ${p.val.length} / 4 碼">${dots}</div>
+      ${p.err ? `<p class="pin-msg bad" role="alert">${ic('warn','sm')}<span>${esc(p.err)}</span></p>` : '<p class="pin-msg" aria-hidden="true"></p>'}
+      <div class="pin-links"><button class="lnk" data-key="unlock-cancel" data-do="cancelUnlock">取消解鎖</button></div></div>
+    ${keypad(null)}</div>`;
+  }
+  const dots = [0,1,2,3].map(i => `<span class="dot${i < p.val.length ? ' on' : ''}"></span>`).join('');
+  const left = 5 - a.fails;
+  const msg = p.err ? `<p class="pin-msg bad" role="alert">${ic('warn','sm')}<span>${esc(p.err)}</span></p>` : `<p class="pin-msg" aria-hidden="true"></p>`;
+  const links = remove ? `<button class="lnk" data-key="pin-cancel" data-do="closePad">不移除，返回</button>`
+    : solo ? `<button class="lnk" data-key="not-me" data-do="addPerson">不是${esc(a.name)}？用手機和密碼登入</button><button class="lnk" data-key="forgot-pin" data-do="toPassword" data-id="${a.id}">忘記 PIN</button>`
+    : `<button class="lnk" data-key="forgot-pin" data-do="toPassword" data-id="${a.id}">忘記 PIN</button>`;
+  /* 從這台移除 ends a person's use of this device: it sits after the keypad, never between the name and the first row of keys */
+  const foot = !remove && !solo ? `<div class="pin-foot"><button class="lnk" data-key="pin-remove" data-do="startRemove" data-id="${a.id}">從這台移除</button></div>` : '';
+  const ask = remove ? `輸入 PIN，把${esc(a.name)}從這台移除` : '輸入 4 碼 PIN';
+  const sub = remove ? `<p class="lede" style="margin-top:8px;max-width:34ch">移除後這台不再顯示你，也不會收到你的內部通知。下次要用手機和密碼重新加入。</p>` : '';
+  return `<div class="pin-card${remove ? ' remove' : ''}" role="group" aria-labelledby="pin-name">
+    ${state.phone && !solo ? '<div class="grab" aria-hidden="true"></div>' : ''}<div class="pin-who">${disc(a)}<h2 id="pin-name" tabindex="-1">${esc(a.name)}</h2><span class="rl">${esc(a.role)}${a.branches.length > 1 ? `・${a.branches.join('・')}` : ''}</span>
+      ${!remove && a.last ? `<span class="seen">${a.last === '剛剛' ? '剛剛用過這台' : `${esc(a.last)} 用過這台`}・PIN 只在這台有效</span>` : ''}<p class="ask" id="pin-ask">${ask}</p>${sub}
+      <div class="dots${p.err ? ' bad' : ''}" data-key="dots" role="img" aria-label="已輸入 ${p.val.length} / 4 碼">${dots}</div>
+      ${msg}<div class="pin-links">${links}</div></div>
+    ${keypad(solo ? null : 'closePad')}${foot}</div>`;
+}
+function keypad(cancelDo, key = 'k') {
+  const k = d => `<button class="key" data-key="${key}-${d}" data-do="digit" data-d="${d}" aria-label="${d}">${d}</button>`;
+  const c = cancelDo ? `<button class="key fn" data-key="${key}-cancel" data-do="${cancelDo}">取消</button>` : '<span aria-hidden="true"></span>';
+  return `<div class="keypad" role="group" aria-label="數字鍵">${[1,2,3,4,5,6,7,8,9].map(k).join('')}${c}${k(0)}<button class="key fn" data-key="${key}-del" data-do="undo" aria-label="刪除一碼">${ic('del')}</button></div>`;
+}
+
+/* ---------- views ---------- */
+function wallView() {
+  const ppl = bound(), solo = ppl.length === 1, picking = !!state.sel && !state.phone && !solo;
+  const title = solo ? (device.personal ? `${SHOP}・${device.branch}` : '輸入 PIN 進入') : `誰要用${device.personal ? '' : '平板'}？`;
+  const lede = solo ? '' : picking ? '' : '點自己的名字，輸入 4 碼 PIN。';
+  const off = state.offline ? `<div class="notice neutral" role="status">${ic('off','sm')}<span><b>目前離線</b>已經在這台的人可以用 PIN 換人；加入新的人需要連線。</span></div>` : '';
+  if (solo) {
+    const a = ppl[0];
+    return `${devHead()}<main class="wall single"><h1 id="wall-title" tabindex="-1" class="sr">${esc(title)}</h1>${off}<div style="margin-top:16px">${pinCard(a, true)}</div></main>`;
+  }
+  const cards = picking
+    ? [acc(state.sel), ...ppl.filter(a => a.id !== state.sel)].map(a => a.id === state.sel ? `<li class="open" data-pid="${a.id}">${pinCard(a)}</li>` : personCard(a)).join('') + addCard()
+    : ppl.map(personCard).join('') + addCard();
+  return `${devHead()}<main class="wall"><h1 id="wall-title" tabindex="-1">${esc(title)}</h1>${lede ? `<p class="lede">${lede}</p>` : ''}${off}
+    <ul class="people${picking ? ' picking' : ''}" aria-label="這台${device.personal ? '裝置' : '平板'}上的員工">${cards}</ul>
+    <p class="wall-foot">閒置 5 分鐘會自動回到這裡。按住自己的名字，可以把自己從這台移除。</p></main>`;
+}
+
+function newForm(kind, pre = {}) { return {kind, step:1, acct:'', pw:'', ph:'', code:'', npw:'', show:false, err:{}, top:null, tries:0, sendErr:'', after:null, ...pre}; }
+
+function formShell(inner, opts = {}) {
+  const back = opts.back ? `<div class="form-back"><button class="back" data-key="f-back" data-do="${opts.back[0]}">${ic('back')}${opts.back[1]}</button></div>` : '';
+  return `${devHead()}<main class="formpage">${back}<section class="fsheet${opts.cls ? ' ' + opts.cls : ''}">${inner}</section></main>`;
+}
+const fieldErr = (f, k) => f.err[k] ? `<span class="err" id="e-${k}">${ic('warn','sm')}${esc(f.err[k])}</span>` : '';
+const inv = (f, k) => f.err[k] ? ` aria-invalid="true" aria-describedby="e-${k}"` : '';
+function topNote(f) {
+  if (!f.top) return '';
+  const [tone, b, s, extra] = f.top;
+  return `<div class="notice ${tone}" role="alert" data-key="f-top">${ic(tone === 'neutral' ? 'off' : tone === 'warning' ? 'lock' : 'warn','sm')}<span><b>${esc(b)}</b>${esc(s)}${extra || ''}</span></div>`;
+}
+function loginView() {
+  const f = state.form, has = bound().length > 0, blocked = f.tries >= 5;
+  const title = f.after === 'resetPin' ? `${esc(acc(f.for)?.name)}，用手機和密碼登入` : has ? '加入這台裝置' : '登入寵派商家中心';
+  const lede = f.after === 'resetPin' ? '登入後重新設定這台裝置的 PIN。'
+    : has ? '第一次在這台用，請用你的手機號碼和密碼登入。之後點自己的名字、輸入 PIN 就能進來。'
+    : `這台${device.personal ? '手機' : '平板'}還沒有人登入過。登入後設定 PIN，之後換人只要幾秒。`;
+  const submit = blocked ? `<div><button class="btn wide" aria-disabled="true" aria-describedby="lg-r" data-key="lg-go">登入</button><span class="reason" id="lg-r">10 分鐘後可以再按</span></div>`
+    : `<button class="btn primary wide" type="submit" data-key="lg-go">登入</button>`;
+  return formShell(`<h1 id="f-title" tabindex="-1">${title}</h1><p class="lede">${lede}</p>
+    <form data-form="login" novalidate>${topNote(f)}
+      <div class="field"><label for="lg-acct">手機號碼</label><input id="lg-acct" data-key="lg-acct" name="username" type="tel" inputmode="tel" autocomplete="username" placeholder="例：0912 000 102" value="${esc(f.acct)}"${inv(f,'acct')}>${fieldErr(f,'acct')}</div>
+      <div class="field"><label for="lg-pw">密碼</label><div class="pw"><input id="lg-pw" data-key="lg-pw" name="password" type="${f.show ? 'text' : 'password'}" autocomplete="current-password" value="${esc(f.pw)}"${inv(f,'pw')}>
+        <button type="button" class="eye" data-key="lg-eye" data-do="toggleShow" aria-pressed="${f.show}" aria-label="顯示密碼">${ic(f.show ? 'eyeOff' : 'eye')}</button></div>${fieldErr(f,'pw')}</div>
+      ${submit}
+      <div class="alts"><button type="button" class="lnk" data-key="to-otp" data-do="toOtp">改用簡訊驗證碼登入</button><button type="button" class="lnk" data-key="to-forgot" data-do="toForgot">忘記密碼</button></div>
+    </form>
+    <p class="fine">帳號就是被邀請時登記的手機號碼。還沒收到邀請，請找店長或店家管理者。</p>`, {back: has ? ['toWall', '員工牆'] : null});
+}
+function codeStep(f, prefix, sendLabel) {
+  if (f.step === 1) return `<div class="field"><label for="${prefix}-ph">手機號碼</label><input id="${prefix}-ph" data-key="${prefix}-ph" type="tel" inputmode="tel" autocomplete="tel" placeholder="例：0912 000 102" value="${esc(f.ph)}"${inv(f,'ph')}>${fieldErr(f,'ph')}<span class="hint">要是店長建立帳號時登記的手機。</span></div>
+    <button class="btn primary wide" type="submit" data-key="${prefix}-send">${sendLabel}</button>`;
+  const ph = f.ph.replace(/\D/g, ''), until = smsLock(ph), wait = smsWait(ph), cap = smsCapUntil(ph);
+  /* the lock's reason lives in this one notice; the disabled button points at it */
+  const head = until ? `<div class="notice warning" role="alert" id="${prefix}-lock" data-key="${prefix}-lock" tabindex="-1">${ic('lock','sm')}<span><b>驗證碼錯太多次，先暫停 15 分鐘</b>15 分鐘後，${hmT(until)} 可以再試。這是為了保護帳號，這次鎖定已寫入稽核紀錄。</span></div>`
+    : f.sendErr ? `<p class="notice warning" role="alert" data-key="${prefix}-unsent">${ic('warn','sm')}<span><b>這次沒有傳出驗證碼</b>${esc(f.sendErr)}。</span></p>`
+    : `<p class="notice info" role="status">${ic('send','sm')}<span>如果這支手機有帳號，驗證碼已傳到 ${maskPh(ph)}，10 分鐘內有效。</span></p>`;
+  return `${head}
+    <div class="field code"><label for="${prefix}-code">6 碼驗證碼</label><input id="${prefix}-code" data-key="${prefix}-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="${esc(f.code)}"${inv(f,'code')}>${fieldErr(f,'code')}</div>
+    ${f.step === 2 && prefix === 'fp' ? '' : ''}`
+    + (prefix === 'fp' ? '' : codeGo(prefix, ph, '登入'))
+    + `<div class="alts">${until ? '' : wait ? `<span class="reason" style="margin:0" data-key="${prefix}-wait">${wait} 秒後可以重新傳送</span>` : cap ? `<span class="reason" style="margin:0" data-key="${prefix}-cap">${capMsg(cap)}</span>` : `<button type="button" class="lnk" data-key="${prefix}-resend" data-do="resend">重新傳送驗證碼</button>`}<button type="button" class="lnk" data-key="${prefix}-rephone" data-do="rephone">換一支手機</button></div>`;
+}
+function codeGo(prefix, ph, label) {
+  return smsLock(ph) ? `<button type="button" class="btn wide" aria-disabled="true" aria-describedby="${prefix}-lock" data-key="${prefix}-go">${label}</button>`
+    : `<button class="btn primary wide" type="submit" data-key="${prefix}-go">${label}</button>`;
+}
+function otpView() {
+  const f = state.form;
+  return formShell(`<h1 id="f-title" tabindex="-1">用簡訊驗證碼登入</h1><p class="lede">驗證碼會傳到你登記的手機。</p>
+    <form data-form="otp" novalidate>${topNote(f)}${codeStep(f, 'otp', '傳送驗證碼')}</form>`, {back:['toLogin', '手機和密碼登入']});
+}
+const PW_RULES = [['至少 8 碼', v => v.length >= 8], ['有英文字母', v => /[a-z]/i.test(v)], ['有數字', v => /\d/.test(v)]];
+function forgotView() {
+  const f = state.form;
+  let body;
+  if (f.step < 3) body = codeStep(f, 'fp', '傳送驗證碼') + (f.step === 2 ? codeGo('fp', f.ph.replace(/\D/g, ''), '下一步') : '');
+  else {
+    const rules = PW_RULES.map(([t, fn]) => { const c = !f.npw ? 'idle' : fn(f.npw) ? 'met' : f.err.npw ? 'miss' : 'idle'; return `<li class="${c}">${ic(c === 'met' ? 'check' : c === 'miss' ? 'warn' : 'dotI')}${t}</li>`; }).join('');
+    body = `<div class="field"><label for="fp-npw">新密碼</label><ul class="rules" aria-label="密碼規則">${rules}</ul>
+      <div class="pw"><input id="fp-npw" data-key="fp-npw" type="${f.show ? 'text' : 'password'}" autocomplete="new-password" value="${esc(f.npw)}"${inv(f,'npw')}>
+      <button type="button" class="eye" data-key="fp-eye" data-do="toggleShow" aria-pressed="${f.show}" aria-label="顯示密碼">${ic(f.show ? 'eyeOff' : 'eye')}</button></div>${fieldErr(f,'npw')}</div>
+      <button class="btn primary wide" type="submit" data-key="fp-save">更新密碼</button>`;
+  }
+  const lede = f.step < 3 ? '先用手機收驗證碼，確認是你本人。' : `${esc(byPhone(f.ph)?.name || '')}，設定新的密碼。其他裝置上的 PIN 不受影響。`;
+  return formShell(`<h1 id="f-title" tabindex="-1">${f.step < 3 ? '忘記密碼' : '設定新密碼'}</h1><p class="lede">${lede}</p>
+    <form data-form="forgot" novalidate>${topNote(f)}${body}</form>`, {back:['toLogin', '手機和密碼登入']});
+}
+
+/* first sign-in on this device: PIN, notifications, branch */
+function setupView() {
+  const s = state.setup, a = acc(s.who), n = s.steps.length, i = s.i, step = s.steps[i];
+  const bars = s.steps.map((_, j) => `<i class="${j < i ? 'done' : j === i ? 'cur' : ''}"></i>`).join('');
+  const head = n > 1 ? `<div class="steps"><div class="bars" aria-hidden="true">${bars}</div><span>第 ${i + 1} 步，共 ${n} 步</span></div>` : '';
+  let body = '';
+  if (step === 'pin') {
+    const p = state.pad, again = p.mode === 'set2';
+    const dots = [0,1,2,3].map(j => `<span class="dot${j < p.val.length ? ' on' : ''}"></span>`).join('');
+    body = `<h1 id="f-title" tabindex="-1">${s.reset ? '重新設定 PIN' : `${esc(a.name)}，設定這台的 PIN`}</h1>
+      <p class="lede">之後點自己的名字、輸入 4 碼就能進來。PIN 只在這台${device.personal ? '手機' : '平板'}有效。不能四碼都一樣，也不能是 1234 這種連號。</p>
+      <div class="pinset"><p class="ask" id="pin-ask">${again ? '再輸入一次確認' : '輸入 4 碼新 PIN'}</p>
+        <div class="dots${p.err ? ' bad' : ''}" data-key="dots" role="img" aria-label="已輸入 ${p.val.length} / 4 碼">${dots}</div>
+        ${p.err ? `<p class="pin-msg bad" role="alert">${ic('warn','sm')}<span>${esc(p.err)}</span></p>` : '<p class="pin-msg" aria-hidden="true"></p>'}
+        ${keypad(again ? 'restartPin' : null, 'sk')}
+        <button class="lnk" data-key="setup-cancel" data-do="cancelSetup">${bound().length ? '取消，回到員工牆' : '取消，回到登入'}</button></div>`;
+  } else if (step === 'push') {
+    const denied = s.pushDenied;
+    body = `<h1 id="f-title" tabindex="-1">${denied ? '不會收到內部通知' : '要開啟通知嗎？'}</h1>
+      <p class="lede">${denied ? '有人改期、取消或需要你處理時，App 不會通知你，要自己打開看板看。之後可以在「個人帳號」裡打開。' : '有需要你處理的事，App 會通知你。只通知店內的事，不會傳廣告。'}</p>
+      ${denied ? '' : `<ul class="why-list"><li>${ic('cal')}<span>飼主申請改期或取消，等店長審核</span></li><li>${ic('cash')}<span>線上付款入帳，或收款需要更正</span></li><li>${ic('pen')}<span>契約簽好了，可以幫寵物報到</span></li></ul>`}
+      <div class="btnrow">${denied ? `<button class="btn primary wide" data-key="push-next" data-do="nextStep">知道了，繼續</button><button class="btn secondary wide" data-key="push-retry" data-do="pushAsk">還是開啟通知</button>`
+        : `<button class="btn primary wide" data-key="push-yes" data-do="pushAsk">開啟通知</button><button class="btn secondary wide" data-key="push-no" data-do="pushNo">先不要</button>`}</div>`;
+  } else if (step === 'branch') {
+    const opts = a.branches.map(b => `<button class="bopt" role="radio" aria-checked="${s.branch === b}" data-key="br-${b}" data-do="pickBranch" data-b="${b}"><span class="radio" aria-hidden="true"></span><b>${esc(b)}</b>${b === device.branch ? `<span class="chip neutral">這台${device.personal ? '手機' : '平板'}在這裡</span>` : ''}</button>`).join('');
+    body = `<h1 id="f-title" tabindex="-1">今天在哪家分店？</h1><p class="lede">看板只顯示這家分店的預約。之後可以在看板上方切換。</p>
+      <div class="branches" role="radiogroup" aria-labelledby="f-title">${opts}</div>
+      <div class="btnrow"><button class="btn primary wide" data-key="br-go" data-do="nextStep">進入看板</button></div>`;
+  }
+  return formShell(head + body, {cls:'setup'});
+}
+
+function homeView() {
+  const se = state.session, a = acc(se.who), multi = a.branches.length > 1;
+  const nav = (k, l, icon, cur) => `<button class="rail-item" data-key="nav-${k}" data-do="navStub" ${cur ? 'aria-current="page"' : ''}>${ic(cur ? icon + 'F' : icon, 'lg')}<span>${l}</span></button>`;
+  const bn = (k, l, icon, cur) => `<button data-key="nav-${k}" data-do="navStub" ${cur ? 'aria-current="page"' : ''}>${ic(cur ? icon + 'F' : icon)}<span>${l}</span></button>`;
+  const rail = state.phone ? '' : `<nav class="rail" aria-label="主導覽"><div class="mark" aria-hidden="true">${ic('mark')}</div>${nav('board','今日看板','board',true)}${nav('search','掃 QR / 查詢預約','scan')}${nav('notify','通知補發','send')}${nav('me','個人帳號','user')}</nav>`;
+  const blk = state.suspended ? '店家目前暫停新增服務' : state.offline ? '新增現場預約需要連線' : '';
+  /* bottom nav slot 3 is 新增現場預約, as on the 今日看板; a suspended shop or no connection disables it with the reason */
+  const walkNav = blk ? `<button data-key="nav-walk" aria-disabled="true" aria-describedby="nav-walk-r">${ic('ban')}<span>新增現場預約</span><span class="sr" id="nav-walk-r">${blk}</span></button>` : bn('walk','新增現場預約','walk');
+  const bnav = state.phone ? `<nav class="bnav" aria-label="主導覽">${bn('board','看板','board',true)}${bn('search','掃碼查詢','scan')}${walkNav}${bn('me','我的','user')}</nav>` : '';
+  const walk = blk ? `<div class="walk"><button class="btn" aria-disabled="true" aria-describedby="wk-r" data-key="walkin">${ic('plus','sm')}新增現場預約</button><span class="reason" id="wk-r">${blk}</span></div>`
+    : `<div class="walk"><button class="btn secondary" data-key="walkin" data-do="navStub">${ic('plus','sm')}新增現場預約</button></div>`;
+  const notes = [];
+  if (state.suspended) notes.push(`<div class="notice warning" role="status" data-key="n-susp">${ic('ban','sm')}<span><b>店家目前暫停新增服務</b>不能建立新預約或現場預約。已在店裡的寵物、報到、簽署、收款與住宿退房照常。</span></div>`);
+  if (state.offline) notes.push(`<div class="notice neutral" role="status">${ic('off','sm')}<span><b>目前離線</b>顯示的是最後同步的資料，恢復連線後自動更新。</span></div>`);
+  if (a.push === 'off') notes.push(`<div class="notice neutral" role="status" data-key="n-push">${ic('bellOff','sm')}<span><b>通知已關閉</b>不會收到內部通知。<button class="lnk" data-key="push-on" data-do="pushAsk">開啟通知</button></span></div>`);
+  const branch = multi ? `<label class="branch"><span class="sr">分店</span><select data-key="h-branch" data-change="branch">${a.branches.map(b => `<option${b === se.branch ? ' selected' : ''}>${b}</option>`).join('')}</select>${ic('chev','sm')}</label>` : '';
+  const board = `../today-board/index.html?role=${a.role === '櫃台' || a.role === '美容照護' ? 'clerk' : 'mgr'}${state.suspended ? '&suspended=1' : ''}${state.offline ? '&offline=1' : ''}`;
+  return `${rail}<main><header class="head"><div class="head-title"><h1 id="home-title" tabindex="-1">今日看板</h1>
+      <div class="head-meta"><span>${dateLine(now())}</span><span>${esc(se.branch)}</span></div></div>
+      ${branch}<span class="me">${disc(a)}<span class="who"><b>${esc(a.name)}</b><span>${esc(a.role)}</span></span>
+      <button class="textbtn" data-key="switch" data-do="switchUser">${ic('swap','sm')}換人</button></span>${walk}</header>
+    <div class="home-body">${notes.join('')}
+      <div class="stub" role="note"><b>原型到此為止</b><span>看板內容在今日看板原型。</span><a href="${board}" data-key="to-board">打開今日看板原型</a></div></div></main>${bnav}`;
+}
+
+function outView() {
+  const o = state.out, a = acc(o.who);
+  const t = o.reason === 'deact' ? '你的帳號已停用' : '這台裝置的登入已移除';
+  const s = o.reason === 'deact' ? `${o.by}在 ${o.at} 停用了你的帳號，你在所有裝置上都已登出。有問題請聯絡${o.by}。`
+    : `${o.by}在 ${o.at} 從員工與權限移除了這台${device.personal ? '手機' : '平板'}上你的登入。要繼續用這台，請用手機和密碼重新加入。`;
+  const after = bound().length ? '回到員工牆' : '回到登入';
+  return formShell(`<span class="disc" aria-hidden="true">${ic('out')}</span>
+    <h1 id="f-title" tabindex="-1">${t}</h1><p class="lede">${esc(s)}</p>
+    <div class="notice neutral facts">${ic('user','sm')}<span><b>${esc(a.name)}・${esc(a.role)}</b>剛才看板上還沒存的操作沒有送出。已經送出的報到、收款都留在紀錄裡。</span></div>
+    <button class="btn primary wide" data-key="out-ok" data-do="outOk">${after}</button>`, {cls:''}).replace('<main class="formpage">', '<main class="formpage out">');
+}
+
+/* ---------- render, with the one authored moment: the tapped card grows into the PIN pad ---------- */
+function render(focusId) {
+  const app = $('app');
+  const before = calm() ? null : Object.fromEntries([...app.querySelectorAll('[data-pid]')].map(el => [el.dataset.pid, el.getBoundingClientRect()]));
+  const keep = !focusId && document.activeElement?.dataset?.key;
+  const wasOpen = app.querySelector('li.open')?.dataset.pid;
+  state.phone = innerWidth < 640; state.tall = !state.phone && (innerWidth < 1000 || innerHeight > innerWidth);
+  const v = state.view;
+  app.className = `${v === 'home' ? 'home' : 'pre'}${state.phone ? ' phone' : ''}${state.tall ? ' tall' : ''}`;
+  app.innerHTML = v === 'wall' ? wallView() : v === 'login' ? loginView() : v === 'otp' ? otpView() : v === 'forgot' ? forgotView()
+    : v === 'setup' ? setupView() : v === 'home' ? homeView() : outView();
+  renderLayer();
+  if (before) flip(before, wasOpen);
+  const f = focusId && document.getElementById(focusId);
+  if (f) f.focus({preventScroll: false});
+  else if (keep) { const el = document.querySelector(`[data-key="${keep}"]`); if (el && el !== document.activeElement) el.focus({preventScroll: true}); }
+}
+function flip(before, wasOpen) {
+  document.querySelectorAll('#app [data-pid]').forEach(el => {
+    const o = before[el.dataset.pid]; if (!o) return;
+    const n = el.getBoundingClientRect();
+    if (el.classList.contains('open') && el.dataset.pid !== wasOpen) {
+      const card = el.firstElementChild;
+      card.animate([{clipPath:`inset(${o.top - n.top}px ${n.right - o.right}px ${n.bottom - o.bottom}px ${o.left - n.left}px round 20px)`}, {clipPath:'inset(0 0 0 0 round 28px)'}], {duration:420, easing:'cubic-bezier(.16,1,.3,1)'});
+      card.querySelectorAll('.keypad,.pin-who>*:not(.disc)').forEach((c, i) => c.animate([{opacity:0, transform:'translateY(6px)'}, {opacity:1, transform:'none'}], {duration:260, delay:140 + i * 20, easing:'ease-out', fill:'backwards'}));
+    } else {
+      const dx = o.left - n.left, dy = o.top - n.top;
+      if (dx || dy) el.animate([{transform:`translate(${dx}px,${dy}px)`}, {transform:'none'}], {duration:380, easing:'cubic-bezier(.16,1,.3,1)'});
+    }
+  });
+}
+function renderLayer() {
+  const l = $('layer');
+  l.querySelectorAll('.sheet-scrim,.os-scrim').forEach(e => e.remove());
+  if (state.view === 'wall' && state.phone && state.sel && bound().length > 1) {
+    l.insertAdjacentHTML('beforeend', `<div class="sheet-scrim" data-do="closePad" data-key="sheet-scrim"><div role="dialog" aria-modal="true" aria-labelledby="pin-name" style="width:100%">${pinCard(acc(state.sel))}</div></div>`);
+  }
+  if (state.os) l.insertAdjacentHTML('beforeend', `<div class="os-scrim"><div class="os" role="alertdialog" aria-modal="true" aria-labelledby="os-t"><p class="cap">手機系統的詢問視窗（模擬）</p>
+    <p class="t" id="os-t">「寵派商家中心」想要傳送通知</p><p class="d">通知可能包含提示、聲音和圖像標記。</p>
+    <div class="b"><button data-key="os-no" data-do="osNo">不允許</button><button data-key="os-yes" data-do="osYes">允許</button></div></div></div>`);
+}
+function say(text) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status" data-key="toast">${esc(text)}</div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 3600);
+}
+
+/* ---------- PIN pad ---------- */
+function openPad(id, mode = 'login', quiet) {
+  state.sel = id; state.menu = null; state.pad = {mode, val:'', err:''};
+  if (!quiet) { render('pin-name'); keysInView(); }
+}
+function digit(d) {
+  const p = state.pad; if (!p || p.busy || p.val.length >= 4) return;
+  if (state.view === 'wall' && acc(state.sel)?.locked && p.mode !== 'remove' && p.mode !== 'unlock') return;
+  p.val += d; p.err = ''; render(); progress();
+  if (p.val.length === 4) { p.busy = true; setTimeout(() => { p.busy = false; settle(); }, FAST ? 0 : 160); }
+}
+/* large text pushes the keypad under the fold: bring its last row into view once the card has grown */
+function keysInView() { setTimeout(() => { const k = document.querySelector('#app .keypad'); if (k && k.getBoundingClientRect().bottom > innerHeight) k.scrollIntoView({block:'end', behavior: calm() ? 'auto' : 'smooth'}); }, calm() ? 0 : 440); }
+function undo() { const p = state.pad; if (!p || !p.val) return; p.val = p.val.slice(0, -1); p.err = ''; render(); progress(); }
+/* a screen reader hears how many digits are in, never the digits; the region lives outside #app so a re-render never drops it */
+function progress() { const l = $('pin-live'); if (l && state.pad) l.textContent = `已輸入 ${state.pad.val.length} 碼`; }
+const weak = v => /^(\d)\1{3}$/.test(v) || '01234567890'.includes(v) || '09876543210'.includes(v);
+function settle() {
+  const p = state.pad;
+  if (p.mode === 'set1') {
+    if (weak(p.val)) { p.err = '這組太好猜了，換一組。'; p.val = ''; return render(); }
+    p.first = p.val; p.val = ''; p.mode = 'set2'; return render();
+  }
+  if (p.mode === 'set2') {
+    if (p.val !== p.first) { Object.assign(p, {mode:'set1', val:'', first:null, err:'兩次不一樣，請重新設定。'}); return render(); }
+    const a = acc(state.setup.who); a.pin = p.val; a.fails = 0; a.locked = false;
+    say('PIN 已設定'); return nextStep();
+  }
+  const a = acc(state.sel);
+  /* a manager's PIN lifts someone else's lock on this device; a wrong one counts against the manager, never the locked person */
+  if (p.mode === 'unlock') {
+    const m = acc(p.by);
+    if (p.val === m.pin) {
+      m.fails = 0; a.locked = false; a.fails = 0; a.unlockedBy = {by:m.name, at:hm(now())};
+      Object.assign(p, {mode:'login', val:'', err:'', by:null});
+      render('pin-name'); say(`${m.name}已解鎖${a.name}的 PIN，已記錄`); return;
+    }
+    m.fails++; p.val = '';
+    if (m.fails >= PIN_TRIES) { m.locked = true; Object.assign(p, {mode:'login', by:null, err:''}); render('pin-name'); say(`${m.name}的 PIN 也鎖定了`); return; }
+    p.err = `${m.name}的 PIN 不對，再試一次。`; return render();
+  }
+  if (p.val === a.pin) {
+    a.fails = 0;
+    if (p.mode === 'remove') return removeFromDevice(a, `已把${a.name}從這台移除`);
+    return signIn(a);
+  }
+  a.fails++; p.val = '';
+  if (a.fails >= PIN_TRIES) { a.locked = true; p.err = ''; p.mode = 'login'; render('pin-name'); return; }
+  const left = PIN_TRIES - a.fails;
+  /* most wrong PINs on a shared tablet are the right PIN on the wrong card: say whose card this is */
+  const who = bound().length > 1 ? `你是${a.name}嗎？不是的話，點自己的名字。` : '';
+  p.err = left <= 2 ? `PIN 不對。再錯 ${left} 次會鎖定。${who}` : `PIN 不對。${who || '再試一次。'}`;
+  render();
+}
+function closePad() { state.sel = null; state.pad = null; render('wall-title'); }
+function removeFromDevice(a, msg) {
+  if (LIFE === 'qt-leave' && a.id === 'kai') lifeSay('removed');
+  a.bound = false; a.fails = 0; a.locked = false; a.pin = null; a.push = null;
+  state.sel = null; state.pad = null; state.menu = null;
+  if (!bound().length) { if (!device.personal) device.branch = device.branch; state.view = 'login'; state.form = newForm('login'); }
+  else if (bound().length === 1) openPad(bound()[0].id, 'login', true);
+  render(state.view === 'login' ? 'f-title' : 'wall-title'); say(msg);
+}
+
+/* ---------- sign-in outcomes ---------- */
+function signIn(a, branch) {
+  state.session = {who:a.id, branch: branch || (a.branches.includes(device.branch) ? device.branch : a.branches[0])};
+  a.last = '剛剛'; A.forEach(o => { if (o.id !== a.id && o.last === '剛剛') o.last = '今天 10:42'; });
+  state.view = 'home'; state.sel = null; state.pad = null; state.form = null; state.setup = null;
+  poke(); render('home-title');
+}
+function startSetup(a, reset) {
+  const steps = ['pin'];
+  if (!reset && a.push === null) steps.push('push');
+  if (!reset && a.branches.length > 1) steps.push('branch');
+  state.setup = {who:a.id, steps, i:0, reset, branch: a.branches.includes(device.branch) ? device.branch : a.branches[0], pushDenied:false};
+  state.pad = {mode:'set1', val:'', err:''};
+  state.view = 'setup'; render('f-title');
+}
+function nextStep() {
+  const s = state.setup; s.i++; state.pad = s.steps[s.i] === 'pin' ? {mode:'set1', val:'', err:''} : null;
+  if (s.i >= s.steps.length) {
+    const a = acc(s.who); a.bound = true;
+    if (!device.branch) device.branch = s.branch;
+    if (a.push === null) a.push = 'off';
+    if (LIFE === 'open-tablet') lifeSay('ready');
+    return signIn(a, s.branch);
+  }
+  render('f-title');
+}
+/* the password path: every check the server makes, in the order it makes them */
+function passwordOk(a) {
+  const f = state.form;
+  if (a.status === 'disabled') { f.top = ['danger', '此帳號已停用', a.role === '店長' ? '請聯絡店家管理者。' : '請聯絡店長。']; return false; }
+  if (a.status === 'invited') { f.top = ['warning', '這個帳號還沒啟用', '請先打開店長傳給你的邀請連結，設定密碼。']; return false; }
+  if (device.branch && !a.branches.includes(device.branch) && a.role !== '店家管理者') {
+    f.top = ['danger', `這台${device.personal ? '手機' : '平板'}屬於${device.branch}`, `你的帳號沒有${device.branch}的權限。請用${a.branches.join('、')}的裝置，或請店長調整分店。`]; return false;
+  }
+  return true;
+}
+function afterCredentials(a) {
+  const f = state.form;
+  if (a.bound && !a.locked && f.after !== 'resetPin') { say(`${a.name}已在這台，下次點名字輸入 PIN 就好`); return signIn(a); }
+  if (a.bound) return startSetup(a, true);
+  if (!device.personal && bound().length >= 12) { f.top = ['warning', '這台已有 12 人', '請先把不再使用的人從這台移除。']; return render(); }
+  startSetup(a, false);
+}
+function submitLogin() {
+  const f = state.form; f.acct = $('lg-acct').value; f.pw = $('lg-pw').value; f.err = {}; f.top = null;
+  const d = f.acct.replace(/\D/g, '');
+  if (!d) f.err.acct = '請輸入手機號碼';
+  else if (!/^09\d{8}$/.test(d)) f.err.acct = '手機號碼是 09 開頭的 10 碼';
+  if (!f.pw) f.err.pw = '請輸入密碼';
+  if (f.err.acct || f.err.pw) return render(f.err.acct ? 'lg-acct' : 'lg-pw');
+  if (state.offline) { f.top = ['neutral', '連不上網路', '用手機和密碼登入需要連線。請確認 Wi-Fi 後再試，已輸入的資料會留著。']; return render(); }
+  const a = byPhone(f.acct);
+  if (!a || f.pw !== PASS) {
+    f.tries++;
+    f.top = f.tries >= 5 ? ['warning', '嘗試太多次', '請 10 分鐘後再試，或改用簡訊驗證碼登入。'] : ['danger', '手機號碼或密碼不正確', f.tries >= 3 ? `再錯 ${5 - f.tries} 次要等 10 分鐘。忘記密碼可以用手機重設。` : '請再檢查一次。'];
+    f.pw = ''; return render('lg-pw');
+  }
+  if (!passwordOk(a)) return render();
+  afterCredentials(a);
+}
+function submitCode(kind) {
+  const f = state.form, pre = kind === 'otp' ? 'otp' : 'fp'; f.err = {}; f.top = null;
+  if (f.step === 1) {
+    f.ph = $(`${pre}-ph`).value;
+    const digits = f.ph.replace(/\D/g, '');
+    if (!digits) f.err.ph = '請輸入手機號碼';
+    else if (!/^09\d{8}$/.test(digits)) f.err.ph = '手機號碼是 09 開頭的 10 碼';
+    if (f.err.ph) return render(`${pre}-ph`);
+    if (state.offline) { f.top = ['neutral', '連不上網路', '傳送驗證碼需要連線。']; return render(); }
+    const r = smsSend(digits);
+    if (r && r !== 'locked') { f.top = ['warning', '這次沒有傳出驗證碼', `${r}。`]; return render(`${pre}-ph`); }
+    f.step = 2; f.code = ''; f.sendErr = ''; tickWait(); return render(r ? `${pre}-lock` : `${pre}-code`);
+  }
+  if (f.step === 2) {
+    const ph = f.ph.replace(/\D/g, '');
+    f.code = $(`${pre}-code`).value.replace(/\D/g, '');
+    /* a locked number is refused before the code is looked at, even the right one (Enter included) */
+    if (smsLock(ph)) { f.code = ''; return render(`${pre}-lock`); }
+    if (f.code.length !== 6) { f.err.code = '驗證碼是 6 位數字'; return render(`${pre}-code`); }
+    const r = smsCheck(ph, f.code);
+    if (r) { f.code = ''; if (r === 'locked') return render(`${pre}-lock`); f.err.code = r; return render(`${pre}-code`); }
+    const a = byPhone(f.ph);
+    /* a number with no account answers exactly like a wrong code, so nobody can learn which phones have accounts (decided 2026-10-17) */
+    if (!a) { f.code = ''; f.err.code = '驗證碼不對，請再看一次簡訊'; return render(`${pre}-code`); }
+    if (kind === 'otp') { if (!passwordOk(a)) return render(); return afterCredentials(a); }
+    if (a.status !== 'active') { passwordOk(a); f.step = 1; return render(); }
+    f.step = 3; f.show = false; return render('fp-npw');
+  }
+  f.npw = $('fp-npw').value;
+  if (!PW_RULES.every(([, fn]) => fn(f.npw))) { f.err.npw = '新密碼還不符合上面的規則'; return render('fp-npw'); }
+  const a = byPhone(f.ph);
+  state.view = 'login'; state.form = newForm('login', {acct: a.ph, after: f.after, for: f.for}); render('lg-pw');
+  say('密碼已更新，請用新密碼登入');
+}
+let waitT;
+function tickWait() { clearInterval(waitT); waitT = setInterval(() => { const f = state.form, el = document.querySelector('[data-key$="-wait"]'); if (!f || f.step !== 2 || !el) return clearInterval(waitT); const left = smsWait(f.ph.replace(/\D/g, '')); if (left <= 0) { clearInterval(waitT); keepCode(); render(); } else el.textContent = `${left} 秒後可以重新傳送`; }, 1000); }
+/* a typed code survives a re-render */
+function keepCode() { const f = state.form, c = document.querySelector('.code input'); if (f && c) f.code = c.value.replace(/\D/g, ''); }
+
+/* ---------- actions ---------- */
+const ACT = {
+  pick(el) {
+    if (pressed.fired) { pressed.fired = false; return; }
+    const id = el.dataset.id;
+    if (state.sel === id) return;
+    openPad(id);
+  },
+  closePad, undo,
+  digit(el) { digit(el.dataset.d); },
+  askUnlock(el) { Object.assign(state.pad, {mode:'unlock', by:el.dataset.by, val:'', err:''}); render('pin-name'); },
+  cancelUnlock() { Object.assign(state.pad, {mode:'login', by:null, val:'', err:''}); render('pin-name'); },
+  /* leaving the first PIN step drops this sign-in: nobody is added to the device until setup finishes */
+  cancelSetup() { state.setup = null; state.pad = null; if (bound().length) ACT.toWall(); else { state.view = 'login'; state.form = newForm('login'); render('f-title'); } },
+  menuClose() { state.menu = null; render(); },
+  menuRemove(el) { openPad(el.dataset.id, 'remove'); },
+  startRemove(el) { openPad(el.dataset.id, 'remove'); },
+  addPerson() { state.sel = null; state.pad = null; state.view = 'login'; state.form = newForm('login'); render('f-title'); },
+  toPassword(el) { const a = acc(el.dataset.id); state.view = 'login'; state.form = newForm('login', {acct:a.ph, after:'resetPin', for:a.id}); state.sel = null; state.pad = null; render('lg-pw'); },
+  toWall() { state.view = 'wall'; state.form = null; state.sel = null; state.pad = null; if (bound().length === 1) openPad(bound()[0].id, 'login', true); render('wall-title'); },
+  toLogin() { const f = state.form; state.view = 'login'; state.form = newForm('login', {after:f?.after, for:f?.for, acct: f?.for ? acc(f.for).ph : ''}); render('f-title'); },
+  toOtp() { const f = state.form; state.view = 'otp'; state.form = newForm('otp', {after:f.after, for:f.for}); render('f-title'); },
+  toForgot() { const f = state.form; state.view = 'forgot'; state.form = newForm('forgot', {after:f.after, for:f.for}); render('f-title'); },
+  toggleShow() { const f = state.form; const pw = $('lg-pw') || $('fp-npw'); if (pw) f[pw.id === 'lg-pw' ? 'pw' : 'npw'] = pw.value; const acct = $('lg-acct'); if (acct) f.acct = acct.value; f.show = !f.show; render(); },
+  resend() {
+    const f = state.form, ph = f.ph.replace(/\D/g, ''), pre = f.kind === 'otp' ? 'otp' : 'fp', r = smsSend(ph);
+    f.code = ''; f.err = {}; f.sendErr = r === 'locked' ? '' : r; tickWait(); render(r === 'locked' ? `${pre}-lock` : `${pre}-code`);
+    if (!r) say(`驗證碼已重新傳到 ${maskPh(ph)}`);
+  },
+  rephone() { const f = state.form; f.step = 1; f.code = ''; f.err = {}; render(`${f.kind === 'otp' ? 'otp' : 'fp'}-ph`); },
+  restartPin() { Object.assign(state.pad, {mode:'set1', val:'', first:null, err:''}); render(); },
+  pushAsk() { state.os = true; renderLayer(); document.querySelector('[data-key="os-yes"]')?.focus(); },
+  pushNo() { state.setup.pushDenied = true; acc(state.setup.who).push = 'off'; render('f-title'); },
+  osYes() { state.os = false; if (state.view === 'setup') { acc(state.setup.who).push = 'on'; say('通知已開啟'); return nextStep(); } acc(state.session.who).push = 'on'; render(); say('通知已開啟'); },
+  osNo() { state.os = false; if (state.view === 'setup') { state.setup.pushDenied = true; acc(state.setup.who).push = 'off'; return render('f-title'); } render(); },
+  nextStep,
+  pickBranch(el) { state.setup.branch = el.dataset.b; render(); },
+  switchUser() { state.session = null; state.view = 'wall'; state.sel = null; state.pad = null; if (bound().length === 1) openPad(bound()[0].id, 'login', true); render('wall-title'); },
+  navStub() { say('這個原型只做到登入；看板請打開今日看板原型'); },
+  outOk() { state.out = null; ACT.toWall(); if (!bound().length) { state.view = 'login'; state.form = newForm('login'); render('f-title'); } }
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-do]');
+  if (!el || el.getAttribute('aria-disabled') === 'true') return;
+  if (el.classList.contains('sheet-scrim') && e.target !== el) return;
+  e.preventDefault(); ACT[el.dataset.do]?.(el);
+});
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const k = e.target.dataset.form;
+  if (k === 'login') submitLogin(); else submitCode(k);
+});
+document.addEventListener('change', e => {
+  if (e.target.dataset.change === 'branch') { state.session.branch = e.target.value; render(); say(`已切換到${e.target.value}`); }
+});
+document.addEventListener('input', e => {
+  const f = state.form; if (!f) return;
+  if (e.target.id === 'fp-npw') { f.npw = e.target.value; const r = document.querySelector('.rules'); if (r) r.innerHTML = PW_RULES.map(([t, fn]) => { const c = !f.npw ? 'idle' : fn(f.npw) ? 'met' : 'idle'; return `<li class="${c}">${ic(c === 'met' ? 'check' : 'dotI')}${t}</li>`; }).join(''); }
+});
+/* keyboard: digits and backspace drive whichever pad is showing; Esc closes it */
+document.addEventListener('keydown', e => {
+  const typing = /INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName);
+  if (state.os) { if (e.key === 'Escape') ACT.osNo(); return; }
+  if (state.pad && !typing && !(state.view === 'wall' && !state.sel)) {
+    if (/^\d$/.test(e.key)) { e.preventDefault(); const b = document.querySelector(`.keypad [data-d="${e.key}"]`); b?.classList.add('hit'); setTimeout(() => b?.classList.remove('hit'), 90); return digit(e.key); }
+    if (e.key === 'Backspace') { e.preventDefault(); return undo(); }
+    if (e.key === 'Escape' && state.view === 'wall' && bound().length > 1) { e.preventDefault(); return closePad(); }
+  }
+  if (state.menu && e.key === 'Escape') { state.menu = null; render(); return; }
+  const card = document.activeElement?.closest?.('.pcard[data-id]');
+  if (card && (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10'))) { e.preventDefault(); state.menu = card.dataset.id; render(`_`); document.querySelector(`[data-key="m-remove-${card.dataset.id}"]`)?.focus(); }
+});
+/* long press on a person's own card opens its one action */
+const pressed = {t:null, fired:false};
+document.addEventListener('pointerdown', e => {
+  const c = e.target.closest('.pcard[data-id]'); if (!c || state.sel) return;
+  pressed.fired = false; clearTimeout(pressed.t);
+  pressed.t = setTimeout(() => { pressed.fired = true; state.menu = c.dataset.id; render(); document.querySelector(`[data-key="m-remove-${c.dataset.id}"]`)?.focus(); }, 600);
+});
+['pointerup','pointercancel','pointerleave'].forEach(t => document.addEventListener(t, () => clearTimeout(pressed.t)));
+document.addEventListener('contextmenu', e => { const c = e.target.closest('.pcard[data-id]'); if (!c) return; e.preventDefault(); clearTimeout(pressed.t); state.menu = c.dataset.id; render(); });
+addEventListener('resize', () => { clearTimeout(render.r); render.r = setTimeout(() => render(), 120); });
+
+/* ---------- prototype controls ---------- */
+function setTheme(v) { v ? document.documentElement.setAttribute('data-theme', v) : document.documentElement.removeAttribute('data-theme'); }
+function applyScale(s) { document.documentElement.style.fontSize = s > 1 ? s * 100 + '%' : ''; document.documentElement.classList.toggle('bigtext', s >= 1.3); }
+function kick(reason) {
+  const se = state.session;
+  if (!se) return say('先登入，才能示範被登出');
+  const a = acc(se.who);
+  if (reason === 'deact') a.status = 'disabled';
+  a.bound = false; a.pin = null; a.fails = 0; a.locked = false;
+  state.session = null; clearTimeout(idleT);
+  state.out = {who:a.id, reason, by: a.id === 'lin' ? '陳老闆' : '林店長', at: hm(now())};
+  $('layer').querySelector('.toast')?.remove(); state.view = 'out'; render('f-title');
+}
+$('p-go').value = SCENES[params.get('go')] ? params.get('go') : 'wall';
+$('p-susp').checked = state.suspended = params.get('suspended') === '1';
+$('p-off').checked = state.offline = params.get('offline') === '1';
+$('p-theme').value = params.get('theme') || ''; setTheme($('p-theme').value);
+$('p-scale').value = ['1.3', '2'].includes(params.get('scale')) ? params.get('scale') : '1'; applyScale(+$('p-scale').value);
+$('p-go').onchange = e => { load(e.target.value); render(state.view === 'wall' ? 'wall-title' : 'f-title'); };
+$('p-susp').onchange = e => { state.suspended = e.target.checked; render(); };
+$('p-off').onchange = e => { state.offline = e.target.checked; render(); };
+$('p-theme').onchange = e => setTheme(e.target.value);
+$('p-scale').onchange = e => { applyScale(+e.target.value); render(); };
+$('p-idle').onclick = () => state.session ? idleOut() : say('先登入，才能示範閒置');
+$('p-deact').onclick = () => kick('deact');
+$('p-unbind').onclick = () => kick('unbind');
+/* 快轉: the demo clock jumps, so a code can expire, a wait can end and a lock can lift without waiting */
+const fastForward = min => { skew += min * 60000; keepCode(); const k = document.activeElement?.dataset?.key; render(); if (k) document.querySelector(`[data-key="${k}"]`)?.focus(); tickWait(); say(`簡訊時間快轉 ${min} 分鐘，現在 ${hm(now())}`); };
+$('p-ff1').onclick = () => fastForward(1);
+$('p-ff10').onclick = () => fastForward(10);
+load($('p-go').value);
+render();
+</script>
+</body>
+</html>

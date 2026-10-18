@@ -1,0 +1,2163 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>客戶與寵物原型</title>
+<script src="../test-kit/kit.js" data-proto="m03-customers"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens copied from the today board via M-02. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+:root{--sidew:15rem;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:24px;scroll-padding-bottom:120px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+.nw{white-space:nowrap}
+.muted{color:var(--ink-muted)}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .pbtn{border:1px solid var(--proto-line);border-radius:8px;padding:4px 10px;min-height:32px;color:var(--proto-ink);font-weight:700}
+.proto .pbtn:hover{border-color:var(--proto-ink)}
+.proto .tagp{border:1.5px dashed var(--proto-muted);border-radius:999px;padding:1px 8px;font-weight:800;color:var(--proto-muted)}
+
+/* ---------- shell: labeled cocoa sidebar (管理 Web) ---------- */
+#app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+#app.compact{display:block}
+.side{position:sticky;top:0;height:calc(100vh - 44px);height:calc(100dvh - 44px);overflow-y:auto;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;gap:2px;padding:18px 12px 16px;color:var(--rail-ink)}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+.mark{width:40px;height:40px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;flex:none}
+.mark .ico{width:24px;height:24px;stroke-width:0;fill:currentColor}
+.brand small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+.brand b{display:block;color:var(--rail-cur);font-size:1rem;font-weight:900;line-height:1.3}
+.sgrp{font-size:.75rem;font-weight:800;letter-spacing:.04em;padding:10px 12px 4px;color:var(--rail-ink);opacity:.82}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 12px;border-radius:12px;font-size:.9375rem;font-weight:700;line-height:1.3;color:var(--rail-ink);transition:background-color .2s var(--out),color .2s var(--out)}
+.sitem:hover{background:var(--rail-hover);color:var(--rail-cur)}
+.sitem[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.sitem .n{margin-left:auto;min-width:24px;padding:0 8px;border-radius:999px;background:var(--rail-hover);color:var(--rail-cur);font-size:.75rem;font-weight:900;text-align:center;line-height:1.6}
+.sitem .n.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.sitem[aria-current="page"] .n:not(.hot){background:var(--sunk);color:var(--ink)}
+.side :focus-visible{outline-color:var(--rail-cur)}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid var(--rail-hover);position:sticky;bottom:-16px;background:var(--rail);margin-bottom:-16px;padding-bottom:16px}
+.me::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:28px;background:linear-gradient(to bottom,transparent,var(--rail));pointer-events:none}
+.me .av{width:36px;height:36px;border-radius:50%;background:var(--rail-hover);color:var(--rail-cur);display:grid;place-items:center;font-weight:900;flex:none}
+.me b{display:block;color:var(--rail-cur);font-weight:800;line-height:1.3}
+.me small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+/* compact: the sidebar becomes a top bar and a drawer */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--rail);color:var(--rail-cur)}
+.topbar .mark{width:36px;height:36px;border-radius:12px}
+.topbar b{font-weight:900}
+.topbar .ibtn{color:var(--rail-cur)}
+.topbar .ibtn:hover{background:var(--rail-hover)}
+.topbar :focus-visible{outline-color:var(--rail-cur)}
+.ibtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;transition:background-color .2s var(--out)}
+.ibtn:hover{background:var(--sunk)}
+.drawer-nav{position:fixed;inset:0 auto 0 0;z-index:80;width:min(18rem,86vw);box-shadow:var(--lift-hi);animation:slidein .32s var(--out)}
+.drawer-nav .side{height:100%}
+@keyframes slidein{from{transform:translateX(-100%)}}
+main{min-width:0;container:main / inline-size}
+/* 1024–1279: the labeled sidebar folds into the world's icon rail so the detail keeps its width */
+#app.rail{--sidew:5.25rem}
+#app.rail .side{padding:16px 6px;align-items:center;gap:4px}
+#app.rail .brand{padding:0 0 10px}
+#app.rail .brand>span:not(.mark),#app.rail .sgrp,#app.rail .me>span:not(.av){display:none}
+#app.rail .sitem{flex-direction:column;justify-content:center;gap:4px;width:4.25rem;min-height:3.75rem;padding:6px 2px;border-radius:16px;font-size:.75rem;font-weight:700;text-align:center;line-height:1.25;position:relative}
+#app.rail .sitem[aria-current="page"]{font-weight:900}
+#app.rail .sitem .n{position:absolute;top:2px;right:2px;margin:0;padding:0 6px;font-size:.75rem}
+#app.rail .me{padding:12px 0 0;justify-content:center}
+
+
+/* ---------- page head ---------- */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 16px;padding:22px 28px 0}
+.compact .head{padding:16px 16px 0}
+.head h1{font-size:1.75rem;font-weight:900;line-height:1.25;display:flex;align-items:center;gap:10px}
+.compact .head h1{font-size:1.375rem}
+.compact .head .tools{margin-left:0;order:4;flex-basis:100%}
+.head .sub{flex-basis:100%;order:3;font-size:.875rem;font-weight:600;color:var(--ink-muted);margin-top:-6px}
+.head .tools{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.scope{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--control-border);font-weight:800;font-size:.875rem}
+select.scope{appearance:none;padding-right:36px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;cursor:pointer}
+select.scope:hover{border-color:var(--ink)}
+.scope.fixed{border-style:dashed;color:var(--ink-muted)}
+.updated{font-size:.8125rem;font-weight:700;color:var(--ink-muted);display:inline-flex;align-items:center;gap:6px}
+.updated.off{color:var(--warning)}
+.banner{display:flex;gap:10px;align-items:flex-start;margin:14px 28px 0;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:700;line-height:1.5}
+.compact .banner{margin:12px 16px 0}
+.banner.warning{background:var(--warning-bg);color:var(--warning)}
+.banner.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.banner .ico{margin-top:1px}
+
+/* ---------- buttons, chips, tags ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:var(--r-md);font-size:.9375rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out),border-color .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.quiet{background:var(--surface);color:var(--ink);border-color:var(--control-border)}
+.btn.quiet:hover{border-color:var(--ink)}
+.btn.danger{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.btn.danger:hover{filter:brightness(1.08)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none;filter:none}
+.btn.busy{pointer-events:none}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(1turn)}}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+a.textbtn{text-decoration:none}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.textbtn[aria-disabled="true"]{color:var(--ink-muted);background:transparent;border:1.5px dashed var(--control-border);cursor:not-allowed}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4;text-wrap:pretty}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.warning{color:var(--warning);background:var(--warning-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.chip.plain{background:var(--sunk);color:var(--ink)}
+.chip.plain::before{display:none}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 9px;border-radius:999px;font-size:.875rem;line-height:1.4;white-space:nowrap}
+.tag.safety{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.tag.care{background:var(--warning-bg);color:var(--warning);font-weight:700}
+.cnt{min-width:26px;padding:1px 9px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;text-align:center;line-height:1.5}
+.cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.masked{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--sunk);color:var(--ink-muted);font-size:.8125rem;font-weight:800;border:1.5px dashed var(--control-border)}
+.masked .ico{width:14px;height:14px;stroke-width:2.2}
+
+/* filter pills and segmented control */
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--border);font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out),border-color .2s var(--out),transform .35s var(--spring)}
+.pill:hover{border-color:var(--control-border);color:var(--ink)}
+.pill:active{transform:scale(.96);transition-duration:.08s}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface);font-weight:900}
+.pill[aria-pressed="true"] .cnt{background:var(--surface);color:var(--ink)}
+.pill[aria-pressed="true"] .cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.pill .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);flex-wrap:wrap}
+.seg button{min-height:40px;padding:0 16px;border-radius:999px;font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out)}
+.seg button:hover{color:var(--ink)}
+.seg button:is([aria-pressed="true"],[aria-checked="true"]){background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+:root[data-theme="dark"] .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+/* ---------- 臉環 ---------- */
+.face{--s:56px;position:relative;flex:none;width:var(--s);height:var(--s);display:inline-grid;place-items:center;border-radius:50%}
+.face>svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.face circle{fill:none;stroke:var(--track);stroke-width:7;stroke-linecap:round}
+.face circle.done{stroke:var(--ink)}
+.face circle.cur{stroke:var(--ink);stroke-width:9;stroke-dasharray:0 600;animation:seg .7s var(--out) .15s forwards}
+@keyframes seg{to{stroke-dasharray:var(--dash) 600}}
+.face img,.face .ini{width:calc(var(--s) * .74);height:calc(var(--s) * .74);border-radius:50%;object-fit:cover;background:var(--sunk);display:grid;place-items:center;font-weight:900;color:var(--ink-muted);font-size:calc(var(--s) * .3)}
+.face.plain img,.face.plain .ini{width:calc(var(--s) * .9);height:calc(var(--s) * .9)}
+.face.person .ini{background:var(--sunk);color:var(--ink)}
+.face .badge{position:absolute;right:-2px;bottom:-2px;width:calc(var(--s) * .32);height:calc(var(--s) * .32);min-width:20px;min-height:20px;border-radius:50%;display:grid;place-items:center;background:var(--danger-solid);color:var(--on-danger-solid);border:2.5px solid var(--surface)}
+.face .badge .ico{width:62%;height:62%;stroke-width:2.4}
+.face .step{position:absolute;left:-2px;bottom:-2px;padding:1px 7px;border-radius:999px;background:var(--surface);color:var(--ink);border:2px solid var(--ink);font-size:.75rem;font-weight:900;line-height:1.25}
+button.face{cursor:pointer;transition:transform .35s var(--spring)}
+button.face:hover{transform:scale(1.04)}
+button.face:active{transform:scale(.95);transition-duration:.08s}
+
+/* ---------- money ---------- */
+.money{font-weight:900;white-space:nowrap;font-feature-settings:"tnum"}
+.money .cur{font-size:.78em;font-weight:700;color:var(--ink-muted);margin-right:1px}
+.money.neg{color:var(--ink)}
+
+/* ---------- panels ---------- */
+.panel{background:var(--surface);border-radius:var(--r-lg);padding:22px;box-shadow:var(--lift)}
+.panel-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.panel-h h2,.panel-h h3{font-size:1.0625rem;font-weight:900;line-height:1.3;display:inline-flex;align-items:center;gap:8px}
+.panel-h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+/* ---------- dialog ---------- */
+.dialog{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:24px;display:flex;flex-direction:column;gap:16px;animation:pop .35s var(--spring)}
+@keyframes pop{from{transform:translateY(16px) scale(.98);opacity:0}}
+.dialog h2{font-size:1.25rem;font-weight:900;line-height:1.35;text-wrap:balance}
+.dialog .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.cdl{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px 14px;padding:14px 16px;border-radius:var(--r-md);background:var(--sunk);font-size:.9375rem;font-weight:700}
+.cdl dt{color:var(--ink-muted);font-size:.875rem}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:.875rem;font-weight:800}
+.field input,.field textarea{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:.9375rem;font-weight:600}
+.field textarea{min-height:84px;resize:vertical;line-height:1.5}
+.field input:hover,.field textarea:hover{border-color:var(--ink)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink-muted)}
+.field [aria-invalid="true"]{border-color:var(--danger)}
+.field .err{font-size:.8125rem;font-weight:800;color:var(--danger)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.dbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:flex-start}
+.dbtns .cell{display:flex;flex-direction:column;align-items:flex-end}
+@media (max-width: 600px){
+  .dlg-s{align-items:flex-end;padding:0}
+  .dialog{border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:92dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+  .dbtns{flex-direction:column-reverse;align-items:stretch}
+  .dbtns .cell{align-items:stretch}
+}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(560px,calc(100vw - 32px));padding:10px 18px;border-radius:18px;background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .4s var(--spring)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+#app:not(.compact) ~ #layer .toast{left:calc(50% + var(--sidew) / 2)}
+#app.rail ~ #layer .toast{left:calc(50% + 2.625rem)}
+
+.whoami{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 6px;border-radius:999px;background:var(--sunk);font-weight:800;font-size:.875rem}
+.whoami .av{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900}
+:root{--boarding:#5B3BA6;--boarding-bg:#EDE7FA}
+:root[data-theme="dark"]{--boarding:#C6B3F5;--boarding-bg:#2D2347}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--boarding:#C6B3F5;--boarding-bg:#2D2347}}
+.chip.boarding{color:var(--boarding);background:var(--boarding-bg)}
+.btn.wide{width:100%}
+.btn .ico{flex:none}
+
+/* ---------- overlays ---------- */
+.scrim{position:fixed;inset:0;z-index:70;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s var(--out)}
+@keyframes fade{from{opacity:0}}
+.scrim.side-r{justify-content:flex-end;align-items:stretch;padding:0}
+@keyframes slidein-r{from{transform:translateX(40px);opacity:0}}
+
+/* ---------- page frame ---------- */
+.wrap{padding:14px 28px 56px}
+.compact .wrap{padding:12px 16px 48px}
+.head .pre-act{display:flex;flex-direction:column;align-items:flex-end}
+.compact .head .pre-act{align-items:stretch;flex-basis:100%}
+.head .pre-act .reason{margin-top:4px}
+.btn.primary.calm{background:var(--surface);color:var(--ink);border-color:var(--control-border);box-shadow:none;font-weight:700}
+.btn.primary.calm:hover{border-color:var(--ink);background:var(--surface)}
+
+/* toolbar: date stepper, view switch, filters */
+.tbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:16px 28px 0}
+.compact .tbar{padding:12px 16px 0}
+.stepper{display:inline-flex;align-items:center;gap:2px;padding:4px;border-radius:999px;background:var(--surface);box-shadow:var(--lift)}
+.stepper .ibtn{width:40px;height:40px}
+.stepper .tdy{min-height:40px;padding:0 14px;border-radius:999px;font-weight:800;font-size:.875rem;transition:background-color .2s var(--out)}
+.stepper .tdy:hover{background:var(--sunk)}
+.stepper .tdy[aria-disabled="true"]{color:var(--ink-muted);cursor:default;background:transparent}
+.dtitle{font-size:1.25rem;font-weight:900;line-height:1.3;display:inline-flex;align-items:baseline;gap:8px}
+.dtitle small{font-size:.875rem;font-weight:800;color:var(--ink-muted)}
+.tbar .grow{flex:1 1 0}
+.fsel{appearance:none;min-height:40px;padding:0 34px 0 14px;border-radius:999px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/14px;border:1.5px solid var(--border);font-size:.875rem;font-weight:800;color:var(--ink);cursor:pointer}
+.fsel:hover{border-color:var(--control-border)}
+.fsel.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pill .cnt.warn{background:var(--warning-bg);color:var(--warning)}
+
+/* the requests strip under the toolbar (待審核 filter) */
+.reqs{margin:14px 28px 0;padding:6px 16px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift)}
+.compact .reqs{margin:12px 16px 0;padding:4px 12px}
+.reqs ul{list-style:none}
+.rq{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:10px 0;border-top:1px solid var(--border)}
+.rq:first-child{border-top:0}
+.rq .face{--s:44px}
+.rq b{font-weight:900}
+.rq .mv1{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-weight:800}
+.rq .mv1 .ico{width:16px;height:16px;color:var(--ink-muted)}
+.rq small{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.rq .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.rq .own{font-size:.8125rem;font-weight:800;color:var(--ink)}
+.pre-x{display:inline-flex;flex-direction:column;align-items:flex-start}
+.rq .pre-x{align-items:flex-end}
+@container main (max-width: 720px){.rq{grid-template-columns:auto minmax(0,1fr)}.rq .acts{grid-column:1 / -1;justify-content:flex-start}}
+.rtag{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 7px;border-radius:999px;background:var(--sunk);color:var(--ink);font-size:.75rem;font-weight:800;line-height:1.4;white-space:nowrap}
+.rtag .ico{width:13px;height:13px;stroke-width:2.2}
+a.rlink{display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+
+/* ---------- layout: calendar beside the detail panel ---------- */
+.lay{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start;margin-top:14px}
+.lay.withp{grid-template-columns:minmax(0,1fr) 400px}
+/* ---------- detail panel (right side) ---------- */
+.dp{position:sticky;top:12px;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:20px;display:flex;flex-direction:column;gap:16px;animation:slidein-r .36s var(--out)}
+.dp.sheet{position:relative;top:0;width:min(440px,100vw);height:100%;max-height:none;border-radius:var(--r-xl) 0 0 var(--r-xl)}
+@media (max-width: 600px){.dp.sheet{border-radius:0;padding:16px 16px calc(24px + env(safe-area-inset-bottom))}}
+.dp-top{display:flex;align-items:center;gap:6px;margin:-6px -6px 0}
+.dp-top .back{margin-right:auto}
+.dp-top .x{margin-left:auto}
+.dp-id{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center}
+.dp-id .face{--s:72px}
+.dp-id h2{font-size:1.375rem;font-weight:900;line-height:1.25}
+.dp-id p{font-size:.875rem;font-weight:700;color:var(--ink-muted);margin-top:2px}
+.dp-id .masked{margin-top:6px}
+.dp h2.mode{font-size:1.25rem;font-weight:900;line-height:1.3}
+.dp h3{font-size:.9375rem;font-weight:900;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.notes{list-style:none;display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:var(--r-md);background:var(--danger-tint);box-shadow:inset 0 0 0 1px var(--border-danger)}
+.notes.care{background:var(--warning-bg);box-shadow:none}
+.notes li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:.875rem;font-weight:700;line-height:1.45}
+.kv{display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:9px 14px;font-weight:700;font-size:.9375rem;line-height:1.45}
+.kv dt{color:var(--ink-muted);font-size:.875rem;padding-top:1px}
+.kv dd{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.kv dd small{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.rqbox{padding:14px;border-radius:var(--r-md);border:2px dashed var(--ink);display:flex;flex-direction:column;gap:8px}
+.rqbox .mv1{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-weight:900}
+.rqbox .mv1 .ico{width:16px;height:16px;color:var(--ink-muted)}
+.rqbox small{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.rqbox .own{font-size:.875rem;font-weight:800}
+.dacts{display:flex;flex-direction:column;gap:8px;padding-top:4px}
+.dacts .row{display:flex;gap:8px;flex-wrap:wrap}
+.dacts .row .btn{flex:1 1 auto}
+.more{border-top:1px solid var(--border);padding-top:10px}
+.more ul{list-style:none;margin-top:8px;display:flex;flex-direction:column;gap:2px}
+.more li button,.more li a{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:48px;padding:12px;border-radius:var(--r-sm);font-weight:700;text-decoration:none;color:var(--ink);transition:background-color .2s var(--out)}
+.more li button:hover,.more li a:hover{background:var(--sunk)}
+.more li [aria-disabled="true"]{color:var(--ink-muted);cursor:not-allowed}
+.more li [aria-disabled="true"]:hover{background:transparent}
+.more li .lb{display:flex;flex-direction:column}
+.more li .lb small{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.more li.end{margin-top:6px;padding-top:6px;border-top:1.5px dashed var(--border-danger)}
+.more li.end button:not([aria-disabled="true"]){color:var(--danger)}
+.tday{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.875rem;font-weight:700;line-height:1.5}
+.tday .ico{margin-top:1px;color:var(--ink-muted)}
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:800;line-height:1.5}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.info{background:var(--info-bg);color:var(--info)}
+.notice .ico{margin-top:1px}
+.notice:focus{outline:2.5px solid var(--focus);outline-offset:2px}
+
+/* move tiles: 原本 ↓ 改成 */
+.mv{display:flex;flex-direction:column;align-items:stretch;gap:4px}
+.tile{padding:12px 14px;border-radius:var(--r-md);background:var(--sunk);display:grid;grid-template-columns:3rem minmax(0,1fr);gap:2px 10px;align-items:baseline}
+.tile small{font-size:.8125rem;font-weight:800;color:var(--ink-muted)}
+.tile b{font-size:1rem;font-weight:900}
+.tile span{grid-column:2;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.tile.to{background:var(--surface);box-shadow:inset 0 0 0 2px var(--ink)}
+.tile.to.empty{box-shadow:none;background:transparent;border:1.5px dashed var(--control-border)}
+.tile.to.empty b{color:var(--ink-muted);font-weight:700;font-size:.9375rem}
+.mv .down{align-self:center;color:var(--ink-muted)}
+
+/* pickers: radiogroups of options */
+.fs{border:0;display:flex;flex-direction:column;gap:8px}
+.fs legend,.fs .lgd{font-size:.875rem;font-weight:900;margin-bottom:8px;padding:0}
+.rg{display:flex;flex-wrap:wrap;gap:6px}
+.opt{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:6px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:800;line-height:1.3;color:var(--ink);text-align:center;transition:box-shadow .2s var(--out),background-color .2s var(--out),transform .35s var(--spring)}
+.opt:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.opt:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.opt small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.opt[aria-checked="true"]{background:var(--ink);color:var(--surface);box-shadow:none}
+.opt[aria-checked="true"] small{color:var(--surface)}
+.opt[aria-disabled="true"]{background:transparent;box-shadow:none;border:1.5px dashed var(--control-border);color:var(--ink-muted);cursor:not-allowed}
+.dates{display:grid;grid-template-columns:repeat(auto-fill,minmax(3.9rem,1fr));gap:6px}
+.dates .opt{padding:6px 2px;min-width:0}
+.dates .opt b{font-size:1rem;font-weight:900}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(4.5rem,1fr));gap:6px}
+.times .opt{min-width:0;padding:6px 4px}
+.times .opt small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cards .opt{align-items:flex-start;text-align:left;padding:10px 12px;min-height:56px;flex-direction:row;gap:10px;justify-content:flex-start}
+.cards .opt .ct{display:flex;flex-direction:column;min-width:0}
+.cards .opt .face{--s:40px}
+.ferr{display:flex;gap:8px;align-items:flex-start;font-size:.875rem;font-weight:800;color:var(--danger);line-height:1.45}
+.ferr .ico{margin-top:1px;width:18px;height:18px}
+.srch{position:relative}
+.srch .ico{position:absolute;left:14px;top:14px;color:var(--ink-muted)}
+.srch input{width:100%;min-height:48px;padding:10px 14px 10px 44px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);font-size:.9375rem;font-weight:600}
+.srch input:hover{border-color:var(--ink)}
+.srch input::placeholder{color:var(--ink-muted)}
+.hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+/* consequence preview */
+.cq{list-style:none;display:flex;flex-direction:column}
+.cq li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:2px 12px;padding:10px 0;border-top:1px solid var(--border)}
+.cq li:first-child{border-top:0;padding-top:0}
+.cq .ci{grid-row:span 2;width:32px;height:32px;border-radius:50%;background:var(--sunk);display:grid;place-items:center;color:var(--ink)}
+.cq .ci .ico{width:17px;height:17px}
+.cq .cl{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-weight:900;line-height:1.4}
+.cq .cl .money{margin-left:auto}
+.cq p{font-size:.8125rem;font-weight:600;color:var(--ink-muted);line-height:1.45;text-wrap:pretty}
+.sum{display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:8px 12px;padding:14px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700;line-height:1.45}
+.sum dt{color:var(--ink-muted)}
+.sum dd .money{font-size:1rem}
+.blockers{font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.5}
+.blockers b{color:var(--ink);font-weight:800}
+.dp .go{display:flex;flex-direction:column;gap:6px;padding-top:14px;border-top:1px solid var(--border)}
+.dp .go .btn{width:100%;min-height:56px}
+
+/* ---------- M-03: search and filters ---------- */
+.find{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:16px 28px 0}
+.compact .find{padding:12px 16px 0}
+.find .srch{flex:1 1 26rem;max-width:44rem}
+.find .srch input{min-height:52px;font-size:1rem;padding-left:48px;box-shadow:var(--lift);border-color:transparent}
+.find .srch input:hover{border-color:var(--control-border)}
+.find .srch input:focus-visible{outline-offset:0}
+.find .srch .ico{left:16px;top:16px}
+.find .srch kbd{position:absolute;right:14px;top:14px;min-width:24px;padding:1px 7px;border-radius:8px;background:var(--sunk);color:var(--ink-muted);font:800 .8125rem/1.5 var(--font);text-align:center}
+.find .srch .clr{position:absolute;right:6px;top:4px}
+.find .srch input::-webkit-search-cancel-button{display:none}
+.find .pills{flex:1 1 100%}
+.compact .find .srch{flex-basis:100%;max-width:none}
+.hitline{padding:10px 28px 0;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.compact .hitline{padding:10px 16px 0}
+.hitline b{color:var(--ink);font-weight:900}
+
+/* ---------- M-03: customer rows ---------- */
+.clist{list-style:none;display:flex;flex-direction:column;gap:8px}
+.crow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr) 14rem 24px;gap:4px 18px;align-items:center;width:100%;min-height:76px;padding:12px 16px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);text-align:left;transition:box-shadow .2s var(--out)}
+.crow:hover{box-shadow:var(--lift-hi)}
+.crow.sel{box-shadow:var(--lift-hi),inset 0 0 0 2.5px var(--ink)}
+.crow.fresh{animation:fresh 1.6s var(--out)}
+@keyframes fresh{0%,30%{box-shadow:var(--lift-hi),inset 0 0 0 3px var(--ink)}}
+.crow .who{display:flex;align-items:center;gap:14px;min-width:0}
+.crow .cn{min-width:0}
+.crow .cn b{display:block;font-size:1.0625rem;font-weight:900;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow .cn small,.crow .cp small,.crow .cv small{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);line-height:1.4}
+.crow .cp,.crow .cv{font-size:.875rem;font-weight:700;min-width:0;line-height:1.4}
+.crow .cp span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crow .ct{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+.crow .go{color:var(--ink-muted)}
+.crow .cp small.safe{color:var(--danger);font-weight:800}
+.ph{font-feature-settings:"tnum";letter-spacing:.02em;white-space:nowrap}
+/* the digits a search matched: tinted, never a different color, so the four still read as one number */
+.ph mark{background:var(--act-tint);color:inherit;border-radius:4px;padding:0 1px;margin:0 -1px}
+.stack{display:flex;align-items:center}
+.stack .face{--s:44px;box-shadow:0 0 0 3px var(--surface);border-radius:50%;background:var(--surface)}
+.stack .face+.face,.stack .more{margin-left:-12px}
+.stack .face .badge{min-width:18px;min-height:18px;width:18px;height:18px;border-width:2px}
+.stack .more{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--sunk);box-shadow:0 0 0 3px var(--surface);font-size:.75rem;font-weight:900;color:var(--ink);flex:none;position:relative}
+.stack .none{width:44px;height:44px;border-radius:50%;border:1.5px dashed var(--control-border);display:grid;place-items:center;color:var(--ink-muted)}
+.lmark{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 7px;border-radius:999px;font-size:.75rem;font-weight:800;line-height:1.4;white-space:nowrap;background:var(--sunk);color:var(--ink)}
+.lmark .ico{width:13px;height:13px;stroke-width:2.2}
+.lmark.sms{background:transparent;box-shadow:inset 0 0 0 1.5px var(--control-border);color:var(--ink-muted)}
+.lmark.del{background:var(--danger-bg);color:var(--danger)}
+.lmark.fam{background:var(--info-bg);color:var(--info)}
+.lmark.new{background:var(--success-bg);color:var(--success)}
+.lmark.req{background:transparent;box-shadow:inset 0 0 0 1.5px var(--ink);color:var(--ink)}
+.today{color:var(--ink);font-weight:900}
+.clwrap{container:cl / inline-size}
+@container cl (max-width: 980px){
+  .crow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 20px;row-gap:8px}
+  .crow .who{grid-column:1;grid-row:1}.crow .cp{grid-column:2;grid-row:1}
+  .crow .cv{grid-column:1;padding-left:58px}.crow .ct{grid-column:2;justify-content:flex-start}
+  .crow .go{grid-column:3;grid-row:1 / span 2}
+}
+@container cl (max-width: 560px){
+  .crow{grid-template-columns:minmax(0,1fr) auto;padding:12px 14px;gap:8px 12px}
+  .crow .who{grid-column:1 / -1;flex-direction:row-reverse;justify-content:space-between}
+  .crow .stack .face{--s:36px}
+  .crow .cp,.crow .cv,.crow .ct{grid-column:1 / -1;grid-row:auto;padding-left:0}
+  .crow .go{display:none}
+}
+
+/* a possible duplicate: a dashed enclosure around the two records it joins */
+/* the dashed line is an outline so enclosed rows keep the same column lines as free rows */
+.dupg{list-style:none;outline:2px dashed var(--ink);outline-offset:6px;border-radius:var(--r-xl);margin:8px 0;display:flex;flex-direction:column;gap:6px}
+.dupg.req{outline-color:var(--control-border)}
+.dupg-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:0 8px 2px 10px;font-size:.875rem;font-weight:800}
+.dupg-h .ico{color:var(--ink-muted)}
+.dupg-h .sp{margin-left:auto;display:flex;align-items:center;gap:8px}
+.dupg .clist{gap:6px}
+.dupg .crow{box-shadow:var(--lift)}
+
+.pager{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:16px}
+.pager .seg button{min-width:44px;padding:0 12px}
+.pager .muted{font-size:.875rem;font-weight:700}
+.empty{padding:32px 24px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.empty b{font-weight:900;font-size:1.0625rem}
+.empty p{font-size:.875rem;font-weight:600;color:var(--ink-muted);max-width:34rem;text-wrap:pretty}
+.fail{padding:32px 24px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.fail h2{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:900;color:var(--danger)}
+.fail p{font-size:.9375rem;font-weight:600;color:var(--ink-muted)}
+
+/* ---------- M-03: detail panel ---------- */
+.dp-id .face.person{--s:64px}
+.dp-id .face.person .ini{font-size:1.5rem}
+.dp-id .line2{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:6px}
+.relbox{padding:14px;border-radius:var(--r-md);border:2px dashed var(--ink);display:flex;flex-direction:column;gap:8px}
+.relbox.del{border-color:var(--border-danger);background:var(--danger-tint)}
+.relbox .rh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-weight:900;line-height:1.4}
+.relbox p{font-size:.8125rem;font-weight:600;color:var(--ink-muted);line-height:1.5;text-wrap:pretty}
+.relbox .own{font-size:.875rem;font-weight:800}
+.nextv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 12px;align-items:center;padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border)}
+.nextv .ico{grid-row:span 2;color:var(--ink-muted)}
+.nextv b{font-weight:900}
+.nextv small{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.nextv a{grid-column:2;justify-self:start;margin-top:6px}
+.sec-h{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.sec-h h3{margin:0}
+.sec-h .textbtn{margin-left:auto}
+.pets{list-style:none;display:flex;flex-direction:column}
+.pet{display:flex;flex-direction:column;gap:10px;padding:16px 0;border-top:1px solid var(--border)}
+.pet:first-child{border-top:0;padding-top:8px}
+.pet-h{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center}
+.pet-h .face{--s:60px}
+.pet-h b{font-size:1.1875rem;font-weight:900;line-height:1.3;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pet-h small{display:block;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.45}
+.pkv{display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:7px 12px;font-size:.875rem;font-weight:700;line-height:1.45}
+.pkv dt{color:var(--ink-muted);font-size:.8125rem;padding-top:1px}
+.pkv dd{min-width:0;overflow-wrap:anywhere}
+.pkv dd.unset{color:var(--ink-muted);font-weight:600}
+.mono{font-family:var(--mono);font-size:.8125rem;font-weight:600;letter-spacing:0}
+.notes .nt{font-weight:900}
+.notes li .masked{margin-left:auto}
+.mask-note{display:flex;gap:8px;align-items:flex-start;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.5}
+.mask-note .ico{margin-top:1px}
+.lastedit{font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.5}
+.pacts{display:flex;flex-wrap:wrap;gap:6px}
+.hist{border-radius:var(--r-md);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border)}
+.hist>button{display:flex;align-items:center;gap:8px;width:100%;min-height:48px;padding:10px 14px;font-weight:800;font-size:.875rem;border-radius:var(--r-md)}
+.hist>button:hover{background:var(--sunk)}
+.hist>button .ico.chev{margin-left:auto;transition:transform .25s var(--out)}
+.hist>button[aria-expanded="true"] .ico.chev{transform:rotate(180deg)}
+.hist ol{list-style:none;padding:0 14px 8px}
+.hv{display:grid;grid-template-columns:3.25rem minmax(0,1fr) auto;gap:2px 10px;padding:10px 0;border-top:1px solid var(--border);font-size:.875rem;font-weight:700;line-height:1.45}
+.hv .hd{font-weight:900}
+.hv .hd small{display:block;font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.hv .hs small{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.hv .money{text-align:right}
+.hv .ctr{grid-column:2 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.hv .ctr .textbtn{min-height:36px;padding:0 12px;font-size:.8125rem;margin-left:auto}
+.hv.sys{grid-template-columns:3.25rem minmax(0,1fr)}
+.hv.sys .hs{color:var(--ink)}
+.readonly{display:flex;gap:8px;align-items:flex-start;font-size:.8125rem;font-weight:700;color:var(--ink-muted);padding:10px 12px;border-radius:var(--r-md);border:1.5px dashed var(--control-border)}
+
+/* ---------- M-03: edit / new forms in the panel ---------- */
+.frm{display:flex;flex-direction:column;gap:16px}
+.frm .row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.frm .field input{min-height:46px}
+.field .hint{margin-top:-2px}
+.field input[readonly]{background:var(--sunk);color:var(--ink-muted)}
+.togs{display:flex;flex-wrap:wrap;gap:6px}
+.tog{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out),box-shadow .2s var(--out)}
+.tog .ico{width:16px;height:16px}
+.tog:not([aria-checked="true"]) .ico{display:none}
+.tog:hover{box-shadow:inset 0 0 0 1.5px var(--control-border);color:var(--ink)}
+.tog[aria-checked="true"]{padding-left:10px;color:var(--ink);background:var(--warning-bg);box-shadow:inset 0 0 0 1.5px var(--warning)}
+.tog.s[aria-checked="true"]{background:var(--danger-solid);color:var(--on-danger-solid);box-shadow:none}
+/* 櫃台 cannot take away a safety tag the pet already has: it stays on, with a lock instead of the check */
+.tog[aria-disabled="true"]{cursor:not-allowed}
+.tog[aria-disabled="true"]:hover{color:inherit}
+.tog-note{margin-top:-2px}
+/* phone verification in the detail panel */
+.vf{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 10px}
+.vf .field{flex:1 1 11rem}
+.vf .field input{min-height:46px;font-weight:800}
+.vf .field input:not(:placeholder-shown){letter-spacing:.3em}
+.vf .btn{min-height:46px}
+.demo{align-self:flex-start;border:1.5px dashed var(--control-border);border-radius:999px;padding:1px 9px;font-size:.75rem;font-weight:800;color:var(--ink-muted)}
+.relbox .row{display:flex;flex-wrap:wrap;gap:6px}
+.dialog .field input{min-height:46px}
+.tnote{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px;align-items:center}
+.tnote label{font-size:.8125rem;font-weight:800}
+.tnote input{min-height:44px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:8px 12px;font-weight:600;width:100%}
+.tnote input:hover{border-color:var(--ink)}
+.lockf{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:46px;padding:8px 12px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700}
+.ckl{display:flex;align-items:flex-start;gap:10px;font-size:.875rem;font-weight:800;min-height:44px;padding-top:10px;cursor:pointer}
+.ckl input{width:20px;height:20px;accent-color:var(--ink);margin-top:1px;flex:none}
+.match{padding:14px;border-radius:var(--r-md);border:2px dashed var(--ink);display:flex;flex-direction:column;gap:10px}
+.match .who{display:flex;align-items:center;gap:10px}
+.match .who b{font-weight:900}
+.match .who small{display:block;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.chs{display:flex;flex-direction:column;gap:6px}
+.ch{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:52px;padding:10px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);text-align:left;font-weight:800;line-height:1.4}
+.ch small{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.ch .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--control-border);flex:none;margin-top:1px;display:grid;place-items:center}
+.ch:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.ch[aria-checked="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
+.ch[aria-checked="true"] .dot{border-color:var(--ink);background:var(--ink);box-shadow:inset 0 0 0 3px var(--surface)}
+
+/* ---------- M-03: merge bench ---------- */
+.bench{display:flex;flex-direction:column;gap:18px}
+.bench-h{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.bench-h h2{font-size:1.375rem;font-weight:900;line-height:1.3}
+.bench-h p{flex-basis:100%;font-size:.9375rem;font-weight:700;color:var(--ink-muted)}
+.cmp{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:10px 20px 14px}
+.cmp-r{display:grid;grid-template-columns:8.5rem minmax(0,1fr) minmax(0,1fr);gap:10px 14px;align-items:stretch;padding:10px 0;border-top:1px solid var(--border)}
+.cmp-r:first-child{border-top:0}
+.cmp-r>.k{font-size:.875rem;font-weight:900;padding-top:12px;display:flex;flex-direction:column;gap:2px}
+.cmp-r>.k small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.cmp-r.top>.k{padding-top:0;align-self:center}
+.src{display:flex;align-items:center;gap:12px;padding:6px 4px}
+.src .face.person{--s:52px}
+.src b{display:block;font-size:1.125rem;font-weight:900;line-height:1.3}
+.src small{display:block;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.pick{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:48px;padding:11px 14px;border-radius:var(--r-md);background:var(--surface-2);box-shadow:inset 0 0 0 1.5px var(--border);text-align:left;font-weight:800;line-height:1.45;transition:box-shadow .2s var(--out),background-color .2s var(--out)}
+.pick .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--control-border);flex:none;margin-top:1px}
+.pick:hover:not([aria-disabled="true"]){box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.pick[aria-checked="true"]{background:var(--surface);box-shadow:inset 0 0 0 2.5px var(--ink)}
+.pick[aria-checked="true"] .dot{border-color:var(--ink);background:var(--ink);box-shadow:inset 0 0 0 3px var(--surface)}
+.pick[aria-disabled="true"]{cursor:not-allowed;color:var(--ink-muted)}
+.pick .unset{color:var(--ink-muted);font-weight:600}
+.auto{grid-column:2 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-height:48px;padding:11px 14px;border-radius:var(--r-md);background:var(--sunk);font-weight:800;line-height:1.45}
+.auto small{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.auto.bad{background:var(--danger-tint);box-shadow:inset 0 0 0 1.5px var(--border-danger);color:var(--danger)}
+.val{display:flex;align-items:center;gap:8px;padding:11px 14px;min-height:48px;border-radius:var(--r-md);background:var(--sunk);font-weight:800;line-height:1.45;flex-wrap:wrap}
+.val.bad{background:var(--danger-tint);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.val .stack .face{--s:40px}
+.outcome{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start}
+.result{position:relative;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi),inset 0 0 0 2.5px var(--ink);padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+.result .rh3{font-size:1.25rem;font-weight:900;line-height:1.3}
+.result .rid{display:flex;align-items:center;gap:14px}
+.result .rid .face.person{--s:64px}
+.result .rid b{display:block;font-size:1.375rem;font-weight:900;line-height:1.25}
+.result .rid small{display:block;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.result .flow{display:flex;flex-wrap:wrap;gap:10px 14px}
+.result .flow .pf{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.8125rem;font-weight:900}
+.result .flow .pf .face{--s:56px}
+.result .flow .pf small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.result .flow .pf.l{animation:flowl .7s var(--out) both}
+.result .flow .pf.r{animation:flowr .7s var(--out) both}
+@keyframes flowl{from{transform:translate(-56px,-28px) scale(.8);opacity:0}}
+@keyframes flowr{from{transform:translate(56px,-28px) scale(.8);opacity:0}}
+.result .rkv{display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:7px 12px;font-size:.875rem;font-weight:700}
+.result .rkv dt{color:var(--ink-muted);font-size:.8125rem;padding-top:1px}
+.result .rkv dd{min-width:0}
+.result .rkv .upd{animation:upd .9s var(--out)}
+@keyframes upd{0%,25%{background:var(--sunk)}}
+.famlink{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center}
+.famlink .pp{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 4px;text-align:center;font-weight:900;font-size:1.0625rem}
+.famlink .pp small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.famlink .pp .face.person{--s:48px}
+.famlink .ln{width:84px;border-top:2.5px dashed var(--ink);position:relative}
+.famlink .ln span{position:absolute;left:50%;top:-14px;transform:translateX(-50%);padding:1px 9px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--ink);font-size:.75rem;font-weight:900;white-space:nowrap}
+.cqbox{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:20px 22px}
+.cqbox h3{font-size:1rem;font-weight:900;margin-bottom:12px}
+.bench-go{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px;justify-content:flex-end;padding:16px 20px;border-radius:var(--r-xl);background:var(--surface);box-shadow:var(--lift)}
+.bench-go .field{flex:1 1 20rem}
+.bench-go .acts{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+.bench-go .acts .bw{display:flex;flex-direction:column;align-items:flex-end;background:none;padding:0;min-height:0}
+.bench .notice{font-size:.9375rem}
+.bench .notice.danger{background:var(--danger-tint);color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.bench-x{display:flex;flex-direction:column;gap:6px}
+@container main (max-width: 900px){
+  .outcome{grid-template-columns:minmax(0,1fr)}
+  .cmp-r{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .cmp-r>.k{grid-column:1 / -1;padding-top:0}
+  .auto{grid-column:1 / -1}
+}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}.crow.fresh{animation-duration:1.6s !important}.result .rkv .upd{animation-duration:.9s !important}.face circle.cur{stroke-dasharray:var(--dash) 600}}
+/* touch: DESIGN.md touch-target is 44px; mouse density stays as drawn */
+@media (pointer: coarse){.pills .pill,.seg>button{min-height:44px !important}}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>M-03 客戶與寵物・原型</b><span class="muted">資料全為虛構・今天 10/9（五）11:20</span>
+  <label>身分 <select id="p-role"><option value="admin">陳老闆・店家管理者（兩家分店）</option><option value="mgr">林店長・店長（中山店）</option><option value="desk">阿凱・櫃台（中山店）</option><option value="groom">阿哲・美容照護（中山店）</option></select></label>
+  <label>跳到 <select id="p-go"><option value="">選擇情境</option><option value="list">客戶列表</option><option value="he">何先生／何志明 比對</option><option value="zhang">鄭小姐／鄭先生 比對</option><option value="afu">蔡先生・阿福</option><option value="new">新增客戶</option></select></label>
+  <label>下一次寫入 <select id="p-write"><option value="ok">正常</option><option value="conflict">被其他人修改</option></select></label>
+  <label><input type="checkbox" id="p-fail"> 載入失敗</label>
+  <label><input type="checkbox" id="p-off"> 離線</label>
+  <span>簡訊時間</span><button class="pbtn" id="p-ff1">快轉 1 分鐘</button><button class="pbtn" id="p-ff10">快轉 10 分鐘</button>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <span class="tagp">原型</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+const I = {
+  inbox:'<path d="M4 13h4l1.5 2.5h5L16 13h4"/><path d="M5.5 5h13L20 13v6H4v-6l1.5-8Z"/>',
+  coins:'<ellipse cx="9" cy="7" rx="5" ry="2.5"/><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7"/><path d="M10 15.4c.9 1.3 3 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  dash:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 19c1-3.5 3.4-5 6-5s5 1.5 6 5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.3c1.7.7 2.9 2.2 3.5 4.7"/>',
+  scis:'<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17M8.6 15.6 20 7"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  doc:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  team:'<circle cx="10" cy="8" r="4"/><path d="M3 20c1.4-3.5 4-5 7-5 1.5 0 2.9.4 4 1.1M18 14v6M15 17h6"/>',
+  plan:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  fwd:'<path d="m10 6 6 6-6 6"/>',
+  up:'<path d="m6 14 6-6 6 6"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  paw:'<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  unlock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',
+  ban:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4V5Z"/>',
+  receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  stamp:'<path d="M9 4h6l-1 7h-4L9 4Z"/><path d="M5 15h14v3H5zM7 21h10"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  erase:'<path d="M8 20h12M4.5 15.5 14 6l5 5-7.5 7.5H8.5l-4-3Z"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/>',
+  swap:'<path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/>',
+  otp:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  layers:'<path d="m12 4 9 5-9 5-9-5 9-5Z"/><path d="m3 14 9 5 9-5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>'
+};
+Object.assign(I, {
+  store:'<path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8h13v-8M10 20v-5h4v5"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  tag:'<path d="M3.5 12.5V4h8.5l8.5 8.5-8.5 8.5-8.5-8.5Z"/><circle cx="8" cy="8.5" r="1.5"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  qr:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
+  play:'<circle cx="12" cy="12" r="8.5"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'
+});
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+I.res = '<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>';
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* a person's initial: skip the 阿 / 小 prefix so 阿凱 and 阿楷 stay apart (user decision 2026-10-11); pets keep their first character */
+const initialOf = n => /^[阿小]./.test(n) ? n[1] : n[0];
+const $ = id => document.getElementById(id);
+const fmt = n => Math.abs(n).toLocaleString('en-US');
+const money = n => `<span class="money"><span aria-hidden="true"><span class="cur">NT$</span>${fmt(n)}</span><span class="sr">新台幣 ${fmt(n)} 元</span></span>`;
+const nowT = () => { const d = new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+const qs = new URLSearchParams(location.search);
+Object.assign(I, {
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  dots:'<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+  board:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16M9 9v11"/>',
+  release:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M9 15h6" stroke-dasharray="2 2"/>'
+});
+
+/* ---------- time ---------- */
+/* 阿福的過敏 (prototypes/allergy): ?life=afu-edit is 10/9（五）09:40, before 阿福's 11:00 精緻美容: 蔡先生 has just called about 牛肉, and
+   saving 阿福's edit is the act's key action. Without ?life= nothing changes. */
+/* 郭太太的刪除申請 (prototypes/erase): ?life=del-review is the page as it is (10/9（五）11:20); opening 郭太太's file, with its 刪除請求 box,
+   posts 'opened' */
+const LIFE = ['afu-edit', 'del-review'].includes(qs.get('life')) ? qs.get('life') : null;
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+const NOWS = LIFE ? '09:40' : '11:20';
+const WD = '日一二三四五六';
+/* a running clock for the SMS code only, from NOWS; the strip's 快轉 moves it forward */
+let skew = 0;
+const T0 = Date.now(), NOW0 = new Date(2026, 9, 9, +NOWS.slice(0, 2), +NOWS.slice(3)).getTime();
+const clockMs = () => NOW0 + (Date.now() - T0) + skew;
+const hmT = t => { const x = new Date(t); return `${String(x.getHours()).padStart(2,'0')}:${String(x.getMinutes()).padStart(2,'0')}`; };
+
+/* ---------- SMS codes: the same rule on every surface (店員 App, 管理 Web, M-03 換手機) ----------
+   A code lives 10 minutes; resend opens after 60 s; one number gets at most 5 texts an hour; 5 wrong tries kill a code
+   (after that even the right digits are refused); 10 wrong in total lock the number for 15 minutes, written to the audit log.
+   Kept per phone number, outside the customer, so 不換號碼了 and changing again cannot clear it. */
+const SMS = {life:10 * 60000, gap:60000, cap:5, hour:60 * 60000, perCode:5, lockAt:10, lockFor:15 * 60000};
+const VCODE = '246810';
+const smsBook = {};
+const smsOf = ph => smsBook[ph] || (smsBook[ph] = {sends:[], code:null, wrong:0, until:0});
+function smsLock(ph) { const s = smsOf(ph); if (s.until && s.until <= clockMs()) { s.until = 0; s.wrong = 0; } return s.until; }
+function smsCapUntil(ph) { const s = smsOf(ph), t = clockMs(); s.sends = s.sends.filter(x => t - x < SMS.hour); return s.sends.length >= SMS.cap ? s.sends[0] + SMS.hour : 0; }
+const capMsg = t => `這支手機一小時內已傳 ${SMS.cap} 次，請 ${hmT(t)} 後再試`;
+/* '' when a new code went out, 'locked', or why not in words */
+function smsSend(ph) {
+  if (smsLock(ph)) return 'locked';
+  const cap = smsCapUntil(ph); if (cap) return capMsg(cap);
+  const s = smsOf(ph); s.sends.push(clockMs()); s.code = {at:clockMs(), tries:0}; return '';
+}
+const smsWait = ph => { const c = smsOf(ph).code; return c ? Math.max(0, Math.ceil((c.at + SMS.gap - clockMs()) / 1000)) : 0; };
+/* '' when right, 'locked' when this try locked the number, otherwise the error in words */
+function smsCheck(ph, v) {
+  const s = smsOf(ph), c = s.code;
+  if (smsLock(ph)) return 'locked';
+  if (!c) return '請重新傳送驗證碼';
+  if (c.tries >= SMS.perCode) return `這組驗證碼輸錯 ${SMS.perCode} 次，已經失效，請重新傳送`;
+  if (clockMs() - c.at > SMS.life) return '驗證碼已過期，請重新傳送';
+  if (v === VCODE) { s.code = null; s.wrong = 0; return ''; }
+  c.tries++; s.wrong++;
+  if (s.wrong >= SMS.lockAt) { s.until = clockMs() + SMS.lockFor; s.code = null; return 'locked'; }
+  return c.tries >= SMS.perCode ? `這組驗證碼輸錯 ${SMS.perCode} 次，已經失效，請重新傳送` : `驗證碼不對。請飼主再念一次（這組還能試 ${SMS.perCode - c.tries} 次）`;
+}
+const dt = d => new Date(2026, 9, 9 + d);
+const dLabel = d => { const x = dt(d); return `${x.getMonth() + 1}/${x.getDate()}（${WD[x.getDay()]}）`; };
+const dYmd = d => { const x = dt(d); return `${x.getFullYear() === 2026 ? '' : `${x.getFullYear()}/`}${x.getMonth() + 1}/${x.getDate()}`; };
+const dFull = d => { const x = dt(d); return `${x.getFullYear()}/${x.getMonth() + 1}/${x.getDate()}`; };
+const relDay = d => d === 0 ? '今天' : d === 1 ? '明天' : d === 2 ? '後天' : dLabel(d);
+const STEP_MS = qs.get('fast') === '1' ? 120 : 800;
+const hash = s => { let h = 2166136261; for (const c of s) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+const hex = (s, n) => { let o = '', h = hash(s); while (o.length < n) { o += h.toString(16).padStart(8, '0'); h = hash(o + s); } return o.slice(0, n); };
+
+/* ---------- demo data (fictional) ---------- */
+const SHOP = '毛孩日和';
+const BR = {zs:'中山店', xy:'信義店'};
+const ROLES = {
+  admin:{who:'陳老闆', role:'店家管理者', br:null, sens:true, edit:'all', merge:'do', create:true},
+  mgr:{who:'林店長', role:'店長', br:'zs', sens:true, edit:'all', merge:'do', create:true},
+  desk:{who:'阿凱', role:'櫃台', br:'zs', sens:false, edit:'care', merge:'ask', create:true},
+  groom:{who:'阿哲', role:'美容照護', br:'zs', sens:true, edit:null, merge:null, create:false}
+};
+/* prices by size, the same as M-02, M-04 and the today board (基礎洗澡 600 / 800 / 1200, 貓 1000; 洗澡＋剪毛 1200 / 1500 / 2000, 貓 1600; 精緻美容 1500 / 1800 / 2200, not offered for cats) */
+const SVC = {bath:{n:'基礎洗澡', price:600, p:{小型犬:600, 中型犬:800, 大型犬:1200, 貓:1000}}, groom:{n:'洗澡＋剪毛', price:1200, p:{小型犬:1200, 中型犬:1500, 大型犬:2000, 貓:1600}}, spa:{n:'精緻美容', price:1500, p:{小型犬:1500, 中型犬:1800, 大型犬:2200}}, nail:{n:'修指甲', price:300}};
+const sizeOf = pet => pet.sp !== '犬' ? '貓' : pet.kg < 9 ? '小型犬' : pet.kg < 25 ? '中型犬' : '大型犬';
+const svcPrice = (k, pet) => SVC[k].p ? SVC[k].p[sizeOf(pet)] : SVC[k].price;
+const SVCK = Object.keys(SVC);
+const TABLES = {zs:[['A','阿哲'],['B','小葵'],['C','阿楷']], xy:[['A','美美'],['B','小悅']]};
+const SAFETY_PRESET = ['會咬人','會抓人','怕陌生人','護食'];
+const CARE_PRESET = ['怕吹風機','怕剪刀','需戴頭套','皮膚敏感','關節不好'];
+const T = (t, note) => ({t, note});
+const P = (name, sp, breed, sex, age, kg, x = {}) => Object.assign({name, sp, breed, sex, age, kg, fix:'已結紮', chip:'', alt:'', photo:false, safety:[], care:[], ill:'', allergy:'', internal:'', edits:[]}, x);
+const PETS = {
+  maomao:P('毛毛','犬','貴賓犬','母','5 歲',4.2,{photo:true, care:[T('怕剪刀','剪刀靠近臉部會掙扎，臉部改用電剪')], ill:'無', allergy:'無'}),
+  niangao:P('年糕','貓','米克斯','母','6 歲',4.6,{care:[T('需戴頭套','剪指甲前先戴頭套')], ill:'無', allergy:'無'}),
+  xiaomi:P('小米','犬','柯基','公','3 歲',11.8,{photo:true, safety:[T('護食','服務中不要給零食，碗靠近會撲咬')], care:[T('關節不好','抱上美容台要托住後腿')], ill:'髖關節發育不良（觀察中）', allergy:'無'}),
+  buding:P('布丁','犬','柴犬','公','4 歲',9.6,{photo:true, ill:'無', allergy:'無'}),
+  doudou:P('豆豆','犬','臘腸犬','公','7 歲',5.4,{photo:true, safety:[T('會咬人','剪指甲時會咬，需兩人保定')], ill:'椎間盤突出（已手術，避免跳躍）', allergy:'無', internal:'住宿期間每天兩次確認後腿力氣'}),
+  afu:P('阿福','犬','黃金獵犬','公','6 歲',31.2,{photo:true, safety:[T('會咬人','剪指甲與吹耳朵時會咬，需兩人保定')], care:[T('怕吹風機','改用低風量分段吹')], ill:'異位性皮膚炎，背部易起疹（服藥中）', allergy:'雞肉', internal:'飼主上次覺得剪太短，修剪長度先跟飼主確認',
+    edits:[{at:'9/30', by:'林店長', role:'店長', why:'飼主告知新的過敏原'}]}),
+  xiaohei:P('小黑','犬','米克斯','公','2 歲',14.0,{photo:true, care:[T('怕吹風機','吹風改低風量，分三段吹')], ill:'無', allergy:'不確定'}),
+  aidai:P('阿呆','貓','米克斯','公','3 歲',5.0,{fix:'已結紮'}),
+  huasheng:P('花生','犬','臘腸犬','母','3 歲',5.1,{care:[T('皮膚敏感','只用低敏洗劑，洗後檢查腹部')], ill:'無', allergy:'無'}),
+  yutou:P('芋頭','貓','米克斯','公','4 歲',5.3,{chip:'', alt:'未辦寵物登記：灰白虎斑、右耳剪耳', ill:'無', allergy:'無'}),
+  qiuqiu:P('球球','犬','比熊','母','8 歲',4.6,{care:[T('怕陌生人','先讓牠聞手再抱')], ill:'氣管塌陷（避免勒頸）', allergy:'無'}),
+  tangtang:P('糖糖','犬','馬爾濟斯','母','5 歲',3.2),
+  latte:P('拿鐵','犬','貴賓犬','公','2 歲',3.8,{ill:'無', allergy:'無'}),
+  tangyuan:P('湯圓','犬','比熊','公','4 歲',5.6),
+  mochi:P('麻糬','犬','西施犬','母','6 歲',5.9),
+  pipi:P('皮皮','犬','吉娃娃','公','9 歲',2.1,{ill:'心雜音（定期追蹤）', internal:'保定時間不要超過 10 分鐘'}),
+  cola:P('可樂','犬','法鬥','公','3 歲',12.4,{care:[T('皮膚敏感','皺褶處洗後要吹乾')]}),
+  naicha:P('奶茶','犬','博美','母','4 歲',2.8),
+  dudu:P('嘟嘟','犬','雪納瑞','公','5 歲',7.8),
+  panghu:P('胖虎','犬','柴犬','公','6 歲',11.2,{safety:[T('怕陌生人','陌生人伸手會低吼，讓熟悉的美容師接手')]}),
+  ougao:P('歐告','犬','黃金獵犬','公','4 歲',29.5),
+  keke:P('可可','犬','米克斯','母','3 歲',10.2),
+  naiyou:P('奶油','犬','馬爾濟斯','母','7 歲',3.1),
+  zhima:P('芝麻','犬','臘腸犬','公','5 歲',5.8),
+  heitang:P('黑糖','犬','米克斯','公','4 歲',15.6),
+  baitang:P('白糖','犬','米克斯','母','4 歲',14.1),
+  hongdou:P('紅豆','貓','米克斯','母','2 歲',3.9,{safety:[T('會抓人','剪指甲會抓，先包毛巾')]}),
+  lvdou:P('綠豆','貓','米克斯','公','2 歲',4.4),
+  huajuan:P('花捲','犬','柯基','母','1 歲',9.0,{fix:'未結紮'}),
+  binggan:P('餅乾','犬','柯基','母','2 歲',10.9),
+  xueqiu:P('雪球','犬','博美','母','3 歲',2.4),
+  niuniu:P('妞妞','犬','西施犬','母','10 歲',5.2,{care:[T('關節不好','不要讓牠自己跳下美容台')]}),
+  kafei:P('咖啡','犬','臘腸犬','公','6 歲',6.0),
+  lele:P('樂樂','犬','迷你雪納瑞','公','1 歲',7.2,{fix:'未結紮'}),
+  wangcai:P('旺財','犬','米克斯','公','8 歲',24.0),
+  douhua:P('豆花','貓','英國短毛貓','母','2 歲',4.1,{safety:[T('會抓人','剪指甲會抓，需包毛巾')], ill:'無', allergy:'無'}),
+  bulang:P('布朗','犬','貴賓犬','公','1 歲',3.2,{fix:'未結紮', ill:'無', allergy:'無'}),
+  duoduo:P('多多','犬','柴犬','母','5 歲',8.7),
+  mimi:P('咪咪','貓','英國短毛貓','母','9 歲',4.4,{fix:'不確定', chip:'', alt:'未辦寵物登記：三花、尾巴短'}),
+  dabao:P('大寶','犬','拉不拉多','公','7 歲',33.0),
+  tudou:P('土豆','犬','米克斯','公','3 歲',13.5),
+  xiaobai:P('小白','犬','馬爾濟斯','母','6 歲',3.3),
+  guoguo:P('果果','犬','約克夏','公','4 歲',2.9),
+  amao:P('阿毛','貓','波斯貓','公','8 歲',4.8,{care:[T('皮膚敏感','長毛結球處先梳開再洗')]}),
+  kaka:P('卡卡','犬','雪納瑞','母','3 歲',7.1),
+  wanglai:P('旺來','犬','米克斯','公','2 歲',16.2),
+  /* everyday filler pets: one each for the filler customers below */
+  pidan:P('皮蛋','犬','貴賓犬','公','3 歲',4.1,{ill:'無', allergy:'無'}),
+  migao:P('米糕','犬','柴犬','母','5 歲',9.8,{ill:'無', allergy:'無'}),
+  bubu:P('布布','犬','馬爾濟斯','母','7 歲',3.4,{ill:'無', allergy:'無'}),
+  jiujiu:P('啾啾','犬','吉娃娃','公','4 歲',2.3,{ill:'無', allergy:'無'}),
+  wanzi:P('丸子','犬','博美','母','2 歲',2.6,{ill:'無', allergy:'無'}),
+  lizi:P('栗子','犬','米克斯','公','6 歲',16.5,{ill:'無', allergy:'無'}),
+  bobo:P('波波','犬','比熊','公','3 歲',5.2,{ill:'無', allergy:'無'}),
+  pangpang:P('胖胖','犬','拉不拉多','公','5 歲',30.4,{ill:'無', allergy:'無'}),
+  xiaoguai:P('小乖','犬','西施犬','母','8 歲',5.6,{ill:'無', allergy:'無'}),
+  maipian:P('麥片','犬','約克夏','母','3 歲',2.8,{ill:'無', allergy:'無'}),
+  xiaoxiong:P('小熊','犬','貴賓犬','公','4 歲',5.0,{ill:'無', allergy:'無'}),
+  aji:P('阿吉','犬','柯基','公','3 歲',12.2,{ill:'無', allergy:'無'}),
+  mangguo:P('芒果','犬','米克斯','母','4 歲',11.4,{ill:'無', allergy:'無'}),
+  danhuang:P('蛋黃','犬','臘腸犬','公','6 歲',5.5,{ill:'無', allergy:'無'}),
+  xiaotao:P('小桃','犬','馬爾濟斯','母','2 歲',2.9,{ill:'無', allergy:'無'}),
+  yezi:P('椰子','犬','米格魯','公','5 歲',13.0,{ill:'無', allergy:'無'}),
+  maoqiu:P('毛球','犬','博美','公','6 歲',2.5,{ill:'無', allergy:'無'}),
+  nuomi:P('糯米','犬','比熊','母','4 歲',4.8,{ill:'無', allergy:'無'}),
+  xiaoyu:P('小魚','犬','迷你雪納瑞','母','5 歲',6.9,{ill:'無', allergy:'無'}),
+  bulu:P('布魯','犬','哈士奇','公','4 歲',26.8,{ill:'無', allergy:'無'}),
+  tiaotiao:P('跳跳','犬','吉娃娃','母','9 歲',2.0,{ill:'無', allergy:'無'}),
+  qiqi:P('奇奇','犬','臘腸犬','母','2 歲',4.9,{ill:'無', allergy:'無'}),
+  duola:P('多拉','犬','柴犬','公','6 歲',10.4,{ill:'無', allergy:'無'}),
+  xiaoke:P('小可','犬','貴賓犬','母','3 歲',3.6,{ill:'無', allergy:'無'}),
+  wulong:P('烏龍','犬','米克斯','公','7 歲',18.2,{ill:'無', allergy:'無'}),
+  kuku:P('酷酷','犬','法鬥','母','4 歲',11.8,{ill:'無', allergy:'無'}),
+  xiaoxue:P('小雪','犬','西施犬','母','5 歲',6.1,{ill:'無', allergy:'無'}),
+  baozi:P('包子','犬','柯基','母','4 歲',11.0,{ill:'無', allergy:'無'}),
+  mantou:P('饅頭','犬','馬爾濟斯','公','6 歲',3.9,{ill:'無', allergy:'無'}),
+  huahua:P('花花','犬','米克斯','母','3 歲',9.5,{ill:'無', allergy:'無'}),
+  dongdong:P('咚咚','犬','約克夏','公','2 歲',2.7,{ill:'無', allergy:'無'}),
+  abao:P('阿寶','犬','黃金獵犬','公','5 歲',29.2,{ill:'無', allergy:'無'}),
+  xiaohu:P('小虎','犬','米克斯','公','3 歲',14.8,{ill:'無', allergy:'無'}),
+  paofu:P('泡芙','犬','博美','母','4 歲',2.4,{ill:'無', allergy:'無'}),
+  moka:P('摩卡','犬','貴賓犬','公','5 歲',6.2,{ill:'無', allergy:'無'}),
+  beiguo:P('貝果','犬','比熊','公','2 歲',5.4,{ill:'無', allergy:'無'}),
+  xiaofu:P('小福','犬','柴犬','公','8 歲',10.9,{ill:'無', allergy:'無'}),
+  qiaoqiao:P('喬喬','犬','西施犬','母','3 歲',5.8,{ill:'無', allergy:'無'}),
+  lebi:P('樂比','犬','米克斯','母','6 歲',20.5,{ill:'無', allergy:'無'}),
+  gugu:P('咕咕','犬','臘腸犬','公','4 歲',5.3,{ill:'無', allergy:'無'}),
+  daidai:P('呆呆','犬','柯基','公','7 歲',12.8,{ill:'無', allergy:'無'}),
+  subing:P('酥餅','犬','貴賓犬','母','9 歲',4.4,{ill:'無', allergy:'無'}),
+  danjuan:P('蛋捲','犬','迷你雪納瑞','公','3 歲',7.4,{ill:'無', allergy:'無'}),
+  mijiang:P('米漿','犬','米克斯','母','2 歲',8.2,{ill:'無', allergy:'無'}),
+  songbing:P('鬆餅','犬','米格魯','母','4 歲',12.6,{ill:'無', allergy:'無'}),
+  xiaojin:P('小金','犬','黃金獵犬','母','3 歲',27.5,{ill:'無', allergy:'無'}),
+  pika:P('皮卡','犬','吉娃娃','公','5 歲',2.2,{ill:'無', allergy:'無'}),
+  naolao:P('奶酪','犬','馬爾濟斯','母','4 歲',3.0,{ill:'無', allergy:'無'}),
+  dounai:P('豆奶','犬','貴賓犬','母','2 歲',3.9,{ill:'無', allergy:'無'}),
+  xiaowan:P('小丸','犬','柴犬','公','7 歲',9.9,{ill:'無', allergy:'無'}),
+  ale:P('阿樂','犬','馬爾濟斯','母','3 歲',2.9,{ill:'無', allergy:'無'}),
+  xiaobing:P('小餅','犬','米克斯','公','8 歲',15.3,{ill:'無', allergy:'無'}),
+  dubi:P('嘟比','犬','博美','母','4 歲',2.6,{ill:'無', allergy:'無'}),
+  xiaomitao:P('小蜜','犬','比熊','公','9 歲',5.2,{ill:'無', allergy:'無'}),
+  ahu:P('阿虎','犬','柯基','母','5 歲',11.8,{ill:'無', allergy:'無'}),
+  heidou:P('黑豆','犬','臘腸犬','公','10 歲',5.5,{ill:'無', allergy:'無'}),
+  xiaoju:P('小橘','犬','西施犬','母','6 歲',6.1,{ill:'無', allergy:'無'}),
+  yuanyuan:P('圓圓','犬','吉娃娃','公','2 歲',2.0,{ill:'無', allergy:'無'}),
+  pangding:P('胖丁','犬','米格魯','母','7 歲',11.8,{ill:'無', allergy:'無'}),
+  xiaoli:P('小栗','犬','迷你雪納瑞','公','3 歲',6.8,{ill:'無', allergy:'無'}),
+  aken:P('阿肯','犬','約克夏','母','8 歲',2.8,{ill:'無', allergy:'無'}),
+  boniu:P('波妞','犬','拉不拉多','公','4 歲',29.8,{ill:'無', allergy:'無'}),
+  oudi:P('歐弟','犬','貴賓犬','母','9 歲',4.4,{ill:'無', allergy:'無'}),
+  kabi:P('卡比','犬','柴犬','公','5 歲',10.4,{ill:'無', allergy:'無'}),
+  youzi:P('柚子','犬','馬爾濟斯','母','10 歲',3.4,{ill:'無', allergy:'無'}),
+  ningmeng:P('檸檬','犬','米克斯','公','6 歲',15.8,{ill:'無', allergy:'無'}),
+  caomei:P('草莓','犬','博美','母','2 歲',2.2,{ill:'無', allergy:'無'}),
+  lanmei:P('藍莓','犬','比熊','公','7 歲',4.8,{ill:'無', allergy:'無'}),
+  putao:P('葡萄','犬','柯基','母','3 歲',11.4,{ill:'無', allergy:'無'}),
+  mitao:P('蜜桃','犬','臘腸犬','公','8 歲',5.1,{ill:'無', allergy:'無'}),
+  mahua:P('麻花','犬','西施犬','母','4 歲',5.7,{ill:'無', allergy:'無'}),
+  tangbao:P('湯包','犬','吉娃娃','公','9 歲',2.5,{ill:'無', allergy:'無'}),
+  zongzi:P('粽子','犬','米格魯','母','5 歲',12.3,{ill:'無', allergy:'無'})
+};
+Object.entries(PETS).forEach(([k, p]) => { if (p.chip === '' && !p.alt) p.chip = `9001${String(hash(k)).padStart(11, '0').slice(-11)}`; });
+/* customers: full phones are fictional; screens show only the last four */
+const C = (id, name, ph, br, pets, x = {}) => Object.assign({id, name, ph, br, pets, line:true, src:'LINE 預約', since:-200 - hash(id) % 260, addr:'', note:'', family:null, del:null, gone:false, req:null, log:[]}, x);
+const CUST0 = [
+  C('c-caif','王太太','0910558821','zs',['maomao','niangao'],{addr:'台北市中山區錦州街（門牌略）', note:'喜歡上午時段'}),
+  C('c-zhang','鄭小姐','0933187702','zs',['xiaomi'],{since:-410, addr:'台北市中山區民生東路（門牌略）'}),
+  C('c-li','黃先生','0912555318','zs',['doudou'],{line:false, src:'店家建立'}),
+  C('c-caim','蔡先生','0952771180','zs',['afu'],{note:'接回時請先打電話，常在附近開會'}),
+  C('c-he','何先生','0958663047','zs',['huasheng'],{line:false, src:'現場預約', since:-68, note:'常走路帶花生來，不用留車位'}),
+  C('c-huang','許小姐','0918243390','zs',['qiuqiu'],{del:{id:'del-huang', at:'9/12（六）', left:3}}),
+  C('c-zheng','施小姐','0930121205','zs',['latte']),
+  C('c-wang','王先生','0975332664','zs',['tangyuan']),
+  C('c-xu','游小姐','0989434870','zs',['mochi']),
+  C('c-zeng','曾先生','0910287133','zs',['pipi'],{src:'店家建立'}),
+  C('c-yang','楊小姐','0922610552','zs',['cola']),
+  C('c-wu','林先生','0938142716','zs',['xiaohei','aidai']),
+  C('c-hong','洪先生','0916503081','zs',['keke']),
+  C('c-qiu','邱小姐','0958229360','zs',['naiyou']),
+  C('c-jian','簡先生','0927046093','zs',['binggan']),
+  C('c-lin','劉先生','0963713055','zs',['heitang','baitang','hongdou','lvdou','huajuan'],{line:false, note:'五隻常一起來，洗澡排同一天'}),
+  C('c-gao','高先生','0919385274','zs',['zhima'],{line:false, src:'店家建立'}),
+  C('c-chen','吳小姐','0937906610','zs',['buding']),
+  C('c-zhou','郭太太','0920334126','zs',['tangtang'],{del:{id:'del-zhou', at:'10/3（六）', left:24}}),
+  C('c-xie','李小姐','0911464471','zs',['naicha']),
+  C('c-liu','劉小姐','0953083317','xy',['dudu']),
+  C('c-guo','郭先生','0928512446','xy',['panghu']),
+  C('c-luo','羅小姐','0932696729','xy',['ougao']),
+  C('c-jiang','江小姐','0970258478','xy',['xueqiu']),
+  C('c-su','蘇先生','0915871826','xy',['niuniu'],{line:false, src:'店家建立'}),
+  C('c-ye','葉小姐','0935647359','xy',['kafei'],{del:{id:'del-ye', at:'10/8（四）', left:29}}),
+  C('c-pan','謝小姐','0926305562','zs',['lele']),
+  C('c-lai','賴先生','0961240742','xy',['wangcai']),
+  C('c-hezm','何志明','0958663047','zs',['yutou'],{since:-320, addr:'台北市中山區長安東路（門牌略）', note:'芋頭怕狗，安排在角落的房間'}),
+  C('c-zhangtt','鄭先生','0933187702','zs',['douhua'],{since:-40}),
+  C('c-song','宋小姐','0939552288','zs',['bulang'],{since:0, src:'現場預約', line:false}),
+  C('c-fang','方先生','0917393365','xy',['duoduo']),
+  C('c-tang','張太太','0929610112','zs',['mimi']),
+  C('c-feng','馮先生','0968034757','xy',['dabao']),
+  C('c-du','杜小姐','0913786634','zs',['tudou']),
+  C('c-dai','戴先生','0931451543','xy',['xiaobai'],{line:false, src:'店家建立'}),
+  C('c-xia','夏小姐','0956228806','zs',['guoguo']),
+  C('c-zhong','鍾先生','0925902179','zs',['amao']),
+  C('c-wang2','汪小姐','0972165940','xy',['kaka'],{since:-12}),
+  C('c-tian','田先生','0918603486','zs',['wanglai']),
+  /* everyday filler customers (fictional, names used nowhere else): they keep M-02's calendar full under its 7-day spacing rule */
+  C('c-pidan','石小姐','0975111285','zs',['pidan']),
+  C('c-migao','余先生','0938411607','xy',['migao']),
+  C('c-bubu','姚太太','0922351814','zs',['bubu']),
+  C('c-jiujiu','盧先生','0931521962','xy',['jiujiu']),
+  C('c-wanzi','傅小姐','0964008146','zs',['wanzi']),
+  C('c-lizi','魏先生','0949146615','xy',['lizi']),
+  C('c-bobo','范小姐','0952754416','zs',['bobo']),
+  C('c-pangpang','程先生','0952074506','zs',['pangpang']),
+  C('c-xiaoguai','康太太','0942994445','xy',['xiaoguai']),
+  C('c-maipian','孫小姐','0977551879','zs',['maipian']),
+  C('c-xiaoxiong','唐先生','0941189696','xy',['xiaoxiong']),
+  C('c-aji','薛小姐','0914531153','zs',['aji']),
+  C('c-mangguo','侯先生','0933594812','zs',['mangguo']),
+  C('c-danhuang','卓太太','0968931882','xy',['danhuang']),
+  C('c-xiaotao','嚴小姐','0935034368','zs',['xiaotao']),
+  C('c-yezi','龔先生','0956437903','xy',['yezi']),
+  C('c-maoqiu','邵小姐','0922623037','zs',['maoqiu']),
+  C('c-nuomi','秦先生','0960201785','zs',['nuomi']),
+  C('c-xiaoyu','尤小姐','0929678413','xy',['xiaoyu']),
+  C('c-bulu','鄧先生','0939301750','zs',['bulu']),
+  C('c-tiaotiao','袁太太','0965371356','xy',['tiaotiao']),
+  C('c-qiqi','葛小姐','0935301316','zs',['qiqi']),
+  C('c-duola','童先生','0931941710','xy',['duola']),
+  C('c-xiaoke','甘小姐','0953444795','zs',['xiaoke']),
+  C('c-wulong','翁先生','0956948398','zs',['wulong']),
+  C('c-kuku','連太太','0986904274','xy',['kuku']),
+  C('c-xiaoxue','莊小姐','0917404469','zs',['xiaoxue']),
+  C('c-baozi','涂先生','0954971126','xy',['baozi']),
+  C('c-mantou','段小姐','0994598166','zs',['mantou']),
+  C('c-huahua','包先生','0998381792','zs',['huahua']),
+  C('c-dongdong','管小姐','0956224528','xy',['dongdong']),
+  C('c-abao','古先生','0993554387','zs',['abao']),
+  C('c-xiaohu','詹小姐','0980387652','xy',['xiaohu']),
+  C('c-paofu','黎太太','0959954667','zs',['paofu']),
+  C('c-moka','錢先生','0944496129','zs',['moka']),
+  C('c-beiguo','呂小姐','0912946669','xy',['beiguo']),
+  C('c-xiaofu','潘先生','0950064791','zs',['xiaofu']),
+  C('c-qiaoqiao','陸小姐','0982544114','xy',['qiaoqiao']),
+  C('c-lebi','熊先生','0945081394','zs',['lebi']),
+  C('c-gugu','賀小姐','0955144251','xy',['gugu']),
+  C('c-daidai','殷先生','0979017896','zs',['daidai']),
+  C('c-subing','祁太太','0975224550','zs',['subing']),
+  C('c-danjuan','柏先生','0951904559','xy',['danjuan']),
+  C('c-mijiang','藍小姐','0963785643','zs',['mijiang']),
+  C('c-songbing','麥先生','0980171210','xy',['songbing']),
+  C('c-xiaojin','阮小姐','0973421753','zs',['xiaojin']),
+  C('c-pika','伍先生','0987407377','zs',['pika']),
+  C('c-naolao','華小姐','0918704582','xy',['naolao']),
+  C('c-dounai','姜先生','0916116663','zs',['dounai']),
+  C('c-xiaowan','雷小姐','0960231438','xy',['xiaowan']),
+  C('c-ale','鄒太太','0977495864','zs',['ale']),
+  C('c-xiaobing','龍小姐','0983851837','zs',['xiaobing']),
+  C('c-dubi','冉先生','0945184714','xy',['dubi']),
+  C('c-xiaomitao','單小姐','0986754938','zs',['xiaomitao']),
+  C('c-ahu','項太太','0964394972','xy',['ahu']),
+  C('c-heidou','牛小姐','0973354334','zs',['heidou']),
+  C('c-xiaoju','喬先生','0970171664','xy',['xiaoju']),
+  C('c-yuanyuan','季小姐','0998421393','zs',['yuanyuan']),
+  C('c-pangding','尹太太','0939481262','zs',['pangding']),
+  C('c-xiaoli','岳小姐','0991419707','xy',['xiaoli']),
+  C('c-aken','易先生','0983326358','zs',['aken']),
+  C('c-boniu','申小姐','0955674512','xy',['boniu']),
+  C('c-oudi','樊太太','0929101788','zs',['oudi']),
+  C('c-kabi','苗小姐','0944314487','zs',['kabi']),
+  C('c-youzi','符先生','0929384533','xy',['youzi']),
+  C('c-ningmeng','左小姐','0951591303','zs',['ningmeng']),
+  C('c-caomei','戚太太','0953559682','xy',['caomei']),
+  C('c-lanmei','紀小姐','0966054867','zs',['lanmei']),
+  C('c-putao','孔先生','0933664843','zs',['putao']),
+  C('c-mitao','費小姐','0995504610','xy',['mitao']),
+  C('c-mahua','史太太','0937484244','zs',['mahua']),
+  C('c-tangbao','萬小姐','0985614748','xy',['tangbao']),
+  C('c-zongzi','向先生','0914844626','zs',['zongzi'])
+];
+const GONE_PH = ['0937220886'];   /* deleted at the owner's request: soft-deleted, cannot be restored */
+/* today and coming visits: each pet's first booking from today on, mirroring M-02's generated APPTS (prototypes/m02-appointments, days 0..+7); re-read it there if M-02's data changes */
+const NX = (d, t, svc, tb, st = 'booked') => ({d, t, svc, tb, st});
+const NEXT = {
+  niuniu:NX(0,'10:00','groom','A','service_completed'), dudu:NX(0,'10:30','bath','B','in_service'), xiaohei:NX(0,'10:30','groom','B','checked_in'), tangyuan:NX(0,'10:30','bath','C'),
+  afu:NX(0,'11:00','spa','A',LIFE ? 'booked' : 'in_service'), mochi:NX(0,'12:30','groom','C'), xueqiu:NX(0,'13:00','bath','A'), huasheng:NX(0,'14:00','bath','A'),
+  xiaomi:NX(0,'14:00','bath','B'), ougao:NX(0,'15:00','spa','A'), pipi:NX(0,'15:00','nail','C'), panghu:NX(0,'16:00','bath','B'),
+  qiuqiu:NX(0,'16:00','spa','A'), cola:NX(0,'17:00','groom','B'), tiaotiao:NX(1,'10:00','spa','A'), wangcai:NX(1,'10:00','nail','B'),
+  maomao:NX(1,'10:00','groom','A'), dounai:NX(1,'10:00','groom','C'), bobo:NX(1,'11:00','bath','B'), danhuang:NX(1,'11:30','groom','B'),
+  heidou:NX(1,'12:00','bath','C'), mantou:NX(1,'12:30','groom','A'), baozi:NX(1,'13:00','bath','A'), moka:NX(1,'14:00','groom','B'),
+  oudi:NX(1,'14:00','spa','C'), lizi:NX(1,'14:30','spa','B'), mitao:NX(1,'15:00','groom','A'), kabi:NX(1,'15:00','bath','A'),
+  subing:NX(1,'16:00','bath','B'), mahua:NX(1,'17:00','groom','A'), mangguo:NX(1,'17:00','nail','C'), dubi:NX(2,'10:00','groom','B'),
+  aji:NX(2,'10:00','spa','A'), wanzi:NX(2,'10:00','nail','B'), xiaoxue:NX(2,'10:30','bath','C'), gugu:NX(2,'11:00','bath','A'),
+  bulu:NX(2,'11:30','groom','B'), xiaoli:NX(2,'12:00','bath','B'), paofu:NX(2,'12:30','groom','C'), pika:NX(2,'13:00','bath','A'),
+  jiujiu:NX(2,'14:00','groom','A'), caomei:NX(2,'14:00','spa','B'), buding:NX(2,'14:00','spa','B'), doudou:NX(2,'15:00','groom','A'),
+  daidai:NX(2,'15:00','bath','C'), xiaoxiong:NX(2,'16:00','bath','A'), naolao:NX(3,'10:00','nail','A'), xiaomitao:NX(3,'10:00','groom','B'),
+  lebi:NX(3,'10:00','spa','C'), xiaoyu:NX(3,'10:30','bath','B'), putao:NX(3,'11:00','bath','A'), ahu:NX(3,'11:30','groom','A'),
+  aken:NX(3,'12:00','bath','B'), kuku:NX(3,'12:30','groom','B'), xiaojin:NX(3,'13:00','bath','C'), lanmei:NX(3,'14:00','spa','B'),
+  boniu:NX(3,'14:30','spa','A'), xiaohu:NX(3,'15:00','bath','B'), bubu:NX(3,'15:00','groom','C'), keke:NX(3,'16:00','bath','A'),
+  abao:NX(3,'17:00','nail','B'), songbing:NX(4,'10:00','spa','B'), heitang:NX(4,'10:00','nail','A'), bulang:NX(4,'11:00','bath','B'),
+  maipian:NX(4,'11:00','bath','C'), dongdong:NX(4,'12:00','bath','A'), nuomi:NX(4,'12:30','groom','B'), naicha:NX(4,'14:30','spa','A'),
+  migao:NX(4,'15:00','groom','B'), maoqiu:NX(4,'16:00','bath','C'), qiaoqiao:NX(4,'17:00','nail','A'), wulong:NX(4,'17:00','groom','B'),
+  yezi:NX(6,'10:00','nail','B'), ningmeng:NX(6,'10:00','groom','C'), xiaoke:NX(6,'10:30','bath','A'), xiaoguai:NX(6,'13:00','bath','A'),
+  pangding:NX(6,'14:00','groom','B'), zongzi:NX(6,'14:00','spa','C'), duola:NX(6,'14:30','spa','B'), xiaobing:NX(6,'15:00','bath','A'),
+  pidan:NX(7,'10:00','nail','B'), youzi:NX(7,'11:00','bath','A'), huahua:NX(7,'12:30','groom','C'), pangpang:NX(7,'14:30','spa','B'),
+  tangbao:NX(7,'16:00','bath','A'), beiguo:NX(7,'17:00','nail','B'), xiaofu:NX(7,'17:00','groom','C')
+};
+const STEPS = {booked:0, checked_in:1, in_service:2, service_completed:4};
+const LC = ['報到','現況','服務','完成','收款','離店'];
+const STW = {booked:'待報到', checked_in:'已報到', in_service:'服務中', service_completed:'待接回'};
+
+/* M-02's bookings from 10/5 to today that are over: [day, start, service, table, completed / no-show / cancelled], mirroring M-02's APPTS (days −4..−1, plus 拿鐵 done this morning) */
+const M02_PAST = {
+  xiaoyu:[[-4,'10:00','spa','A','done']], naolao:[[-4,'10:00','nail','B','done']],
+  xiaomitao:[[-4,'10:00','groom','C','done']], bubu:[[-4,'10:30','bath','A','done']],
+  abao:[[-4,'11:00','bath','B','done']], ahu:[[-4,'11:30','groom','B','done']],
+  aken:[[-4,'12:00','bath','C','done']], maipian:[[-4,'12:30','groom','A','done']],
+  kuku:[[-4,'13:00','bath','A','done']], lebi:[[-4,'14:00','groom','B','done']],
+  lanmei:[[-4,'14:00','spa','C','noshow']], boniu:[[-4,'14:30','spa','B','done']],
+  xiaohu:[[-4,'15:00','groom','A','cancelled']], maoqiu:[[-4,'15:00','bath','A','cancelled']],
+  xiaojin:[[-4,'16:00','bath','B','done']], xiaoke:[[-4,'17:00','groom','A','done']],
+  binggan:[[-4,'17:00','nail','C','done']], dongdong:[[-3,'10:00','groom','B','done']],
+  nuomi:[[-3,'10:00','spa','A','done']], naicha:[[-3,'10:00','nail','B','noshow']],
+  ningmeng:[[-3,'10:30','bath','C','cancelled']], qiaoqiao:[[-3,'11:00','bath','A','done']],
+  xiaobing:[[-3,'11:30','groom','B','done']], xiaoguai:[[-3,'12:00','bath','B','done']],
+  zongzi:[[-3,'12:30','groom','C','done']], wulong:[[-3,'13:00','bath','A','done']],
+  songbing:[[-3,'14:00','groom','A','done']], yezi:[[-3,'14:00','spa','B','noshow']],
+  pangding:[[-3,'14:30','spa','B','done']], heitang:[[-3,'15:00','groom','A','done']],
+  zhima:[[-3,'15:00','bath','C','done']], migao:[[-3,'16:00','bath','A','done']],
+  duola:[[-3,'17:00','nail','B','cancelled']], huahua:[[-3,'17:00','groom','C','done']],
+  youzi:[[-1,'10:00','groom','A','done']], xiaowan:[[-1,'10:00','spa','B','done']],
+  xiaofu:[[-1,'10:00','nail','A','done']], yuanyuan:[[-1,'10:30','bath','B','done']],
+  pangpang:[[-1,'11:00','bath','C','done']], mijiang:[[-1,'11:30','groom','A','done']],
+  tangbao:[[-1,'12:00','bath','A','done']], lele:[[-1,'12:30','groom','B','noshow']],
+  xiaoju:[[-1,'13:00','bath','B','done']], beiguo:[[-1,'14:00','spa','A','done']],
+  xiaotao:[[-1,'14:00','groom','C','done']], ale:[[-1,'14:30','spa','A','done']],
+  kafei:[[-1,'15:00','groom','B','cancelled']], pidan:[[-1,'15:00','bath','B','cancelled']],
+  qiqi:[[-1,'16:00','bath','C','done']], danjuan:[[-1,'17:00','nail','A','done']],
+  latte:[[0,'10:00','bath','A','done']]
+};
+/* past visits, each with the contract signed for it; older visits are generated, never on a Wednesday (公休: moved to the Tuesday before) */
+function genHist(key, c) {
+  const out = [];
+  if (c.since < -14) {
+    const h = hash(key), n = 1 + h % 6;
+    let d = -(6 + h % 22);
+    for (let i = 0; i < n; i++) {
+      if (dt(d).getDay() === 3) d -= 1;
+      if (d < c.since) break;
+      out.push({d, t:`${10 + (h >>> i) % 7}:${(h >>> (i + 3)) % 2 ? '30' : '00'}`, svc:(k => PETS[key].sp !== '犬' && k === 'spa' ? 'groom' : k)(SVCK[(h >>> (i * 3)) % 4]), noshow:i === 3 && h % 3 === 0});
+      d -= 24 + (h >>> (i * 2)) % 30;
+    }
+  }
+  const tbs = TABLES[c.br];
+  const gen = out.map((v, i) => Object.assign(v, {tb:tbs[(hash(key + i) >>> 2) % tbs.length][0]}));
+  const m02 = (M02_PAST[key] || []).map(([d, t, svc, tb, st]) => ({d, t, svc, tb, noshow:st === 'noshow', cancelled:st === 'cancelled'}));
+  return [...m02.reverse(), ...gen].map((v, i) => {
+    const who = tbs.find(x => x[0] === v.tb)[1];
+    const how = v.noshow || v.cancelled ? '打字＋簡訊驗證' : hash(key + 'h' + i) % 5 === 0 ? '打字＋簡訊驗證' : '手寫簽名';
+    return Object.assign(v, {br:c.br, who, price:v.noshow || v.cancelled ? 0 : svcPrice(v.svc, PETS[key]),
+      ct:{ver:`犬貓美容定型化契約 ${v.d >= -8 ? 'v3' : 'v2'}`, how, sha:`${hex(key + i, 6)}…${hex(i + key, 4)}`, ts:how === '手寫簽名' ? `${dYmd(v.d)} ${v.t}` : `${dYmd(v.d - 1)} ${19 + hash(key + i) % 3}:${String(hash(i + key) % 60).padStart(2, '0')}`}});
+  });
+}
+
+/* ---------- state ---------- */
+const clone = o => JSON.parse(JSON.stringify(o));
+let CUST = clone(CUST0);
+const HIST = {};
+CUST.forEach(c => c.pets.forEach(k => { HIST[k] = genHist(k, c); }));
+const INIT = {role:'admin', branch:'all', q:'', filt:'all', page:0, sel:null, mode:null, draft:{}, bench:null, bd:{}, open:{}, dlg:null,
+  offline:false, loadFail:false, retrying:false, nextWrite:'ok', fresh:null, readOnly:false};
+let state = clone(INIT);
+const me = () => ROLES[state.role];
+const scope = () => me().br || state.branch;
+const inScope = c => scope() === 'all' || c.br === scope();
+const cust = id => CUST.find(c => c.id === id);
+const canWrite = () => !state.offline;
+const phone = () => state.phone;
+const last4 = c => c.ph.slice(-4);
+/* the last four always stay together, the same ••••1180 as S-04 and the 審核台 */
+const maskPh = ph => `••••${ph.slice(-4)}`;
+const maskSr = ph => `手機末四碼 ${ph.slice(-4).split('').join(' ')}`;
+/* q: the search, whose matched digits are tinted inside the last four */
+const phHtml = (ph, q) => {
+  const l4 = ph.slice(-4), d = (q || '').replace(/[\s-]/g, '');
+  const n = /^\d{3,}$/.test(d) && (ph === d || ph.endsWith(d)) ? Math.min(d.length, 4) : 0;
+  return `<span class="ph" role="img" aria-label="${maskSr(ph)}">••••${l4.slice(0, 4 - n)}${n ? `<mark>${l4.slice(4 - n)}</mark>` : ''}</span>`;
+};
+const visible = () => CUST.filter(c => !c.gone && inScope(c));
+const petsCount = list => list.reduce((n, c) => n + c.pets.length, 0);
+const nextOf = c => c.pets.map(k => NEXT[k] && {k, ...NEXT[k]}).filter(Boolean).sort((a, b) => a.d - b.d || a.t.localeCompare(b.t))[0] || null;
+const lastOf = c => c.pets.flatMap(k => (HIST[k] || []).map(v => ({k, ...v}))).filter(v => !v.noshow && !v.cancelled).sort((a, b) => b.d - a.d)[0] || null;
+const isNew = c => c.since >= -14;
+const tbName = (br, tb) => { const t = TABLES[br].find(x => x[0] === tb); return `美容台 ${tb}・${t ? t[1] : ''}`; };
+const m02role = () => ['admin','mgr','desk'].includes(state.role) ? state.role : null;
+const calUrl = d => `../m02-appointments/index.html?role=${m02role()}&d=${d}&view=day`;
+const deskUrl = id => `../admin-review-desk/index.html?role=${state.role}&page=queue&item=${id}`;
+/* the 審核台 prototype carries one request per 可能重複 pair, keyed by the pair's bench */
+const DESK_REQ = {'c-hezm':'mg-he', 'c-zhang':'bd-zheng'};
+
+/* possible duplicates: same phone, not already bound as family */
+function dupGroups() {
+  const by = {};
+  visible().forEach(c => { (by[c.ph] = by[c.ph] || []).push(c); });
+  return Object.values(by).filter(g => g.length > 1 && !g.every(c => c.family && g.some(o => o.id === c.family)))
+    .map(g => g.sort((a, b) => a.since - b.since)).map(g => ({key:g[0].id, ids:g.map(c => c.id)}));
+}
+const groupOf = c => dupGroups().find(g => g.ids.includes(c.id)) || null;
+const bothLine = g => g.ids.every(id => cust(id).line);
+
+/* ---------- small pieces ---------- */
+const chip = (tone, t) => `<span class="chip ${tone}">${t}</span>`;
+const lm = (cls, icon, t) => `<span class="lmark ${cls}">${icon ? ic(icon) : ''}${t}</span>`;
+const imgOf = (key, p) => p.photo ? `<img src="pets/${key}.webp" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ini',textContent:'${esc(p.name[0])}'}))">` : `<span class="ini" aria-hidden="true">${esc(p.name[0])}</span>`;
+function face(key, size, ring, badge) {
+  const p = PETS[key], st = size ? ` style="--s:${size}px"` : '', nx = NEXT[key];
+  const bd = badge && p.safety.length ? `<span class="badge" aria-hidden="true">${ic('warn')}</span>` : '', bl = bd ? `，安全注意：${p.safety.map(x => x.t).join('、')}` : '';
+  if (!ring || !nx || nx.d !== 0) return `<span class="face plain"${st} role="img" aria-label="${esc(p.name)}${bl}">${imgOf(key, p)}${bd}</span>`;
+  const n = STEPS[nx.st] ?? 0;
+  const segs = LC.map((l, i) => `<circle cx="50" cy="50" r="46" pathLength="600" class="${i < n ? 'done' : i === n ? 'cur' : ''}" stroke-dasharray="82 600" stroke-dashoffset="${-(i * 100 + 9)}" style="--dash:82"/>`).join('');
+  return `<span class="face"${st} role="img" aria-label="${esc(p.name)}今天已完成 ${n} / 6，現在：${LC[n]}${bl}"><svg viewBox="0 0 100 100" aria-hidden="true">${segs}</svg>${imgOf(key, p)}${bd}</span>`;
+}
+const person = (c, size) => `<span class="face plain person"${size ? ` style="--s:${size}px"` : ''} aria-hidden="true"><span class="ini">${esc(initialOf(c.name))}</span></span>`;
+function stack(keys, size, live) {
+  if (!keys.length) return `<span class="stack"><span class="none" role="img" aria-label="還沒有寵物資料">${ic('paw','sm')}</span></span>`;
+  const show = keys.length > 4 ? keys.slice(0, 3) : keys;
+  return `<span class="stack">${show.map(k => face(k, size, live, live)).join('')}${keys.length > 4 ? `<span class="more" role="img" aria-label="還有 ${keys.length - 3} 隻">+${keys.length - 3}</span>` : ''}</span>`;
+}
+const lineMark = c => c.line ? lm('', 'msg', 'LINE') : lm('sms', 'phone', '簡訊');
+const masked = what => `<span class="masked" role="img" aria-label="${esc(what)}已遮罩，需敏感資料權限">${ic('lock')}需敏感資料權限</span>`;
+const petLine = c => c.pets.length === 1 ? `${PETS[c.pets[0]].name}・${PETS[c.pets[0]].breed}` : c.pets.length ? `${c.pets.slice(0, 3).map(k => PETS[k].name).join('、')}${c.pets.length > 3 ? '…' : ''}・${c.pets.length} 隻` : '還沒有寵物資料';
+
+/* ---------- shell ---------- */
+const NAV = [
+  ['營運', [['dash','儀表板','dash'],['cal','預約','cal'],['queue','待處理','inbox'],['cust','客戶與寵物','users'],['money','收款對帳','coins']]],
+  ['設定', [['svc','服務與價格','scis'],['hours','營業時間','clock'],['res','資源','res'],['tpl','契約模板','doc'],['pol','取消與改期政策','cxl'],['notify','通知設定','bell']]],
+  ['帳務', [['staff','員工與權限','team'],['plan','方案與用量','plan'],['audit','稽核紀錄','shield']]]
+];
+function sideNav() {
+  const staffOnly = state.role === 'desk' || state.role === 'groom';
+  const groups = NAV.filter(([g]) => !staffOnly || g === '營運').map(([g, list]) => `<div class="sgrp" aria-hidden="true">${g}</div>${list.map(([k, l, icon]) =>
+    `<button class="sitem" data-key="nav-${k}" data-do="nav" data-page="${k}" ${k === 'cust' ? 'aria-current="page"' : ''}>${ic(icon)}<span>${l}</span></button>`).join('')}`).join('');
+  const m = me();
+  return `<nav class="side" aria-label="主選單"><div class="brand"><span class="mark" aria-hidden="true">${ic('mark')}</span><span><small>寵派商家中心</small><b>${SHOP}</b></span></div>${groups}
+    <div class="me"><span class="av" aria-hidden="true">${initialOf(m.who)}</span><span><b>${m.who}</b><small>${m.role}・${m.br ? BR[m.br] : '兩家分店'}</small></span></div></nav>`;
+}
+const whoami = () => `<span class="whoami"><span class="av" aria-hidden="true">${initialOf(me().who)}</span>${me().who}・${me().role}</span>`;
+function scopeCtl() {
+  const m = me();
+  return m.br ? `<span class="scope fixed" title="只看所屬分店的客戶">${ic('lock','sm')}${BR[m.br]}</span>`
+    : `<label class="sr" for="scope">常去分店</label><select id="scope" class="scope" data-key="scope"><option value="all">全部分店</option><option value="zs">中山店</option><option value="xy">信義店</option></select>`;
+}
+const scopeName = () => scope() === 'all' ? '全部分店' : BR[scope()];
+/* phone widths hide the bench and the write panels without discarding them */
+const benchOn = () => !!state.bench && !state.phone;
+const layerOpen = () => !!state.mode || benchOn();
+function newBtn() {
+  if (!me().create || phone()) return '';
+  if (!canWrite()) return `<div class="pre-act"><button class="btn" aria-disabled="true" aria-describedby="new-r" data-key="new">${ic('plus')}新增客戶</button><span class="reason" id="new-r">需連線</span></div>`;
+  return `<button class="btn primary${layerOpen() ? ' calm' : ''}" data-do="newCust" data-key="new">${ic('plus')}新增客戶</button>`;
+}
+function pageHead() {
+  const v = visible();
+  const upd = state.offline ? `<span class="updated off">${ic('off','sm')}離線・資料停在 ${NOWS}</span>` : `<span class="updated">${ic('refresh','sm')}${NOWS} 更新</span>`;
+  return `<header class="head"><h1 id="page-title" tabindex="-1">客戶與寵物</h1><div class="tools">${scopeCtl()}${whoami()}${upd}${newBtn()}</div><p class="sub">${scopeName()}・${v.length} 位客戶・${petsCount(v)} 隻寵物</p></header>
+    ${state.offline ? `<div class="banner warning" role="status">${ic('off')}<span>離線中：可以查看已載入的客戶；新增、修改與合併需要連線。</span></div>` : ''}`;
+}
+
+/* ---------- search and filters ---------- */
+function qMatch(c, q) {
+  q = q.trim(); if (!q) return true;
+  const digits = q.replace(/[\s-]/g, '');
+  if (/^\d{3,}$/.test(digits)) return c.ph === digits || c.ph.endsWith(digits);
+  return c.name.includes(q) || c.pets.some(k => PETS[k].name.includes(q));
+}
+const FILTS = () => {
+  const v = visible();
+  return [['all','全部', v.length], ['dup','可能重複', dupGroups().length], ['del','刪除請求', v.filter(c => c.del).length], ['noline','沒有 LINE', v.filter(c => !c.line).length]];
+};
+function fMatch(c) {
+  if (state.filt === 'dup') return !!groupOf(c);
+  if (state.filt === 'del') return !!c.del;
+  if (state.filt === 'noline') return !c.line;
+  return true;
+}
+function sortKey(c) {
+  const n = nextOf(c);
+  if (n) return n.d * 10000 + +n.t.replace(':', '');
+  const l = lastOf(c);
+  return 1e6 + (l ? -l.d * 10 : 9e5 + -c.since);
+}
+function finder() {
+  const f = FILTS();
+  const q = state.q;
+  return `<div class="find"><div class="srch" role="search">${ic('search')}<label class="sr" for="q">搜尋客戶</label><input id="q" data-key="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="手機末四碼、飼主或寵物名" value="${esc(q)}">${q ? `<button class="ibtn clr" data-do="clearQ" data-key="q-x" aria-label="清除搜尋">${ic('x')}</button>` : phone() ? '' : `<kbd aria-hidden="true">/</kbd>`}</div>
+    <div class="pills" role="group" aria-label="篩選">${f.map(([k, l, n]) => `<button class="pill" aria-pressed="${state.filt === k}" data-do="filt" data-f="${k}" data-key="f-${k}">${l}<span class="cnt${k === 'dup' && n ? ' warn' : k === 'del' && n ? ' hot' : ''}">${n}</span></button>`).join('')}</div></div>`;
+}
+
+/* ---------- list ---------- */
+function crow(c) {
+  const n = nextOf(c), l = lastOf(c);
+  const nx = n ? `<span class="${n.d === 0 ? 'today' : ''}">${n.d === 0 ? '今天' : relDay(n.d)} ${n.t} ${SVC[n.svc].n}</span>` : '<span class="muted">沒有排定的預約</span>';
+  const ls = l ? `<small>上次 ${l.d === 0 ? '今天' : dYmd(l.d)}・${SVC[l.svc].n}</small>` : `<small>${isNew(c) ? `新客・${c.since === 0 ? '今天' : dYmd(c.since)}建檔` : '還沒有服務紀錄'}</small>`;
+  const fam = c.family ? lm('fam', 'users', `家人・${esc(cust(c.family).name)}`) : '';
+  const tags = [lineMark(c), fam, c.del ? lm('del', 'erase', `刪除請求・剩 ${c.del.left} 天`) : '', isNew(c) ? lm('new', '', '新客') : '', c.req ? lm('req', 'swap', c.req.kind === 'merge' ? '合併申請中' : '綁定申請中') : ''].join('');
+  return `<li><button class="crow${state.sel === c.id ? ' sel' : ''}${state.fresh === c.id ? ' fresh' : ''}" data-do="open" data-id="${c.id}" data-key="r-${c.id}">
+    <span class="who">${stack(c.pets, 0, true)}<span class="cn"><b>${esc(c.name)}</b><small>${phHtml(c.ph, state.q)}${scope() === 'all' ? `・${BR[c.br]}` : ''}</small></span></span>
+    <span class="cp"><span>${esc(petLine(c))}</span>${c.pets.some(k => PETS[k].safety.length) ? `<small class="safe">${ic('warn','sm')} ${c.pets.filter(k => PETS[k].safety.length).map(k => `${PETS[k].name}：${PETS[k].safety.map(s => s.t).join('、')}`).join('；')}</small>` : `<small>${c.src}建檔</small>`}</span>
+    <span class="cv">${nx}${ls}</span>
+    <span class="ct">${tags}</span>
+    <span class="go" aria-hidden="true">${ic('fwd')}</span></button></li>`;
+}
+function dupHead(g) {
+  const cs = g.ids.map(cust), rq = cs[0].req;
+  const lines = bothLine(g);
+  const why = lines ? '兩位各有自己的 LINE・可能是家人' : '同一支手機・可能是同一人';
+  const go = phone() ? `<span class="muted">在電腦或平板上比對</span>` : `<button class="textbtn" data-do="bench" data-g="${g.key}" data-key="b-${g.key}">${ic('swap','sm')}比對${state.role === 'groom' ? '' : lines ? '・綁定' : '・合併'}</button>`;
+  return `<div class="dupg-h">${ic('copy','sm')}<span>可能重複・${phHtml(cs[0].ph)}・${why}</span><span class="sp">${rq ? lm('req', 'swap', `${rq.by}送出${rq.kind === 'merge' ? '合併' : '綁定'}申請`) : ''}${go}</span></div>`;
+}
+function units(list) {
+  const out = [], seen = new Set(), groups = dupGroups();
+  list.forEach(c => {
+    if (seen.has(c.id)) return;
+    const g = groups.find(x => x.ids.includes(c.id));
+    const mem = g ? g.ids.map(cust).filter(x => list.includes(x)) : [];
+    if (g && mem.length > 1) { mem.forEach(x => seen.add(x.id)); out.push({g, mem}); }
+    else { seen.add(c.id); out.push({mem:[c]}); }
+  });
+  return out;
+}
+const PER = 15;
+function pages(us) {
+  const out = []; let cur = [], n = 0;
+  us.forEach(u => { if (n && n + u.mem.length > PER) { out.push(cur); cur = []; n = 0; } cur.push(u); n += u.mem.length; });
+  if (cur.length) out.push(cur);
+  return out;
+}
+function goneNotice() {
+  const d = state.q.replace(/[\s-]/g, '');
+  if (!/^\d{4,}$/.test(d)) return '';
+  const hit = GONE_PH.find(p => p === d || p.endsWith(d));
+  return hit ? `<div class="notice info" role="status">${ic('info')}<span>手機 ${maskPh(hit)} 曾有一位客戶，已依飼主要求刪除，資料不能恢復。要再預約請建立新客戶。</span></div>` : '';
+}
+function listView() {
+  const list = visible().filter(c => qMatch(c, state.q) && fMatch(c)).sort((a, b) => sortKey(a) - sortKey(b) || a.name.localeCompare(b.name, 'zh-Hant'));
+  const gone = goneNotice();
+  if (!list.length) {
+    const q = state.q.trim();
+    const create = me().create && !phone() ? (canWrite() ? `<button class="btn primary${layerOpen() ? ' calm' : ''}" data-do="newCust" data-pre="1" data-key="new-empty">${ic('plus')}新增客戶${q ? `「${esc(q)}」` : ''}</button>` : `<span class="reason">新增客戶需連線</span>`) : '';
+    const what = state.filt === 'dup' ? '沒有可能重複的客戶' : state.filt === 'del' ? '沒有待處理的刪除請求' : state.filt === 'noline' ? '每位客戶都有 LINE' : `找不到「${esc(q)}」`;
+    return `${gone}<div class="empty" role="status"${gone ? ' style="margin-top:12px"' : ''}><b>${what}</b><p>${q ? '可以輸入手機末四碼、飼主姓名或寵物名字。' : '換個篩選看看。'}${q && state.filt !== 'all' ? ' 目前只在「' + FILTS().find(f => f[0] === state.filt)[1] + '」裡找。' : ''}</p>${q || state.filt === 'all' ? create : `<button class="textbtn" data-do="filt" data-f="all" data-key="f-back">看全部客戶</button>`}</div>`;
+  }
+  const us = units(list), pg = pages([...us.filter(u => u.g), ...us.filter(u => !u.g)]);
+  const p = Math.min(state.page, pg.length - 1);
+  const html = pg[p].map(u => u.g ? `<li class="dupg${u.mem[0].req ? ' req' : ''}" aria-label="可能重複的客戶">${dupHead(u.g)}<ul class="clist">${u.mem.map(crow).join('')}</ul></li>` : crow(u.mem[0])).join('');
+  const from = pg.slice(0, p).reduce((n, x) => n + x.reduce((m, u) => m + u.mem.length, 0), 0);
+  const to = from + pg[p].reduce((m, u) => m + u.mem.length, 0);
+  const pager = pg.length > 1 ? `<nav class="pager" aria-label="分頁"><span class="muted">第 ${from + 1}–${to} 位，共 ${list.length} 位</span><span class="seg" role="group" aria-label="頁碼">${pg.map((_, i) => `<button aria-pressed="${i === p}" data-do="page" data-p="${i}" data-key="pg-${i}" aria-label="第 ${i + 1} 頁">${i + 1}</button>`).join('')}</span>${p < pg.length - 1 ? `<button class="textbtn" data-do="page" data-p="${p + 1}" data-key="pg-next">下一頁${ic('fwd','sm')}</button>` : ''}</nav>` : '';
+  return `${gone ? gone + '<div style="height:12px"></div>' : ''}<div class="clwrap"><ul class="clist" aria-label="客戶">${html}</ul></div>${pager}`;
+}
+const hitLine = () => {
+  if (!state.q.trim()) return '';
+  const n = visible().filter(c => qMatch(c, state.q) && fMatch(c)).length;
+  return `<p class="hitline" role="status">「${esc(state.q.trim())}」找到 <b>${n}</b> 位</p>`;
+};
+
+/* ---------- detail panel ---------- */
+function ptop(back) {
+  return `<div class="dp-top">${back ? `<button class="back" data-do="${back}" data-key="dp-back">${ic('back')}回客戶資料</button>` : ''}<button class="ibtn x" data-do="closePanel" data-key="dp-x" aria-label="關閉">${ic('x')}</button></div>`;
+}
+const writeBtn = (key, label, doAct, icon, cls = 'textbtn', extra = '') => canWrite()
+  ? `<button class="${cls}" data-do="${doAct}" data-key="${key}" ${extra}>${icon ? ic(icon, 'sm') : ''}${label}</button>`
+  : `<span class="pre-x"><button class="${cls}" aria-disabled="true" aria-describedby="${key}-r" data-key="${key}">${icon ? ic(icon, 'sm') : ''}${label}</button><span class="reason" id="${key}-r">需連線</span></span>`;
+function petBlock(k, c) {
+  const p = PETS[k], m = me(), sens = m.sens;
+  const nx = NEXT[k];
+  const sub = [p.sp, p.breed, p.sex, p.age, `${p.kg} kg`, p.fix].join('・');
+  const tags = [...p.safety.map(s => `<span class="tag safety">${ic('warn','sm')}${esc(s.t)}</span>`), ...p.care.map(s => `<span class="tag care">${esc(s.t)}</span>`)].join('');
+  const safetyNotes = p.safety.length ? `<ul class="notes">${p.safety.map(s => `<li><span class="nt">${esc(s.t)}</span>${sens ? `<span>${esc(s.note)}</span>` : masked(`${s.t}的攻擊性說明`)}</li>`).join('')}</ul>` : '';
+  const careNotes = p.care.length ? `<ul class="notes care">${p.care.map(s => `<li><span class="nt">${esc(s.t)}</span><span>${esc(s.note)}</span></li>`).join('')}</ul>` : '';
+  const val = (label, v) => sens ? (v ? `<dd>${esc(v)}</dd>` : `<dd class="unset">未填</dd>`) : `<dd>${masked(label)}</dd>`;
+  const chipL = p.chip ? `<dd class="mono">${p.chip.replace(/(\d{3})(\d{4})(\d{4})(\d{4})/, '$1 $2 $3 $4')}</dd>` : `<dd>${esc(p.alt || '未植入')}</dd>`;
+  const e = p.edits[p.edits.length - 1];
+  const hs = HIST[k] || [], open = state.open[k];
+  const cts = hs.filter(v => v.ct).length;
+  const canEdit = m.edit && !phone();
+  const editCtl = canEdit ? writeBtn(`ed-${k}`, '修改注意事項', 'edit', 'pen', 'textbtn', `data-k="${k}"`) : '';
+  const mlist = hs.map((v, i) => `<li class="hv"><span class="hd">${v.d === 0 ? '今天' : dYmd(v.d)}<small>${v.t}</small></span><span class="hs">${SVC[v.svc].n}${v.noshow ? `・${chip('danger','未到')}` : v.cancelled ? `・${chip('neutral','已取消')}` : ''}<small>${BR[v.br]}・${tbName(v.br, v.tb)}</small></span>${money(v.price)}
+    <span class="ctr">${ic('doc','sm')}${v.ct.ver}・${v.ct.how}・<span class="mono" role="img" aria-label="文件雜湊 ${v.ct.sha.replace('…', ' 到 ')}">${v.ct.sha}</span>・時戳 ${v.ct.ts}<button class="textbtn" data-do="pdf" data-k="${k}" data-i="${i}" data-key="pdf-${k}-${i}">${ic('file','sm')}PDF</button></span></li>`).join('');
+  return `<li class="pet" id="pet-${k}">
+    <div class="pet-h">${face(k, 60, true)}<span><b>${esc(p.name)}${nx && nx.d === 0 ? chip('info', STW[nx.st]) : ''}</b><small>${sub}</small></span></div>
+    ${tags ? `<div class="tags">${tags}</div>` : ''}${safetyNotes}${careNotes}
+    <dl class="pkv"><dt>晶片</dt>${chipL}<dt>疾病史</dt>${val('疾病史', p.ill)}<dt>過敏</dt>${val('過敏', p.allergy)}<dt>內部備註</dt>${val('內部備註', p.internal)}</dl>
+    ${sens ? '' : `<p class="mask-note">${ic('lock','sm')}<span>櫃台看得到標籤和照護說明；攻擊性說明、病史、過敏、內部備註，以及每次來店的現況說明與服務備註會遮住。需要細節請找店長或美容照護人員。</span></p>`}
+    ${e ? `<p class="lastedit">最後修改 ${e.at}・${esc(e.by)}（${e.role}）・原因：${esc(e.why)}</p>` : ''}
+    ${editCtl || (m.edit === null && !phone()) ? `<div class="pacts">${editCtl || `<span class="hint">美容照護可以查看全部注意事項；要修改請找店長或櫃台。</span>`}</div>` : ''}
+    ${hs.length ? `<div class="hist"><button aria-expanded="${!!open}" aria-controls="h-${k}" data-do="hist" data-k="${k}" data-key="h-${k}">${ic('receipt','sm')}服務紀錄 ${hs.length} 筆・已簽契約 ${cts} 份${ic('chev','chev')}</button>${open ? `<ol id="h-${k}">${mlist}</ol>` : ''}</div>` : `<p class="hint">還沒有服務紀錄。</p>`}
+  </li>`;
+}
+function detailPanel(c) {
+  const m = me(), g = groupOf(c), n = nextOf(c);
+  const famC = c.family ? cust(c.family) : null;
+  const delBox = c.del ? `<div class="relbox del"><span class="rh">${ic('erase','sm')}個資刪除請求・剩 ${c.del.left} 天</span><p>${c.del.at} 飼主在 LINE「我的資料」申請。核准後一般個資去識別化；已簽契約與證據鏈依法保留，保存年限由法務訂定。</p>${state.role === 'desk' || state.role === 'groom' ? `<span class="own">由店長以上在審核台審核</span>` : `<a class="textbtn rlink" href="${deskUrl(c.del.id)}" data-key="dp-del">在審核台審核${ic('ext','sm')}</a>`}</div>` : '';
+  if (LIFE === 'del-review' && c.id === 'c-zhou') setTimeout(() => lifeSay('opened'));
+  const others = g ? g.ids.filter(id => id !== c.id).map(cust) : [];
+  const dupBox = g ? `<div class="relbox"><span class="rh">${ic('copy','sm')}可能重複：${others.map(o => esc(o.name)).join('、')}</span><p>${bothLine(g) ? '同一支手機，但兩位各自綁了 LINE，比較像是家人共用手機。' : '同一支手機。如果是同一個人重複建檔，合併後寵物與紀錄會歸到同一位客戶。'}</p>${c.req ? `<span class="own">${esc(c.req.by)} ${c.req.at} 送出${c.req.kind === 'merge' ? '合併' : '綁定'}申請，等店長審核</span>` : ''}${phone() ? `<span class="hint">在電腦或平板上比對</span>` : `<button class="textbtn" data-do="bench" data-g="${g.key}" data-key="dp-bench">${ic('swap','sm')}比對兩位客戶</button>`}</div>` : '';
+  const nextBox = n ? `<div class="nextv">${ic('cal')}<b>${n.d === 0 ? '今天' : dLabel(n.d)} ${n.t}・${esc(PETS[n.k].name)}</b><small>${SVC[n.svc].n}・${BR[c.br]} ${tbName(c.br, n.tb)}</small>${m02role() ? `<a class="textbtn rlink" href="${calUrl(n.d)}" data-key="dp-cal">在預約行事曆查看${ic('ext','sm')}</a>` : ''}</div>` : '';
+  const logs = c.log.length ? `<div><h3>${ic('shield','sm')}變更紀錄</h3><ol class="hist" style="padding:0 14px">${c.log.map(x => `<li class="hv sys"><span class="hd">${x.d === 0 ? '今天' : dYmd(x.d)}<small>${x.t}</small></span><span class="hs">${esc(x.text)}</span></li>`).join('')}</ol></div>` : '';
+  const addPet = m.create && !phone() ? writeBtn('dp-addpet', '新增寵物', 'newPet', 'plus') : '';
+  const editContact = m.create && !phone() ? writeBtn('dp-contact', '修改聯絡資料', 'contact', 'pen') : '';
+  /* a changed phone waits here until the owner reads back the code sent to the new number */
+  const pd = c.phPend, vErr = state.vErr;
+  /* the lock's reason lives in one notice; the disabled confirm points at it */
+  const lockUntil = pd && smsLock(pd.ph), wait = pd && smsWait(pd.ph), cap = pd && smsCapUntil(pd.ph);
+  const vfHead = !pd ? '' : lockUntil ? `<div class="notice warning" role="alert" id="vf-lock" data-key="vf-lock" tabindex="-1">${ic('lock','sm')}<span><b>驗證碼錯太多次，先暫停 15 分鐘。</b>15 分鐘後，${hmT(lockUntil)} 可以再試。這次鎖定已寫入稽核紀錄。</span></div>`
+    : state.vSendErr ? `<div class="notice warning" role="alert" data-key="vf-unsent">${ic('warn','sm')}<span><b>驗證碼這次沒有傳出。</b>${esc(state.vSendErr)}。</span></div>`
+    : `<p>今天 ${pd.at} 已用簡訊把 6 位數驗證碼傳到新號碼，10 分鐘內有效。飼主念出驗證碼後，新號碼才生效；在那之前簡訊仍傳到 ${maskPh(c.ph)}${c.line ? '，LINE 通知照舊' : ''}。</p>`;
+  const vfGo = lockUntil && canWrite() ? `<button class="btn quiet" aria-disabled="true" aria-describedby="vf-lock" data-key="vf-go">${ic('check','sm')}確認驗證碼</button>` : writeBtn('vf-go', '確認驗證碼', 'verify', 'check', 'btn quiet');
+  const vfResend = lockUntil ? '' : wait && canWrite() ? `<span class="hint" data-key="vf-wait">${wait} 秒後可以重新傳送</span>` : cap && canWrite() ? `<span class="hint" data-key="vf-cap">${capMsg(cap)}</span>` : writeBtn('vf-resend', '重新傳送驗證碼', 'resend', 'refresh');
+  const vfBox = pd ? `<div class="relbox" id="vf-box"><span class="rh">${ic('otp','sm')}<span>新號碼待驗證・${phHtml(pd.ph)}</span></span>
+      ${vfHead}
+      ${m.create && !phone() ? `<div class="vf"><div class="field"><label for="vf-code">簡訊驗證碼</label><input id="vf-code" data-key="vf-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 位數" value="${esc(state.vCode || '')}"${vErr ? ' aria-invalid="true" aria-describedby="vf-e"' : ''}>${vErr ? `<span class="err" id="vf-e">${vErr}</span>` : ''}</div>${vfGo}</div>
+      <span class="demo">原型示範碼：${VCODE}</span>
+      <div class="row">${vfResend}${writeBtn('vf-drop', '不換號碼了', 'dropPend', 'x')}</div>` : `<span class="own">等店員輸入飼主念出的驗證碼</span>`}</div>` : '';
+  return `${ptop()}
+    <div class="dp-id">${person(c, 64)}<div><h2 id="dp-h" tabindex="-1">${esc(c.name)}</h2><div class="line2">${phHtml(c.ph)}${lineMark(c)}${pd ? lm('req', 'otp', '新號碼待驗證') : ''}${famC ? `<button class="lmark fam" data-do="open" data-id="${famC.id}" data-key="dp-fam">${ic('users')}家人・${esc(famC.name)}</button>` : ''}</div><p>${c.since === 0 ? '今天' : dFull(c.since)} ${c.src}建檔・常去${BR[c.br]}</p></div></div>
+    ${delBox}${vfBox}${dupBox}${nextBox}
+    <div><div class="sec-h"><h3>${ic('phone','sm')}聯絡資料</h3>${editContact}</div>
+    <dl class="kv"><dt>通知</dt><dd>${c.line ? '用 LINE 傳確認、提醒與契約' : '沒有 LINE：確認、提醒與契約用簡訊'}</dd><dt>地址</dt><dd>${c.addr ? esc(c.addr) : '<small>未填</small>'}</dd><dt>店內備註</dt><dd>${c.note ? esc(c.note) : '<small>沒有</small>'}</dd></dl></div>
+    <div><div class="sec-h"><h3>${ic('paw','sm')}寵物 ${c.pets.length} 隻</h3>${addPet}</div><ul class="pets">${c.pets.map(k => petBlock(k, c)).join('')}</ul></div>
+    ${logs}
+    ${phone() ? `<p class="readonly">${ic('info','sm')}<span>手機上只能查看；新增、修改與合併請在電腦或平板上操作。</span></p>` : ''}`;
+}
+
+/* ---------- edit care notes (panel) ---------- */
+function editPanel() {
+  const d = state.draft, p = PETS[d.k], m = me(), full = m.edit === 'all';
+  /* 櫃台 can add a safety tag but never take away one the pet already has: they cannot read why it is there (decided 2026-10-17, same as S-04) */
+  const held = t => !full && p.safety.some(x => x.t === t);
+  const togs = (kind, preset, cls) => {
+    const anyHeld = kind === 'safety' && preset.some(held);
+    return `<div class="togs" role="group" aria-label="${kind === 'safety' ? '安全標籤' : '照護標籤'}">${preset.map(t => {
+      const on = d[kind].some(x => x.t === t), h = kind === 'safety' && held(t);
+      return `<button class="tog ${cls}" role="checkbox" aria-checked="${on}" data-do="tog" data-kind="${kind}" data-t="${t}" data-key="tg-${kind}-${t}"${h ? ' aria-disabled="true" aria-describedby="tg-held" data-held="1"' : ''}>${ic(h ? 'lock' : 'check')}${t}</button>`;
+    }).join('')}</div>${anyHeld ? `<p class="hint tog-note" id="tg-held">櫃台可以新增安全標籤；移除要店長以上確認。</p>` : ''}`;
+  };
+  const notes = (kind, lock) => d[kind].map((x, i) => lock && !full
+    ? `<div class="tnote"><span class="lbl" style="font-size:.8125rem;font-weight:800">${esc(x.t)}</span><span class="lockf">${x.note ? masked(`${x.t}的攻擊性說明`) : '<span class="muted">說明由店長補上</span>'}</span></div>`
+    : `<div class="tnote"><label for="n-${kind}-${i}">${esc(x.t)}</label><input id="n-${kind}-${i}" data-key="n-${kind}-${i}" data-field="${kind}" data-i="${i}" value="${esc(x.note)}" placeholder="${kind === 'safety' ? '例：剪指甲時會咬，需兩人保定' : '例：吹風改低風量'}"></div>`).join('');
+  const txt = (f, label, ph) => full
+    ? `<div class="field"><label for="e-${f}">${label}</label><textarea id="e-${f}" data-key="e-${f}" data-field="${f}" placeholder="${ph}" rows="2">${esc(d[f])}</textarea></div>`
+    : `<div class="field"><span class="lbl">${label}</span><span class="lockf">${masked(label)}</span></div>`;
+  const err = d.err || {};
+  return `${ptop('backDetail')}
+    <div><h2 class="mode" id="dp-h" tabindex="-1">修改注意事項：${esc(p.name)}</h2><p class="hint" style="margin-top:4px">修改後所有店員都會看到，並寫入修改紀錄。${full ? '' : '櫃台可新增安全標籤、修改照護標籤與照護說明；移除安全標籤、攻擊性說明、病史與內部備註由店長修改。'}</p></div>
+    <div class="frm">
+      <fieldset class="fs"><legend>${ic('warn','sm')} 安全（攻擊性）</legend>${togs('safety', SAFETY_PRESET, 's')}${notes('safety', true)}</fieldset>
+      <fieldset class="fs"><legend>${ic('paw','sm')} 照護</legend>${togs('care', CARE_PRESET, 'c')}${notes('care', false)}</fieldset>
+      <fieldset class="fs"><legend>${ic('heart','sm')} 健康與內部備註</legend>${txt('ill','疾病史','例：異位性皮膚炎（服藥中）')}${txt('allergy','過敏','例：雞肉')}${txt('internal','內部備註','只有店內人員看得到')}</fieldset>
+      <div class="field"><label for="e-why">修改原因（必填）</label><input id="e-why" data-key="e-why" data-field="why" value="${esc(d.why)}" placeholder="例：飼主今天告知"${err.why ? ' aria-invalid="true" aria-describedby="why-e"' : ''}>${err.why ? `<span class="err" id="why-e">${err.why}</span>` : ''}</div>
+      ${err.none ? `<p class="ferr" role="alert">${ic('warn')}<span>${err.none}</span></p>` : ''}
+    </div>
+    <div class="go">${canWrite() ? `<button class="btn primary" data-do="editCheck" data-key="ed-go">檢查修改</button>` : `<button class="btn" aria-disabled="true" aria-describedby="ed-go-r" data-key="ed-go">檢查修改</button><span class="reason" id="ed-go-r">需連線</span>`}<button class="btn secondary" data-do="backDetail" data-key="ed-no">不修改</button></div>`;
+}
+function diffEdit() {
+  const d = state.draft, p = PETS[d.k], out = [];
+  const tagStr = list => list.length ? list.map(x => x.t).join('、') : '無';
+  if (tagStr(p.safety) !== tagStr(d.safety)) out.push(['安全標籤', tagStr(p.safety), tagStr(d.safety)]);
+  if (tagStr(p.care) !== tagStr(d.care)) out.push(['照護標籤', tagStr(p.care), tagStr(d.care)]);
+  ['safety','care'].forEach(kind => d[kind].forEach(x => {
+    const old = p[kind].find(o => o.t === x.t);
+    if ((old?.note || '') !== x.note && x.note !== undefined && (kind === 'care' || me().edit === 'all')) out.push([`${x.t}說明`, old?.note || '無', x.note || '無']);
+  }));
+  if (me().edit === 'all') [['疾病史','ill'],['過敏','allergy'],['內部備註','internal']].forEach(([l, f]) => { if ((p[f] || '') !== (d[f] || '').trim()) out.push([l, p[f] || '未填', d[f].trim() || '未填']); });
+  return out;
+}
+
+/* ---------- contact details (panel): 櫃台 and above, a reason, the phone only after the owner verifies it ---------- */
+function contactPanel() {
+  const d = state.draft, c = cust(d.cid), err = d.err || {};
+  const np = normPh(d.ph || ''), phChanged = phOk(np) && np !== c.ph;
+  const fld = (f, label, attrs, hint, area) => `<div class="field"><label for="ct-${f}">${label}</label>${area
+      ? `<textarea id="ct-${f}" data-key="ct-${f}" data-field="${f}" rows="2"${attrs}>${esc(d[f])}</textarea>`
+      : `<input id="ct-${f}" data-key="ct-${f}" data-field="${f}" value="${esc(d[f])}"${attrs}${err[f] ? ` aria-invalid="true" aria-describedby="ct-${f}-e"` : ''}>`}${hint ? `<span class="hint">${hint}</span>` : ''}${err[f] ? `<span class="err" id="ct-${f}-e">${err[f]}</span>` : ''}</div>`;
+  const how = c.line ? `這位客戶綁了 LINE：確認、提醒與契約等通知照舊用 LINE 傳。新號碼驗證後，簡訊才改傳到新號碼。` : `儲存後會用簡訊傳 6 位數驗證碼到新號碼，飼主念出驗證碼後才生效；在那之前簡訊仍傳到 ${maskPh(c.ph)}。`;
+  return `${ptop('backDetail')}
+    <div><h2 class="mode" id="dp-h" tabindex="-1">修改聯絡資料：${esc(c.name)}</h2><p class="hint" style="margin-top:4px">要寫原因，修改前後會寫入稽核紀錄；手機只記末四碼。</p></div>
+    <div class="frm">
+      ${fld('name', '飼主姓名', ' autocomplete="off"')}
+      ${fld('ph', '新手機號碼', ' type="tel" inputmode="tel" autocomplete="off" placeholder="不換手機就留空"', `目前 ${maskPh(c.ph)}${c.phPend ? `・${maskPh(c.phPend.ph)} 待驗證` : ''}`)}
+      ${phChanged ? `<div class="notice info" role="status">${ic(c.line ? 'msg' : 'otp')}<span>${how}</span></div>` : ''}
+      ${fld('addr', '通訊地址', ' autocomplete="off" placeholder="例：台北市中山區錦州街"')}
+      ${fld('note', '店內備註', ' placeholder="例：接回時請先打電話"', '', true)}
+      ${fld('why', '修改原因（必填）', ' autocomplete="off" placeholder="例：飼主換了手機"')}
+      ${err.none ? `<p class="ferr" role="alert">${ic('warn')}<span>${err.none}</span></p>` : ''}
+    </div>
+    <div class="go">${canWrite() ? `<button class="btn primary" data-do="contactCheck" data-key="ct-go">檢查修改</button>` : `<button class="btn" aria-disabled="true" aria-describedby="ct-go-r" data-key="ct-go">檢查修改</button><span class="reason" id="ct-go-r">需連線</span>`}<button class="btn secondary" data-do="backDetail" data-key="ct-no">不修改</button></div>`;
+}
+function diffContact() {
+  const d = state.draft, c = cust(d.cid), out = [];
+  if ((d.name || '').trim() !== c.name) out.push(['姓名', c.name, d.name.trim()]);
+  const np = normPh(d.ph || ''); if (np && np !== c.ph) out.push(['手機', maskPh(c.ph), `${maskPh(np)}（驗證後生效）`]);
+  if ((d.addr || '').trim() !== (c.addr || '')) out.push(['地址', c.addr || '未填', (d.addr || '').trim() || '未填']);
+  if ((d.note || '').trim() !== (c.note || '')) out.push(['店內備註', c.note || '沒有', (d.note || '').trim() || '沒有']);
+  return out;
+}
+const contactDraft = (c, ph = '') => ({cid:c.id, name:c.name, ph, addr:c.addr, note:c.note, why:'', err:{}});
+
+/* ---------- new customer / pet (panel) ---------- */
+const normPh = s => s.replace(/[\s-]/g, '');
+const phOk = s => /^09\d{8}$/.test(normPh(s));
+function phHit() {
+  const ph = normPh(state.draft.ph || '');
+  if (!phOk(ph)) return null;
+  return CUST.find(c => !c.gone && c.ph === ph) || null;
+}
+/* the same owner and pet under another phone: most often the owner changed phones, so ask before creating a second record */
+function nameHit() {
+  const d = state.draft, nm = (d.name || '').trim(), pt = (d.pet || '').trim();
+  if (d.cust || d.nameOk || !nm || !pt || phHit()) return null;
+  return visible().find(c => c.name === nm && c.pets.some(k => PETS[k].name === pt)) || null;
+}
+function newPanel() {
+  const d = state.draft, err = d.err || {}, m = me();
+  const toCust = d.cust ? cust(d.cust) : null;
+  const hit = toCust ? null : phHit();
+  const gone = !toCust && phOk(d.ph || '') && GONE_PH.includes(normPh(d.ph));
+  const opt = (v, t, s) => `<button class="ch" role="radio" aria-checked="${d.dup === v}" data-do="pick" data-f="dup" data-v="${v}" data-key="dup-${v}"><span class="dot" aria-hidden="true"></span><span>${t}<small>${s}</small></span></button>`;
+  const field = (id, label, val, attrs = '', hint = '') => `<div class="field"><label for="${id}">${label}</label><input id="${id}" data-key="${id}" data-field="${id.slice(2)}" value="${esc(val || '')}"${attrs}${err[id.slice(2)] ? ` aria-invalid="true" aria-describedby="${id}-e"` : ''}>${hint ? `<span class="hint">${hint}</span>` : ''}${err[id.slice(2)] ? `<span class="err" id="${id}-e">${err[id.slice(2)]}</span>` : ''}</div>`;
+  const rg = (f, label, opts) => `<div class="fs"><span class="lgd" id="lg-${f}">${label}</span><div class="rg" role="radiogroup" aria-labelledby="lg-${f}">${opts.map(o => `<button class="opt" role="radio" aria-checked="${d[f] === o}" data-do="pick" data-f="${f}" data-v="${o}" data-key="o-${f}-${o}">${o}</button>`).join('')}</div>${err[f] ? `<span class="err" style="font-size:.8125rem;font-weight:800;color:var(--danger)">${err[f]}</span>` : ''}</div>`;
+  const sameName = hit && d.dup === 'same';
+  const custPart = toCust ? `<div class="match" style="border-style:solid;border-color:var(--border)"><div class="who">${person(toCust, 44)}<span><b>加到 ${esc(toCust.name)}</b><small>${maskPh(toCust.ph)}・${toCust.pets.length} 隻寵物</small></span></div></div>`
+    : `${field('n-ph', '手機', d.ph, ' type="tel" inputmode="tel" autocomplete="off" placeholder="09 開頭共 10 碼"', '同一支手機已有客戶時，會先問你怎麼處理。')}
+      ${gone ? `<div class="notice info" role="status">${ic('info')}<span>這支手機曾有一位客戶，已依飼主要求刪除，資料不能恢復。可以照常建立新客戶。</span></div>` : ''}
+      ${hit ? `<div class="match" role="group" aria-labelledby="mt-h"><div class="who">${person(hit, 44)}<span><b id="mt-h">這支手機已是「${esc(hit.name)}」的客戶資料</b><small>${maskPh(hit.ph)}・${hit.pets.map(k => PETS[k].name).join('、') || '還沒有寵物'}・${hit.line ? '有 LINE' : '沒有 LINE'}</small></span></div>
+        <div class="chs" role="radiogroup" aria-labelledby="mt-h">${opt('same', `是同一人：把寵物加到「${esc(hit.name)}」`, '不另建客戶，不會產生重複資料')}${opt('family', '家人共用這支手機：另建一位並綁定', '各自保留姓名與寵物，互相標示為家人')}</div>
+        ${err.dup ? `<span class="err" style="font-size:.8125rem;font-weight:800;color:var(--danger)">${err.dup}</span>` : ''}</div>` : ''}
+      ${sameName ? '' : field('n-name', '飼主姓名', d.name, ' autocomplete="off" placeholder="例：王小姐"')}
+      ${!sameName && !m.br ? rg('br', '常去分店', ['中山店','信義店']) : ''}
+      ${!sameName ? `<div class="notice info">${ic('msg')}<span>新客還沒有 LINE：確認、提醒與契約連結會用簡訊傳。飼主之後在 LINE 登入就會自動綁定。</span></div>` : ''}`;
+  return `${ptop(toCust ? 'backDetail' : null)}
+    <div><h2 class="mode" id="dp-h" tabindex="-1">${toCust ? '新增寵物' : '新增客戶'}</h2><p class="hint" style="margin-top:4px">${toCust ? '寵物會出現在這位客戶的資料裡。' : '先輸入手機，系統會檢查是不是已經有這位客戶。'}</p></div>
+    <div class="frm">
+      ${custPart}
+      <fieldset class="fs"><legend>${ic('paw','sm')} 寵物</legend>
+        ${field('n-pet', '名字', d.pet, ' autocomplete="off" placeholder="例：豆豆"')}
+        ${(mv => mv ? `<div class="match" role="group" aria-labelledby="mv-h"><div class="who">${person(mv, 44)}<span><b id="mv-h">是不是換了手機？</b><small>已有客戶「${esc(mv.name)}」・寵物${mv.pets.map(k => esc(PETS[k].name)).join('、')}・${maskPh(mv.ph)}</small></span></div>
+          <p class="hint">同一位飼主換了手機，請改這位客戶的聯絡資料，不要另建一位，寵物紀錄與契約才會留在一起。</p>
+          <div class="pacts"><button class="btn quiet" data-do="moved" data-id="${mv.id}" data-key="mv-yes">${ic('phone','sm')}是，改「${esc(mv.name)}」的手機</button><button class="textbtn" data-do="notMoved" data-key="mv-no">不是，是另一位客戶</button></div>
+          ${err.moved ? `<span class="err" style="font-size:.8125rem;font-weight:800;color:var(--danger)">${err.moved}</span>` : ''}</div>` : '')(nameHit())}
+        ${rg('sp', '種類', ['犬','貓'])}
+        <div class="row2">${field('n-breed', '品種', d.breed, ' placeholder="例：米克斯"')}${field('n-age', '年齡', d.age, ' placeholder="例：3 歲"')}</div>
+        <div class="row2">${field('n-kg', '體重（公斤）', d.kg, ' inputmode="decimal" placeholder="例：5.2"')}<div></div></div>
+        ${rg('sex', '性別', ['公','母'])}
+        ${rg('fix', '結紮', ['已結紮','未結紮','不確定'])}
+        ${d.nochip ? '' : field('n-chip', '晶片號碼', d.chip, ' inputmode="numeric" autocomplete="off" placeholder="15 碼數字"')}
+        <label class="ckl"><input type="checkbox" data-key="n-nochip" id="n-nochip"${d.nochip ? ' checked' : ''}><span>未植入晶片（例如沒有辦寵物登記的貓）</span></label>
+        ${d.nochip ? field('n-alt', '其他辨識資訊', d.alt, ' placeholder="例：灰白虎斑、右耳剪耳"') : ''}
+        <p class="hint">安全與照護注意事項可以在建立後補上。</p>
+      </fieldset>
+    </div>
+    <div class="go">${canWrite() ? `<button class="btn primary" data-do="newCheck" data-key="nw-go">${toCust || sameName ? '新增寵物' : '建立客戶'}</button>` : `<button class="btn" aria-disabled="true" aria-describedby="nw-go-r" data-key="nw-go">${toCust ? '新增寵物' : '建立客戶'}</button><span class="reason" id="nw-go-r">需連線</span>`}<button class="btn secondary" data-do="${toCust ? 'backDetail' : 'closePanel'}" data-key="nw-no">取消</button></div>`;
+}
+function validateNew() {
+  const d = state.draft, e = {}, toCust = d.cust, hit = toCust ? null : phHit();
+  if (!toCust) {
+    if (!phOk(d.ph || '')) e.ph = '手機格式：09 開頭共 10 碼，例：0912345678';
+    else if (hit && !d.dup) e.dup = '這支手機已有客戶，請選一個處理方式';
+    if (!(hit && d.dup === 'same')) {
+      if (!(d.name || '').trim()) e.name = '請填飼主姓名';
+      if (!me().br && !d.br) e.br = '請選常去分店';
+    }
+  }
+  if (!(d.pet || '').trim()) e.pet = '請填寵物名字';
+  else if (nameHit()) e.moved = '請先選：是這位客戶換了手機，還是另一位客戶';
+  if (!d.sp) e.sp = '請選種類';
+  if (d.nochip) { if (!(d.alt || '').trim()) e.alt = '請寫下其他辨識資訊，例：毛色、花紋、耳朵特徵'; }
+  else if (!/^\d{15}$/.test((d.chip || '').replace(/\s/g, ''))) e.chip = '晶片號碼是 15 碼數字；沒有植入請勾「未植入晶片」';
+  return e;
+}
+
+/* ---------- merge bench (main area) ---------- */
+function benchData() {
+  const g = dupGroups().find(x => x.key === state.bench);
+  if (!g) return null;
+  const [a, b] = g.ids.map(cust);
+  return {g, a, b, both:a.line && b.line};
+}
+const keepOf = (a, b) => b.line && !a.line ? b : a;
+/* the 店長's own reason for a direct merge or binding; a 櫃台 request starts it with that request's reason, and a refused write keeps it */
+const whyField = (label, ph) => { const s = state.bd, rq = benchData().a.req; if (s.why2 == null) s.why2 = rq ? rq.why : ''; return {label, ph, val:s.why2}; };
+function benchView() {
+  const bd = benchData();
+  if (!bd) return `<div class="empty"><b>這組客戶已經處理完了</b><button class="textbtn" data-do="benchBack" data-key="bn-back">回客戶列表</button></div>`;
+  const {g, a, b, both} = bd, s = state.bd, m = me();
+  const canAct = !!m.merge && !phone(), ro = !canAct || both || s.done;
+  const keep = keepOf(a, b), drop = keep === a ? b : a;
+  const twoRow = (label, va, vb, sub) => `<div class="cmp-r"><span class="k">${label}${sub ? `<small>${sub}</small>` : ''}</span><div class="val">${va}</div><div class="val">${vb}</div></div>`;
+  const pickRow = (f, label, va, vb, sub) => {
+    if (both) return twoRow(label, va || '<span class="muted">未填</span>', vb || '<span class="muted">未填</span>', '各自保留');
+    const cell = (side, v) => `<button class="pick" role="radio" aria-checked="${!both && s[f] === side}" ${ro ? 'aria-disabled="true"' : `data-do="bpick" data-f="${f}" data-v="${side}"`} data-key="bp-${f}-${side}"><span class="dot" aria-hidden="true"></span><span>${v || '<span class="unset">未填</span>'}</span></button>`;
+    return `<div class="cmp-r"><span class="k" id="bk-${f}">${label}${sub ? `<small>${sub}</small>` : ''}</span><div role="radiogroup" aria-labelledby="bk-${f}" style="display:contents">${cell('a', va)}${cell('b', vb)}</div></div>`;
+  };
+  const autoRow = (label, html, bad) => `<div class="cmp-r"><span class="k">${label}</span><div class="auto${bad ? ' bad' : ''}">${html}</div></div>`;
+  const srcCard = c => `<div class="src">${person(c, 52)}<span><b>${esc(c.name)}</b><small>${c.since === 0 ? '今天' : dFull(c.since)} ${c.src}建檔</small></span></div>`;
+  const lineRow = both ? autoRow('LINE', `${ic('ban')}兩位各自綁了自己的 LINE（兩個不同的帳號），代表是兩個人`, true)
+    : a.line || b.line ? autoRow('LINE', `${ic('check')}保留「${esc((a.line ? a : b).name)}」的 LINE<small>之後確認、提醒與契約都用 LINE 傳</small>`)
+    : autoRow('LINE', '兩位都沒有 LINE<small>維持用簡訊通知</small>');
+  const visits = c => { const n = c.pets.filter(k => NEXT[k]).length, h = c.pets.reduce((x, k) => x + (HIST[k] || []).length, 0); return `${n} 筆預約・${h} 筆服務紀錄`; };
+  const cts = c => c.pets.reduce((x, k) => x + (HIST[k] || []).filter(v => v.ct).length, 0);
+  const rows = `<div class="cmp-r top"><span class="k">兩筆資料</span>${srcCard(a)}${srcCard(b)}</div>
+    ${pickRow('name', '姓名', esc(a.name), esc(b.name))}
+    ${autoRow('手機', `${ic('check')}相同・${phHtml(a.ph)}`)}
+    ${lineRow}
+    ${pickRow('addr', '通訊地址', esc(a.addr), esc(b.addr))}
+    ${autoRow('店內備註', both ? '各自保留' : [a.note, b.note].filter(Boolean).length ? `兩段都保留<small>${[a.note, b.note].filter(Boolean).map(esc).join('／')}</small>` : '兩位都沒有備註')}
+    ${twoRow('寵物', `${stack(a.pets, 40)}${a.pets.map(k => PETS[k].name).join('、')}`, `${stack(b.pets, 40)}${b.pets.map(k => PETS[k].name).join('、')}`, both ? '各自保留' : '全部併入')}
+    ${twoRow('預約與紀錄', visits(a), visits(b), both ? '各自保留' : '全部改掛')}
+    ${twoRow('已簽契約', `${cts(a)} 份`, `${cts(b)} 份`, '原文不改寫')}`;
+  const nm = s.name === 'b' ? b.name : a.name, ad = s.addr === 'b' ? b.addr : a.addr;
+  const allPets = [...a.pets.map(k => [k, 'l']), ...b.pets.map(k => [k, 'r'])];
+  const anim = s.anim;
+  const outcome = both
+    ? `<div class="result" aria-labelledby="rs-h"><h3 class="rh3" id="rs-h">綁定為家人後</h3>
+        <div class="famlink"><div class="pp">${person(a, 48)}${esc(a.name)}<small>${a.pets.map(k => PETS[k].name).join('、')}・自己的 LINE</small></div><span class="ln" aria-hidden="true"><span>家人</span></span><div class="pp">${person(b, 48)}${esc(b.name)}<small>${b.pets.map(k => PETS[k].name).join('、')}・自己的 LINE</small></div></div>
+        <p class="hint">兩位各自保留姓名、LINE、寵物與紀錄；在客戶資料上互相標示為家人，搜尋這支手機會同時找到兩位，不再列為可能重複。</p></div>`
+    : `<div class="result" aria-labelledby="rs-h" aria-live="polite">
+        <div class="rid">${person({name:nm}, 64)}<span><b id="rs-h" class="${s.upd === 'name' ? 'upd' : ''}">合併後：${esc(nm)}</b><small>${maskPh(a.ph)}・${keep.line ? 'LINE' : '簡訊'}・${dFull(Math.min(a.since, b.since))}起的客戶</small></span></div>
+        <div class="flow" aria-label="合併後的寵物">${allPets.map(([k, side], i) => `<span class="pf${anim ? ` ${side}` : ''}"${anim ? ` style="animation-delay:${.15 + i * .12}s"` : ''}>${face(k, 56)}${esc(PETS[k].name)}<small>${side === 'l' ? `原${esc(a.name)}` : `原${esc(b.name)}`}</small></span>`).join('')}</div>
+        <dl class="rkv"><dt>地址</dt><dd class="${s.upd === 'addr' ? 'upd' : ''}">${ad ? esc(ad) : '未填'}</dd><dt>保留紀錄</dt><dd>「${esc(keep.name)}」那筆（${keep.line ? '有 LINE' : '建檔較早'}）；「${esc(drop.name)}」那筆停用</dd></dl></div>`;
+  const nx = [a, b].flatMap(c => c.pets.filter(k => NEXT[k]).map(k => ({k, c, ...NEXT[k]})));
+  const cqs = both ? [
+      ['users', '互相標示為家人', `「${esc(a.name)}」與「${esc(b.name)}」的客戶資料會顯示對方，櫃台查手機時一次看到兩位。`],
+      ['msg', '通知照舊', '各自用自己的 LINE 收確認與契約，不會互傳。'],
+      ['shield', '寫入稽核紀錄', '記下誰在何時綁定、原因；手機只記末四碼。']]
+    : [
+      ['paw', `寵物：${allPets.map(([k]) => PETS[k].name).join('、')} 都歸到「${esc(nm)}」`, '寵物資料、注意事項與照片原封不動搬過去。'],
+      ['cal', nx.length ? `預約：${nx.map(x => `${PETS[x.k].name} ${relDay(x.d)} ${x.t}`).join('、')} 改掛到保留的客戶` : '沒有未來預約要改掛', '時段、美容台與已收款項都不變。'],
+      ['doc', `已簽契約 ${cts(a) + cts(b)} 份維持原文`, '簽署人姓名、PDF 與雜湊、時戳都不改寫，證據鏈保持完整。'],
+      ['msg', keep.line ? `通知：之後都用 LINE 傳給「${esc(keep.name)}」` : '通知：維持用簡訊', drop.line || keep.line ? '' : '兩位都沒有 LINE。'],
+      ['shield', `「${esc(drop.name)}」那筆停用、寫入稽核紀錄`, '合併前後的資料都記下（手機只記末四碼）。合併後不能在這裡拆回，請先確認是同一人。']];
+  const cq = `<div class="cqbox"><h3>${both ? '綁定之後' : '合併之後會發生'}</h3><ul class="cq">${cqs.map(([i, l, p]) => `<li><span class="ci">${ic(i)}</span><span class="cl">${l}</span>${p ? `<p>${p}</p>` : '<p></p>'}</li>`).join('')}</ul></div>`;
+  const rq = a.req;
+  const reqBox = rq ? `<div class="relbox"><span class="rh">${ic('swap','sm')}${esc(rq.by)}（櫃台）${rq.at} 送出${rq.kind === 'merge' ? '合併' : '綁定'}申請</span><p>原因：${esc(rq.why)}</p>${state.role === 'desk' ? `<a class="textbtn rlink" href="${deskUrl(DESK_REQ[state.bench])}&why=${encodeURIComponent(rq.why)}" data-key="rq-desk">在審核台查看${ic('ext','sm')}</a>` : `<span class="own">${both ? '確認是家人後，在下面綁定即可完成這筆申請。' : '確認無誤後，在下面合併即可完成這筆申請。'}</span>`}</div>` : '';
+  const conflict = s.conflict ? `<div class="notice danger" role="alert" tabindex="-1" id="bn-err">${ic('warn')}<span>${both ? '綁定' : '合併'}沒有完成：「${esc(a.name)}」的資料剛被其他人修改（${esc(s.conflict)}）。兩筆資料都沒有變動，請重新比對後再送出。</span></div>` : '';
+  const blockedNote = both ? `<div class="notice warning" role="status">${ic('ban')}<span>不能合併：兩位各自綁了自己的 LINE，代表是兩個人。如果是家人共用這支手機，請改用「綁定為家人」。</span></div>` : '';
+  let go = '';
+  if (phone()) go = '';
+  else if (!m.merge) go = `<div class="bench-go"><p class="readonly" style="flex:1">${ic('info','sm')}<span>美容照護可以查看比對；合併與綁定由店長處理，櫃台可以送出申請。</span></p><button class="btn secondary" data-do="benchBack" data-key="bn-cancel">回客戶列表</button></div>`;
+  else if (m.merge === 'ask') {
+    const err = s.err || {};
+    go = rq ? `<div class="bench-go"><p class="readonly" style="flex:1">${ic('clock','sm')}<span>你的申請已送出，等店長審核。審核前兩筆資料維持原樣。</span></p><button class="btn secondary" data-do="benchBack" data-key="bn-cancel">回客戶列表</button></div>`
+      : `<div class="bench-go"><div class="field"><label for="bn-why">申請原因（必填）</label><input id="bn-why" data-key="bn-why" value="${esc(s.why || '')}" placeholder="${both ? '例：鄭小姐說是先生的手機' : '例：何先生說之前用 LINE 預約過'}"${err.why ? ' aria-invalid="true" aria-describedby="bn-why-e"' : ''}>${err.why ? `<span class="err" id="bn-why-e">${err.why}</span>` : ''}</div>
+        <div class="acts"><button class="btn secondary" data-do="benchBack" data-key="bn-cancel">回客戶列表</button>${canWrite() ? `<button class="btn primary" data-do="benchReq" data-key="bn-go">${both ? '送出綁定申請' : '送出合併申請'}</button>` : `<span class="bw"><button class="btn" aria-disabled="true" aria-describedby="bn-go-r" data-key="bn-go">${both ? '送出綁定申請' : '送出合併申請'}</button><span class="reason" id="bn-go-r">需連線</span></span>`}</div></div>`;
+  } else {
+    const main = both ? '綁定為家人' : `合併成「${esc(nm)}」`;
+    go = `<div class="bench-go"><p class="hint" style="flex:1 1 16rem">${both ? '綁定只加上家人標示，不搬動任何資料。' : '按下後會再確認一次。合併只能在同一個店家內進行。'}</p>
+      <div class="acts"><button class="btn secondary" data-do="benchBack" data-key="bn-cancel">回客戶列表</button>${both ? '' : canWrite() ? `<button class="btn quiet" data-do="benchBind" data-key="bn-bind">不是同一人？綁定為家人</button>` : ''}${canWrite() ? `<button class="btn primary" data-do="${both ? 'benchBind' : 'benchMerge'}" data-key="bn-go">${main}</button>` : `<span class="bw"><button class="btn" aria-disabled="true" aria-describedby="bn-go-r" data-key="bn-go">${main}</button><span class="reason" id="bn-go-r">需連線</span></span>`}</div></div>`;
+  }
+  return `<section class="bench" aria-labelledby="bn-h">
+    <div class="bench-h"><button class="back" data-do="benchBack" data-key="bn-back">${ic('back')}客戶列表</button><h2 id="bn-h" tabindex="-1">比對可能重複的客戶</h2><p>同一支手機 ${phHtml(a.ph)}・${both ? '兩位各有 LINE' : '一位有 LINE、一位沒有'}</p></div>
+    ${conflict}${blockedNote}${reqBox}
+    <div class="cmp" role="group" aria-label="逐欄比對">${rows}</div>
+    <div class="outcome">${outcome}${cq}</div>
+    ${go}
+  </section>`;
+}
+
+/* ---------- render ---------- */
+function panel() {
+  if (state.phone && state.mode !== 'detail') return state.sel && cust(state.sel) ? detailPanel(cust(state.sel)) : '';
+  if (state.mode === 'detail') return detailPanel(cust(state.sel));
+  if (state.mode === 'edit') return editPanel();
+  if (state.mode === 'new') return newPanel();
+  if (state.mode === 'contact') return contactPanel();
+  return '';
+}
+const panelLabel = () => ({detail:'客戶資料', edit:'修改注意事項', contact:'修改聯絡資料', new:state.draft.cust ? '新增寵物' : '新增客戶'})[state.mode];
+function mainBody() {
+  if (state.loadFail) return `<section class="fail" role="alert"><h2>${ic('warn','lg')}客戶資料載入失敗</h2><p>網路或伺服器沒有回應。再試一次通常就好。</p>${state.retrying ? `<button class="btn secondary busy" aria-disabled="true" data-key="retry"><span class="spin" aria-hidden="true"></span>重新載入中</button>` : `<button class="btn secondary" data-do="retry" data-key="retry">${ic('refresh')}再試一次</button>`}</section>`;
+  if (benchOn()) return benchView();
+  const wide = state.wide && state.mode;
+  return `<div class="lay${wide ? ' withp' : ''}" style="margin-top:0"><div>${listView()}</div>${wide ? `<aside class="dp" aria-label="${panelLabel()}" data-key="dp">${panel()}</aside>` : ''}</div>`;
+}
+function render(focusKey) {
+  const app = $('app');
+  const keep = focusKey || document.activeElement?.dataset?.key;
+  const dpScroll = document.querySelector('.dp')?.scrollTop || 0;
+  app.className = state.compact ? 'compact' : state.rail ? 'rail' : '';
+  const top = state.compact ? `<div class="topbar"><button class="ibtn" data-key="menu" data-do="openNav" aria-label="開啟選單">${ic('menu')}</button><span class="mark" aria-hidden="true">${ic('mark')}</span><b>客戶與寵物</b></div>` : '';
+  const find = benchOn() || state.loadFail ? '' : `${finder()}${hitLine()}`;
+  app.innerHTML = `${state.compact ? '' : sideNav()}<main>${top}${pageHead()}${find}<div class="wrap">${mainBody()}</div></main>`;
+  const sc = $('scope'); if (sc) sc.value = state.branch;
+  renderOverlayPanel();
+  const dp = document.querySelector('.dp'); if (dp) dp.scrollTop = dpScroll;
+  document.title = `${benchOn() ? '比對客戶・' : state.mode ? panelLabel() + '・' : ''}客戶與寵物・寵派商家中心`;
+  if (keep) { const el = document.querySelector(`#app [data-key="${keep}"], #layer [data-key="${keep}"]`); if (el && el !== document.activeElement) el.focus({preventScroll:true}); }
+  state.fresh = null; state.bd.anim = false; state.bd.upd = null;
+  syncUrl();
+}
+function renderOverlayPanel() {
+  const l = $('layer'), ex = l.querySelector('.pnl-s');
+  const body = state.wide || !state.mode || state.loadFail || benchOn() ? '' : panel();
+  if (!body) { ex?.remove(); return; }
+  const html = `<div class="dp sheet" role="dialog" aria-modal="true" aria-label="${panelLabel()}">${body}</div>`;
+  if (ex) { const sc = ex.firstChild.scrollTop; ex.innerHTML = html; ex.firstChild.style.animation = 'none'; ex.firstChild.scrollTop = sc; return; }
+  l.insertAdjacentHTML('afterbegin', `<div class="scrim side-r pnl-s" data-do="scrimPanel">${html}</div>`);
+}
+function announce(t) { const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+function say(text) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status">${esc(text)}</div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 4800);
+}
+
+/* ---------- dialogs ---------- */
+function openDlg(d) { state.dlg = Object.assign({busy:false, ret:document.activeElement?.dataset?.key}, d); renderDlg('dg-h'); }
+function closeDlg(focus) { const ret = focus || state.dlg?.ret; state.dlg = null; renderDlg(); if (ret) document.querySelector(`[data-key="${ret}"]`)?.focus(); }
+function renderDlg(focus) {
+  const l = $('layer'); l.querySelector('.dlg-s')?.remove();
+  const d = state.dlg; if (!d) return;
+  const ok = d.busy ? `<button class="btn ${d.danger ? 'danger' : 'primary'} busy" data-key="dg-ok" aria-disabled="true"><span class="spin" aria-hidden="true"></span>處理中</button>` : `<button class="btn ${d.danger ? 'danger' : 'primary'}" data-key="dg-ok" data-do="dlgOk">${d.danger ? ic('warn') : ''}${d.ok}</button>`;
+  const no = `<button class="btn secondary" data-key="dg-no" ${d.busy ? 'aria-disabled="true"' : 'data-do="closeDlg"'}>${d.no || '返回修改'}</button>`;
+  /* a required reason typed in the confirm itself (店長 merging or binding directly: it goes into the audit line) */
+  const fx = d.field;
+  const fld = fx ? `<div class="field"><label for="dg-why">${fx.label}</label><input id="dg-why" data-key="dg-why" autocomplete="off" value="${esc(fx.val || '')}" placeholder="${fx.ph}"${d.busy ? ' readonly' : ''}${fx.err ? ' aria-invalid="true" aria-describedby="dg-why-e"' : ''}>${fx.err ? `<span class="err" id="dg-why-e">${fx.err}</span>` : ''}</div>` : '';
+  l.insertAdjacentHTML('beforeend', `<div class="scrim dlg-s" data-do="scrimDlg" style="z-index:85"><div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dg-h" aria-describedby="dg-d"><h2 id="dg-h" tabindex="-1">${d.title}</h2>${d.lede ? `<p class="lede" id="dg-d">${d.lede}</p>` : ''}<dl class="cdl"${d.lede ? '' : ' id="dg-d"'}>${d.rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>${fld}<div class="dbtns">${no}${ok}</div></div></div>`);
+  const f = focus && (document.getElementById(focus) || l.querySelector(`[data-key="${focus}"]`)); f?.focus();
+}
+
+/* ---------- writes ---------- */
+function takeConflict() { if (state.nextWrite !== 'conflict') return false; state.nextWrite = 'ok'; $('p-write').value = 'ok'; return true; }
+function commitEdit() {
+  const d = state.draft, p = PETS[d.k], m = me();
+  p.safety = d.safety.map(x => ({t:x.t, note:m.edit === 'all' ? x.note.trim() : (p.safety.find(o => o.t === x.t)?.note || '')}));
+  p.care = d.care.map(x => ({t:x.t, note:x.note.trim()}));
+  if (m.edit === 'all') { p.ill = d.ill.trim(); p.allergy = d.allergy.trim(); p.internal = d.internal.trim(); }
+  p.edits.push({at:`今天 ${NOWS}`, by:m.who, role:m.role, why:d.why.trim()});
+  const c = CUST.find(x => x.pets.includes(d.k));
+  state.dlg = null; renderDlg();
+  state.mode = 'detail'; state.sel = c.id; state.draft = {};
+  render(); document.getElementById('pet-' + d.k)?.scrollIntoView({block:'nearest'});
+  $('dp-h')?.focus({preventScroll:true});
+  say(`已更新${p.name}的注意事項・寫入修改紀錄`);
+  if (d.k === 'afu') lifeSay('saved');
+}
+function commitNew() {
+  const d = state.draft, m = me();
+  const key = `new${Date.now() % 1e6}`;
+  PETS[key] = P(d.pet.trim(), d.sp, (d.breed || '').trim() || '未填', d.sex || '未填', (d.age || '').trim() || '未填', +(d.kg || 0) || '—', {fix:d.fix || '不確定', chip:d.nochip ? '' : d.chip.replace(/\s/g, ''), alt:d.nochip ? d.alt.trim() : ''});
+  HIST[key] = [];
+  let c;
+  const hit = d.cust ? null : phHit();
+  if (d.cust) c = cust(d.cust);
+  else if (hit && d.dup === 'same') c = hit;
+  if (c) { c.pets.push(key); }
+  else {
+    c = C(`c-n${key}`, d.name.trim(), normPh(d.ph), m.br || (d.br === '信義店' ? 'xy' : 'zs'), [key], {line:false, src:'店家建立', since:0});
+    if (hit && d.dup === 'family') { c.family = hit.id; hit.family = c.id; }
+    CUST.push(c);
+  }
+  state.dlg = null; renderDlg();
+  state.mode = 'detail'; state.sel = c.id; state.draft = {}; state.fresh = c.id;
+  if (!inScope(c)) state.branch = 'all';
+  state.q = ''; state.filt = 'all';
+  const us = units(visible().sort((a, b) => sortKey(a) - sortKey(b) || a.name.localeCompare(b.name, 'zh-Hant'))), pg = pages([...us.filter(u => u.g), ...us.filter(u => !u.g)]);
+  state.page = Math.max(0, pg.findIndex(x => x.some(u => u.mem.includes(c))));
+  render(); $('dp-h')?.focus({preventScroll:true});
+  say(c.since === 0 && c.pets.length === 1 ? `已建立客戶 ${c.name}・確認與契約會用簡訊傳` : `已把${PETS[key].name}加到 ${c.name}`);
+}
+function commitMerge() {
+  const {a, b} = benchData(), s = state.bd, m = me();
+  const keep = keepOf(a, b), drop = keep === a ? b : a;
+  if (takeConflict()) { s.conflict = '櫃台 阿凱 11:21 改了店內備註'; state.dlg = null; renderDlg(); render(); $('bn-err')?.focus(); return; }
+  const nm = s.name === 'b' ? b.name : a.name, ad = s.addr === 'b' ? b.addr : a.addr;
+  keep.name = nm; keep.addr = ad; keep.note = [a.note, b.note].filter(Boolean).join('；');
+  keep.pets = [...a.pets, ...b.pets]; keep.since = Math.min(a.since, b.since); keep.req = null;
+  keep.log.push({d:0, t:NOWS, text:`${m.who}（${m.role}）把「${drop.name}」（${drop.src}建檔）合併進來・原因：${s.why2.trim()}・寫入稽核紀錄`});
+  drop.gone = true; drop.req = null;
+  state.dlg = null; renderDlg();
+  state.bench = null; state.bd = {}; state.mode = 'detail'; state.sel = keep.id; state.fresh = keep.id; state.filt = 'all'; state.q = '';
+  render(); $('dp-h')?.focus({preventScroll:true});
+  say(`已合併成 ${keep.name}・${keep.pets.length} 隻寵物・寫入稽核紀錄`);
+}
+function commitBind() {
+  const {a, b} = benchData(), s = state.bd, m = me();
+  if (takeConflict()) { s.conflict = '櫃台 阿凱 11:21 改了店內備註'; state.dlg = null; renderDlg(); render(); $('bn-err')?.focus(); return; }
+  a.family = b.id; b.family = a.id; a.req = b.req = null;
+  [a, b].forEach(c => c.log.push({d:0, t:NOWS, text:`${m.who}（${m.role}）綁定為家人：${(c === a ? b : a).name}・原因：${s.why2.trim()}・寫入稽核紀錄`}));
+  state.dlg = null; renderDlg();
+  state.bench = null; state.bd = {}; state.mode = 'detail'; state.sel = a.id; state.fresh = a.id; state.filt = 'all';
+  render(); $('dp-h')?.focus({preventScroll:true});
+  say(`已綁定 ${a.name} 與 ${b.name} 為家人`);
+}
+/* name, address and note change now; a new phone waits for the code (audit keeps only the last four) */
+function commitContact() {
+  const d = state.draft, c = cust(d.cid), m = me(), ch = diffContact();
+  const np = normPh(d.ph || ''), newPh = np && np !== c.ph;
+  c.name = d.name.trim(); c.addr = (d.addr || '').trim(); c.note = (d.note || '').trim();
+  const sent = newPh ? smsSend(np) : '';
+  if (newPh) c.phPend = {ph:np, at:hmT(clockMs())};
+  state.vSendErr = sent === 'locked' ? '' : sent;
+  c.log.push({d:0, t:NOWS, text:`${m.who}（${m.role}）修改聯絡資料：${ch.map(([k, b, a]) => k === '手機' ? `手機 ${b} → ${maskPh(np)}（待驗證）` : k).join('、')}・原因：${d.why.trim()}・寫入稽核紀錄`});
+  state.dlg = null; renderDlg();
+  state.vCode = ''; state.vErr = null;
+  state.mode = 'detail'; state.sel = c.id; state.draft = {};
+  render(); $('dp-h')?.focus({preventScroll:true});
+  if (newPh) tickVf();
+  say(newPh ? (sent ? '已更新聯絡資料・驗證碼這次沒有傳出' : `已更新聯絡資料・驗證碼已用簡訊傳到 ${maskPh(np)}`) : '已更新聯絡資料・寫入稽核紀錄');
+}
+function commitReq() {
+  const {a, b, both} = benchData(), s = state.bd, m = me();
+  const rq = {kind:both ? 'bind' : 'merge', by:m.who, at:NOWS, why:s.why.trim()};
+  a.req = rq; b.req = {...rq};
+  state.dlg = null; renderDlg(); render('bn-h'); $('bn-h')?.focus();
+  say(`已送出${both ? '綁定' : '合併'}申請・等店長審核`);
+}
+
+/* ---------- actions ---------- */
+const STUB = '原型只做客戶與寵物';
+function openPanel(mode, sel, draft) {
+  const was = !!state.mode;
+  state.mode = mode; state.sel = sel ?? state.sel; state.draft = draft || {};
+  render(); $('dp-h')?.focus({preventScroll: was && state.wide});
+}
+const act = {
+  nav(el) {
+    const p = el.dataset.page; closeNavDrawer();
+    if (p === 'cust') return;
+    if (p === 'cal') { if (m02role()) location.href = `../m02-appointments/index.html?role=${m02role()}`; else say(`預約：${STUB}`); return; }
+    if (p === 'dash') { if (state.role in {admin:1, mgr:1}) location.href = `../m01-dashboard/index.html?live=1&role=${state.role}`; else location.href = '../today-board/index.html?role=clerk'; return; }
+    if (p === 'tpl' && ['admin','mgr'].includes(state.role)) { location.href = `../m07-contract-templates/index.html?role=${state.role}`; return; }
+    if (p === 'svc' && ['admin','mgr'].includes(state.role)) { location.href = `../m04-services/index.html?role=${state.role}`; return; }
+    if (p === 'hours' && ['admin','mgr'].includes(state.role)) { location.href = `../m05-hours/index.html?role=${state.role}`; return; }
+    if (p === 'res' && ['admin','mgr'].includes(state.role)) { location.href = `../m06-resources/index.html?role=${state.role}`; return; }
+    if (p === 'staff' && ['admin','mgr'].includes(state.role)) { location.href = `../m08-staff/index.html?role=${state.role}`; return; }
+    if (p === 'plan' && ['admin','mgr'].includes(state.role)) { location.href = `../plan-usage/index.html?role=${state.role}`; return; }
+    if (p === 'pol' && ['admin','mgr'].includes(state.role)) { location.href = `../cancel-policy/index.html?role=${state.role}`; return; }
+    if (p === 'notify' && ['admin','mgr'].includes(state.role)) { location.href = `../notify-settings/index.html?role=${state.role}`; return; }
+    if (['queue','money','audit'].includes(p) && m02role()) { location.href = `../admin-review-desk/index.html?role=${state.role}&page=${p}`; return; }
+    say(`${el.innerText.trim()}：${STUB}`);
+  },
+  open(el) {
+    const id = el.dataset.id;
+    if (state.mode === 'detail' && state.sel === id && el.classList.contains('crow')) { act.closePanel(); return; }
+    state.vCode = ''; state.vErr = null; state.vSendErr = '';
+    openPanel('detail', id); announce(`${cust(id).name}的客戶資料`);
+  },
+  closePanel() {
+    const ret = state.sel && state.mode === 'detail' ? `r-${state.sel}` : 'new';
+    state.mode = null; state.draft = {};
+    render(); const el = document.querySelector(`[data-key="${ret}"]`); (el || $('q'))?.focus({preventScroll:true});
+  },
+  scrimPanel(el, ev) { if (ev.target === el) act.closePanel(); },
+  backDetail() { const k = state.draft.k, ct = state.mode === 'contact'; openPanel('detail', state.sel); const r = k ? `ed-${k}` : ct ? 'dp-contact' : null; if (r) document.querySelector(`[data-key="${r}"]`)?.focus(); },
+  filt(el) { state.filt = el.dataset.f; state.page = 0; render(`f-${state.filt}`); announce(`${el.innerText.replace(/\d+$/, '')}・${visible().filter(c => qMatch(c, state.q) && fMatch(c)).length} 位`); },
+  page(el) { state.page = +el.dataset.p; render(`pg-${state.page}`); document.querySelector('.clist')?.scrollIntoView({block:'start'}); announce(`第 ${state.page + 1} 頁`); },
+  clearQ() { state.q = ''; state.page = 0; render('q'); $('q')?.focus(); },
+  hist(el) { const k = el.dataset.k; state.open[k] = !state.open[k]; render(`h-${k}`); },
+  pdf(el) { say('原型沒有實際的 PDF；正式版會開啟已簽署的契約副本'); },
+  edit(el) {
+    const k = el.dataset.k, p = PETS[k];
+    openPanel('edit', state.sel, {k, safety:clone(p.safety), care:clone(p.care), ill:p.ill, allergy:p.allergy, internal:p.internal, why:'', err:{}});
+  },
+  tog(el) {
+    const d = state.draft, kind = el.dataset.kind, t = el.dataset.t;
+    const i = d[kind].findIndex(x => x.t === t);
+    if (i >= 0) d[kind].splice(i, 1); else d[kind].push({t, note:''});
+    render(el.dataset.key); announce(`${t}${i >= 0 ? '已取消' : '已勾選'}`);
+  },
+  editCheck() {
+    const d = state.draft; d.err = {};
+    const ch = diffEdit();
+    if (!ch.length) d.err.none = '沒有任何修改。改好標籤或說明後再檢查。';
+    if (!d.why.trim()) d.err.why = '請寫下修改原因，例：飼主今天告知';
+    if (d.err.none || d.err.why) { render(); document.querySelector(`[data-key="${d.err.why ? 'e-why' : 'ed-go'}"]`)?.focus(); announce(d.err.why || d.err.none); return; }
+    /* taking a safety tag away (店長 and above) stops every warning on the board and the tables: confirm in danger, not persimmon */
+    const p = PETS[d.k], gone = p.safety.filter(x => !d.safety.some(y => y.t === x.t)).map(x => x.t);
+    openDlg({kind:'edit', danger:gone.length > 0, title:gone.length ? `移除${p.name}的安全標籤「${gone.join('、')}」？` : `儲存${p.name}的注意事項？`,
+      lede:`${gone.length ? '移除後看板、行事曆與美容台都不會再提醒。' : ''}所有店員之後都會看到。原因：${esc(d.why.trim())}`, rows:ch.map(([k, b, a]) => [k, `<span class="muted">${esc(b)}</span> ${ic('arrow','sm')} <b>${esc(a)}</b>`]), ok:gone.length ? '移除並儲存' : '儲存修改', no:'返回修改'});
+  },
+  contact() { const c = cust(state.sel); state.vErr = null; openPanel('contact', c.id, contactDraft(c)); },
+  contactCheck() {
+    const d = state.draft, c = cust(d.cid), e = d.err = {};
+    const np = normPh(d.ph || ''), other = np && CUST.find(x => !x.gone && x.id !== c.id && x.ph === np);
+    if (!(d.name || '').trim()) e.name = '請填飼主姓名';
+    if (np && !phOk(np)) e.ph = '手機格式：09 開頭共 10 碼，例：0912345678';
+    else if (np && np === c.ph) e.ph = '跟目前的號碼一樣；不換手機就留空';
+    else if (other) e.ph = `這支手機已是「${other.name}」的客戶資料；如果是同一人，請到可能重複比對`;
+    const ch = diffContact();
+    if (!ch.length && !e.name && !e.ph) e.none = '沒有任何修改。改好姓名、手機、地址或備註後再檢查。';
+    if (!(d.why || '').trim()) e.why = '請寫下修改原因，例：飼主換了手機';
+    const first = ['name','ph','why'].find(k => e[k]);
+    if (first || e.none) { render(); document.querySelector(`[data-key="${first ? 'ct-' + first : 'ct-go'}"]`)?.focus(); announce(e[first] || e.none); return; }
+    openDlg({kind:'contact', title:`修改${esc(c.name)}的聯絡資料？`, lede:`原因：${esc(d.why.trim())}`, rows:[...ch.map(([k, b, a]) => [k, `<span class="muted">${esc(b)}</span> ${ic('arrow','sm')} <b>${esc(a)}</b>`]),
+      ...(np ? [['驗證', `簡訊驗證碼傳到 ${maskPh(np)}；${c.line ? 'LINE 通知照舊，' : ''}驗證後簡訊才改傳到新號碼`]] : []), ['稽核', '寫入修改前後（手機只記末四碼）']], ok:'儲存修改'});
+  },
+  verify() {
+    const c = cust(state.sel), pd = c.phPend, code = (state.vCode || '').replace(/\s/g, '');
+    if (smsLock(pd.ph)) { state.vCode = ''; render('vf-lock'); return; }
+    if (code.length !== 6) { state.vErr = '驗證碼是 6 位數字'; render('vf-code'); announce(state.vErr); return; }
+    const r = smsCheck(pd.ph, code);
+    if (r === 'locked') {
+      state.vCode = ''; state.vErr = null;
+      c.log.push({d:0, t:hmT(clockMs()), text:`新號碼 ${maskPh(pd.ph)} 的簡訊驗證碼連錯 ${SMS.lockAt} 次，暫停到 ${hmT(smsLock(pd.ph))}・寫入稽核紀錄`});
+      render('vf-lock'); announce(`驗證碼錯太多次，${hmT(smsLock(pd.ph))} 可以再試`); return;
+    }
+    if (r) { state.vCode = ''; state.vErr = r; render('vf-code'); announce(r); return; }
+    const old = c.ph; c.ph = pd.ph; c.phPend = null; state.vCode = ''; state.vErr = null;
+    c.log.push({d:0, t:NOWS, text:`新號碼 ${maskPh(c.ph)} 已驗證（原 ${maskPh(old)}）・${c.line ? 'LINE 通知照舊，' : ''}簡訊改傳到新號碼`});
+    render('dp-contact'); say(`新號碼 ${maskPh(c.ph)} 已生效`);
+  },
+  resend() {
+    const c = cust(state.sel), pd = c.phPend, r = smsSend(pd.ph);
+    if (!r) pd.at = hmT(clockMs());
+    state.vErr = null; state.vCode = ''; state.vSendErr = r === 'locked' ? '' : r; tickVf(); render(r === 'locked' ? 'vf-lock' : 'vf-code');
+    if (!r) say(`已重新傳送驗證碼到 ${maskPh(pd.ph)}`);
+  },
+  dropPend() {
+    const c = cust(state.sel), ph = c.phPend.ph; c.phPend = null; state.vCode = ''; state.vErr = null; state.vSendErr = '';
+    c.log.push({d:0, t:NOWS, text:`${me().who}（${me().role}）取消換號：${maskPh(ph)} 沒有驗證，維持 ${maskPh(c.ph)}`});
+    render('dp-contact'); say(`維持原本的號碼 ${maskPh(c.ph)}`);
+  },
+  moved(el) {
+    const c = cust(el.dataset.id), np = normPh(state.draft.ph || '');
+    state.sel = c.id; state.vErr = null;
+    openPanel('contact', c.id, contactDraft(c, phOk(np) ? np : ''));
+    announce(`改${c.name}的聯絡資料`);
+  },
+  notMoved() { state.draft.nameOk = true; if (state.draft.err) delete state.draft.err.moved; render('n-pet'); announce('另建一位客戶'); },
+  newCust(el) {
+    const q = el?.dataset?.pre ? state.q.trim() : '';
+    const digits = q.replace(/[\s-]/g, '');
+    state.sel = null;
+    openPanel('new', null, {ph:/^\d+$/.test(digits) ? digits : '', name:/^\d+$/.test(digits) ? '' : q, err:{}});
+  },
+  newPet() { openPanel('new', state.sel, {cust:state.sel, err:{}}); },
+  pick(el) {
+    state.draft[el.dataset.f] = el.dataset.v;
+    if (state.draft.err) delete state.draft.err[el.dataset.f];
+    render(el.dataset.key); announce(el.innerText.split('\n')[0]);
+  },
+  newCheck() {
+    const d = state.draft; d.err = validateNew();
+    const ks = Object.keys(d.err);
+    if (ks.length) { const first = {ph:'n-ph', dup:'dup-same', name:'n-name', br:'o-br-中山店', pet:'n-pet', moved:'mv-yes', sp:'o-sp-犬', chip:'n-chip', alt:'n-alt'}[ks[0]]; render(); document.querySelector(`[data-key="${first}"]`)?.focus(); announce(d.err[ks[0]]); return; }
+    const hit = d.cust ? null : phHit(), to = d.cust ? cust(d.cust) : hit && d.dup === 'same' ? hit : null;
+    const petRow = `${esc(d.pet.trim())}・${d.sp}${d.breed ? `・${esc(d.breed.trim())}` : ''}`;
+    const idRow = d.nochip ? `未植入・${esc(d.alt.trim())}` : `晶片 ${esc(d.chip.replace(/\s/g, ''))}`;
+    if (to) openDlg({kind:'new', title:`把${esc(d.pet.trim())}加到 ${esc(to.name)}？`, rows:[['客戶', `${esc(to.name)}・${maskPh(to.ph)}`], ['寵物', petRow], ['辨識', idRow]], ok:'新增寵物'});
+    else openDlg({kind:'new', title:`建立客戶 ${esc(d.name.trim())}？`, rows:[['手機', maskPh(normPh(d.ph))], ['寵物', petRow], ['辨識', idRow], ['通知', '還沒有 LINE，用簡訊傳確認與契約'], ...(hit ? [['家人', `與 ${esc(hit.name)} 綁定`]] : [])], ok:'建立客戶'});
+  },
+  bench(el) {
+    const g = dupGroups().find(x => x.key === el.dataset.g); if (!g) return;
+    const [a, b] = g.ids.map(cust), keep = keepOf(a, b);
+    state.bench = g.key; state.mode = null;
+    state.bd = {name:keep === a ? 'a' : 'b', addr:a.addr ? 'a' : b.addr ? 'b' : 'a', anim:true, why:''};
+    render('bn-h'); $('bn-h')?.focus(); window.scrollTo(0, 0);
+    announce(`比對 ${a.name} 與 ${b.name}`);
+  },
+  benchBack() {
+    const k = state.bench; state.bench = null; state.bd = {};
+    render(); document.querySelector(`[data-key="b-${k}"]`)?.focus();
+  },
+  bpick(el) { state.bd[el.dataset.f] = el.dataset.v; state.bd.upd = el.dataset.f; render(el.dataset.key); announce(`合併後${el.dataset.f === 'name' ? '姓名' : '地址'}：${el.innerText.trim()}`); },
+  benchMerge() {
+    const {a, b} = benchData(), s = state.bd, keep = keepOf(a, b), drop = keep === a ? b : a;
+    const nm = s.name === 'b' ? b.name : a.name;
+    const nx = [a, b].flatMap(c => c.pets.filter(k => NEXT[k]));
+    s.conflict = null;
+    openDlg({kind:'merge', danger:true, title:`把「${esc(drop.name)}」併入「${esc(keep.name)}」？`, lede:'合併後不能在這裡拆回。已簽契約維持原簽署人與內容。', rows:[
+      ['合併後', `${esc(nm)}・${maskPh(a.ph)}`], ['寵物', [...a.pets, ...b.pets].map(k => PETS[k].name).join('、')], ['預約', nx.length ? `${nx.map(k => `${PETS[k].name} ${relDay(NEXT[k].d)} ${NEXT[k].t}`).join('、')} 改掛過來` : '沒有未來預約'], ['稽核', '寫入合併前後與原因（手機只記末四碼）']],
+      field:whyField('合併原因（必填）', '例：何先生說之前用 LINE 預約過'), ok:'確認合併', no:'返回比對'});
+  },
+  benchBind() {
+    const {a, b} = benchData(); state.bd.conflict = null;
+    openDlg({kind:'bind', title:`把 ${esc(a.name)} 與 ${esc(b.name)} 綁定為家人？`, rows:[['手機', `共用 ${maskPh(a.ph)}`], ['資料', '各自保留，不搬動'], ['稽核', '寫入綁定紀錄與原因']],
+      field:whyField('綁定原因（必填）', '例：鄭小姐說是先生的手機'), ok:'綁定為家人', no:'返回比對'});
+  },
+  benchReq() {
+    const s = state.bd; s.err = {};
+    if (!(s.why || '').trim()) { s.err.why = '請寫下申請原因，讓店長知道為什麼'; render('bn-why'); announce(s.err.why); return; }
+    const {a, b, both} = benchData();
+    openDlg({kind:'req', title:`送出${both ? '綁定' : '合併'}申請給店長？`, rows:[['客戶', `${esc(a.name)}、${esc(b.name)}`], ['原因', esc(s.why.trim())], ['之後', '店長在審核台審核；審核前資料不變']], ok:'送出申請'});
+  },
+  dlgOk() {
+    const d = state.dlg; if (!d || d.busy) return;
+    if (d.field && !(d.field.val || '').trim()) { d.field.err = `請寫下${d.field.label.replace('（必填）', '')}，會寫入稽核紀錄`; renderDlg('dg-why'); announce(d.field.err); return; }
+    d.busy = true; renderDlg('dg-ok');
+    setTimeout(() => ({edit:commitEdit, new:commitNew, merge:commitMerge, bind:commitBind, req:commitReq, contact:commitContact})[d.kind](), STEP_MS);
+  },
+  closeDlg() { closeDlg(); },
+  scrimDlg(el, ev) { if (ev.target === el && !state.dlg?.busy) closeDlg(); },
+  retry() { state.retrying = true; render('retry'); setTimeout(() => { state.retrying = false; state.loadFail = false; $('p-fail').checked = false; render(); announce('客戶資料已重新載入'); }, STEP_MS); },
+  openNav() { openNavDrawer(); },
+  navScrim(el, ev) { if (ev.target === el) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); } }
+};
+function openNavDrawer() {
+  const l = $('layer'); l.querySelector('.nav-scrim')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="scrim nav-scrim" data-do="navScrim" style="padding:0;justify-content:flex-start;align-items:stretch"><div class="drawer-nav" role="dialog" aria-modal="true" aria-label="主選單">${sideNav()}</div></div>`);
+  l.querySelector('.drawer-nav .sitem[aria-current]')?.focus();
+}
+function closeNavDrawer() { $('layer').querySelector('.nav-scrim')?.remove(); }
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-do]');
+  if (el?.dataset.held && el.getAttribute('aria-disabled') === 'true') { say('移除安全標籤需店長以上'); return; }
+  if (!el || el.getAttribute('aria-disabled') === 'true') return;
+  act[el.dataset.do]?.(el, ev);
+});
+document.addEventListener('change', ev => {
+  const el = ev.target;
+  if (el.id === 'scope') { state.branch = el.value; state.page = 0; if (state.sel && !inScope(cust(state.sel))) state.mode = null; render('scope'); announce(`已切換到${scopeName()}`); return; }
+  if (el.id === 'n-nochip') { state.draft.nochip = el.checked; if (state.draft.err) { delete state.draft.err.chip; delete state.draft.err.alt; } render(el.checked ? 'n-alt' : 'n-chip'); }
+});
+const keepCaret = (id, fn) => { const el = $(id), pos = el?.selectionStart; fn(); const n = $(id); if (n && pos != null) n.setSelectionRange(pos, pos); };
+document.addEventListener('input', ev => {
+  const el = ev.target;
+  if (el.id === 'q') { state.q = el.value; state.page = 0; keepCaret('q', () => render('q')); return; }
+  if (el.id === 'bn-why') { state.bd.why = el.value; return; }
+  if (el.id === 'dg-why' && state.dlg?.field) { state.dlg.field.val = state.bd.why2 = el.value; return; }
+  if (el.id === 'vf-code') { state.vCode = el.value; return; }
+  const f = el.dataset.field; if (!f || !state.mode) return;
+  const d = state.draft;
+  if (state.mode === 'edit' && el.dataset.i !== undefined) { d[f][+el.dataset.i].note = el.value; return; }
+  d[f] = el.value;
+  /* the contact form's notice appears once the new phone is complete */
+  if (state.mode === 'contact' && f === 'ph') { const now = phOk(el.value) && normPh(el.value) !== cust(d.cid).ph; if (d.err) delete d.err.ph; if (now !== !!d.phShown) { d.phShown = now; keepCaret('ct-ph', () => render('ct-ph')); } return; }
+  if (state.mode === 'new' && ['name', 'pet'].includes(f)) { const nh = nameHit()?.id || ''; if (nh !== (d.nh || '')) { d.nh = nh; keepCaret(el.id, () => render(el.id)); if (nh) announce(`是不是換了手機？已有客戶${cust(nh).name}和寵物${d.pet.trim()}`); } }
+  if (state.mode === 'new' && f === 'ph') { const was = !!d.hitShown, now = !!phHit() || GONE_PH.includes(normPh(el.value)); d.hitShown = now; if (d.err) delete d.err.ph; if (was !== now) { if (!now) delete d.dup; keepCaret('n-ph', () => render('n-ph')); if (now) announce(phHit() ? `這支手機已是${phHit().name}的客戶資料` : '這支手機的客戶已依飼主要求刪除'); } }
+});
+document.addEventListener('keydown', ev => {
+  const modal = state.dlg ? '.dialog' : $('layer').querySelector('.drawer-nav') ? '.drawer-nav' : $('layer').querySelector('.pnl-s') ? '.pnl-s .dp' : null;
+  if (ev.key === '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName) && !modal && !state.bench) { ev.preventDefault(); $('q')?.focus(); return; }
+  if (ev.key === 'Escape') {
+    if (state.dlg) { if (!state.dlg.busy) closeDlg(); return; }
+    if ($('layer').querySelector('.drawer-nav')) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); return; }
+    if (state.mode) { act.closePanel(); return; }
+    if (state.bench) { act.benchBack(); return; }
+    if (document.activeElement?.id === 'q' && state.q) { act.clearQ(); return; }
+  }
+  if (modal && ev.key === 'Tab') {
+    const f = [...document.querySelectorAll(`${modal} button, ${modal} a[href], ${modal} input, ${modal} textarea, ${modal} select`)].filter(x => x.getAttribute('aria-disabled') !== 'true' && x.offsetParent);
+    if (!f.length) return;
+    if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); }
+    else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); }
+  }
+  /* customer rows: arrows move between rows; from the search box, down enters the list */
+  const row = ev.target.closest?.('.crow');
+  if ((row || ev.target.id === 'q') && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp')) {
+    const rows = [...document.querySelectorAll('#app .crow')]; if (!rows.length) return;
+    ev.preventDefault();
+    if (!row) { if (ev.key === 'ArrowDown') rows[0].focus(); return; }
+    const i = rows.indexOf(row), n = ev.key === 'ArrowDown' ? rows[i + 1] : rows[i - 1];
+    if (n) n.focus(); else if (ev.key === 'ArrowUp') $('q')?.focus();
+  }
+  /* radiogroups: arrows move and select */
+  const opt = ev.target.closest?.('[role="radiogroup"] [role="radio"]');
+  if (opt && ['ArrowDown','ArrowUp','ArrowLeft','ArrowRight'].includes(ev.key)) {
+    ev.preventDefault();
+    const all = [...opt.closest('[role="radiogroup"]').querySelectorAll('[role="radio"]')].filter(x => x.getAttribute('aria-disabled') !== 'true');
+    const i = all.indexOf(opt), fwd = ev.key === 'ArrowDown' || ev.key === 'ArrowRight';
+    const n = all[(i + (fwd ? 1 : all.length - 1)) % all.length]; if (n) n.click();
+  }
+});
+
+/* ---------- prototype controls ---------- */
+function syncUrl() {
+  const u = new URL(location);
+  u.searchParams.set('role', state.role);
+  state.sel && state.mode === 'detail' ? u.searchParams.set('c', state.sel) : u.searchParams.delete('c');
+  state.bench ? u.searchParams.set('bench', state.bench) : u.searchParams.delete('bench');
+  history.replaceState(null, '', u);
+}
+const resetAll = () => { state.mode = null; state.sel = null; state.draft = {}; state.dlg = null; state.bench = null; state.bd = {}; renderDlg(); };
+function applyQs() {
+  if (qs.get('role') in ROLES) state.role = qs.get('role');
+  if (qs.get('off') === '1') state.offline = true;
+  if (qs.get('fail') === '1') state.loadFail = true;
+  if (['zs','xy'].includes(qs.get('br')) && !me().br) state.branch = qs.get('br');
+  if (qs.get('q')) state.q = qs.get('q');
+  if (['dup','del','noline'].includes(qs.get('f'))) state.filt = qs.get('f');
+}
+applyQs();
+if (LIFE) document.querySelector('.proto .muted').textContent = `資料全為虛構・今天 10/9（五）${NOWS}`;
+$('p-role').value = state.role; $('p-off').checked = state.offline; $('p-fail').checked = state.loadFail;
+$('p-role').onchange = e => { state.role = e.target.value; state.branch = 'all'; state.page = 0; const s = state.sel, wasBench = state.bench, m = state.mode; resetAll(); if (s && m === 'detail' && inScope(cust(s))) { state.mode = 'detail'; state.sel = s; } if (wasBench && dupGroups().some(g => g.key === wasBench)) { state.bench = wasBench; const g = benchData(); state.bd = {name:keepOf(g.a, g.b) === g.a ? 'a' : 'b', addr:g.a.addr ? 'a' : 'b', why:''}; } render(); };
+$('p-write').onchange = e => { state.nextWrite = e.target.value; };
+$('p-fail').onchange = e => { state.loadFail = e.target.checked; render(); };
+$('p-off').onchange = e => { state.offline = e.target.checked; render(); };
+/* 快轉: the clock jumps, so a code can expire, a wait can end and a lock can lift without waiting */
+let vfT;
+function tickVf() {
+  clearInterval(vfT);
+  vfT = setInterval(() => {
+    const el = document.querySelector('[data-key="vf-wait"]'), pd = state.sel && cust(state.sel)?.phPend;
+    if (!el || !pd) return clearInterval(vfT);
+    const left = smsWait(pd.ph);
+    if (left <= 0) { clearInterval(vfT); const k = document.activeElement?.dataset?.key; render(); if (k) document.querySelector(`[data-key="${k}"]`)?.focus(); }
+    else el.textContent = `${left} 秒後可以重新傳送`;
+  }, 1000);
+}
+const fastForward = min => { skew += min * 60000; const k = document.activeElement?.dataset?.key; render(); if (k) document.querySelector(`[data-key="${k}"]`)?.focus(); tickVf(); say(`簡訊時間快轉 ${min} 分鐘，現在 ${hmT(clockMs())}`); };
+$('p-ff1').onclick = () => fastForward(1);
+$('p-ff10').onclick = () => fastForward(10);
+$('p-theme').onchange = e => { if (e.target.value) document.documentElement.dataset.theme = e.target.value; else delete document.documentElement.dataset.theme; };
+$('p-go').onchange = e => {
+  const v = e.target.value; e.target.value = '';
+  resetAll(); state.q = ''; state.filt = 'all'; state.page = 0;
+  if (v === 'list') { render(); return; }
+  if (v === 'he' || v === 'zhang') { const g = dupGroups().find(x => x.ids.includes(v === 'he' ? 'c-he' : 'c-zhang')); if (g) act.bench({dataset:{g:g.key}}); else { render(); say('這組已經處理完了'); } return; }
+  if (v === 'afu') { if (!inScope(cust('c-caim'))) state.branch = 'all'; openPanel('detail', 'c-caim'); return; }
+  if (v === 'new') { if (me().create && canWrite()) act.newCust(); else { render(); say(me().create ? '離線中不能新增' : '美容照護不能新增客戶'); } }
+};
+const mq = matchMedia('(max-width: 1023px)'), mqR = matchMedia('(min-width: 1024px) and (max-width: 1279px)'), mqP = matchMedia('(max-width: 719px)');
+const setCompact = () => { state.compact = mq.matches; state.rail = mqR.matches; state.phone = mqP.matches; state.wide = !mq.matches && !mqR.matches; if (!state.compact) closeNavDrawer(); render(); };
+[mq, mqR, mqP].forEach(m => m.addEventListener('change', setCompact));
+state.compact = mq.matches; state.rail = mqR.matches; state.phone = mqP.matches; state.wide = !mq.matches && !mqR.matches;
+if (qs.get('c') && cust(qs.get('c')) && inScope(cust(qs.get('c')))) { state.mode = 'detail'; state.sel = qs.get('c'); }
+render();
+if (qs.get('bench') && !state.phone && dupGroups().some(g => g.key === qs.get('bench'))) act.bench({dataset:{g:qs.get('bench')}});
+else if (qs.get('new') === '1' && me().create && canWrite() && !state.phone) act.newCust();
+</script>
+</body>
+</html>

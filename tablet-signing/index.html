@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>平板簽署原型</title>
+<script src="../test-kit/kit.js" data-proto="tablet-signing"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, owner side. Status colors are the fixed set shared by every surface and shop; the shop brand slot replaces persimmon. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--sunk:#F1E7DC;--ink:#2B211C;--ink-muted:#6E6058;
+  --act:#FF6B3D;--on-act:#2B160C;--act-tint:#FFE5DA;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --sig-ink:#2B211C;--sig-paper:#FFFFFF;
+  --owner-surface:#FFFFFF;--owner-surface-variant:#F6EFE7;--owner-ink:#2B211C;--owner-ink-muted:#6E6058;--owner-border:#EADFD3;--owner-control-border:#9A8878;
+  --ring-ahead:#927F70;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-md:14px;--r-xl:28px;--r-owner-lg:16px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --protoh:48px;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--sunk:#30261F;--ink:#F6EDE6;--ink-muted:#BCAEA3;
+  --act:#FF8257;--on-act:#2B160C;--act-tint:#4A2618;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --owner-surface:#211915;--owner-surface-variant:#15100D;--owner-ink:#F6EDE6;--owner-ink-muted:#BCAEA3;--owner-border:#3A2E27;--owner-control-border:#8D7C6F;
+  --ring-ahead:#8D7C6F;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--sunk:#30261F;--ink:#F6EDE6;--ink-muted:#BCAEA3;
+    --act:#FF8257;--on-act:#2B160C;--act-tint:#4A2618;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --owner-surface:#211915;--owner-surface-variant:#15100D;--owner-ink:#F6EDE6;--owner-ink-muted:#BCAEA3;--owner-border:#3A2E27;--owner-control-border:#8D7C6F;
+    --ring-ahead:#8D7C6F;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    color-scheme:dark;
+  }
+}
+html.bigtext{font-size:125%}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:1rem;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+::selection{background:var(--brand-tint);color:var(--owner-ink)}
+input{caret-color:var(--owner-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--owner-control-border) transparent}
+:focus-visible{outline:3px solid var(--owner-ink);outline-offset:3px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.num{font-feature-settings:"tnum"}
+
+/* ---------- prototype strip (not product UI, never part of the owner's screen) ---------- */
+.proto{position:fixed;top:0;left:0;right:0;z-index:90;height:var(--protoh);background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 14px;padding:0 14px;overflow-x:auto;white-space:nowrap}
+.proto b{font-weight:800}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink);font-size:.8125rem}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .note{margin-left:auto;padding-left:10px;border-left:1px solid var(--proto-line)}
+.proto .note b{font-feature-settings:"tnum";letter-spacing:.06em}
+
+/* ---------- staff stand-in (prototype only: replaces the 今日看板 around the hand-over) ---------- */
+.staff{padding:calc(var(--protoh) + 32px) 24px 48px;max-width:880px;margin:0 auto}
+.staff h1{font-size:1.5rem;font-weight:900}
+.staff .lead{color:var(--ink-muted);font-weight:600;margin:4px 0 20px;max-width:40em}
+.srow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 16px;align-items:center;background:var(--owner-surface);border-radius:20px;padding:14px 16px;box-shadow:var(--lift);margin-bottom:12px}
+.srow .face{width:56px;height:56px;border-radius:50%;overflow:hidden;background:var(--sunk);display:grid;place-items:center;font-weight:900;color:var(--ink-muted)}
+.srow .face img{width:100%;height:100%;object-fit:cover}
+.srow b{font-size:1.125rem;font-weight:900}
+.srow .meta{font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.srow .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{display:inline-flex;align-items:center;min-height:26px;padding:0 10px;border-radius:999px;font-size:.8125rem;font-weight:800}
+.tag.warning{background:var(--warning-bg);color:var(--warning)}
+.tag.info{background:var(--info-bg);color:var(--info)}
+.tag.success{background:var(--success-bg);color:var(--success)}
+.tag.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.tag.danger{background:var(--danger-bg);color:var(--danger)}
+.abtn{min-height:48px;padding:0 20px;border-radius:999px;background:var(--act);color:var(--on-act);font-weight:900;white-space:nowrap;transition:transform .3s var(--spring)}
+.abtn:active{transform:scale(.96);transition-duration:.08s}
+.abtn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);border:2px dashed var(--owner-control-border);cursor:not-allowed}
+.srow .why{grid-column:3;font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-align:right}
+.srow.flash{animation:lit 1.6s var(--out)}
+@keyframes lit{0%,55%{outline:3px solid var(--owner-ink);outline-offset:3px}100%{outline:3px solid transparent;outline-offset:3px}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:95;background:var(--toast);color:var(--on-toast);padding:12px 20px;border-radius:999px;font-weight:800;box-shadow:var(--lift-hi);animation:rise .35s var(--out);max-width:calc(100vw - 32px)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+
+/* ---------- tablet sign mode ---------- */
+/* focus and the active code field use owner ink, so a shop brand near danger never carries focus */
+.handover{position:fixed;top:var(--protoh);left:0;right:0;bottom:0;z-index:60;background:var(--owner-surface-variant);color:var(--owner-ink);display:flex;flex-direction:column;font-size:1rem}
+.signbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;min-height:68px;padding:10px 20px;background:var(--owner-surface);border-bottom:1px solid var(--owner-border)}
+.signbar .who{display:flex;align-items:center;gap:10px;font-size:1rem;font-weight:800;min-width:0}
+.signbar .step{font-size:1.125rem;font-weight:900;text-align:center}
+.signbar .n{justify-self:end;display:flex;align-items:center;gap:10px;font-size:.9375rem;font-weight:800;color:var(--owner-ink-muted)}
+.signbar .pause{min-height:44px;padding:0 14px;border-radius:999px;font-weight:800;font-size:.875rem;color:var(--owner-ink-muted);background:var(--owner-surface-variant);white-space:nowrap}
+.signbar .pause:hover{color:var(--owner-ink)}
+.signbar .ring{display:inline-grid}
+.hoback{display:inline-flex;align-items:center;gap:4px;min-height:48px;padding:0 16px 0 8px;border-radius:999px;font-weight:800;color:var(--owner-ink)}
+.hoback:hover{background:var(--owner-surface-variant)}
+.logo{width:64px;height:64px;border-radius:20px;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-size:1.625rem;font-weight:900;line-height:1;flex:none}
+.logo.s{width:36px;height:36px;border-radius:12px;font-size:1.0625rem}
+
+/* body: on a landscape tablet the pet's ring stands beside the reading column as the progress */
+.ho-body{flex:1;display:flex;min-height:0}
+.ho-side{display:none}
+.ho-stage{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
+.ho-main{flex:1;overflow:auto;padding:28px 28px 32px;overscroll-behavior:contain}
+.ho-col{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.ho-col.wide{max-width:940px}
+.ho-col{container-type:inline-size}
+.ho-col.mid{min-height:100%;justify-content:center}
+.ho-col>h2{font-size:1.625rem;font-weight:900;line-height:1.3;text-wrap:balance}
+.ho-col>.sub{font-size:1rem;color:var(--owner-ink-muted);font-weight:600;line-height:1.6;margin-top:-8px}
+.ho-col>.sub+.sub{margin-top:-14px}
+.ho-foot{background:var(--owner-surface);border-top:1px solid var(--owner-border);padding:14px 28px calc(14px + env(safe-area-inset-bottom))}
+.ho-foot .in{max-width:660px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+.ho-foot.wide .in{max-width:940px}
+.ho-foot .hint{font-size:.875rem;font-weight:700;color:var(--owner-ink-muted);text-align:center}
+@media (min-width:1000px) and (orientation:landscape){
+  .ho-side{display:flex;flex-direction:column;align-items:center;gap:14px;width:300px;flex:none;padding:36px 28px;border-right:1px solid var(--owner-border);overflow:auto;text-align:center}
+  .ho-side .pname{font-size:1.375rem;font-weight:900;line-height:1.3}
+  .ho-side .psvc{font-size:.9375rem;font-weight:700;color:var(--owner-ink-muted);margin-top:-8px}
+  .hsteps{list-style:none;align-self:stretch;margin-top:14px;display:flex;flex-direction:column;gap:2px;text-align:left}
+  .hsteps li{display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;border-radius:12px;font-weight:700;color:var(--owner-ink-muted)}
+  .hsteps .dot{width:24px;height:24px;flex:none;border-radius:50%;border:2px solid var(--ring-ahead);display:grid;place-items:center}
+  .hsteps .dot .ico{width:14px;height:14px;stroke-width:3}
+  .hsteps li.done{color:var(--owner-ink)}
+  .hsteps li.done .dot{background:var(--owner-ink);border-color:var(--owner-ink);color:var(--owner-surface-variant)}
+  .hsteps li.cur{background:var(--owner-surface);color:var(--owner-ink);font-weight:900;box-shadow:var(--lift)}
+  .hsteps li.cur .dot{border:7px solid var(--brand)}
+  .signbar .ring{display:none}
+}
+
+.obtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:60px;padding:14px 20px;border-radius:18px;background:var(--brand);color:var(--on-brand);font-size:1.125rem;font-weight:900;width:100%;border:2px solid transparent;transition:transform .35s var(--spring),filter .2s var(--out)}
+.obtn:hover{filter:brightness(1.07)}
+.obtn:active:not([aria-disabled="true"]){transform:scale(.97);transition-duration:.08s}
+.obtn.sec{background:var(--owner-surface);color:var(--owner-ink);border-color:var(--owner-control-border);font-weight:800}
+.obtn.sec:hover{filter:none;border-color:var(--owner-ink)}
+.obtn[aria-disabled="true"]{background:transparent;color:var(--owner-ink-muted);border:2px dashed var(--owner-control-border);cursor:not-allowed;filter:none}
+.obtn.big{min-height:68px;width:min(420px,100%)}
+.holink{min-height:44px;padding:0 10px;font-weight:800;font-size:.9375rem;color:var(--owner-ink);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px;border-radius:999px;align-self:center}
+.holink:hover{background:var(--owner-surface-variant)}
+.holink[aria-disabled="true"]{color:var(--owner-ink-muted);text-decoration:none;cursor:not-allowed}
+.hold{position:relative;overflow:hidden;isolation:isolate;padding:0 16px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.hold-fill{position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--owner-border);transform:scaleX(0);transform-origin:left;transition:transform .2s var(--out)}
+.hold.holding .hold-fill{transform:scaleX(1);transition:transform 2s linear}
+
+/* start / end */
+.ho-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center;position:relative}
+.ho-center h2{font-size:1.75rem;font-weight:900;line-height:1.3}
+.ho-center p{font-size:1.0625rem;color:var(--owner-ink-muted);font-weight:800;line-height:1.6;max-width:28em}
+.ho-start .store{position:absolute;top:24px;left:28px;display:flex;align-items:center;gap:12px;text-align:left;font-size:1.125rem;font-weight:900}
+.ho-start .store small{display:block;font-size:.9375rem;color:var(--owner-ink-muted);font-weight:700}
+.ho-start .logo{width:48px;height:48px;border-radius:var(--r-md);font-size:1.375rem}
+.ho-start .pet{font-size:1.1875rem;font-weight:800;color:var(--owner-ink-muted);margin-top:4px}
+.ho-start h2{font-size:clamp(2rem,4.4vw,2.75rem);margin-bottom:18px;text-wrap:balance}
+.ho-start .holink{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));color:var(--owner-ink-muted)}
+.ho-start .offnote{font-weight:800;color:var(--owner-ink-muted);margin-top:-8px}
+.ho-center .sface{margin-bottom:6px}
+@media (max-height:640px){.ho-start .sface{--s:150px!important}.ho-start .store,.ho-start .holink{position:static}}
+.endsum{display:grid;grid-template-columns:auto auto;gap:6px 16px;font-weight:700;text-align:left;margin-top:4px}
+.endsum dt{color:var(--owner-ink-muted)}
+
+/* 臉環 for the signing session: one segment per step. done = owner ink, current = brand, ahead = pale; closed and checked on 簽署完成 */
+.sface{--s:56px;position:relative;flex:none;width:var(--s);height:var(--s);display:inline-grid;place-items:center}
+.sface>svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.sface circle{fill:none;stroke:var(--ring-ahead);stroke-width:3.5;stroke-linecap:round;transition:stroke .4s var(--out)}
+.sface circle.done{stroke:var(--owner-ink);stroke-width:6}
+.sface circle.cur{stroke:var(--brand);stroke-width:8.5}
+.sface.closed circle{stroke:var(--brand);stroke-width:7}
+.sface img,.sface .ini{width:calc(var(--s) * .76);height:calc(var(--s) * .76);border-radius:50%;object-fit:cover;background:var(--sunk);display:grid;place-items:center;font-weight:900;font-size:calc(var(--s) * .3);color:var(--owner-ink-muted)}
+.sface .ok,.sface .flag{position:absolute;right:2%;bottom:2%;width:calc(var(--s) * .3);height:calc(var(--s) * .3);border-radius:50%;display:grid;place-items:center;border:4px solid var(--owner-surface-variant)}
+.sface .ok{background:var(--brand);color:var(--on-brand);animation:pop .5s var(--spring) .35s both}
+.sface .ok .ico{width:58%;height:58%;stroke-width:3}
+.sface .flag .ico{width:56%;height:56%;stroke-width:2.6}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.tone-info .flag{background:var(--info-bg);color:var(--info)}
+.tone-warn .flag{background:var(--warning-bg);color:var(--warning)}
+.tone-danger .flag{background:var(--danger-solid);color:var(--on-danger-solid)}
+.endnote,.pausenote{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;font-weight:800;font-size:.9375rem}
+.endnote .ico,.pausenote .ico{width:18px;height:18px}
+.tone-info .endnote{background:var(--info-bg);color:var(--info)}
+.tone-warn .endnote,.pausenote{background:var(--warning-bg);color:var(--warning)}
+.tone-danger .endnote{background:var(--danger-bg);color:var(--danger)}
+.sface.closing circle{stroke-dasharray:0 600;animation:segclose .7s var(--out) forwards}
+.sface.closing circle:nth-child(2){animation-delay:.08s}.sface.closing circle:nth-child(3){animation-delay:.16s}.sface.closing circle:nth-child(4){animation-delay:.24s}.sface.closing circle:nth-child(5){animation-delay:.32s}
+@keyframes segclose{to{stroke-dasharray:var(--len) 600}}
+/* the one authored moment: the owner's space rises when signing mode opens, and the ring closes on 簽署完成 */
+.handover.enter{animation:hoin .55s var(--out) both}
+.handover.enter .sface{animation:hoface .7s var(--spring) .12s both}
+@keyframes hoin{from{opacity:0;transform:translateY(24px);clip-path:inset(6% 3% 0 3% round 28px)}to{opacity:1;transform:none;clip-path:inset(0 0 0 0 round 0)}}
+@keyframes hoface{from{opacity:0;transform:scale(.86)}}
+
+/* notices inside the owner column */
+.ho-card{background:var(--owner-surface);border-radius:var(--r-owner-lg);padding:20px 22px;box-shadow:var(--lift)}
+.ho-card h3{font-size:1.0625rem;font-weight:900;margin-bottom:10px}
+.ho-card h3 small{margin-left:8px;font-size:.8125rem;font-weight:700;color:var(--owner-ink-muted)}
+.ho-pet{display:flex;align-items:center;gap:14px}
+.ho-pet img,.ho-pet .ini{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none;background:var(--sunk);display:grid;place-items:center;font-weight:900;font-size:1.5rem;color:var(--owner-ink-muted)}
+.ho-pet b{display:block;font-size:1.25rem;font-weight:900}
+.ho-pet span{font-size:.9375rem;font-weight:700;color:var(--owner-ink-muted)}
+.ho-dl{display:grid;grid-template-columns:5.5rem 1fr;gap:10px 14px;font-size:1rem;font-weight:700;margin-top:14px}
+.ho-dl dt{color:var(--owner-ink-muted)}
+.readmark,.vernote{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;font-weight:800;line-height:1.5}
+.readmark{background:var(--success-bg);color:var(--success)}
+.vernote{background:var(--info-bg);color:var(--info)}
+.vernote b{display:block;font-size:1.125rem;font-weight:900}
+.vernote span{font-weight:700}
+.readmark .ico,.vernote .ico{width:22px;height:22px;stroke-width:2.4;margin-top:2px}
+.keylist{list-style:none;display:flex;flex-direction:column}
+.keylist li{display:flex;gap:10px;align-items:baseline;padding:9px 0;border-top:1px solid var(--owner-border);font-weight:700}
+.keylist li:first-child{border-top:0}
+/* money and authorization clauses carry their plain-language point at signing time, even when read at home */
+.keylist .kt{min-width:0}
+.keylist .plain{display:block;margin-top:3px;font-size:.9375rem;font-weight:600;line-height:1.55;color:var(--owner-ink);text-wrap:pretty}
+.keylist li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--brand);transform:translateY(-2px)}
+.ho-ver{font-size:.875rem;font-weight:700;color:var(--owner-ink-muted);margin-top:10px}
+.upd{display:inline-flex;align-items:center;min-height:22px;padding:0 8px;margin-left:8px;border-radius:999px;background:var(--info-bg);color:var(--info);font-size:.75rem;font-weight:900;vertical-align:2px}
+.netbar{display:flex;align-items:center;gap:10px;padding:10px 12px 10px 14px;border-radius:14px;background:var(--warning-bg);color:var(--warning);font-weight:800}
+.netbar .ico{width:20px;height:20px;stroke-width:2.2}
+.netbar .holink{margin-left:auto;color:var(--warning)}
+
+/* full text */
+.doc{background:var(--owner-surface);border-radius:var(--r-owner-lg);padding:26px 28px;line-height:1.85;font-size:1.0625rem;max-width:70ch}
+.doc h3{font-size:1.125rem;font-weight:900;margin:22px 0 6px}
+.doc h3:first-child{margin-top:0}
+.doc p{font-weight:500}
+.doc .key{margin:14px -12px 4px;padding:14px 14px 10px;border-radius:14px;background:var(--brand-tint)}
+.doc .key h3{margin-top:0}
+.doc .key h3 small{margin-left:8px;font-size:.8125rem;font-weight:800;color:var(--brand-ink);vertical-align:2px}
+.tick{display:flex;align-items:center;gap:12px;min-height:52px;margin-top:8px;padding:6px 12px;border-radius:12px;background:var(--owner-surface);font-weight:800;cursor:pointer;border:2px solid var(--owner-control-border)}
+.tick input{appearance:none;width:26px;height:26px;flex:none;border-radius:8px;border:2px solid var(--owner-control-border);display:grid;place-items:center;background:var(--owner-surface);cursor:pointer}
+.tick input:checked{background:var(--brand);border-color:var(--brand)}
+.tick input:checked::after{content:"";width:12px;height:7px;border-left:3px solid var(--on-brand);border-bottom:3px solid var(--on-brand);transform:rotate(-45deg) translate(1px,-1px)}
+.tick:has(input:checked){border-color:var(--brand)}
+.tick input:focus-visible{outline:none}
+.tick:has(input:focus-visible){outline:3px solid var(--owner-ink);outline-offset:3px}
+.docend{margin-top:26px;padding-top:16px;border-top:2px dashed var(--owner-border);text-align:center;font-weight:800;color:var(--owner-ink-muted)}
+.conds{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.conds li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:var(--owner-surface-variant);font-size:.9375rem;font-weight:800;color:var(--owner-ink-muted)}
+.conds li .c{width:22px;height:22px;flex:none;border-radius:50%;border:2px solid var(--owner-control-border);display:grid;place-items:center}
+.conds li.ok{color:var(--owner-ink)}
+.conds li.ok .c{background:var(--success);border-color:var(--success);color:var(--success-bg)}
+.conds li.ok .c .ico{width:14px;height:14px;stroke-width:3}
+.conds li .v{margin-left:auto;font-size:.8125rem;font-feature-settings:"tnum"}
+
+/* sheet and dialogs */
+.hosheet-scrim{position:fixed;inset:var(--protoh) 0 0 0;z-index:70;background:var(--scrim);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s var(--out)}
+.hosheet-scrim.center{align-items:center}
+@keyframes fade{from{opacity:0}}
+.hosheet{width:min(680px,100%);background:var(--owner-surface);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:20px 24px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px;animation:sheet .35s var(--out)}
+@keyframes sheet{from{transform:translateY(40px);opacity:0}}
+.hosheet .hd{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.hosheet h2{font-size:1.375rem;font-weight:900}
+.hosheet p{font-size:1rem;font-weight:600;line-height:1.7;color:var(--owner-ink-muted)}
+.hosheet .opts{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.hosheet .opts .obtn{justify-content:flex-start;text-align:left;flex-direction:column;align-items:flex-start;gap:2px;min-height:68px}
+.hosheet .opts .obtn small{font-size:.875rem;font-weight:600;color:var(--owner-ink-muted)}
+.hosheet.ho-dialog{border-radius:24px;width:min(460px,92vw)}
+.hosheet.ho-dialog.wide{width:min(500px,92vw)}
+.ho-dialog .row2{display:flex;gap:10px;flex-wrap:wrap}
+.ho-dialog .row2 .obtn{flex:1 1 12em}
+.xbtn{min-height:44px;padding:0 14px;border-radius:999px;font-weight:800;background:var(--owner-surface-variant)}
+
+/* pet data */
+.prow{display:grid;grid-template-columns:7rem minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:14px 0;border-top:1px solid var(--owner-border)}
+.prow:first-of-type{border-top:0}
+.prow .k{font-weight:800;color:var(--owner-ink-muted);font-size:.9375rem}
+.prow .v{font-weight:800;font-size:1.0625rem;line-height:1.5}
+.prow .src{grid-column:2;font-size:.8125rem;font-weight:800;color:var(--owner-ink-muted)}
+.prow.staff{margin:0 -12px;padding:14px 12px;border-radius:14px;background:var(--warning-bg);border-top-color:transparent}
+.prow.staff .src{color:var(--warning)}
+.prow.staff+.prow{border-top-color:transparent}
+.prow.staff+.prow.staff{margin-top:6px}
+.prow .acts{grid-column:3;grid-row:1 / span 2;display:flex;gap:8px}
+.prow .acts button{min-height:44px;padding:0 14px;border-radius:12px;font-weight:800;font-size:.9375rem;background:var(--owner-surface);border:2px solid var(--owner-control-border)}
+.prow .acts button.yes{border-color:var(--owner-ink)}
+.prow .acts button[aria-pressed="true"]{background:var(--success-bg);color:var(--success);border-color:var(--success)}
+.prow .edit{grid-column:2 / -1;display:flex;gap:8px}
+.prow .edit input{flex:1;min-height:48px;border-radius:12px;border:2px solid var(--owner-control-border);padding:0 12px;font-size:1rem;background:var(--owner-surface)}
+.prow .edit button{min-height:48px;padding:0 16px;border-radius:12px;font-weight:900;background:var(--owner-ink);color:var(--owner-surface)}
+.prow .was{grid-column:2;font-size:.8125rem;font-weight:800;color:var(--info)}
+
+/* ID number: entered once, confirmed once, masked for good */
+.idcard p.note{font-size:.9375rem;font-weight:600;color:var(--owner-ink-muted);margin:-4px 0 12px}
+.idcard label{display:block;font-weight:900;margin-bottom:8px}
+.idfield{display:flex;gap:10px;flex-wrap:wrap}
+.idfield input{flex:1 1 14em;min-width:0;max-width:100%;min-height:60px;border-radius:14px;border:2px solid var(--owner-control-border);padding:0 16px;font-size:1.375rem;font-weight:800;letter-spacing:.08em;background:var(--owner-surface);font-feature-settings:"tnum";text-transform:uppercase}
+.idfield input[aria-invalid="true"]{border-color:var(--danger-solid)}
+.idfield .obtn{width:auto;flex:0 0 auto;min-height:60px}
+.idmsg{min-height:1.5em;margin-top:8px;font-size:.9375rem;font-weight:800;color:var(--owner-ink-muted)}
+.idmsg.bad{color:var(--danger)}
+.idconfirm{display:flex;flex-direction:column;gap:12px}
+.idconfirm .masked{font-size:1.625rem;font-weight:900;letter-spacing:.08em;font-feature-settings:"tnum"}
+.idconfirm .row2{display:flex;gap:10px;flex-wrap:wrap}
+.idconfirm .row2 .obtn{flex:1 1 10em}
+.iddone{display:flex;align-items:center;gap:12px;font-weight:800}
+.iddone .masked{font-size:1.25rem;font-weight:900;letter-spacing:.08em;font-feature-settings:"tnum"}
+.iddone .tag{margin-left:auto}
+
+/* signature */
+.sigsum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.sigsum div{background:var(--owner-surface);border-radius:14px;padding:10px 14px;font-weight:800;line-height:1.4;min-width:0}
+@container (max-width:760px){.sigsum{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.sigsum span{display:block;font-size:.8125rem;color:var(--owner-ink-muted)}
+.pad{position:relative;height:max(220px,40vh);border-radius:20px;background:var(--owner-surface);border:2px dashed var(--owner-ink-muted);touch-action:none;overflow:hidden}
+/* landscape phone: a 220px pad would fill the scroll area, and the page only scrolls outside it */
+@media (max-height:500px){.pad{height:max(120px,32vh)}}
+.pad.has{border-style:solid;border-color:var(--owner-ink)}
+.pad canvas{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair}
+.pad .base{position:absolute;left:28px;right:28px;bottom:26%;border-top:2px solid var(--owner-border);pointer-events:none}
+.pad .signer{position:absolute;left:28px;top:calc(74% + 8px);font-size:.9375rem;font-weight:800;color:var(--owner-ink-muted);pointer-events:none}
+.sigwhat{margin:-4px 0 14px;font-size:1rem;font-weight:800;line-height:1.5;color:var(--owner-ink)}
+.ho-start .forwho{margin-top:-6px;font-size:1.0625rem;font-weight:800;color:var(--owner-ink)}
+.pad .x{position:absolute;left:28px;bottom:calc(26% + 6px);font-size:1.5rem;font-weight:900;color:var(--owner-control-border);pointer-events:none}
+.pad .ph{position:absolute;inset:0;display:grid;place-items:center;font-size:1.125rem;font-weight:800;color:var(--owner-ink-muted);pointer-events:none}
+.pad.has .ph{display:none}
+.padbar{display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:800;font-size:.9375rem;color:var(--owner-ink-muted)}
+.alt{display:flex;flex-direction:column;gap:12px}
+.alt input[type=text]{min-height:60px;border-radius:14px;border:2px solid var(--owner-control-border);padding:0 16px;font-size:1.375rem;font-weight:800;background:var(--owner-surface)}
+
+/* otp: one real field (paste and one-time-code autofill keep working), drawn as six cells */
+.otp{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.otp label{font-weight:900;font-size:1.125rem}
+.otp .to{font-weight:700;color:var(--owner-ink-muted)}
+.otp .cells{position:relative;display:flex;gap:10px;width:min(372px,100%)}
+.otp .cells i{flex:1;height:76px;border-radius:14px;border:2px solid var(--owner-ink-muted);background:var(--owner-surface);display:grid;place-items:center;font-style:normal;font-size:2rem;font-weight:900;font-feature-settings:"tnum";pointer-events:none}
+.otp .cells:focus-within i.on{border:3px solid var(--owner-ink)}
+.otp .cells.bad i{border-color:var(--danger-solid)}
+.otp input{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent;color:transparent;caret-color:transparent;font-size:1rem;opacity:.01;cursor:text}
+.otp input:focus{outline:none}
+.otp .err{min-height:1.5em;font-weight:800;color:var(--danger)}
+.locked{display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center;padding:10px 0}
+.locked .ico{width:44px;height:44px;padding:9px;border-radius:50%;background:var(--danger-bg);color:var(--danger)}
+
+/* record */
+.reclist{list-style:none}
+.reclist li{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-top:1px solid var(--owner-border);font-weight:700}
+.reclist li:first-child{border-top:0}
+.reclist .num{font-weight:900}
+.reclist .find{color:var(--warning)}
+
+html.bigtext .conds{grid-template-columns:minmax(0,1fr)}
+html.bigtext .sigsum{grid-template-columns:repeat(2,minmax(0,1fr))}
+html.bigtext .ho-start .store,html.bigtext .ho-start .holink{position:static}
+html.bigtext .ho-start .sface{--s:150px!important}
+html.bigtext .ho-side{width:260px}
+@media (max-width:760px){
+  .conds{grid-template-columns:1fr}
+  .sigsum{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .prow{grid-template-columns:minmax(0,1fr)}
+  .prow .src,.prow .was,.prow .edit{grid-column:1}
+  .prow .acts{grid-column:1;grid-row:auto}
+  /* narrow: back and pause share the top row, the step name gets its own full row so large text never squeezes it a character per line */
+  .signbar{padding:8px 12px;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"who n" "step step";row-gap:4px}
+  .signbar .who{grid-area:who}.signbar .n{grid-area:n;min-width:0;flex-wrap:wrap;justify-content:flex-end;row-gap:6px}
+  .signbar .ring{display:none}
+  .signbar .step{grid-area:step;text-align:left}
+  .signbar .hoback,.signbar .num{white-space:nowrap}
+  .signbar .who .sname,.signbar .who .logo{display:none}
+  .doc{padding:20px}
+  /* narrow: the handover button drops under the row so the pet and owner keep a readable line */
+  .staff{padding-left:16px;padding-right:16px}
+  .srow{grid-template-columns:auto minmax(0,1fr)}
+  .srow .abtn,.srow .why{grid-column:1 / -1}
+  .srow .why{text-align:left}
+  .ho-main{padding:20px 16px 28px}
+  .ho-foot{padding-left:16px;padding-right:16px}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+  .sface.closing circle{stroke-dasharray:var(--len) 600}
+  .hold .hold-fill{transform:scaleX(0)}
+  .hold.holding .hold-fill{animation:holdstep 2s steps(8,end) forwards !important}
+}
+@keyframes holdstep{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+</style>
+<style id="brandvars"></style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（不是產品畫面）">
+  <b>原型</b>
+  <label>情境 <select id="p-sc" data-key="p-sc"></select></label>
+  <label>跳到 <select id="p-jump" data-key="p-jump"></select></label>
+  <label>店家 <select id="p-shop" data-key="p-shop"><option value="hiyori">毛孩日和（示範）</option><option value="wangmiao">汪喵小棧（示範）</option></select></label>
+  <label>主題 <select id="p-theme" data-key="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <label><input type="checkbox" id="p-big" data-key="p-big">大字</label>
+  <label><input type="checkbox" id="p-off" data-key="p-off">模擬斷線</label>
+  <span class="note muted" id="p-note"></span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div class="sr" aria-live="polite" id="live"></div>
+<script>
+/* ---------- helpers ---------- */
+const I = {
+  back:'<path d="m14 6-6 6 6 6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  send:'<path d="M20 4 3 11l7 2 2 7 8-16Z"/><path d="m10 13 4-4"/>',
+  refresh:'<path d="M19 12a7 7 0 1 1-2.1-5"/><path d="M19 4v4h-4"/>',
+  wifioff:'<path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 4.2-2.4M14.8 10.1A10 10 0 0 1 19 12.5"/><path d="M12 20h.01"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/>'
+};
+const ic = n => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = n => n.toLocaleString('en-US');
+const nt = n => `NT$${fmt(n)}`;
+const live = document.getElementById('live');
+const say = msg => { live.textContent = ''; setTimeout(() => live.textContent = msg, 30); };
+const pn = n => /^[A-Za-z]/.test(n) ? ` ${esc(n)} ` : esc(n);   /* a Latin pet name gets a space on each side inside CJK */
+const imgOf = a => a.photo ? `<img src="pets/${a.photo}.webp" alt="">` : `<span class="ini" aria-hidden="true">${esc(a.pet[0])}</span>`;
+
+/* ---------- demo shops (fictional): only the brand slot changes between them ---------- */
+const SHOPS = {
+  hiyori:  {name:'毛孩日和', branch:'中山店', logo:'毛', light:{b:'#3D6B57', on:'#FFFFFF', t:'#E6EFE6', ink:'#2F5A47'}, dark:{b:'#93CBB0', on:'#0E2A1F', t:'#20302A', ink:'#93CBB0'}},
+  wangmiao:{name:'汪喵小棧', branch:'板橋店', logo:'汪', light:{b:'#2D5C8C', on:'#FFFFFF', t:'#E4EDF7', ink:'#24507C'}, dark:{b:'#9CC3EC', on:'#0D2238', t:'#1A2836', ink:'#9CC3EC'}}
+};
+function applyShop() {
+  const s = SHOPS[state.shop], v = p => `--brand:${p.b};--on-brand:${p.on};--brand-tint:${p.t};--brand-ink:${p.ink};`;
+  document.getElementById('brandvars').textContent = `:root{${v(s.light)}}:root[data-theme="dark"]{${v(s.dark)}}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){${v(s.dark)}}}`;
+}
+const shop = () => SHOPS[state.shop];
+
+/* ---------- contracts (示範條文，正式版本待法務確認) ---------- */
+const GROOM = {name:'犬貓美容定型化契約', ver:'v3', clauses:[
+  {t:'第一條　服務內容', b:'店家依預約內容提供美容服務，服務項目、使用的工具與洗劑，在服務前會向你說明。你可以在服務開始前要求調整或取消加購項目。'},
+  {t:'第二條　費用與付款', b:'服務費用以本契約記載為準，加購項目需經你同意後才會收費。費用在接回毛孩時結清，店家應開立收據。'},
+  {t:'第三條　取消與改期費用', key:true, upd:true, sum:a => `24 小時內取消，最多收 ${nt(Math.round(a.fee * .2))}；沒到也沒通知，收 ${nt(Math.round(a.fee * .3))}`, b:'你在預約時間 24 小時前取消或改期，不收任何費用；24 小時內取消，店家得收取不超過服務費 20% 的費用；未到且未通知，店家得收取服務費 30%。'},
+  {t:'第四條　健康狀況告知', key:true, b:'你應如實告知毛孩的疾病史、過敏、攻擊行為與近期用藥。店家發現毛孩有傳染病或身體不適，得暫停服務並通知你，不收取未完成部分的費用。'},
+  {t:'第五條　保定與攻擊行為', key:true, b:'毛孩有攻擊行為時，店家得使用頭套等保定工具，並在服務紀錄中載明。保定方式以不造成傷害為原則。'},
+  {t:'第六條　服務中意外與緊急就醫授權', key:true, sum:() => '聯絡不到你又情況緊急時，店家會送鄰近動物醫院急救，費用由你負擔（店家過失除外）', b:'服務中毛孩受傷或突發疾病，店家應立即通知你。無法聯絡你且情況緊急時，你同意店家將毛孩送往鄰近動物醫院急救，費用由你負擔，但因店家過失造成者由店家負擔。'},
+  {t:'第七條　接回與逾時', key:true, upd:true, sum:() => '完成後超過 2 小時沒接回，會收逾時照護費', b:'店家完成服務後會以 LINE 通知你。超過約定接回時間 2 小時仍未接回，店家得依公告收取逾時照護費。'},
+  {t:'第八條　服務紀錄', b:'服務前後的檢查與服務內容會記錄在服務紀錄中，接回時請你確認並簽名。紀錄正本會傳送給你保存。'},
+  {t:'第九條　個人資料', b:'店家僅為履行本契約使用你與毛孩的資料，不得作其他用途。你可以隨時要求查閱或更正。'}
+]};
+const BOARD = {name:'住宿同意書', ver:'v1', clauses:[
+  {t:'第一條　住宿期間', b:'入住與退房時間以本契約記載為準。提前接回時，已住宿的晚數照算，未住宿的晚數不收費。'},
+  {t:'第二條　費用與逾時', key:true, sum:a => `${a.nights} 晚 ${nt(a.fee)}；晚了 30 分鐘以上接回，每小時加收 NT$100`, b:'住宿費依晚數計算，每滿 24 小時算 1 晚。超過約定退房時間 30 分鐘仍未接回，每小時加收逾時照護費 NT$100，並在收款前向你說明金額。'},
+  {t:'第三條　健康與疫苗', key:true, b:'你應提供毛孩一年內的疫苗紀錄，並如實告知疾病史、過敏、用藥與攻擊行為。毛孩有傳染病跡象時，店家得暫停住宿並通知你。'},
+  {t:'第四條　餵食與用藥', b:'店家依你提供的餵食與用藥方式照護；需要給藥時，會記錄給藥時間與劑量。'},
+  {t:'第五條　緊急醫療授權', key:true, sum:a => `聯絡不到你又情況緊急時，店家會送${(a.rows.find(r => r.k === '指定動物醫院')?.v || '鄰近動物醫院').split('・')[0]}急救，費用由你負擔（店家過失除外）`, b:'住宿期間毛孩受傷或突發疾病，店家應立即通知你。無法聯絡你且情況緊急時，你授權店家將毛孩送往你指定的動物醫院急救（沒有指定時為鄰近醫院），費用由你負擔，但因店家過失造成者由店家負擔。'},
+  {t:'第六條　照護紀錄', b:'店家每天記錄餵食、排泄與異常情形，你可以在 LINE 查看。'},
+  {t:'第七條　寄放物品', b:'你寄放的牽繩、玩具、飼料等物品，入住時會一併登記，退房時歸還。'},
+  {t:'第八條　個人資料', b:'店家僅為履行本契約使用你與毛孩的資料，不得作其他用途。你可以隨時要求查閱或更正。'}
+]};
+const READ_SCALE = 6;          /* prototype only: reading time shortened to 1/6 */
+const DEMO_OTP = '246810';
+const CHECK_ITEMS = ['皮膚','耳朵','眼睛','指甲','毛結','外傷或腫塊'];
+const fmtSec = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+const spokenSec = s => s >= 60 ? `${Math.floor(s / 60)} 分 ${s % 60} 秒` : `${s} 秒`;
+const docOf = a => a.cat === 'boarding' ? BOARD : GROOM;
+const keysOf = a => docOf(a).clauses.filter(c => c.key);
+const charsOf = a => docOf(a).clauses.reduce((s, c) => s + c.t.length + c.b.length, 0);
+const readSecs = a => Math.ceil(charsOf(a) / 200 * 60 / READ_SCALE);
+const readMins = a => Math.max(1, Math.round(charsOf(a) / 200));
+
+/* 王太太收不到簽署連結 (prototypes/sign-link): ?life=link-sign is 毛毛's arrival on 10/10 after she read the third link at 12:05 the day
+   before; 店員確認完成 on 毛毛 posts the act's key action to the director page */
+const LIFE = (v => ['link-sign', 'ct-sign', 'stay-sign'].includes(v) ? v : null)(new URLSearchParams(location.search).get('life'));
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+/* 一份契約的一生 (prototypes/contract-life): ?life=ct-sign is 毛毛's arrival on 10/10 after 王太太 read 第 4 版 in LINE by 20:30 the evening
+   before, so the fast walk shows v4: 毛孩日和 rebuilt on 寵派's 2026-10 template (第十條 審閱期間 makes six 重點條款) with its own
+   補充條款, the same text M-07 and the LIFF show */
+if (LIFE === 'ct-sign') Object.assign(GROOM, {ver:'v4', clauses:GROOM.clauses.map(c => ({...c, upd:false})).map(c => c.t.startsWith('第四條') ? {...c, upd:true, b:'你應如實告知毛孩的疾病史、過敏、攻擊行為、近期用藥與疫苗施打紀錄。店家發現毛孩有傳染病或身體不適，得暫停服務並通知你，不收取未完成部分的費用。'}
+  : c.t.startsWith('第九條') ? {...c, upd:true, b:'店家僅為履行本契約使用你與毛孩的資料，不得作其他用途，契約結束後亦同。你可以隨時要求查閱或更正。'} : c).concat([
+  {t:'第十條　審閱期間', key:true, upd:true, b:'你在簽約前享有至少 1 日的審閱期間。當日預約或現場預約，你可以當場審閱，或明確同意縮短審閱期間；店家會記錄你的選擇與時間。'},
+  {t:'補充一　寄放物品', b:'牽繩、衣服、玩具等寄放物品請先告知並貼上名字。店家會妥善保管，但貴重物品請勿寄放。'},
+  {t:'補充二　皮膚與跳蚤', upd:true, b:'服務中發現跳蚤或壁蝨，店家會先拍照告知你，經你同意後加做除蚤，加收 200 元。未經同意不會加做。'},
+  {t:'補充三　長毛打結剃短', upd:true, b:'毛髮嚴重打結、無法梳開時，為避免拉扯造成皮膚受傷，店家會先拍照並用 LINE 告知你，經你同意後剃短；聯絡不到你時，只剃除打結的部分。'}])});
+
+/* ---------- scenarios (fictional demo data) ---------- */
+const row = (k, v, staff, at) => ({k, v, staff: !!staff, at: at || '09:52'});
+const SCEN = [
+  {id:'fast', label:'美容・在家已讀（快速簽）', pet:'毛毛', photo:'maomao', breed:'貴賓犬', owner:'王太太', ph:'8821', line:true,
+    read:true, readVer:LIFE === 'ct-sign' ? 'v4' : 'v3', readAt:LIFE === 'link-sign' ? '10/9（五）12:05' : '10/9（五）20:30', idFilled:true, cat:'grooming', svc:'洗澡＋剪毛・小型犬', when:'10/10（六）10:00', fee:1200,
+    rows:[row('個性','親人，怕剪刀'), row('攻擊性','不咬人'), row('疾病史','無'), row('過敏','無'), row('特殊注意','怕剪刀：臉部改用電剪'), row('緊急聯絡人','王小姐・••••5307')]},
+  {id:'live', label:'美容・沒讀過（即時審閱＋身分證）', pet:'Momo', photo:'momo', breed:'貴賓犬', owner:'陳先生', ph:'2207', line:true,
+    read:false, idFilled:false, cat:'grooming', svc:'洗澡＋修腳底毛・小型犬', when:'10/10（六）10:30', fee:900,
+    rows:[row('個性','活潑，第一次來'), row('攻擊性','剪指甲時會咬', true), row('疾病史','無', true), row('過敏','無'), row('特殊注意','需戴頭套'), row('緊急聯絡人','陳太太・••••6612')]},
+  {id:'walkin', label:'現場預約新客・沒有 LINE', pet:'米香', photo:null, breed:'馬爾濟斯', owner:'饒小姐', ph:'2046', line:false,
+    read:false, idFilled:false, cat:'grooming', svc:'洗澡＋剪毛・小型犬', when:'10/10（六）11:00', fee:1200,
+    rows:[row('個性','怕生', true, '10:41'), row('攻擊性','不咬人', true, '10:41'), row('疾病史','無', true, '10:41'), row('過敏','雞肉', true, '10:41'), row('特殊注意','眼睛周圍容易紅', true, '10:41'), row('緊急聯絡人','饒先生・••••0915', true, '10:41')]},
+  {id:'ver', label:'美容・讀完後契約改版', pet:'奶茶', photo:'naicha', breed:'博美', owner:'李小姐', ph:'4471', line:true,
+    read:true, readVer:'v2', readAt:'10/3（六）20:05', idFilled:true, cat:'grooming', svc:'基礎洗澡・小型犬', when:'10/10（六）13:00', fee:600,
+    rows:[row('個性','親人'), row('攻擊性','不咬人'), row('疾病史','無'), row('過敏','無'), row('特殊注意','無'), row('緊急聯絡人','李先生・••••4120')]},
+  {id:'stay', label:'住宿・含緊急醫療授權', pet:'阿福', photo:'afu', breed:'黃金獵犬', owner:'蔡先生', ph:'1180', line:true,
+    read:true, readVer:'v1', readAt:'10/8（四）22:40', idFilled:true, cat:'boarding', svc:'住宿・大型犬', ci:'10/10（六）', co:'10/13（二）', nights:3, fee:3900,
+    rows:[row('個性','怕吹風機，晚上會叫一下'), row('攻擊性','剪指甲與吹耳朵時會咬，需兩人保定'), row('疾病史','異位性皮膚炎，背部易起疹（服藥中）'), row('過敏','雞肉'), row('餵食','早晚各 1 碗自備乾糧'), row('用藥','皮膚炎用藥，晚餐後 1 顆'), row('指定動物醫院','仁心動物醫院（示範）・••••2280'), row('緊急聯絡人','蔡太太・••••7781')]},
+  {id:'record', label:'接回・服務內容紀錄簽名', kind:'record', pet:'毛毛', photo:'maomao', breed:'貴賓犬', owner:'王太太', ph:'8821', line:true,
+    read:true, readVer:'v3', idFilled:true, cat:'grooming', svc:'洗澡＋剪毛・小型犬', when:'10/10（六）10:00', fee:1350, groomer:'美容照護・阿哲', checkAt:'10:06',
+    items:[['洗澡＋剪毛・小型犬', 1200], ['加購・耳道清潔', 150]], checkAb:['耳朵'], svcNote:{by:'阿哲', t:'11:32', ok:true}, rows:[]}
+];
+/* 毛毛住兩晚 (prototypes/stay): ?life=stay-sign is 毛毛's 入住 on 10/20（二）11:58. 王太太 booked the stay in LINE on 10/9 (狗房・2 晚・
+   NT$1,600) and filled 餵食, 用藥 and 指定動物醫院 there; she never opened the 住宿同意書 at home, so she reads it here in full. Her ID was
+   confirmed on an earlier contract. The stay row becomes hers, and 店員確認完成 on it posts the act's key action */
+const STAY_SIGN = LIFE === 'stay-sign';
+if (STAY_SIGN) Object.assign(SCEN.find(s => s.id === 'stay'), {label:'住宿・含緊急醫療授權・沒讀過', pet:'毛毛', photo:'maomao', breed:'貴賓犬', owner:'王太太', ph:'8821',
+  read:false, readVer:null, readAt:null, idFilled:true, svc:'住宿・小型犬', ci:'10/20（二）', co:'10/22（四）', nights:2, fee:1600,
+  rows:[row('個性','親人，怕剪刀'), row('攻擊性','不咬人'), row('疾病史','無'), row('過敏','無'), row('餵食','早晚各半碗自備乾糧，已分裝成 4 包'), row('用藥','無'), row('指定動物醫院','安和動物醫院・••••1418'), row('緊急聯絡人','王先生・••••5307')]});
+const scen = id => SCEN.find(s => s.id === id);
+
+/* ---------- state ---------- */
+const state = {shop:'hiyori', offline:false, big:false, theme:'', sc:'fast', handover:null, staff:{}, toast:null};
+SCEN.forEach(s => state.staff[s.id] = {st:'pending'});
+const app = document.getElementById('app'), layer = document.getElementById('layer');
+
+/* ---------- staff stand-in (prototype only) ---------- */
+function staffTags(s) {
+  const st = state.staff[s.id].st;
+  if (s.kind === 'record') return st === 'confirmed' ? [['success','服務紀錄已簽']] : st === 'returned' ? [['warning','待店員確認']] : [['warning','待簽服務紀錄']];
+  if (st === 'confirmed') return [['success','已簽']];
+  if (st === 'returned') return [['warning','待店員確認']];
+  if (st === 'later') return [['warning','飼主選擇之後再簽']];
+  if (st === 'unfinished') return [['warning','待簽'], ['danger','尚未完成簽署'], ...(state.staff[s.id].why ? [['neutral', state.staff[s.id].why]] : [])];
+  const t = [['warning','待簽']];
+  if (s.read && s.readVer === docOf(s).ver) t.push(['neutral','已閱讀']);
+  if (!s.line) t.push(['neutral','沒有 LINE']);
+  return t;
+}
+function staffBtn(s) {
+  const st = state.staff[s.id].st, k = `sb-${s.id}`;
+  if (st === 'returned') return `<button class="abtn" data-key="${k}" data-do="confirm" data-id="${s.id}">店員確認完成</button>`;
+  if (st === 'confirmed') return `<button class="abtn" aria-disabled="true" data-key="${k}">${s.kind === 'record' ? '收款' : s.cat === 'boarding' ? '入住' : '報到'}</button>`;
+  if (st === 'later') return `<button class="abtn" aria-disabled="true" data-key="${k}">改期</button>`;
+  const label = s.kind === 'record' ? '服務紀錄簽名' : '現場簽名';
+  return state.offline ? `<button class="abtn" aria-disabled="true" aria-describedby="why-${s.id}" data-key="${k}">${label}</button>` : `<button class="abtn" data-key="${k}" data-do="sign" data-id="${s.id}">${label}</button>`;
+}
+function staffHtml() {
+  return `<main class="staff"><h1 id="staff-t" tabindex="-1">店員端（原型替身）</h1>
+    <p class="lead">這頁代替今日看板，只用來示範交接前後。按「現場簽名」或「服務紀錄簽名」把平板交給飼主；上方「跳到」可以直接看任何一個狀態。</p>
+    ${SCEN.map(s => `<div class="srow${state.flash === s.id ? ' flash' : ''}"><span class="face" aria-hidden="true">${imgOf(s)}</span>
+      <div><b>${esc(s.pet)}</b> <span class="meta">${esc(s.owner)}・${esc(s.svc)}</span><div class="meta">${esc(s.label)}</div>
+      <div class="tags">${staffTags(s).map(([c, t]) => `<span class="tag ${c}">${t}</span>`).join('')}</div></div>
+      ${staffBtn(s)}${state.offline && ['pending','unfinished'].includes(state.staff[s.id].st) ? `<span class="why" id="why-${s.id}">需連線</span>` : ''}</div>`).join('')}</main>`;
+}
+const DO = {
+  sign(el) { hoStart(el.dataset.id); },
+  confirm(el) { const s = scen(el.dataset.id); state.staff[s.id].st = 'confirmed'; render(); say(`${s.pet}・店員確認完成`); if (s.id === (STAY_SIGN ? 'stay' : 'fast')) lifeSay('confirmed'); document.querySelector(`[data-key="sb-${s.id}"]`)?.focus(); },
+  hoBack(auto) {
+    const h = state.handover, s = scen(h.id), st = state.staff[s.id];
+    st.st = h.step === 'done' ? 'returned' : h.step === 'later' ? 'later' : 'unfinished';
+    /* the clerk sees why it stopped, so the next move (改期, 稍後再簽, 更正) is obvious */
+    st.why = {lockedOut:'驗證鎖定', nophone:'手機不在身邊', fix:'要更正資料'}[h.step] || null;
+    state.handover = null; state.flash = s.id; setTimeout(() => { state.flash = null; }, 1700);
+    const msg = auto === true ? '平板閒置，已自動回到看板'
+      : h.step === 'done' ? `${s.pet}・已交還，待店員確認` : h.step === 'later' ? `${s.pet}・已交還，飼主選擇之後再簽` : `${s.pet}・已交還，尚未完成簽署`;
+    showToast(msg); render();
+    const el = document.querySelector(`[data-key="sb-${s.id}"]`); el?.scrollIntoView({block:'center'}); el?.focus();
+  }
+};
+function showToast(text) { state.toast = text; clearTimeout(showToast.t); showToast.t = setTimeout(() => { state.toast = null; renderToast(); }, 5000); renderToast(); say(text); }
+function renderToast() { document.getElementById('toast')?.remove(); if (state.toast) document.body.insertAdjacentHTML('beforeend', `<div class="toast" id="toast" role="status">${esc(state.toast)}</div>`); }
+
+/* ---------- tablet sign mode ---------- */
+const sameVer = a => a.read && a.readVer === docOf(a).ver;
+function hoSteps(h, a) {
+  if (h.kind === 'record') return ['record', 'sign', 'otp'];
+  return sameVer(a) && !h.reread ? ['summary', 'pet', 'sign', 'otp'] : ['summary', 'full', 'pet', 'sign', 'otp'];
+}
+const STEP_NAME = {summary:'契約摘要', full:'契約全文', pet:'毛孩資料確認', sign:'手寫簽名', otp:'簡訊驗證', record:'服務內容紀錄'};
+/* signing 臉環: one segment per step; cur = -1 before 開始, cur >= N closes the ring */
+function sface(a, steps, cur, size, extra = '') {
+  const N = steps.length, gap = 14, len = 600 / N - gap, closed = cur >= N;
+  const segs = steps.map((_, i) => `<circle cx="50" cy="50" r="46" pathLength="600" class="${closed ? '' : i < cur ? 'done' : i === cur ? 'cur' : ''}" stroke-dasharray="${len} 600" stroke-dashoffset="${-(i * 600 / N + gap / 2)}"/>`).join('');
+  return `<span class="sface${closed ? ' closed' : ''}${extra ? ' ' + extra : ''}" style="--s:${size}px;--len:${len}" aria-hidden="true"><svg viewBox="0 0 100 100">${segs}</svg>${imgOf(a)}${closed ? `<span class="ok">${ic('check')}</span>` : ''}</span>`;
+}
+function hoStart(id, paused = false) {
+  const a = scen(id), prev = state.handover; state.sc = id;
+  state.handover = {id, kind: a.kind || 'contract', paused, step:'start', pauseAsk:false, read:0, end:false, ticks:{}, waived:false, sheet:false,
+    rows: a.rows.map(r => ({...r, ok:false, orig:null, editing:false})), ownerOk:false, sig:null, alt:false, altName:'', altOk:false,
+    idVal:'', idStage: a.idFilled ? 'skip' : 'entry', otpSent:false, otpVal:'', otpTries:0, resends:0, resendAt:0, otpErr:'', locked:false,
+    idleWarn:false, last:Date.now(), net:null, enter:!prev};
+  render(); document.getElementById('ho-t')?.focus();
+}
+const storeHtml = (cls = '') => `<div class="logo ${cls}" aria-hidden="true">${esc(shop().logo)}</div>`;
+function handoverHtml() {
+  const h = state.handover, a = scen(h.id), s = shop();
+  const enter = h.enter ? ' enter' : ''; h.enter = false;
+  if (h.step === 'start') return `<div class="handover${enter}" role="dialog" aria-modal="true" aria-labelledby="ho-t"><div class="ho-center ho-start">
+    <div class="store">${storeHtml()}<div>${esc(s.name)}<small>${esc(s.branch)}</small></div></div>
+    ${sface(a, hoSteps(h, a), -1, 236)}<p class="pet">${esc(a.pet)}・${esc(h.kind === 'record' ? '服務內容紀錄' : a.svc)}</p>
+    <p class="forwho">${esc(a.owner)}，這是${esc(a.pet)}今天的${h.kind === 'record' ? '服務內容紀錄' : docOf(a).name}</p>
+    ${h.paused ? `<p class="pausenote">${ic('warn')}已暫停，這次的簽署進度已清除</p>` : ''}<h2 id="ho-t" tabindex="-1">請將平板交給飼主</h2>
+    ${state.offline ? `<button class="obtn big" aria-disabled="true" aria-describedby="ho-off" data-key="ho-start">開始</button><p class="offnote" id="ho-off">需連線</p>` : `<button class="obtn big" data-key="ho-start" data-ho="begin">開始</button>`}
+    <button class="holink hold" data-key="ho-cancel" data-ho="holdHint" data-hold aria-describedby="ho-hold-d"><span class="hold-fill" aria-hidden="true"></span>店員：按住 2 秒回到看板</button><span class="sr" id="ho-hold-d">要按住 2 秒才會離開</span>
+    </div></div>`;
+  if (['done','later','lockedOut','nophone','fix'].includes(h.step)) return hoEndHtml(h, a);
+  const steps = hoSteps(h, a), i = steps.indexOf(h.step), N = steps.length;
+  /* locked: the only way on is 交還店員, so neither 上一步 nor 暫停 is offered */
+  const canBack = !h.locked && (i > 0 || (h.step === 'full' && h.reread));
+  const bar = `<div class="signbar"><div class="who">${canBack ? `<button class="hoback" data-key="ho-prev" data-ho="prev">${ic('back')}${h.backAsk ? '確定回上一步？需要重新簽名' : '上一步'}</button>` : ''}${storeHtml('s')}<span class="sname">${esc(s.name)}</span></div>
+    <div class="step">${STEP_NAME[h.step]}<span class="sr">，第 ${i + 1} 步，共 ${N} 步</span></div><div class="n">${h.locked ? '' : `<button class="pause" data-key="ho-pause" data-ho="pauseAsk" aria-haspopup="dialog">暫停，交還店員</button>`}${sface(a, steps, i, 40, 'ring')}<span class="num" aria-hidden="true">${i + 1} / ${N}</span></div></div>`;
+  const side = `<aside class="ho-side" aria-hidden="true">${sface(a, steps, i, 176)}<div class="pname">${esc(a.pet)}</div><div class="psvc">${esc(h.kind === 'record' ? '服務內容紀錄' : a.svc)}</div>
+    <ol class="hsteps">${steps.map((st, j) => `<li class="${j < i ? 'done' : j === i ? 'cur' : ''}"><span class="dot">${j < i ? ic('check') : ''}</span>${STEP_NAME[st]}</li>`).join('')}</ol></aside>`;
+  const body = ({summary:hoSummary, full:hoFull, pet:hoPet, sign:hoSign, otp:hoOtp, record:hoRecord})[h.step](h, a);
+  const wide = h.step === 'sign' ? ' wide' : '', mid = h.step === 'otp' ? ' mid' : '';
+  return `<div class="handover${enter}" role="dialog" aria-modal="true" aria-labelledby="ho-t">${bar}<div class="ho-body">${side}<div class="ho-stage">
+    <div class="ho-main" id="ho-main"><div class="ho-col${wide}${mid}">${body.main}</div></div>
+    <div class="ho-foot${wide}"><div class="in">${h.net ? netHtml() : ''}${body.foot}</div></div></div></div>
+    ${h.sheet ? hoSheet(a) : ''}${h.pauseAsk ? hoPauseAsk() : ''}${h.idleWarn ? hoIdle(h) : ''}</div>`;
+}
+const netHtml = () => `<div class="netbar" role="alert">${ic('wifioff')}<span>連線不穩，請再試一次</span><button class="holink" data-key="ho-retry" data-ho="retry">再試一次</button></div>`;
+function hoEndHtml(h, a) {
+  const steps = hoSteps(h, a), fresh = !h.endShown; h.endShown = true;
+  /* the end says what was signed, where the copy goes and what happens next; a stop says the signature did not take effect and what the clerk will do */
+  const rec = h.kind === 'record', doc = docOf(a), via = a.line ? '傳到你的 LINE' : `用簡訊傳到 ••••${a.ph}`;
+  const after = rec ? '把平板交還店員，就可以收款接回。' : a.cat === 'boarding' ? `把平板交還店員，${a.pet}就可以入住。` : `把平板交還店員，${a.pet}就可以報到。`;
+  const stop = '簽名沒有生效。請把平板交還店員，店員會幫你改期，或稍後再簽一次。';
+  const t = {
+    done: [rec ? '服務紀錄已確認' : '簽署完成', `${rec ? `${a.pet}今天的服務內容紀錄` : `《${doc.name}》${doc.ver}`}已簽名，正本會${via}。${after}`],
+    later: ['契約已傳到你的 LINE', `可以帶回家慢慢看。簽名要回到店裡，在這台平板上簽；今天還不能開始服務，店員會幫你改期。`, 'info', 'send', '尚未簽約'],
+    lockedOut: ['驗證已鎖定', `驗證碼錯了 5 次。${stop}`, 'danger', 'warn', '尚未完成簽署'],
+    nophone: ['這次先不簽', `沒有完成簡訊驗證，${stop}`, 'warn', 'warn', '尚未完成簽署'],
+    fix: ['已請店員更正', '店員改好後，會再請你確認一次。', 'warn', 'warn', '尚未完成簽署']
+  }[h.step];
+  const pic = h.step === 'done' ? sface(a, steps, steps.length, 200, fresh ? 'closing' : '')
+    : sface(a, steps, -1, 200).replace(/<\/span>$/, `<span class="flag">${ic(t[3])}</span></span>`);
+  return `<div class="handover${t[2] ? ' tone-' + t[2] : ''}" role="dialog" aria-modal="true" aria-labelledby="ho-t"><div class="signbar"><div class="who">${storeHtml('s')}<span class="sname">${esc(shop().name)}</span></div><div class="step"></div><div></div></div>
+    <div class="ho-center">${pic}${t[4] ? `<p class="endnote">${ic(t[3])}${t[4]}</p>` : ''}<h2 id="ho-t" tabindex="-1">${t[0]}</h2><p>${t[1]}</p>
+    <button class="obtn big" data-key="ho-back" data-do="hoBack">交還店員</button></div></div>`;
+}
+const factsOf = a => a.cat === 'boarding'
+  ? [['毛孩', `${a.pet}・${a.breed}`], ['住宿', a.svc], ['時間', `${a.ci} 入住 → ${a.co} 退房・${a.nights} 晚`], ['費用', nt(a.fee)]]
+  : [['毛孩', `${a.pet}・${a.breed}`], ['服務', a.svc], ['時間', a.when], ['費用', nt(a.fee)]];
+const hoFacts = a => `<dl class="ho-dl">${factsOf(a).map(([k, v]) => `<dt>${k}</dt><dd class="num">${esc(v)}</dd>`).join('')}</dl>`;
+function hoSummary(h, a) {
+  const fast = sameVer(a) && !h.reread, changed = a.read && !sameVer(a), doc = docOf(a), keys = keysOf(a);
+  const intro = fast
+    ? `<div class="readmark">${ic('check')}<span>你已在 ${a.readAt} 讀完這份契約</span></div>`
+    : changed
+    ? `<div class="vernote" role="status">${ic('info')}<span><b>契約內容有更新，請再看一次</b>你在 ${a.readAt} 讀的是 ${esc(a.readVer)}，店家之後改成 ${esc(doc.ver)}。這次請在這裡讀完新版本，大約 ${readMins(a)} 分鐘。</span></div>`
+    : `<p class="sub">接下來請在這裡讀完全文，大約 ${readMins(a)} 分鐘。</p>`;
+  const main = `<h2 id="ho-t" tabindex="-1">請確認${pn(a.pet)}的${a.cat === 'boarding' ? '住宿' : '美容'}契約</h2><p class="sub">${doc.name}・${doc.ver}・條文為示範・待法務確認</p>${intro}
+    <div class="ho-card"><div class="ho-pet">${imgOf(a)}<div><b>${esc(a.pet)}</b><span>${esc(a.owner)}</span></div></div>${hoFacts(a)}</div>
+    <div class="ho-card"><h3>重點條款<small>${fast ? `${keys.length}/${keys.length} 已在家勾選` : `${keys.length} 條`}</small></h3><ul class="keylist">${keys.map(k => `<li><span class="kt">${esc(k.t.split('　')[1])}${changed && k.upd ? '<span class="upd">本版更新</span>' : ''}${k.sum ? `<span class="plain">${esc(k.sum(a))}</span>` : ''}</span></li>`).join('')}</ul></div>`;
+  const foot = fast
+    ? `<button class="obtn" data-key="ho-agree" data-ho="agreeFast">我已閱讀並同意</button><button class="holink" data-key="ho-reread" data-ho="reread">再看一次全文</button>`
+    : `<button class="obtn" data-key="ho-next" data-ho="next">下一步：閱讀全文</button>`;
+  return {main, foot};
+}
+const hoCond = (h, a) => ({time: h.waived || h.read >= readSecs(a), end: h.end, keys: keysOf(a).filter(k => h.ticks[k.t]).length});
+const hoReady = (h, a) => { const c = hoCond(h, a); return c.time && c.end && c.keys === keysOf(a).length; };
+function hoCondsHtml(h, a) {
+  const c = hoCond(h, a), left = Math.max(0, readSecs(a) - h.read), K = keysOf(a).length;
+  const li = (ok, label, v) => `<li class="${ok ? 'ok' : ''}"><span class="c">${ok ? ic('check') : ''}</span>${label}<span class="v">${v}</span></li>`;
+  return li(c.time, '閱讀時間', h.waived ? '已自願縮短' : c.time ? '已足夠' : `還剩 ${fmtSec(left)}`)
+    + li(c.end, '已讀到最後', c.end ? '完成' : '請往下捲')
+    + li(c.keys === K, '重點條款', `${c.keys}/${K}`);
+}
+const hoAgreeWhy = (h, a) => {
+  const c = hoCond(h, a), left = Math.max(0, readSecs(a) - h.read), K = keysOf(a).length;
+  return !c.time ? `請繼續閱讀（還剩 ${fmtSec(left)}）` : !c.end ? '請讀到最後' : `請勾選重點條款（${c.keys}/${K}）`;
+};
+/* the locked button's name is what it shows, so voice control can say it; the conditions list describes it */
+function hoAgreeBtn(h, a) {
+  if (hoReady(h, a)) return `<button class="obtn" data-key="ho-agree" data-ho="agree" aria-describedby="ho-conds">我已閱讀並同意</button>`;
+  return `<button class="obtn" data-key="ho-agree" aria-disabled="true" aria-describedby="ho-conds">${hoAgreeWhy(h, a)}</button>`;
+}
+function hoFull(h, a) {
+  const doc = docOf(a), changed = a.read && !sameVer(a);
+  const main = `<h2 id="ho-t" tabindex="-1">${doc.name}</h2><p class="sub">${doc.ver}・條文為示範・待法務確認。重點條款請逐條勾選。</p>
+    <article class="doc" aria-label="契約全文">${doc.clauses.map(c => {
+      const up = changed && c.upd ? '<span class="upd">本版更新</span>' : '';
+      return c.key
+        ? `<section class="key"><h3>${esc(c.t)}<small>重點條款</small>${up}</h3><p>${esc(c.b)}</p><label class="tick"><input type="checkbox" data-tick="${esc(c.t)}" ${h.ticks[c.t] ? 'checked' : ''}>我已了解這條內容<span class="sr">：${esc(c.t)}</span></label></section>`
+        : `<h3>${esc(c.t)}${up}</h3><p>${esc(c.b)}</p>`;
+    }).join('')}
+      <div class="docend" id="ho-end" tabindex="0">契約全文到此結束</div></article>`;
+  const foot = `<ul class="conds" id="ho-conds" aria-label="同意前的條件">${hoCondsHtml(h, a)}</ul><div id="ho-agreebox">${hoAgreeBtn(h, a)}</div>
+    <button class="holink" data-key="ho-sheet" data-ho="sheet" aria-haspopup="dialog">關於審閱期</button>`;
+  return {main, foot};
+}
+function hoSheet(a) {
+  return `<div class="hosheet-scrim" data-ho="sheetClose"><div class="hosheet" role="dialog" aria-modal="true" aria-labelledby="sheet-t">
+    <div class="hd"><h2 id="sheet-t" tabindex="-1">關於審閱期</h2><button class="xbtn" data-key="sheet-x" data-ho="sheetClose">關閉</button></div>
+    <p>你有權利在簽約前充分閱讀契約內容。你可以繼續在這裡閱讀；也可以自己決定縮短審閱期，現在就簽${a.line ? '；或是帶回家用 LINE 慢慢看，之後回到店裡再簽' : ''}。店員不會替你決定。</p>
+    <div class="opts">
+      <button class="obtn sec" data-key="sheet-1" data-ho="sheetClose">繼續閱讀<small>回到契約全文</small></button>
+      <button class="obtn sec" data-key="sheet-2" data-ho="waive">自願縮短審閱期<small>不必等閱讀時間，仍需讀到最後並勾選重點條款</small></button>
+      ${a.line ? `<button class="obtn sec" data-key="sheet-3" data-ho="later">帶回家用 LINE 慢慢看<small>簽名要回到店裡；今天還不能開始服務，店員會幫你改期</small></button>` : ''}
+    </div></div></div>`;
+}
+
+/* 身分證／居留證: format and check digit live, one confirmation, then masked for good [ASSUMPTION] */
+const ID_LET = 'ABCDEFGHJKLMNPQRSTUVXYWZIO';
+function idCheck(v) {
+  if (!/^[A-Z][1289]\d{8}$/.test(v)) return 'fmt';
+  const n = ID_LET.indexOf(v[0]) + 10;
+  let s = Math.floor(n / 10) + (n % 10) * 9;
+  for (let i = 1; i < 9; i++) s += +v[i] * (9 - i);
+  return (s + +v[9]) % 10 === 0 ? 'ok' : 'sum';
+}
+const idMask = v => `${v.slice(0, 3)}****${v.slice(-3)}`;
+function idMsg(h) {
+  const v = h.idVal;
+  if (!v) return ['', '1 個英文字母加 9 個數字'];
+  if (v.length < 10) return ['', `已輸入 ${v.length} / 10 碼`];
+  const r = idCheck(v);
+  return r === 'ok' ? ['', '格式正確'] : r === 'fmt' ? ['bad', '格式不對：第 1 碼是英文字母，後面 9 碼是數字'] : ['bad', '這組號碼的檢查碼對不起來，請再看一次證件'];
+}
+function idCardHtml(h) {
+  if (h.idStage === 'skip') return '';
+  const head = `<h3>身分證字號<small>簽約需要</small></h3><p class="note">只會用在這份契約。店員看不到你的號碼。</p>`;
+  if (h.idStage === 'done') return `<div class="ho-card idcard">${head}<div class="iddone"><span class="masked" aria-label="身分證字號 ${idMask(h.idVal).split('').join(' ')}">${idMask(h.idVal)}</span><span class="tag success">已確認</span></div></div>`;
+  if (h.idStage === 'confirm') return `<div class="ho-card idcard">${head}<div class="idconfirm" role="group" aria-labelledby="idc-t">
+    <span id="idc-t" style="font-weight:900">請確認：</span><span class="masked">${idMask(h.idVal)}</span>
+    <div class="row2"><button class="obtn" data-key="id-yes" data-ho="idYes">正確</button><button class="obtn sec" data-key="id-redo" data-ho="idRedo">重新輸入</button></div></div></div>`;
+  const [cls, msg] = idMsg(h), ok = h.idVal.length === 10 && idCheck(h.idVal) === 'ok';
+  return `<div class="ho-card idcard">${head}<label for="idin">身分證或居留證號碼</label>
+    <div class="idfield"><input id="idin" data-key="idin" type="text" inputmode="text" maxlength="10" value="${esc(h.idVal)}"
+      autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" aria-describedby="idmsg" ${cls ? 'aria-invalid="true"' : ''}>
+    <span id="idbtn">${idBtn(ok)}</span></div><p class="idmsg ${cls}" id="idmsg" aria-live="polite">${msg}</p></div>`;
+}
+const idBtn = ok => ok ? `<button class="obtn sec" data-key="id-go" data-ho="idGo">確認號碼</button>` : `<button class="obtn sec" aria-disabled="true" data-key="id-go">確認號碼</button>`;
+function hoPet(h, a) {
+  const pending = h.rows.filter(r => r.staff && !r.ok).length, hasOwner = h.rows.some(r => !r.staff && r.orig === null);
+  const idOk = ['skip','done'].includes(h.idStage);
+  /* the ID comes first when it is still needed, so it is never below the fold under the rows */
+  const main = `<h2 id="ho-t" tabindex="-1">請確認${pn(a.pet)}的資料</h2><p class="sub">有不對的地方可以直接修改。${pending ? '店員填寫的項目請逐項確認。' : '都正確就按下方的按鈕。'}</p>
+    ${idCardHtml(h)}<div class="ho-card">${h.rows.map((r, i) => `<div class="prow${r.staff ? ' staff' : ''}"><span class="k" id="pk-${i}">${r.k}</span>
+      ${r.editing ? `<div class="edit"><input id="pe-${i}" data-key="pe-${i}" value="${esc(r.v)}" aria-labelledby="pk-${i}"><button data-key="ps-${i}" data-ho="saveRow" data-i="${i}">完成</button></div>`
+        : `<span class="v">${esc(r.v)}</span><span class="src">${r.orig !== null ? '' : r.staff ? `店員填寫 ${r.at}・請確認` : '你上次填寫'}</span>
+        ${r.orig !== null ? `<span class="was">你剛修改・原為「${esc(r.orig)}」</span>` : ''}
+        <div class="acts">${r.staff && r.orig === null ? `<button class="${r.ok ? '' : 'yes'}" data-key="pok-${i}" data-ho="okRow" data-i="${i}" aria-pressed="${r.ok}">${r.ok ? '已確認' : '正確'}</button>` : ''}<button data-key="ped-${i}" data-ho="editRow" data-i="${i}" aria-label="修改${r.k}">修改</button></div>`}</div>`).join('')}</div>`;
+  /* one button, and pressing it is the owner's confirmation of every row they filled: its label says what is still missing */
+  const block = (label, hint) => `<button class="obtn" aria-disabled="true" data-key="ho-next" aria-describedby="pet-r">${label}</button><p class="hint" id="pet-r">${hint}</p>`;
+  const foot = pending ? block(`還有 ${pending} 項店員填寫的要確認`, '請在上方每一項按「正確」或「修改」')
+    : !idOk ? block('請先填寫身分證字號', h.idStage === 'confirm' ? '請確認號碼是否正確' : '在上方輸入號碼後按「確認號碼」')
+    : `<button class="obtn" data-key="ho-next" data-ho="petOk">${hasOwner ? '全部正確，' : ''}下一步：手寫簽名</button>`;
+  return {main, foot};
+}
+function hoSign(h, a) {
+  const f = factsOf(a);
+  /* what the signature means, said in one line above the pad: which document, which version, and that it covers what is shown here */
+  const what = h.kind === 'record' ? `簽名代表你確認${a.pet}今天的服務內容紀錄` : `簽名代表你同意《${docOf(a).name}》${docOf(a).ver} 與下面的內容`;
+  const main = `<h2 id="ho-t" tabindex="-1">${h.alt ? '改用其他方式簽署' : '請在下方簽名'}</h2><p class="sigwhat">${esc(what)}</p>
+    <div class="sigsum">${f.map(([k, v]) => `<div><span>${k}</span><span class="num" style="display:inline;color:inherit;font-size:inherit">${esc(k === '時間' && a.cat === 'boarding' ? `${a.ci} → ${a.co}` : v)}</span></div>`).join('')}</div>
+    ${h.alt ? `<div class="ho-card alt"><label for="altname" style="font-weight:900">全名</label><input type="text" id="altname" data-key="altname" value="${esc(h.altName)}" autocomplete="name">
+        <label class="tick"><input type="checkbox" data-altok ${h.altOk ? 'checked' : ''}>以此作為我的簽名</label>
+        <button class="holink" data-key="ho-alt" data-ho="altOff">改回手寫簽名</button></div>`
+      : `<div class="pad${h.sig ? ' has' : ''}" id="ho-pad"><span class="base"></span><span class="x" aria-hidden="true">×</span><span class="ph" aria-hidden="true">用手指在框內簽名</span><span class="signer">簽署人　${esc(a.owner)}</span>
+        <canvas id="ho-canvas" role="img" aria-label="簽名區，請用手指在框內簽名"></canvas></div>
+      <div class="padbar"><button class="holink" data-key="ho-alt" data-ho="altOn" style="margin-left:-10px">無法手寫簽名？改用其他方式簽署</button><span><span id="pad-st" aria-live="polite">${h.sig ? '已簽名' : '尚未簽名'}</span>　<span id="pad-clear">${hoClearBtn(h)}</span></span></div>`}`;
+  return {main, foot: `<div id="ho-signbox">${hoSignBtn(h)}</div>`};
+}
+const hoClearBtn = h => h.sig ? `<button class="holink" data-key="ho-clear" data-ho="clear">清除簽名</button>` : `<button class="holink" data-key="ho-clear" aria-disabled="true">清除簽名</button>`;
+const hoSigned = h => h.alt ? !!(h.altName.trim() && h.altOk) : !!h.sig;
+const hoSignBtn = h => hoSigned(h) ? `<button class="obtn" data-key="ho-next" data-ho="next">下一步：簡訊驗證</button>`
+  : `<button class="obtn" aria-disabled="true" data-key="ho-next">${h.alt ? '請填寫全名並勾選' : '請先簽名'}</button>`;
+function hoOtp(h, a) {
+  if (h.locked) return {main:`<div class="ho-card locked">${ic('warn')}<h2 id="ho-t" tabindex="-1">驗證已鎖定</h2><p class="sub" style="margin:0;color:var(--owner-ink-muted);font-weight:600">驗證碼錯了 5 次，15 分鐘內無法再試。這次的簽名沒有生效；請把平板交還店員，店員會幫你改期，或稍後再簽一次。</p></div>`,
+    foot:`<button class="obtn" data-key="ho-lock" data-ho="lockOut">交還店員</button>`};
+  /* no phone at hand (left at home, both hands on the dog, number changed): the way out is the same as a lock, said before any wrong tries */
+  if (h.noPhone) return {main:`<div class="ho-card locked">${ic('info')}<h2 id="ho-t" tabindex="-1">手機不在身邊？</h2><p class="sub" style="margin:0;color:var(--owner-ink-muted);font-weight:600">簽署要用手機 ••••${a.ph} 收簡訊驗證碼，沒有驗證碼就不能完成。可以等手機拿來再繼續；或先交還店員，這次的簽名不會生效，店員會幫你改期或稍後再簽。</p></div>`,
+    foot:`<button class="obtn" data-key="np-back" data-ho="noPhoneOff">手機拿來了，繼續驗證</button><button class="holink" data-key="np-out" data-ho="noPhoneOut">先交還店員</button>`};
+  const wait = Math.max(0, Math.ceil((h.resendAt - Date.now()) / 1000));
+  const main = `<div class="otp"><h2 id="ho-t" tabindex="-1">簡訊驗證</h2><span class="to">已傳到手機 ••••${a.ph}</span><label for="otp">簡訊驗證碼，6 位數字</label>
+    <div class="cells${h.otpErr ? ' bad' : ''}" id="otp-cells">${hoCells(h.otpVal)}<input id="otp" data-key="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" value="${esc(h.otpVal)}" aria-describedby="otp-e" ${h.otpErr ? 'aria-invalid="true"' : ''}></div>
+    <span class="err" id="otp-e" aria-live="assertive">${esc(h.otpErr)}</span>
+    <span id="ho-resend">${hoResendHtml(h, wait)}</span><button class="holink" data-key="ho-nophone" data-ho="noPhoneOn">手機不在身邊？</button></div>`;
+  return {main, foot:`<div id="ho-otpbox">${otpBtn(h.otpVal)}</div>`};
+}
+const otpBtn = v => v.length === 6 ? `<button class="obtn" data-key="ho-done" data-ho="verify">完成簽署</button>` : `<button class="obtn" aria-disabled="true" data-key="ho-done">請輸入 6 位數驗證碼</button>`;
+const hoCells = v => [...Array(6)].map((_, i) => `<i class="${i === Math.min(v.length, 5) ? 'on' : ''}" aria-hidden="true">${esc(v[i] || '')}</i>`).join('');
+function hoResendHtml(h, wait) {
+  if (h.resends >= 3) return `<span style="font-weight:800;color:var(--owner-ink-muted)">重送次數已達上限。請交還店員改期，或稍後再簽。</span>`;
+  return wait ? `<button class="holink" aria-disabled="true" data-key="ho-resend">重新傳送（<span class="num">${wait}</span> 秒）</button>` : `<button class="holink" data-key="ho-resend" data-ho="resend">重新傳送</button>`;
+}
+function hoRecord(h, a) {
+  const ab = a.checkAb, sn = a.svcNote;
+  const main = `<h2 id="ho-t" tabindex="-1">請確認${pn(a.pet)}今天的服務內容</h2><p class="sub">確認無誤後簽名，紀錄正本會傳到你的 LINE。</p>
+    <div class="ho-card"><div class="ho-pet">${imgOf(a)}<div><b>${esc(a.pet)}</b><span>${esc(a.svc)}・${esc(a.groomer)}</span></div></div></div>
+    <div class="ho-card"><h3>做了什麼</h3><ul class="reclist">${a.items.map(([k, v]) => `<li><span>${esc(k)}</span><span class="num">${nt(v)}</span></li>`).join('')}</ul></div>
+    <div class="ho-card"><h3>服務前檢查<small>${esc(a.groomer)} 記錄・${a.checkAt}</small></h3><ul class="reclist">${CHECK_ITEMS.map(k => `<li><span>${k}</span><span class="${ab.includes(k) ? 'find' : ''}">${ab.includes(k) ? '異常，已告知' : '正常'}</span></li>`).join('')}</ul></div>
+    <div class="ho-card"><h3>服務中狀況<small>${esc(sn.by)} 記錄・${sn.t}</small></h3><p style="font-weight:700">${sn.ok ? '無異狀。' : esc(`有狀況：${sn.text}`)}</p></div>`;
+  return {main, foot:`<button class="obtn" data-key="ho-next" data-ho="next">內容正確，下一步：手寫簽名</button><button class="holink" data-key="ho-fix" data-ho="fix">內容有誤，請店員更正</button>`};
+}
+const idleLeft = h => Math.max(0, 120 - Math.floor((Date.now() - h.last) / 1000));
+function hoIdle(h) {
+  return `<div class="hosheet-scrim center"><div class="hosheet ho-dialog" role="alertdialog" aria-modal="true" aria-labelledby="idle-t" aria-describedby="idle-d">
+    <h2 id="idle-t">還在嗎？</h2><p id="idle-d"><b class="num" id="idle-n">${idleLeft(h)}</b> 秒後會清除這次的簽署進度，回到交接畫面。</p><button class="obtn" data-key="idle-go" data-ho="idleGo">繼續簽署</button></div></div>`;
+}
+function hoPauseAsk() {
+  return `<div class="hosheet-scrim center" data-ho="pauseNo"><div class="hosheet ho-dialog wide" role="alertdialog" aria-modal="true" aria-labelledby="pz-t" aria-describedby="pz-d">
+    <h2 id="pz-t" tabindex="-1">要暫停簽署嗎？</h2><p id="pz-d">會清除這次的簽署進度，平板回到交接畫面。之後可以再從頭開始，或帶回家用 LINE 看。</p>
+    <div class="row2"><button class="obtn" data-key="pz-no" data-ho="pauseNo">繼續簽署</button><button class="obtn sec" data-key="pz-yes" data-ho="pauseYes">暫停，交還店員</button></div></div></div>`;
+}
+
+/* ---------- render ---------- */
+function render() {
+  const hm = document.getElementById('ho-main'), hy = hm ? hm.scrollTop : 0, sameStep = render.last === stepKey();
+  app.innerHTML = staffHtml();
+  layer.innerHTML = state.handover ? handoverHtml() : '';
+  app.inert = !!state.handover;
+  const nm = document.getElementById('ho-main'); if (nm && sameStep) nm.scrollTop = hy;
+  render.last = stepKey();
+  hoMount(); syncProto();
+}
+const stepKey = () => state.handover ? `${state.handover.id}:${state.handover.step}` : '';
+
+/* mount: canvas, scroll observer, timers. Called after every render. */
+let hoTimer = null, padRO = null;
+function hoMount() {
+  const h = state.handover; if (!h) { clearInterval(hoTimer); hoTimer = null; padRO?.disconnect(); padRO = null; return; }
+  if (!hoTimer) hoTimer = setInterval(hoTick, 1000);
+  const end = document.getElementById('ho-end');
+  if (end && !h.end) {
+    const main = document.getElementById('ho-main');
+    const seen = () => { if (state.handover && !state.handover.end && end.getBoundingClientRect().bottom <= main.getBoundingClientRect().bottom + 2) { main.removeEventListener('scroll', seen); hoMark('end'); } };
+    main.addEventListener('scroll', seen, {passive:true}); requestAnimationFrame(seen);
+    end.addEventListener('focus', () => hoMark('end'));
+  }
+  padRO?.disconnect(); padRO = null;
+  const cv = document.getElementById('ho-canvas'); if (cv) hoPad(cv, h);
+  if (h.sheet) document.getElementById('sheet-t')?.focus();
+  if (h.pauseAsk && !h.idleWarn) document.querySelector('[data-key="pz-no"]')?.focus();
+  if (h.idleWarn) document.querySelector('[data-key="idle-go"]')?.focus();
+}
+function hoMark(what) {
+  const h = state.handover; if (!h) return; const a = scen(h.id);
+  const before = hoCond(h, a);
+  if (what === 'end') h.end = true;
+  const after = hoCond(h, a);
+  if (!before.end && after.end) say('已讀到最後');
+  if (!before.time && after.time) say('閱讀時間已足夠');
+  if (before.keys !== after.keys && after.keys === keysOf(a).length) say('重點條款已全部勾選');
+  hoRefreshFull();
+}
+function hoRefreshFull() {
+  const h = state.handover, a = scen(h.id), c = document.getElementById('ho-conds'), b = document.getElementById('ho-agreebox'); if (!c || !b) return;
+  c.innerHTML = hoCondsHtml(h, a);
+  /* the countdown only rewrites the label: the button stays the same element, so focus and a press in progress survive every tick */
+  const btn = b.querySelector('button');
+  if (btn && !hoReady(h, a) && btn.getAttribute('aria-disabled') === 'true') { btn.textContent = hoAgreeWhy(h, a); return; }
+  const had = !!btn && document.activeElement === btn;
+  b.innerHTML = hoAgreeBtn(h, a);
+  if (had) b.querySelector('button').focus();
+}
+function hoTick() {
+  const h = state.handover; if (!h) return; const a = scen(h.id);
+  const idle = (Date.now() - h.last) / 1000;
+  if (['done','later','lockedOut','fix'].includes(h.step)) { if (idle >= 120) DO.hoBack(true); return; }
+  if (h.step !== 'start') {
+    if (idle >= 120) { hoStart(h.id); say('已清除簽署進度，回到交接畫面'); return; }
+    if (idle >= 90 && !h.idleWarn) { h.idleWarn = true; h.sheet = false; h.pauseAsk = false; render(); say('還在嗎？30 秒後會清除這次的簽署進度'); return; }
+    if (h.idleWarn) { const n = document.getElementById('idle-n'); if (n) n.textContent = idleLeft(h); if (idleLeft(h) === 10) say('還剩 10 秒'); }
+  }
+  if (h.step === 'full' && document.visibilityState === 'visible' && !h.sheet && !h.idleWarn && h.read < readSecs(a)) {
+    h.read++;
+    if (h.read >= readSecs(a)) hoMark('time'); else { hoRefreshFull(); if ((readSecs(a) - h.read) % 30 === 0) say(`閱讀時間還剩 ${spokenSec(readSecs(a) - h.read)}`); }
+  }
+  if (h.step === 'otp' && !h.locked) { const r = document.getElementById('ho-resend'); if (r && !r.contains(document.activeElement)) r.innerHTML = hoResendHtml(h, Math.max(0, Math.ceil((h.resendAt - Date.now()) / 1000))); }
+}
+/* a signature is kept as strokes (lists of points) so the pad can redraw it in the current theme's ink */
+/* each point is [x, y, width]: the line curves through the midpoints between samples (no corners where the finger turned)
+   and thins as the hand speeds up, like ink from a real pen; the width is fixed when the point is taken, so a redraw or the PDF image is the same line */
+const INK = {max: 4.2, min: 1.5};
+const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+function traceInk(c, pts, from = 0, end = true) {
+  const n = pts.length, seg = (w, f) => { c.beginPath(); c.lineWidth = w; f(); c.stroke(); };
+  if (n === 1) { c.beginPath(); c.arc(pts[0][0], pts[0][1], (pts[0][2] || INK.max) / 2, 0, 7); c.fill(); return; }
+  if (from === 0) seg(pts[0][2] || INK.max, () => { c.moveTo(...pts[0].slice(0, 2)); c.lineTo(...mid(pts[0], pts[1])); });
+  for (let i = Math.max(1, from); i < n - 1; i++) seg(pts[i][2] || INK.max, () => { c.moveTo(...mid(pts[i - 1], pts[i])); c.quadraticCurveTo(pts[i][0], pts[i][1], ...mid(pts[i], pts[i + 1])); });
+  if (end) seg(pts[n - 1][2] || INK.max, () => { c.moveTo(...mid(pts[n - 2], pts[n - 1])); c.lineTo(pts[n - 1][0], pts[n - 1][1]); });
+}
+/* a pen's pressure sets the width when the tablet reports it; a finger has none, so speed stands in, eased so the line never jumps */
+function inkPoint(line, e, box, t) {
+  const x = e.clientX - box.left, y = e.clientY - box.top, last = line[line.length - 1];
+  if (!last) return [x, y, e.pointerType === 'pen' && e.pressure > 0 ? INK.min + e.pressure * (INK.max - INK.min) : INK.max];
+  const d = Math.hypot(x - last[0], y - last[1]);
+  if (d < 1.2) return null;
+  const target = e.pointerType === 'pen' && e.pressure > 0 ? INK.min + e.pressure * (INK.max - INK.min)
+    : Math.max(INK.min, INK.max / (1 + 0.7 * d / Math.max(1, t - line.t)));
+  line.t = t;
+  return [x, y, +(last[2] * 0.65 + target * 0.35).toFixed(2)];
+}
+/* the image that goes into the contract PDF: fixed dark ink on opaque paper white, whatever theme the tablet is showing */
+function sigPng(strokes, w, h) {
+  const k = 2, c = document.createElement('canvas'), css = getComputedStyle(document.documentElement);
+  c.width = Math.round(w * k); c.height = Math.round(h * k);
+  const x = c.getContext('2d'); x.scale(k, k);
+  x.fillStyle = css.getPropertyValue('--sig-paper').trim(); x.fillRect(0, 0, w, h);
+  x.lineCap = 'round'; x.lineJoin = 'round'; x.lineWidth = 3.2; x.strokeStyle = x.fillStyle = css.getPropertyValue('--sig-ink').trim();
+  strokes.forEach(p => traceInk(x, p));
+  return c.toDataURL('image/png');
+}
+function hoPad(cv, h) {
+  let ctx, w0 = 0, h0 = 0, pid = null, box = null, line = null;
+  const size = () => {
+    const r = cv.getBoundingClientRect(), dpr = devicePixelRatio || 1;
+    cv.width = r.width * dpr; cv.height = r.height * dpr; w0 = r.width; h0 = r.height;
+    ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 3.2; ctx.strokeStyle = ctx.fillStyle = getComputedStyle(cv).getPropertyValue('--owner-ink').trim() || '#2B211C';
+  };
+  size();
+  if (h.sig && h.sig !== 'jump' && h.strokes) h.strokes.forEach(p => traceInk(ctx, p));
+  /* rotating the tablet resizes the pad: the bitmap is rebuilt so strokes stay under the finger, and a stretched signature is never kept */
+  padRO = new ResizeObserver(([en]) => {
+    const {width, height} = en.contentRect;
+    if (!width || (Math.abs(width - w0) < 1 && Math.abs(height - h0) < 1)) return;
+    pid = null; size();
+    if (!h.sig) return;
+    h.sig = null; padUi(h, '畫面轉向了，請重新簽名');
+  });
+  padRO.observe(cv);
+  /* one pen at a time: a resting palm or a second finger never joins, restarts or ends the line */
+  cv.addEventListener('pointerdown', e => {
+    if (pid !== null || !e.isPrimary) return;
+    pid = e.pointerId; box = cv.getBoundingClientRect(); cv.setPointerCapture(pid);
+    if (!h.sig || !h.strokes) h.strokes = [];
+    line = []; line.t = e.timeStamp; line.push(inkPoint(line, e, box, e.timeStamp)); h.strokes.push(line); traceInk(ctx, line);
+  });
+  /* only the curve pieces the new samples complete are drawn; the last piece waits for the next sample or the lift */
+  cv.addEventListener('pointermove', e => {
+    if (e.pointerId !== pid) return;
+    const before = line.length, evs = e.getCoalescedEvents?.();
+    for (const c of evs?.length ? evs : [e]) { const p = inkPoint(line, c, box, c.timeStamp); if (p) line.push(p); }
+    if (line.length > before) traceInk(ctx, line, Math.max(0, before - 1), false);
+  });
+  const up = e => {
+    if (e.pointerId !== pid) return; pid = null;
+    if (line.length > 1) traceInk(ctx, line, line.length, true);
+    const first = !h.sig; h.sig = sigPng(h.strokes, w0, h0); if (first) padUi(h, '已簽名');
+  };
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); cv.addEventListener('lostpointercapture', up);
+}
+function padUi(h, status) {
+  document.getElementById('ho-pad')?.classList.toggle('has', !!h.sig);
+  const st = document.getElementById('pad-st'); if (st) st.textContent = status;
+  const sb = document.getElementById('ho-signbox'); if (sb) sb.innerHTML = hoSignBtn(h);
+  const pc = document.getElementById('pad-clear'); if (pc) pc.innerHTML = hoClearBtn(h);
+}
+function hoGo(step) { const h = state.handover; h.step = step; h.sheet = false; h.net = null; render(); document.getElementById('ho-main')?.scrollTo(0, 0); document.getElementById('ho-t')?.focus(); }
+function hoOtpInput(v) {
+  const h = state.handover, box = document.getElementById('ho-otpbox'); if (!box) return;
+  h.otpVal = v; const cells = document.getElementById('otp-cells');
+  if (cells) { cells.classList.remove('bad'); cells.querySelectorAll('i').forEach(e => e.remove()); cells.insertAdjacentHTML('afterbegin', hoCells(v)); }
+  box.innerHTML = otpBtn(v);
+}
+function hoIdInput(el) {
+  const h = state.handover, v = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+  if (el.value !== v) el.value = v;
+  h.idVal = v;
+  const [cls, msg] = idMsg(h), m = document.getElementById('idmsg');
+  if (m) { m.className = `idmsg ${cls}`; m.textContent = msg; }
+  if (cls) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid');
+  document.getElementById('idbtn').innerHTML = idBtn(v.length === 10 && idCheck(v) === 'ok');
+}
+/* anything that needs the server stops on the page when the line drops; nothing already done is cleared */
+function online(name) {
+  const h = state.handover;
+  if (!state.offline) return true;
+  h.net = name; render(); say('連線不穩，請再試一次');
+  document.querySelector('[data-key="ho-retry"]')?.focus();
+  return false;
+}
+
+/* press-and-hold exit: pointer or Space/Enter held for 2 s; releasing early cancels */
+let holdT = null, holdDone = false;
+function holdStart(el) { if (holdT || !el) return; el.classList.add('holding'); holdT = setTimeout(() => { holdT = null; holdDone = true; HO.cancel(); }, 2000); }
+function holdStop() { if (!holdT) return; clearTimeout(holdT); holdT = null; document.querySelector('[data-hold]')?.classList.remove('holding'); }
+document.addEventListener('pointerdown', e => { const el = e.target.closest?.('[data-hold]'); if (el && state.handover) holdStart(el); });
+['pointerup','pointercancel','pointerleave'].forEach(ev => document.addEventListener(ev, e => { if (ev !== 'pointerleave' || e.target.closest?.('[data-hold]')) holdStop(); }, true));
+document.addEventListener('keyup', e => { if ((e.key === ' ' || e.key === 'Enter') && e.target.closest?.('[data-hold]')) holdStop(); });
+
+const HO = {
+  begin() { const h = state.handover, a = scen(h.id); if (!online('begin')) return; h.last = Date.now(); hoGo(hoSteps(h, a)[0]); },
+  holdHint() { if (!holdDone) say('請按住 2 秒才會回到看板'); holdDone = false; },
+  cancel() { const id = state.handover.id; state.handover = null; say('已回到看板'); render(); document.querySelector(`[data-key="sb-${id}"]`)?.focus(); },
+  prev() {
+    const h = state.handover, a = scen(h.id);
+    if (h.step === 'full' && h.reread) { h.reread = false; return hoGo('summary'); }
+    const s = hoSteps(h, a), i = s.indexOf(h.step);
+    if (h.step === 'otp' && h.otpSent && !h.backAsk) { h.backAsk = true; render(); say('回到上一步需要重新簽名，再按一次上一步確認'); document.querySelector('[data-key="ho-prev"]')?.focus(); return; }
+    if (h.step === 'otp' && h.otpSent) { h.otpSent = false; h.sig = null; h.altOk = false; h.otpVal = ''; say('返回簽名步驟，需要重新簽名'); }
+    h.backAsk = false; hoGo(s[Math.max(0, i - 1)]);
+  },
+  next() {
+    const h = state.handover, a = scen(h.id), s = hoSteps(h, a), n = s[s.indexOf(h.step) + 1];
+    if ((h.step === 'pet' || n === 'otp') && !online('next')) return;
+    if (n === 'otp' && !h.otpSent) { h.otpSent = true; h.resendAt = Date.now() + 60000; }
+    hoGo(n);
+  },
+  reread() { const h = state.handover, a = scen(h.id); h.reread = true; h.end = true; Object.assign(h.ticks, Object.fromEntries(keysOf(a).map(k => [k.t, true]))); h.waived = true; hoGo('full'); },
+  agreeFast() { if (!online('agreeFast')) return; state.handover.agreed = Date.now(); hoGo('pet'); },
+  agree() { const h = state.handover; if (!hoReady(h, scen(h.id))) return; if (!online('agree')) return; h.agreed = Date.now(); h.reread = false; hoGo('pet'); },
+  retry() { const h = state.handover, name = h.net; if (state.offline) { say('還是連不上，請再試一次'); document.querySelector('[data-key="ho-retry"]')?.focus(); return; } h.net = null; HO[name](); },
+  sheet() { state.handover.sheet = true; render(); },
+  sheetClose(el, e) { if (e && e.target !== el) return; state.handover.sheet = false; render(); document.querySelector('[data-key="ho-sheet"]')?.focus(); },
+  waive() { const h = state.handover; h.waived = true; h.sheet = false; render(); say('已自願縮短審閱期'); document.querySelector('[data-key="ho-sheet"]')?.focus(); },
+  later() { const h = state.handover; h.sheet = false; if (!online('later')) return; hoGo('later'); },
+  okRow(el) { const r = state.handover.rows[el.dataset.i]; r.ok = !r.ok; render(); document.querySelector(`[data-key="pok-${el.dataset.i}"]`)?.focus(); },
+  editRow(el) { const r = state.handover.rows[el.dataset.i]; r.editing = true; render(); document.getElementById(`pe-${el.dataset.i}`)?.focus(); },
+  saveRow(el) {
+    const i = el.dataset.i, r = state.handover.rows[i], v = document.getElementById(`pe-${i}`).value.trim();
+    if (v && v !== r.v) { if (r.orig === null) r.orig = r.v; r.v = v; r.ok = true; }
+    r.editing = false; render(); document.querySelector(`[data-key="ped-${i}"]`)?.focus();
+  },
+  petOk() { const h = state.handover; h.ownerOk = true; HO.next(); },
+  idGo() { const h = state.handover; if (idCheck(h.idVal) !== 'ok') return; h.idStage = 'confirm'; render(); document.querySelector('[data-key="id-yes"]')?.focus(); say(`請確認：${idMask(h.idVal)}`); },
+  idYes() { const h = state.handover; h.idStage = 'done'; render(); document.querySelector('[data-key="ho-next"]')?.focus(); say('身分證字號已確認'); },
+  idRedo() { const h = state.handover; h.idStage = 'entry'; h.idVal = ''; render(); document.getElementById('idin')?.focus(); },
+  clear() { const h = state.handover; h.sig = null; render(); say('已清除簽名'); document.querySelector('[data-key="ho-clear"]')?.focus(); },
+  altOn() { state.handover.alt = true; render(); document.getElementById('altname')?.focus(); },
+  altOff() { state.handover.alt = false; render(); document.querySelector('[data-key="ho-alt"]')?.focus(); },
+  resend() { const h = state.handover; if (h.resends >= 3 || Date.now() < h.resendAt) return; if (!online('resend')) return; h.resends++; h.resendAt = Date.now() + 60000; h.otpErr = ''; render(); say('已重新傳送驗證碼'); document.getElementById('otp')?.focus(); },
+  verify() {
+    const h = state.handover, inp = document.getElementById('otp'), v = h.otpVal;
+    if (!online('verify')) return;
+    if (v === DEMO_OTP) { h.otpErr = ''; hoGo('done'); return; }
+    h.otpTries++;
+    if (h.otpTries >= 5) { h.locked = true; render(); document.getElementById('ho-t')?.focus(); return; }
+    h.otpErr = `驗證碼錯誤或已過期。還可以再試 ${5 - h.otpTries} 次。`; h.otpVal = '';
+    render(); const ni = document.getElementById('otp'); ni?.focus();
+  },
+  lockOut() { hoGo('lockedOut'); },
+  noPhoneOn() { const h = state.handover; h.noPhone = true; render(); document.getElementById('ho-t')?.focus(); },
+  noPhoneOff() { const h = state.handover; h.noPhone = false; render(); document.getElementById('otp')?.focus(); },
+  noPhoneOut() { hoGo('nophone'); },
+  fix() { hoGo('fix'); },
+  idleGo() { const h = state.handover; if (!h?.idleWarn) return; h.idleWarn = false; h.last = Date.now(); render(); document.getElementById('ho-t')?.focus(); },
+  pauseAsk() { const h = state.handover; h.sheet = false; h.pauseAsk = true; render(); },
+  pauseNo(el, e) { if (e && el.classList.contains('hosheet-scrim') && e.target !== el) return; state.handover.pauseAsk = false; render(); document.querySelector('[data-key="ho-pause"]')?.focus(); },
+  pauseYes() { const h = state.handover; hoStart(h.id, true); say('已暫停，這次的簽署進度已清除。請把平板交還店員'); }
+};
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  if (state.handover) state.handover.last = Date.now();
+  const el = e.target.closest('[data-ho],[data-do]'); if (!el || el.getAttribute('aria-disabled') === 'true') return;
+  if (el.dataset.ho) HO[el.dataset.ho](el, e); else DO[el.dataset.do](el, e);
+});
+document.addEventListener('input', e => {
+  const h = state.handover; if (!h) return; h.last = Date.now();
+  const t = e.target;
+  if (t.id === 'otp') {
+    /* typing again retires the last error, for screen readers as well as on screen */
+    if (h.otpErr) { h.otpErr = ''; t.removeAttribute('aria-invalid'); const er = document.getElementById('otp-e'); if (er) er.textContent = ''; }
+    hoOtpInput(t.value.replace(/\D/g, '').slice(0, 6));
+  }
+  else if (t.id === 'idin') hoIdInput(t);
+  else if (t.id === 'altname') { h.altName = t.value; document.getElementById('ho-signbox').innerHTML = hoSignBtn(h); }
+});
+document.addEventListener('change', e => {
+  const h = state.handover; if (!h) return; const t = e.target;
+  if (t.dataset.tick !== undefined) { const a = scen(h.id), before = hoCond(h, a).keys; h.ticks[t.dataset.tick] = t.checked; if (hoCond(h, a).keys === keysOf(a).length && before !== keysOf(a).length) say('重點條款已全部勾選'); hoRefreshFull(); }
+  if (t.hasAttribute('data-altok')) { h.altOk = t.checked; document.getElementById('ho-signbox').innerHTML = hoSignBtn(h); }
+});
+document.addEventListener('keydown', e => {
+  const h = state.handover; if (!h) return; h.last = Date.now();
+  if ((e.key === ' ' || e.key === 'Enter') && e.target.closest?.('[data-hold]')) { e.preventDefault(); if (!e.repeat) holdStart(e.target.closest('[data-hold]')); return; }
+  if (e.key === 'Enter' && e.target.id === 'otp' && h.otpVal.length === 6) { e.preventDefault(); HO.verify(); return; }
+  if (e.key === 'Enter' && e.target.id === 'idin') { e.preventDefault(); HO.idGo(); return; }
+  if (e.key === 'Escape') {
+    if (h.idleWarn) return HO.idleGo();
+    if (h.pauseAsk) return HO.pauseNo();
+    if (h.sheet) return HO.sheetClose();
+  }
+  /* focus stays inside an open dialog */
+  if (e.key === 'Tab') {
+    const box = document.querySelector('.hosheet') || document.querySelector('.handover'); if (!box) return;
+    const f = [...box.querySelectorAll('button,input,[tabindex="0"]')].filter(x => !x.disabled && x.offsetParent !== null);
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f.at(-1).focus(); }
+    else if (!e.shiftKey && document.activeElement === f.at(-1)) { e.preventDefault(); f[0].focus(); }
+  }
+});
+['pointerdown','scroll','touchstart'].forEach(ev => document.addEventListener(ev, () => { if (state.handover && !state.handover.idleWarn) state.handover.last = Date.now(); }, {capture:true, passive:true}));
+document.addEventListener('visibilitychange', () => {});
+
+/* ---------- prototype strip ---------- */
+const pSc = document.getElementById('p-sc'), pJump = document.getElementById('p-jump');
+pSc.innerHTML = SCEN.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
+function jumpTargets() {
+  const a = scen(state.sc), steps = hoSteps({kind: a.kind || 'contract'}, a);
+  const t = [['', '—'], ['staff', '店員端'], ['start', '交接畫面'], ...steps.map(s => [s, STEP_NAME[s]])];
+  if (!a.kind) t.push(['sheet', '關於審閱期']);
+  t.push(['idle', '閒置警告'], ['pause', '暫停確認'], ['nophone', '手機不在身邊'], ['locked', '驗證已鎖定'], ['done', '簽署完成']);
+  if (!a.kind && a.line) t.push(['later', '帶回家用 LINE 看']);
+  if (a.kind === 'record') t.push(['fix', '已請店員更正']);
+  return t;
+}
+function syncProto() {
+  pSc.value = state.sc;
+  pJump.innerHTML = jumpTargets().map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+  const h = state.handover, n = document.getElementById('p-note');
+  n.innerHTML = !h ? '按「現場簽名」開始交接'
+    : h.step === 'otp' ? `示範驗證碼 <b>${DEMO_OTP}</b>・錯 5 次鎖定・重送間隔 60 秒，最多 3 次`
+    : h.step === 'full' ? `閱讀時間依 200 字／分計算，原型縮短為 1/6（${readSecs(scen(h.id))} 秒）・條文為示範，待法務確認`
+    : h.step === 'pet' && h.idStage !== 'skip' ? '示範身分證字號 <b>A123456789</b>・身分證在平板輸入是 [ASSUMPTION]'
+    : h.step === 'start' ? '交接時審閱狀態全部重設・飼主本人按「開始」'
+    : '閒置 90 秒跳出「還在嗎？」・再 30 秒清除進度';
+}
+function jumpTo(v) {
+  const a = scen(state.sc);
+  if (v === 'staff') { state.handover = null; render(); return; }
+  hoStart(a.id); const h = state.handover; h.enter = false;
+  if (v === 'start') return render();
+  const steps = hoSteps(h, a), want = steps.includes(v) ? v : v === 'sheet' ? 'full' : steps.at(-1);
+  /* everything before the target counts as done, so each state is reachable on its own */
+  const upto = ['done','later','fix','locked','nophone','idle','pause'].includes(v) ? steps.length : steps.indexOf(want);
+  steps.slice(0, upto).forEach(s => {
+    if (s === 'full') { h.read = readSecs(a); h.end = true; keysOf(a).forEach(k => h.ticks[k.t] = true); }
+    if (s === 'pet') { h.rows.forEach(r => r.ok = true); h.ownerOk = true; if (h.idStage === 'entry') { h.idVal = 'A123456789'; h.idStage = 'done'; } }
+    if (s === 'sign') { h.sig = 'jump'; }
+  });
+  if (steps.indexOf('otp') < upto || want === 'otp') { h.otpSent = true; h.resendAt = Date.now() + 42000; }
+  h.step = v === 'locked' || v === 'nophone' ? 'otp' : ['done','later','fix'].includes(v) ? v : ['idle','pause'].includes(v) ? (steps.includes('pet') ? 'pet' : steps[0]) : want;
+  if (v === 'later') { h.step = 'later'; }
+  if (v === 'locked') { h.locked = true; h.otpTries = 5; }
+  if (v === 'nophone') h.noPhone = true;
+  if (v === 'sheet') h.sheet = true;
+  if (v === 'pause') h.pauseAsk = true;
+  if (v === 'idle') { h.idleWarn = true; h.last = Date.now() - 92000; }
+  if (h.sig === 'jump' && h.step === 'sign') h.sig = null;
+  render(); document.getElementById('ho-t')?.focus();
+}
+pSc.addEventListener('change', () => { state.sc = pSc.value; if (state.handover) hoStart(state.sc); else render(); });
+pJump.addEventListener('change', () => { const v = pJump.value; if (v) jumpTo(v); });
+document.getElementById('p-shop').addEventListener('change', e => { state.shop = e.target.value; applyShop(); render(); });
+document.getElementById('p-theme').addEventListener('change', e => { const v = e.target.value; if (v) document.documentElement.dataset.theme = v; else delete document.documentElement.dataset.theme; render(); });
+document.getElementById('p-big').addEventListener('change', e => { document.documentElement.classList.toggle('bigtext', e.target.checked); render(); });
+document.getElementById('p-off').addEventListener('change', e => { state.offline = e.target.checked; if (!state.offline && state.handover) state.handover.net = state.handover.net; render(); });
+
+/* deep link for review: ?sc=live&at=full&shop=wangmiao&theme=dark&big=1&off=1 */
+(() => {
+  const q = new URLSearchParams(location.search);
+  if (q.get('shop') && SHOPS[q.get('shop')]) { state.shop = q.get('shop'); document.getElementById('p-shop').value = state.shop; }
+  if (q.get('theme')) { document.documentElement.dataset.theme = q.get('theme'); document.getElementById('p-theme').value = q.get('theme'); }
+  if (q.get('big')) { document.documentElement.classList.add('bigtext'); document.getElementById('p-big').checked = true; }
+  if (q.get('off')) { state.offline = true; document.getElementById('p-off').checked = true; }
+  if (q.get('sc') && scen(q.get('sc'))) state.sc = q.get('sc');
+  applyShop(); render();
+  if (q.get('at')) jumpTo(q.get('at'));
+  if (q.get('net') && state.handover) { state.offline = true; document.getElementById('p-off').checked = true; state.handover.net = 'next'; render(); }
+})();
+</script>
+</body>
+</html>

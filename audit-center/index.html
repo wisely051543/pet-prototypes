@@ -1,0 +1,1828 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>稽核中心原型</title>
+<script src="../test-kit/kit.js" data-proto="audit-center"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens copied from the today board via 客服支援, 商家管理, 方案管理, 付款管理 and 契約模板庫. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+:root{--sidew:15rem;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:24px;scroll-padding-bottom:120px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.spm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+.nw{white-space:nowrap}
+.muted{color:var(--ink-muted)}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .pbtn{border:1px solid var(--proto-line);border-radius:8px;padding:4px 10px;min-height:32px;color:var(--proto-ink);font-weight:700}
+.proto .pbtn:hover{border-color:var(--proto-ink)}
+.proto .tagp{border:1.5px dashed var(--proto-muted);border-radius:999px;padding:1px 8px;font-weight:800;color:var(--proto-muted)}
+
+/* ---------- shell: labeled cocoa sidebar (管理 Web) ---------- */
+#app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+#app.compact{display:block}
+.side{position:sticky;top:0;height:calc(100vh - 44px);height:calc(100dvh - 44px);overflow:hidden;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;gap:2px;padding:18px 12px 16px;color:var(--rail-ink)}
+/* only the items scroll; the brand and the signed-in card stay put and never sit on top of the last items (as 商家管理) */
+.snav{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin:0 -6px;padding:0 6px 8px;scrollbar-color:var(--rail-hover) transparent}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+.mark{width:40px;height:40px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;flex:none}
+.mark .ico{width:24px;height:24px;stroke-width:0;fill:currentColor}
+.brand small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+.brand b{display:block;color:var(--rail-cur);font-size:1rem;font-weight:900;line-height:1.3}
+.sgrp{font-size:.75rem;font-weight:800;letter-spacing:.04em;padding:10px 12px 4px;color:var(--rail-ink);opacity:.82}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 12px;border-radius:12px;font-size:.9375rem;font-weight:700;line-height:1.3;color:var(--rail-ink);transition:background-color .2s var(--out),color .2s var(--out)}
+.sitem:hover{background:var(--rail-hover);color:var(--rail-cur)}
+.sitem[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.sitem .n{margin-left:auto;min-width:24px;padding:0 8px;border-radius:999px;background:var(--rail-hover);color:var(--rail-cur);font-size:.75rem;font-weight:900;text-align:center;line-height:1.6}
+.sitem .n.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.sitem[aria-current="page"] .n:not(.hot){background:var(--sunk);color:var(--ink)}
+.side :focus-visible{outline-color:var(--rail-cur)}
+.me{flex:none;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid var(--rail-hover)}
+.me .av{width:2.25rem;height:2.25rem;font-size:1rem;line-height:1;border-radius:50%;background:var(--rail-hover);color:var(--rail-cur);display:grid;place-items:center;font-weight:900;flex:none}
+.me b{display:block;color:var(--rail-cur);font-weight:800;line-height:1.3}
+.me small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+/* compact: the sidebar becomes a top bar and a drawer */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--rail);color:var(--rail-cur)}
+.topbar .mark{width:36px;height:36px;border-radius:12px}
+.topbar b{font-weight:900}
+.topbar .ibtn{color:var(--rail-cur)}
+.topbar .ibtn:hover{background:var(--rail-hover)}
+.topbar :focus-visible{outline-color:var(--rail-cur)}
+.ibtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;transition:background-color .2s var(--out)}
+.ibtn:hover{background:var(--sunk)}
+.drawer-nav{position:fixed;inset:0 auto 0 0;z-index:80;width:min(18rem,86vw);box-shadow:var(--lift-hi);animation:slidein .32s var(--out)}
+.drawer-nav .side{height:100%}
+@keyframes slidein{from{transform:translateX(-100%)}}
+main{min-width:0;container:main / inline-size}
+/* 1024–1279: the labeled sidebar folds into the world's icon rail so the detail keeps its width */
+#app.rail{--sidew:5.25rem}
+#app.rail .side{padding:16px 6px;align-items:center;gap:4px}
+#app.rail .brand{padding:0 0 10px}
+#app.rail .brand>span:not(.mark),#app.rail .sgrp,#app.rail .me>span:not(.av){display:none}
+#app.rail .sitem{flex-direction:column;justify-content:center;gap:4px;width:4.25rem;min-height:3.75rem;padding:6px 2px;border-radius:16px;font-size:.75rem;font-weight:700;text-align:center;line-height:1.25;position:relative}
+#app.rail .sitem[aria-current="page"]{font-weight:900}
+#app.rail .sitem .n{position:absolute;top:2px;right:2px;margin:0;padding:0 6px;font-size:.75rem}
+#app.rail .me{padding:12px 0 0;justify-content:center}
+#app.rail .snav{align-items:center;gap:4px;width:calc(100% + 12px)}
+/* the narrow rail shows a short name (稽核, 契約…) instead of breaking the full one; the full name stays in title and the accessible name */
+.sitem>span:not(.n){min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sitem .ls{display:none}
+#app.rail .sitem:has(.ls) .lf{display:none}
+#app.rail .sitem .ls{display:block}
+#app.rail .sitem{width:100%;max-width:4.25rem}
+/* 200% text: the rail widens with the type so the short names and badges keep fitting */
+#app.rail.big{--sidew:4.75rem}
+#app.rail.big .sitem{max-width:none;font-size:.6875rem;min-height:3.5rem}
+#app.rail.big .brand .mark{width:2.25rem;height:2.25rem}
+
+
+/* ---------- page head ---------- */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 16px;padding:22px 28px 0}
+.compact .head{padding:16px 16px 0}
+.head h1{font-size:1.75rem;font-weight:900;line-height:1.25;display:flex;align-items:center;gap:10px}
+.compact .head h1{font-size:1.375rem}
+.compact .head .tools{margin-left:0;order:4;flex-basis:100%}
+.head .sub{flex-basis:100%;order:3;font-size:.875rem;font-weight:600;color:var(--ink-muted);margin-top:-6px}
+.head .tools{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.scope{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--control-border);font-weight:800;font-size:.875rem}
+select.scope{appearance:none;padding-right:36px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;cursor:pointer}
+select.scope:hover{border-color:var(--ink)}
+.scope.fixed{border-style:dashed;color:var(--ink-muted)}
+.updated{font-size:.8125rem;font-weight:700;color:var(--ink-muted);display:inline-flex;align-items:center;gap:6px}
+.updated.off{color:var(--warning)}
+.banner{display:flex;gap:10px;align-items:flex-start;margin:14px 28px 0;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:700;line-height:1.5}
+.compact .banner{margin:12px 16px 0}
+.banner.warning{background:var(--warning-bg);color:var(--warning)}
+.banner.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.banner .ico{margin-top:1px}
+
+/* ---------- buttons, chips, tags ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:var(--r-md);font-size:.9375rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out),border-color .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.quiet{background:var(--surface);color:var(--ink);border-color:var(--control-border)}
+.btn.quiet:hover{border-color:var(--ink)}
+.btn.danger{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.btn.danger:hover{filter:brightness(1.08)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none;filter:none}
+.btn.busy{pointer-events:none}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(1turn)}}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+a.textbtn{text-decoration:none}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.textbtn[aria-disabled="true"]{color:var(--ink-muted);background:transparent;border:1.5px dashed var(--control-border);cursor:not-allowed}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4;text-wrap:pretty}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.warning{color:var(--warning);background:var(--warning-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.chip.plain{background:var(--sunk);color:var(--ink)}
+.chip.plain::before{display:none}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 9px;border-radius:999px;font-size:.875rem;line-height:1.4;white-space:nowrap}
+.tag.safety{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.tag.care{background:var(--warning-bg);color:var(--warning);font-weight:700}
+.cnt{min-width:26px;padding:1px 9px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;text-align:center;line-height:1.5}
+.cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.masked{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--sunk);color:var(--ink-muted);font-size:.8125rem;font-weight:800;border:1.5px dashed var(--control-border)}
+.masked .ico{width:14px;height:14px;stroke-width:2.2}
+
+/* filter pills and segmented control */
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--border);font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out),border-color .2s var(--out),transform .35s var(--spring)}
+.pill:hover{border-color:var(--control-border);color:var(--ink)}
+.pill:active{transform:scale(.96);transition-duration:.08s}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface);font-weight:900}
+.pill[aria-pressed="true"] .cnt{background:var(--surface);color:var(--ink)}
+.pill[aria-pressed="true"] .cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.pill .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);flex-wrap:wrap}
+.seg button{min-height:40px;padding:0 16px;border-radius:999px;font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out)}
+.seg button:hover{color:var(--ink)}
+.seg button:is([aria-pressed="true"],[aria-checked="true"]){background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+:root[data-theme="dark"] .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+/* ---------- 臉環 ---------- */
+.face{--s:56px;position:relative;flex:none;width:var(--s);height:var(--s);display:inline-grid;place-items:center;border-radius:50%}
+.face>svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.face circle{fill:none;stroke:var(--track);stroke-width:7;stroke-linecap:round}
+.face circle.done{stroke:var(--ink)}
+.face circle.cur{stroke:var(--ink);stroke-width:9;stroke-dasharray:0 600;animation:seg .7s var(--out) .15s forwards}
+@keyframes seg{to{stroke-dasharray:var(--dash) 600}}
+.face img,.face .ini{width:calc(var(--s) * .74);height:calc(var(--s) * .74);border-radius:50%;object-fit:cover;background:var(--sunk);display:grid;place-items:center;font-weight:900;color:var(--ink-muted);font-size:calc(var(--s) * .3)}
+.face.plain img,.face.plain .ini{width:calc(var(--s) * .9);height:calc(var(--s) * .9)}
+.face.person .ini{background:var(--sunk);color:var(--ink)}
+.face .badge{position:absolute;right:-2px;bottom:-2px;width:calc(var(--s) * .32);height:calc(var(--s) * .32);min-width:20px;min-height:20px;border-radius:50%;display:grid;place-items:center;background:var(--danger-solid);color:var(--on-danger-solid);border:2.5px solid var(--surface)}
+.face .badge .ico{width:62%;height:62%;stroke-width:2.4}
+.face .step{position:absolute;left:-2px;bottom:-2px;padding:1px 7px;border-radius:999px;background:var(--surface);color:var(--ink);border:2px solid var(--ink);font-size:.75rem;font-weight:900;line-height:1.25}
+button.face{cursor:pointer;transition:transform .35s var(--spring)}
+button.face:hover{transform:scale(1.04)}
+button.face:active{transform:scale(.95);transition-duration:.08s}
+
+/* ---------- money ---------- */
+.money{font-weight:900;white-space:nowrap;font-feature-settings:"tnum"}
+.money .cur{font-size:.78em;font-weight:700;color:var(--ink-muted);margin-right:1px}
+.money.neg{color:var(--ink)}
+
+/* ---------- panels ---------- */
+.panel{background:var(--surface);border-radius:var(--r-lg);padding:22px;box-shadow:var(--lift)}
+.panel-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.panel-h h2,.panel-h h3{font-size:1.0625rem;font-weight:900;line-height:1.3;display:inline-flex;align-items:center;gap:8px}
+.panel-h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+/* ---------- dialog ---------- */
+.dialog{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:24px;display:flex;flex-direction:column;gap:16px;animation:pop .35s var(--spring)}
+@keyframes pop{from{transform:translateY(16px) scale(.98);opacity:0}}
+.dialog h2{font-size:1.25rem;font-weight:900;line-height:1.35;text-wrap:balance}
+.dialog .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.cdl{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px 14px;padding:14px 16px;border-radius:var(--r-md);background:var(--sunk);font-size:.9375rem;font-weight:700}
+.cdl dt{color:var(--ink-muted);font-size:.875rem}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:.875rem;font-weight:800}
+.field input,.field textarea{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:.9375rem;font-weight:600}
+.field textarea{min-height:84px;resize:vertical;line-height:1.5}
+.field input:hover,.field textarea:hover{border-color:var(--ink)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink-muted)}
+.field [aria-invalid="true"]{border-color:var(--danger)}
+.field .err{font-size:.8125rem;font-weight:800;color:var(--danger)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.dbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:flex-start}
+.dbtns .cell{display:flex;flex-direction:column;align-items:flex-end}
+@media (max-width: 600px){
+  .dlg-s{align-items:flex-end;padding:0}
+  .dialog{border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:92dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+  .dbtns{flex-direction:column-reverse;align-items:stretch}
+  .dbtns .cell{align-items:stretch}
+}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(560px,calc(100vw - 32px));padding:10px 18px;border-radius:18px;background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .4s var(--spring)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+#app:not(.compact) ~ #layer .toast{left:calc(50% + var(--sidew) / 2)}
+#app.rail ~ #layer .toast{left:calc(50% + 2.625rem)}
+
+.whoami{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 6px;border-radius:999px;background:var(--sunk);font-weight:800;font-size:.875rem}
+.whoami .av{width:2rem;height:2rem;line-height:1;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900}
+:root{--boarding:#5B3BA6;--boarding-bg:#EDE7FA}
+:root[data-theme="dark"]{--boarding:#C6B3F5;--boarding-bg:#2D2347}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--boarding:#C6B3F5;--boarding-bg:#2D2347}}
+.chip.boarding{color:var(--boarding);background:var(--boarding-bg)}
+.btn.wide{width:100%}
+.btn .ico{flex:none}
+
+/* ---------- overlays ---------- */
+.scrim{position:fixed;inset:0;z-index:70;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s var(--out)}
+@keyframes fade{from{opacity:0}}
+.scrim.side-r{justify-content:flex-end;align-items:stretch;padding:0}
+@keyframes slidein-r{from{transform:translateX(40px);opacity:0}}
+
+/* ---------- page frame ---------- */
+.wrap{padding:14px 28px 56px}
+.compact .wrap{padding:12px 16px 48px}
+.head .pre-act{display:flex;flex-direction:column;align-items:flex-end}
+.compact .head .pre-act{align-items:stretch;flex-basis:100%}
+.head .pre-act .reason{margin-top:4px}
+.btn.primary.calm{background:var(--surface);color:var(--ink);border-color:var(--control-border);box-shadow:none;font-weight:700}
+.btn.primary.calm:hover{border-color:var(--ink);background:var(--surface)}
+
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:800;line-height:1.5}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.info{background:var(--info-bg);color:var(--info)}
+.notice .ico{margin-top:1px}
+.notice:focus{outline:2.5px solid var(--focus);outline-offset:2px}
+
+/* pickers: radiogroups of options */
+.fs{border:0;display:flex;flex-direction:column;gap:8px}
+.fs legend,.fs .lgd{font-size:.875rem;font-weight:900;margin-bottom:8px;padding:0}
+.rg{display:flex;flex-wrap:wrap;gap:6px}
+.opt{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:6px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:800;line-height:1.3;color:var(--ink);text-align:center;transition:box-shadow .2s var(--out),background-color .2s var(--out),transform .35s var(--spring)}
+.opt:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.opt:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.opt small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.opt[aria-checked="true"]{background:var(--ink);color:var(--surface);box-shadow:none}
+.opt[aria-checked="true"] small{color:var(--surface)}
+.opt[aria-disabled="true"]{background:transparent;box-shadow:none;border:1.5px dashed var(--control-border);color:var(--ink-muted);cursor:not-allowed}
+.ferr{display:flex;gap:8px;align-items:flex-start;font-size:.875rem;font-weight:800;color:var(--danger);line-height:1.45}
+.ferr .ico{margin-top:1px;width:18px;height:18px}
+.srch{position:relative}
+.srch .ico{position:absolute;left:14px;top:14px;color:var(--ink-muted)}
+.srch input{width:100%;min-height:48px;padding:10px 14px 10px 44px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);font-size:.9375rem;font-weight:600}
+.srch input:hover{border-color:var(--ink)}
+.srch input::placeholder{color:var(--ink-muted)}
+.hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+/* ---------- shared bits carried from M-07 ---------- */
+.fail{padding:32px 24px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.fail h2{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:900;color:var(--danger)}
+.fail p{font-size:.9375rem;font-weight:600;color:var(--ink-muted)}
+.noacc{max-width:36rem;margin:40px auto 0;padding:32px 28px;border-radius:var(--r-xl);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.noacc h2{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:900}
+.noacc p{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.banner.danger{background:var(--danger-tint);color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.dialog select{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:0 14px;font-weight:700}
+.pre-x{display:inline-flex;flex-direction:column;align-items:flex-end}
+:root{--hair:#F3EBE2}
+:root[data-theme="dark"]{--hair:#2B221C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hair:#2B221C}}
+
+/* ---------- 寵派後台 shell: the cocoa internal banner joins the sidebar into one frame ---------- */
+#app{grid-template-rows:auto minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+.ibar{grid-column:1 / -1;position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;min-height:40px;padding:0 20px;background:var(--rail);color:var(--rail-cur);font-size:.8125rem;font-weight:800;box-shadow:inset 0 -1px 0 var(--rail-hover)}
+.ibar .in{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:999px;background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.ibar .in .ico{width:15px;height:15px;stroke-width:2.2}
+.ibar .ws{color:var(--rail-ink);font-weight:700}
+.ibar .r{margin-left:auto;color:var(--rail-ink);font-weight:700}
+.ibar :focus-visible{outline-color:var(--rail-cur)}
+/* the strip and the banner grow with large text, so the sidebar's height is measured, not assumed (else 宜蓁 falls below the screen) */
+#app>.side{grid-row:2;top:var(--ibh,40px);height:calc(100vh - var(--ibh,40px) - var(--ph,44px));height:calc(100dvh - var(--ibh,40px) - var(--ph,44px))}
+#app>main{grid-row:2}
+#app.compact .ibar{position:static}
+.compact .topbar{top:0}
+
+
+/* ---------- carried from 客服支援 ---------- */
+.sheet{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:20px 22px 18px;container:sheet / inline-size}
+.sheet h2{font-size:1.0625rem;font-weight:900;line-height:1.3;display:flex;align-items:center;gap:8px}
+.sheet .h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.sheet .h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.empty{padding:28px 8px 18px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.empty b{font-size:1rem;font-weight:900}
+.empty p{font-size:.875rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.tkt{display:flex;align-items:stretch}
+.tkt span{display:grid;place-items:center;padding:0 12px;border:1.5px solid var(--control-border);border-right:0;border-radius:var(--r-md) 0 0 var(--r-md);background:var(--sunk);font-weight:900}
+.tkt input{border-radius:0 var(--r-md) var(--r-md) 0 !important;font-feature-settings:"tnum";letter-spacing:.04em}
+.rg.col{flex-direction:column;align-items:stretch}
+.rg.col .opt{flex-direction:row;justify-content:flex-start;gap:10px;text-align:left;padding:10px 14px}
+.rg.col .opt::before{content:"";width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--control-border);flex:none}
+.rg.col .opt[aria-checked="true"]::before{box-shadow:inset 0 0 0 5px var(--surface)}
+.aud{display:flex;gap:8px;align-items:flex-start;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.45}
+.aud .ico{width:16px;height:16px;margin-top:1px}
+.bubble{padding:14px 16px;border-radius:20px 20px 20px 8px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.9375rem;font-weight:600;line-height:1.6;white-space:pre-line;overflow-wrap:anywhere}
+.bubble .from{display:block;font-size:.75rem;font-weight:800;color:var(--ink-muted);margin-bottom:4px;white-space:normal}
+.bubble b{font-weight:900}
+.bubble .nt{display:block;margin-top:8px;padding-top:8px;border-top:1px dashed var(--control-border);white-space:normal;color:var(--ink-muted)}
+.bubble .bb{display:flex;align-items:center;justify-content:center;margin-top:10px;min-height:40px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--border);font-weight:900;font-size:.875rem;white-space:normal}
+.smsb{padding:12px 14px;border-radius:16px 16px 16px 6px;background:var(--neutral-bg);color:var(--ink);font-size:.875rem;font-weight:600;line-height:1.55;word-break:break-all}
+.pvm{display:flex;justify-content:space-between;gap:8px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.pvm.over{color:var(--warning)}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);overflow-x:auto;max-width:100%;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;font-size:.9375rem;font-weight:800;color:var(--ink-muted);white-space:nowrap;transition:background-color .2s var(--out),color .2s var(--out)}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+.tabs .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+:root[data-theme="dark"] .tabs button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tabs button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+.tabrow{padding:16px 28px 0;display:flex}
+.compact .tabrow{padding:12px 16px 0}
+
+/* ---------- the OA status strip ---------- */
+.oas{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:10px 12px 10px 18px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);font-size:.875rem;font-weight:700;line-height:1.4}
+.oas .it{display:inline-flex;align-items:center;gap:8px;color:var(--ink)}
+.oas .it .ico{color:var(--ink-muted)}
+.oas .it b{font-weight:900;font-feature-settings:"tnum"}
+.oas .it.warn{color:var(--warning)}
+.oas .it.warn .ico{color:var(--warning)}
+.oas .sep{width:1px;align-self:stretch;background:var(--border)}
+.oas .textbtn{margin-left:auto}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;background:currentColor}
+.dot.success{color:var(--success)}.dot.warning{color:var(--warning)}.dot.danger{color:var(--danger)}
+
+
+/* ---------- carried from 方案與用量: the docked 400px panel ---------- */
+.lay{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+.lay.withp{grid-template-columns:minmax(0,1fr) 400px}
+.colmain{display:flex;flex-direction:column;gap:16px;min-width:0}
+.dp{position:sticky;top:52px;max-height:calc(100vh - 64px);max-height:calc(100dvh - 64px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:20px;display:flex;flex-direction:column;gap:16px;animation:slidein-r .36s var(--out)}
+.dp.sheet{position:relative;top:0;width:min(max(440px,27.5rem),100vw);height:100%;max-height:none;border-radius:var(--r-xl) 0 0 var(--r-xl)}
+@media (max-width: 600px){.dp.sheet{border-radius:0;padding:16px 16px calc(24px + env(safe-area-inset-bottom))}}
+.dp-top{display:flex;align-items:center;gap:6px;margin:-6px -6px 0}
+.dp-top .x{margin-left:auto}
+.dp h3{font-size:.9375rem;font-weight:900;display:flex;align-items:center;gap:8px}
+.dph{display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;align-items:center}
+.ttile{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--sunk);color:var(--ink);font-size:1.375rem;font-weight:900}
+.ttile .ico{width:26px;height:26px;stroke-width:1.7}
+.ttile.warn{background:var(--warning-bg);color:var(--warning)}
+.dph h2{font-size:1.375rem;font-weight:900;line-height:1.25;text-wrap:balance}
+.dph p{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:.875rem;font-weight:700;color:var(--ink-muted);margin-top:4px}
+.dsec{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--border)}
+.dsec>.hint{margin-top:-4px}
+.dp .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.dp .lede b{color:var(--ink);font-weight:900}
+.dp .go{display:flex;flex-direction:column;gap:8px}
+.dp .go .btn{width:100%}
+.dp .notice{font-weight:700}
+.dp .notice b{font-weight:900}
+.kv{display:grid;grid-template-columns:5rem minmax(0,1fr);gap:8px 14px;font-weight:700;font-size:.9375rem;line-height:1.45}
+.kv dt{color:var(--ink-muted);font-size:.875rem}
+.hist{list-style:none;display:flex;flex-direction:column;gap:8px;font-size:.875rem;font-weight:700;line-height:1.45}
+.hist li{display:grid;grid-template-columns:5.25rem minmax(0,1fr);gap:10px}
+.hist li span:first-child{color:var(--ink-muted);font-size:.8125rem;font-feature-settings:"tnum"}
+.hist li.fresh{animation:fresh 1.6s var(--out);border-radius:8px}
+@keyframes fresh{0%,40%{background:var(--act-tint)}}
+.textbtn.ln{background:transparent;box-shadow:inset 0 0 0 1.5px var(--border)}
+.textbtn.ln:hover{background:var(--sunk);box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.linkb{display:inline;padding:0;font-weight:900;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+
+/* ---------- the 待寵派處理 strip ---------- */
+.qs{gap:6px 14px}
+.qs .it.warn b{color:var(--warning)}
+.qs .who{display:inline-flex;flex-wrap:wrap;gap:6px}
+.lnk{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px 0 10px;border-radius:999px;background:var(--warning-bg);color:var(--warning);font-weight:800;font-size:.8125rem;transition:box-shadow .2s var(--out),background-color .2s var(--out)}
+.lnk:hover{box-shadow:inset 0 0 0 1.5px var(--warning)}
+.lnk[aria-expanded="true"]{background:var(--warning);color:var(--surface)}
+.lnk .ico{width:15px;height:15px;stroke-width:2.2}
+.lnk .k{font-weight:700;opacity:.9}
+
+
+/* ---------- panel bits carried from 方案管理 ---------- */
+.sum2{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;padding:12px 14px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700;font-feature-settings:"tnum"}
+.sum2 .tot{font-weight:900;font-size:1rem;padding-top:6px;border-top:1px solid var(--control-border)}
+.sum2 span:nth-child(even){text-align:right}
+.sum2 .neg{color:var(--danger)}
+.pw{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:var(--r-md);background:var(--info-bg);color:var(--info);font-weight:800;font-size:.875rem;line-height:1.5}
+.pw .r1{display:flex;align-items:center;gap:8px;font-size:.9375rem;font-weight:900}
+.offl{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;font-weight:800;color:var(--warning)}
+.qs .done{display:inline-flex;align-items:center;gap:8px;color:var(--success);font-weight:800}
+.qs .done .ico{color:var(--success)}
+.sitem .n.warn,.sitem[aria-current="page"] .n.warn,#app.rail .sitem .n.warn{background:var(--warning-bg);color:var(--warning)}
+@media (max-width: 719px){.ibar{padding:0 16px}.ibar .ws{display:none}.ibar .r{white-space:nowrap}}
+.toast .textbtn{background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor;min-height:36px}
+.frow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width: 600px){.frow{grid-template-columns:minmax(0,1fr)}}
+.field .opt-l{font-weight:700;color:var(--ink-muted);font-size:.8125rem;margin-left:4px}
+.field .help{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.unit{position:relative;display:block}
+.unit input{padding-right:2.75rem !important}
+.unit .u{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:.8125rem;font-weight:700;color:var(--ink-muted);pointer-events:none}
+.unit.pre input{padding-left:3.25rem !important;padding-right:14px !important}
+.unit.pre .u{left:14px;right:auto}
+.trl{list-style:none;display:flex;flex-direction:column}
+.trl li{display:grid;grid-template-columns:5.75rem minmax(0,1fr);gap:10px;padding:9px 0;border-bottom:1px solid var(--hair);font-size:.8125rem;font-weight:700;line-height:1.45}
+.trl li:last-child{border-bottom:0}
+.trl .t{color:var(--ink-muted);font-feature-settings:"tnum"}
+.trl li.fresh{animation:fresh 1.6s var(--out);border-radius:8px}
+.proto .pbtn:disabled{opacity:.5;cursor:not-allowed}
+.legend{list-style:none;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.legend li{display:inline-flex;align-items:center;gap:7px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}.hist li.fresh,.trl li.fresh,.sg.fresh{animation-duration:1.6s !important}
+  /* reduced motion: the query you just ran is shown in its final, written-in state, highlighted until the next change */
+  .ev.q.fresh .evb,.qlog li.fresh{animation:none !important;background:var(--act-tint)}}
+
+/* ---------- the summary strip ---------- */
+.qs .it .money{font-size:.9375rem}
+.qs .it .k{color:var(--ink-muted);font-weight:700}
+.qs .who{display:inline-flex;flex-wrap:wrap;gap:6px}
+.lnk.danger{background:var(--danger-bg);color:var(--danger)}
+.lnk.danger:hover{box-shadow:inset 0 0 0 1.5px var(--danger)}
+.lnk.danger[aria-expanded="true"]{background:var(--danger);color:var(--surface)}
+.tabrow2{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap}
+.tabrow2 .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+
+/* ---------- 稽核中心: the tab row and the summary strip ---------- */
+.stack{display:flex;flex-direction:column;gap:16px}
+.qs .it.calm b{color:var(--ink)}
+.lnk.info{background:var(--info-bg);color:var(--info)}
+.mono{font-family:var(--mono);font-size:.8125rem;font-weight:600;letter-spacing:0;overflow-wrap:anywhere}
+.masked.v{border-style:solid;border-color:var(--border);color:var(--ink);font-weight:700;font-feature-settings:"tnum"}
+.demo{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:999px;border:1.5px dashed var(--control-border);font-size:.75rem;font-weight:800;color:var(--ink-muted);white-space:nowrap}
+.demo .ico{width:14px;height:14px}
+.ph-note{display:flex;gap:8px;align-items:flex-start;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.5}
+.ph-note .ico{width:16px;height:16px;margin-top:2px}
+.textbtn.sm{min-height:40px;font-size:.8125rem;padding:0 12px}
+
+/* ---------- 巡檢: one row per rule that fired, its 14 days drawn as the evidence ---------- */
+.sigs{list-style:none;display:flex;flex-direction:column}
+.sg{display:grid;grid-template-columns:minmax(0,1fr) 15.5rem auto;gap:8px 24px;align-items:center;padding:16px 0;border-top:1px solid var(--hair)}
+.sg:first-child{border-top:0;padding-top:4px}
+.sg .tt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.sg .tt .l1{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.sg .tt b{font-size:1.0625rem;font-weight:900;line-height:1.35}
+.sg .tt .on{font-size:.9375rem;font-weight:800}
+.sg .tt .rule{font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+.sg .tt .find{display:inline-flex;align-items:center;gap:6px;font-size:.9375rem;font-weight:800;color:var(--warning)}
+.sg .tt .find .ico{width:17px;height:17px}
+.sg.danger .tt .find{color:var(--danger)}
+.sg .acts{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.sg.seen{grid-template-columns:minmax(0,1fr) auto}
+.sg.seen .tt b{color:var(--ink-muted);font-weight:800}
+.sg .concl{margin-top:4px;padding:8px 12px;border-radius:12px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.875rem;font-weight:700;line-height:1.5;color:var(--ink);text-wrap:pretty}
+.sg .concl small{display:block;font-size:.75rem;font-weight:800;color:var(--ink-muted)}
+.sg.fresh{animation:fresh 1.6s var(--out)}
+.seenbox{margin-top:6px;border-top:1px solid var(--border);padding-top:6px}
+.seenbox>summary{display:flex;align-items:center;gap:8px;min-height:44px;font-size:.9375rem;font-weight:900;cursor:pointer;list-style:none;border-radius:12px;padding:0 8px;margin:0 -8px}
+.seenbox>summary::-webkit-details-marker{display:none}
+.seenbox>summary:hover{background:var(--surface-2)}
+.seenbox>summary .ico{transition:transform .25s var(--out)}
+.seenbox[open]>summary .chevi{transform:rotate(180deg)}
+.allclear{display:flex;gap:12px;align-items:flex-start;padding:18px 4px 10px}
+.allclear .ico{color:var(--success);width:24px;height:24px}
+.allclear b{display:block;font-size:1.0625rem;font-weight:900}
+.allclear p{font-size:.875rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+
+/* the 14-day strip: one bar a day, the rule's window on a sunk ground, the limit a dashed line */
+.strip{display:flex;flex-direction:column;gap:4px;min-width:0}
+.bars{position:relative;display:grid;grid-template-columns:repeat(14,minmax(0,1fr));grid-template-rows:46px;column-gap:3px;align-items:end;padding:0 3px}
+.bars .win{grid-row:1;grid-column:var(--w0) / 15;align-self:stretch;margin:-4px -3px -2px;border-radius:8px;background:var(--sunk)}
+.bars i{grid-row:1;grid-column:var(--c);position:relative;height:max(3px,calc(var(--v) * 1%));border-radius:3px 3px 2px 2px;background:var(--control-border)}
+.bars i.z{height:2px;background:var(--track)}
+.bars i.na{height:0;border-top:1.5px dashed var(--control-border);background:none;border-radius:0}
+.bars i.hot{background:var(--warning)}
+.sg.danger .bars i.hot{background:var(--danger-solid)}
+.bars .th{position:absolute;left:0;right:0;bottom:calc(var(--th) * 1%);border-top:1.5px dashed var(--ink);pointer-events:none}
+/* the limit's number sits in its own gutter right of the plot, on the line, so no bar and no window ground can cover it */
+.strip.lim{padding-right:2.25rem}
+.bars .th span{position:absolute;left:calc(100% + 4px);bottom:0;transform:translateY(50%);min-width:2rem;padding:0 4px;border-radius:6px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--ink);font-size:.75rem;font-weight:900;line-height:1.35;color:var(--ink);text-align:center}
+.strip .ax{display:flex;justify-content:space-between;font-size:.75rem;font-weight:800;color:var(--ink-muted);font-feature-settings:"tnum";padding:0 2px}
+.strip .ax .wl{color:var(--ink)}
+.strip.big .bars{grid-template-rows:72px}
+
+/* ---------- 時間軸: filters ---------- */
+.fbar{display:flex;flex-direction:column;gap:12px}
+.frow2{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 12px}
+.fsel{display:flex;flex-direction:column;gap:4px;min-width:10rem}
+.fsel span{font-size:.75rem;font-weight:800;color:var(--ink-muted)}
+.fsel select{appearance:none;min-height:44px;padding:0 36px 0 14px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;font-size:.875rem;font-weight:800;cursor:pointer}
+.fsel select:hover{border-color:var(--ink)}
+.frow2 .go2{margin-left:auto;display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.frow2 .cell{display:flex;flex-direction:column;align-items:flex-end;max-width:22rem}
+.frow2 .cell .reason{text-align:right}
+.pill .x{display:grid;place-items:center;width:20px;height:20px;margin-right:-4px;border-radius:50%}
+.pill .x .ico{width:13px;height:13px;stroke-width:2.6}
+.pend{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;font-weight:800;color:var(--ink)}
+.pend .ico{width:16px;height:16px}
+.btn.primary.pending{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--act),var(--lift)}
+.invb{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 12px 10px 16px;border-radius:var(--r-lg);background:var(--warning-bg);color:var(--warning);font-size:.875rem;font-weight:800;line-height:1.45}
+.invb b{font-weight:900}
+.invb .sp{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.invb .textbtn{background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor;min-height:36px}
+.invb .textbtn:hover{background:var(--surface)}
+.tlh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-bottom:6px}
+.tlh .n{font-size:.9375rem;font-weight:900}
+.tlh .n small{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.tlh .legend{margin-left:auto}
+
+/* ---------- 時間軸 (signature): two lanes on one ink spine; what was done, and who looked ---------- */
+.lanes{display:grid;grid-template-columns:minmax(0,1fr) 76px minmax(0,1fr);margin:10px 0 4px;font-size:.8125rem;font-weight:900}
+.lanes span:first-child{text-align:right;padding-right:6px}
+.lanes span:last-child{padding-left:6px;color:var(--ink-muted)}
+.lanes span{display:flex;align-items:center;gap:6px}
+.lanes span:first-child{justify-content:flex-end}
+.tl{position:relative;list-style:none;display:flex;flex-direction:column}
+.tl::before{content:"";position:absolute;left:calc(50% - 1px);top:6px;bottom:6px;width:2px;background:var(--ink);border-radius:2px}
+.dayh{position:relative;display:flex;justify-content:center;padding:14px 0 8px}
+.dayh span{position:relative;padding:3px 14px;border-radius:999px;background:var(--ink);color:var(--surface);font-size:.8125rem;font-weight:900;font-feature-settings:"tnum"}
+.ev{display:grid;grid-template-columns:minmax(0,1fr) 76px minmax(0,1fr);align-items:start}
+.ev .nd{grid-column:2;grid-row:1;justify-self:center;position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding-top:12px}
+.ev .nd i{width:14px;height:14px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 3px var(--surface)}
+.ev .nd time{padding:0 4px;border-radius:6px;background:var(--surface);font-size:.75rem;font-weight:800;color:var(--ink-muted);font-feature-settings:"tnum";line-height:1.3}
+.ev.q .nd i{background:var(--surface);box-shadow:0 0 0 3px var(--surface),inset 0 0 0 2px var(--ink-muted)}
+.ev.q.exp .nd i{box-shadow:0 0 0 3px var(--surface),inset 0 0 0 2px var(--ink);background:repeating-linear-gradient(135deg,var(--ink) 0 1.5px,var(--surface) 1.5px 4px)}
+.ev.op .bx{grid-column:1;grid-row:1;justify-self:end}
+.ev.q .bx{grid-column:3;grid-row:1;justify-self:start}
+.bx{position:relative;width:fit-content;max-width:min(100%,30rem);margin:4px 0}
+.ev.op .bx::after,.ev.q .bx::after{content:"";position:absolute;top:18px;width:18px;border-top:1.5px solid var(--control-border)}
+.ev.op .bx::after{right:-20px}
+.ev.q .bx::after{left:-20px;border-top-style:dashed}
+.evb{display:flex;flex-direction:column;gap:4px;width:100%;padding:9px 12px 10px;border-radius:var(--r-md);text-align:left;transition:background-color .2s var(--out),box-shadow .2s var(--out)}
+button.evb:hover{background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border)}
+.evb[aria-expanded="true"]{background:var(--sunk);box-shadow:inset 0 0 0 2px var(--ink)}
+.evb .who{display:flex;align-items:center;gap:8px;min-width:0;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.3}
+.evb .who b{color:var(--ink);font-weight:900;font-size:.875rem}
+.av2{width:1.625rem;height:1.625rem;line-height:1;border-radius:50%;flex:none;display:grid;place-items:center;font-size:.75rem;font-weight:900;background:var(--neutral-bg);color:var(--neutral)}
+.av2.pf{background:var(--ink);color:var(--surface)}
+.av2.ow{background:var(--surface);color:var(--ink-muted);box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.evb .what{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:.9375rem;font-weight:900;line-height:1.4;color:var(--ink);text-wrap:pretty}
+.compact .oas .sep{display:none}
+.evb .what .chip{font-size:.75rem;padding:1px 8px}
+.evb .ba{font-size:.8125rem;font-weight:700;color:var(--ink);line-height:1.5;text-wrap:pretty}
+.evb .ba .bl{display:block}
+.evb .ba s{color:var(--ink-muted);text-decoration:line-through 1.5px}
+.evb .ba .to{color:var(--ink-muted);margin:0 4px}
+.evb .why{font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.5;text-wrap:pretty}
+.evb .why::before{content:"原因：";font-weight:800}
+.ev.q .evb{padding-top:8px;padding-bottom:8px;border:1.5px dashed var(--control-border);border-radius:var(--r-md);background:transparent}
+.ev.q .evb .what{font-size:.875rem;font-weight:800}
+.ev.q .evb .ba{color:var(--ink-muted)}
+.ev.q.mine .evb{border:1.5px solid var(--ink)}
+.ev.q.exp .evb .what .ico{width:16px;height:16px}
+/* the moment: your own query is written onto the record */
+.ev.q.fresh .nd i{animation:inscribe .7s var(--spring) both}
+@keyframes inscribe{from{transform:scale(0)}}
+.ev.q.fresh .bx{animation:writein .7s var(--out) .12s both}
+@keyframes writein{from{clip-path:inset(0 100% 0 0);opacity:.4}to{clip-path:inset(0 0 0 0)}}
+.ev.q.fresh .evb{animation:fresh 1.8s var(--out) .4s}
+.tlmore{display:flex;justify-content:center;padding:14px 0 2px;position:relative}
+.tlmore span{position:relative;padding:3px 14px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.8125rem;font-weight:800;color:var(--ink-muted)}
+.zero{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:26px 6px 10px}
+.zero b{font-size:1rem;font-weight:900}
+.zero p{font-size:.875rem;font-weight:600;color:var(--ink-muted)}
+.lgn{flex:none;width:14px;height:14px;border-radius:50%;background:var(--ink)}
+.lgn.q{background:var(--surface);box-shadow:inset 0 0 0 2px var(--ink-muted)}
+.lgn.x{box-shadow:inset 0 0 0 2px var(--ink);background:repeating-linear-gradient(135deg,var(--ink) 0 1.5px,var(--surface) 1.5px 4px)}
+
+/* container breakpoints are in rem so 200% text folds the layout the way a narrow screen does */
+@container sheet (max-width: 47.5rem){
+  .lanes{display:none}
+  .tl::before{left:calc(1.75rem - 1px)}
+  .dayh{justify-content:flex-start;padding-left:0}
+  .ev{grid-template-columns:3.5rem minmax(0,1fr)}
+  .ev .nd{grid-column:1}
+  .ev.op .bx,.ev.q .bx{grid-column:2;justify-self:stretch;width:auto}
+  .ev.op .bx::after{display:none}
+  .ev.q .bx::after{display:none}
+  .ev.q .evb .what::before{content:"查詢";padding:0 8px;border-radius:999px;background:var(--sunk);color:var(--ink-muted);font-size:.75rem;font-weight:900;line-height:1.6}
+}
+@container sheet (max-width: 50rem){
+  .sg{grid-template-columns:minmax(0,1fr);gap:10px}
+  .sg .strip{max-width:24rem}
+  .sg .acts{justify-content:flex-start}
+  .sg.seen{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ---------- panels: event detail, signal, contract chain ---------- */
+.batbl{display:grid;grid-template-columns:7rem minmax(0,1fr);gap:0;border-radius:var(--r-md);box-shadow:inset 0 0 0 1px var(--border);overflow:hidden;font-size:.875rem;font-weight:700;line-height:1.5}
+.batbl>div{display:contents}
+.batbl dt,.batbl dd{padding:9px 12px;border-top:1px solid var(--hair)}
+.batbl>div:first-child dt,.batbl>div:first-child dd{border-top:0}
+.batbl dt{color:var(--ink-muted);font-size:.8125rem;font-weight:800;background:var(--surface-2)}
+.batbl dd{display:flex;flex-direction:column;gap:3px;min-width:0}
+.batbl .b4{color:var(--ink-muted)}
+.batbl .b4 s{text-decoration:line-through 1.5px}
+.batbl .af{color:var(--ink);font-weight:800}
+.batbl .lb{font-size:.75rem;font-weight:900;color:var(--ink-muted);margin-right:6px}
+.quote{padding:12px 14px;border-radius:16px 16px 16px 6px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.9375rem;font-weight:700;line-height:1.6;text-wrap:pretty}
+.quote small{display:block;font-size:.75rem;font-weight:800;color:var(--ink-muted);margin-bottom:2px}
+.minil{list-style:none;display:flex;flex-direction:column}
+.minil li{border-top:1px solid var(--hair)}
+.minil li:first-child{border-top:0}
+.minil button{display:grid;grid-template-columns:4.75rem minmax(0,1fr) auto;gap:2px 10px;align-items:start;width:100%;padding:9px 6px;border-radius:10px;text-align:left;font-size:.875rem;font-weight:700;line-height:1.45}
+.minil button:hover{background:var(--surface-2)}
+.minil .t{color:var(--ink-muted);font-size:.8125rem;font-feature-settings:"tnum"}
+.minil .ico{color:var(--ink-muted);margin-top:1px}
+.qlist{list-style:none;display:flex;flex-direction:column;gap:6px}
+.qlist li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;align-items:start;font-size:.8125rem;font-weight:700;line-height:1.45;color:var(--ink-muted)}
+.qlist li b{color:var(--ink);font-weight:900}
+.chain{list-style:none;display:flex;flex-direction:column}
+.chain li{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding-bottom:14px}
+.chain li::before{content:"";position:absolute;left:13px;top:30px;bottom:2px;width:2px;background:var(--ink)}
+.chain li:last-child{padding-bottom:0}
+.chain li:last-child::before{display:none}
+.chain li.gap::before,.chain li.gap+li::before{background:none;border-left:2px dashed var(--control-border);width:0}
+.chain .cn{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--surface)}
+.chain .cn .ico{width:15px;height:15px;stroke-width:2.6}
+.chain li.gap .cn{background:var(--warning-bg);color:var(--warning);box-shadow:inset 0 0 0 1.5px var(--warning)}
+.chain li.bad .cn{background:var(--danger-solid);color:var(--on-danger-solid)}
+.chain .tx{display:flex;flex-direction:column;gap:2px;min-width:0;font-size:.875rem;font-weight:700;line-height:1.45}
+.chain .tx b{font-weight:900;font-size:.9375rem}
+.chain .tx small{font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+.chain li.gap .tx small.g{color:var(--warning);font-weight:800}
+.chain li.bad .tx small.g{color:var(--danger);font-weight:800}
+.vres{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:800;line-height:1.5}
+.vres .ico{margin-top:1px}
+.vres.ok{background:var(--success-bg);color:var(--success)}
+.vres.bad{background:var(--danger-tint);color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.vres b{font-weight:900}
+.notice.danger{background:var(--danger-tint);color:var(--danger)}
+
+/* ---------- 證據鏈: every contract a row, its seven stops drawn small ---------- */
+.ctl{list-style:none;display:flex;flex-direction:column}
+.ctl li{border-top:1px solid var(--hair)}
+.ctl li:first-child{border-top:0}
+.ctr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 18px;align-items:center;width:100%;padding:12px 8px;border-radius:var(--r-md);text-align:left;transition:background-color .2s var(--out)}
+.ctr:hover{background:var(--surface-2)}
+.ctr[aria-expanded="true"]{background:var(--sunk)}
+.ctr .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ctr .tx b{font-size:.9375rem;font-weight:900;line-height:1.35}
+.ctr .tx small{font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+.ctr .tx .g{color:var(--warning);font-weight:800}
+.ctr .tx .g.bad{color:var(--danger)}
+.ctr .tx .g.ok{color:var(--success)}
+.mch{display:flex;align-items:center;grid-row:span 2}
+.mch i{width:12px;height:12px;border-radius:50%;background:var(--ink);flex:none}
+.mch i+i{margin-left:16px;position:relative}
+.mch i+i::before{content:"";position:absolute;right:12px;top:5px;width:16px;height:2px;background:var(--ink)}
+.mch i.gap{background:var(--warning-bg);box-shadow:inset 0 0 0 2px var(--warning)}
+.mch i.gap::before,.mch i.gap+i::before{background:none;border-top:2px dashed var(--control-border);height:0}
+.mch i.bad{background:var(--danger-solid)}
+.ctsrch{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.ctsrch .srch{flex:1 1 16rem;max-width:26rem}
+.ctsrch .err{display:block;font-size:.8125rem;font-weight:800;color:var(--danger);margin:6px 0 0 14px}
+@container sheet (max-width: 37.5rem){
+  .ctr{grid-template-columns:minmax(0,1fr)}
+  .mch{grid-row:auto}
+}
+
+/* ---------- 查詢紀錄 ---------- */
+.qlog{list-style:none;display:flex;flex-direction:column}
+.qlog li{display:grid;grid-template-columns:6.5rem 9rem minmax(0,1fr) auto;gap:4px 14px;align-items:start;padding:11px 4px;border-top:1px solid var(--hair);font-size:.875rem;font-weight:700;line-height:1.45}
+.qlog li:first-child{border-top:0}
+.qlog li.fresh{animation:fresh 1.8s var(--out)}
+.qlog .t{color:var(--ink-muted);font-size:.8125rem;font-feature-settings:"tnum"}
+.qlog .p{display:flex;align-items:center;gap:8px;font-weight:900}
+.qlog .p small{font-weight:700;color:var(--ink-muted);font-size:.75rem}
+.qlog .w b{font-weight:900}
+.qlog .w small{display:block;font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+.qlog .w .rsn{display:block;margin-top:4px;color:var(--ink);font-weight:700}
+.qlog .w .rsn::before{content:"匯出原因：";color:var(--ink-muted);font-weight:800}
+.qlog .w .rsn.nb::before{content:none}
+.qlog .w .rsn.nb b{color:var(--ink-muted);font-weight:800}
+.qlog .n{font-weight:900;font-feature-settings:"tnum";white-space:nowrap}
+@container sheet (max-width: 45rem){
+  .qlog li{grid-template-columns:minmax(0,1fr) auto}
+  .qlog .t{grid-column:1 / -1}
+  .qlog .p{grid-column:1 / -1}
+}
+.dialog textarea{width:100%;min-height:84px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:.9375rem;font-weight:600;line-height:1.5;resize:vertical}
+.dialog textarea[aria-invalid="true"]{border-color:var(--danger)}
+.dialog .help{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.btn.danger[aria-disabled="true"]{background:transparent}
+@media (max-width: 719px){.tabs button{padding:0 11px;gap:6px;font-size:.875rem}.tabs button .ico{display:none}.tabrow{padding-right:12px}}
+/* ---------- 查對象: looking up one owner, booking or contract needs a 案由 first ---------- */
+.objrow{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 12px;padding-top:12px;border-top:1px solid var(--hair)}
+.objrow .fsel{min-width:11rem}
+.objin{display:flex;flex-direction:column;gap:4px;flex:1 1 12rem;max-width:20rem}
+.objin span{font-size:.75rem;font-weight:800;color:var(--ink-muted)}
+.objin input{min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);font-size:.9375rem;font-weight:700;font-feature-settings:"tnum";letter-spacing:.02em}
+.objin input:hover{border-color:var(--ink)}
+.objin input::placeholder{color:var(--ink-muted);font-weight:600;letter-spacing:0}
+.objin input[aria-invalid="true"]{border-color:var(--danger)}
+.objin .err{font-size:.8125rem;font-weight:800;color:var(--danger)}
+.objrow .hint{flex:1 1 14rem;align-self:center}
+.pill.obj{background:var(--info-bg);border-color:var(--info);color:var(--info)}
+.pill.obj[aria-pressed="true"]{background:var(--info-bg);color:var(--info);border-color:var(--info)}
+/* purpose match on a lookup */
+.fitc{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;font-weight:800;color:var(--success);white-space:nowrap}
+.fitc .ico{width:14px;height:14px;stroke-width:2.4}
+.ev.q.off .evb{border-color:var(--warning);border-style:solid}
+.evb .why.nb::before{content:none}
+.evb .why.nb b{font-weight:800}
+/* the 47-in-one lookup, opened row by row */
+.aggb{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:4px}
+.aggb .k{font-size:.8125rem;font-weight:800;color:var(--ink)}
+.agg{list-style:none;display:flex;flex-direction:column;max-height:20rem;overflow:auto;margin-top:6px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--border);background:var(--surface)}
+.agg li{display:grid;grid-template-columns:3.25rem minmax(0,1fr) auto auto;gap:4px 10px;align-items:center;padding:6px 10px;border-top:1px solid var(--hair);font-size:.8125rem;font-weight:700;line-height:1.4;color:var(--ink)}
+.agg li:first-child{border-top:0}
+.agg li.here{background:var(--surface-2)}
+.agg li.here .s{font-weight:900}
+.agg .t{color:var(--ink-muted);font-feature-settings:"tnum"}
+.agg .p{font-feature-settings:"tnum";color:var(--ink-muted)}
+@container sheet (max-width: 30rem){.agg li{grid-template-columns:3.25rem minmax(0,1fr) auto}.agg .p{grid-column:2}}
+/* sensitive content stays folded until someone asks, and asking is recorded */
+.sensf{display:inline-flex;align-items:center;gap:6px;color:var(--ink);font-weight:800}
+.sensf .ico{width:15px;height:15px;color:var(--ink-muted)}
+.bx .sensb{margin:-2px 0 4px 12px}
+.batbl dd .sensb{align-self:flex-start;margin-top:4px}
+.textbtn.xs{min-height:36px;font-size:.8125rem;padding:0 12px}
+/* wrong codes on numbers without an account: a total, never a list */
+.nacct{display:flex;gap:8px;align-items:flex-start;margin:4px 0 8px;padding:10px 12px;border-radius:var(--r-md);background:var(--neutral-bg);color:var(--neutral);font-size:.8125rem;font-weight:700;line-height:1.5}
+.nacct b{font-weight:900;color:var(--ink)}
+.nacct .ico{width:16px;height:16px;margin-top:2px}
+/* rules that did not fire */
+.qrl{list-style:none;display:flex;flex-direction:column;padding:2px 0 6px}
+.qrl li{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;padding:9px 0;border-top:1px solid var(--hair);font-size:.875rem;font-weight:700;line-height:1.45}
+.qrl li:first-child{border-top:0}
+.qrl li b{font-weight:900}
+.qrl li span{font-size:.8125rem;color:var(--ink-muted)}
+.kv dd small{display:block;font-family:var(--font);font-size:.75rem;font-weight:700;color:var(--ink-muted);letter-spacing:0}
+.chain .tx small.pl{color:var(--ink-muted)}
+.dialog>.err{font-size:.8125rem;font-weight:800;color:var(--danger);margin-top:-8px}
+.dialog>.help{margin-top:-8px}
+.dialog .orx{display:flex;align-items:center;gap:10px;font-size:.8125rem;font-weight:800;color:var(--ink-muted)}
+.dialog .orx::before,.dialog .orx::after{content:"";flex:1;border-top:1px solid var(--border)}
+.dialog .tkt input{width:100%;min-height:48px;border:1.5px solid var(--control-border);background:var(--surface);padding:0 14px;font-size:.9375rem;font-weight:700}
+.dialog .tkt input[aria-invalid="true"]{border-color:var(--danger)}
+/* touch: DESIGN.md touch-target is 44px; mouse density stays as drawn */
+@media (pointer: coarse){.acts .textbtn{min-height:44px !important}}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>稽核中心・原型</b><span class="muted">商家、人名與紀錄全為虛構示範・今天 10/9（五）11:20</span>
+  <label>身分 <select id="p-role"><option value="compliance">宜蓁・合規</option><option value="super">冠宇・最高管理者</option><option value="support">小雯・客服</option><option value="finance">美玲・財務</option><option value="data">思妤・資料</option></select></label>
+  <label>跳到 <select id="p-go"><option value="">選擇情境</option><option value="home">巡檢・7 條待查看</option><option value="inv-ww">調查：汪汪俱樂部緊急離店</option><option value="inv-jh">調查：家豪單日查詢 47 次</option><option value="agg">家豪 47 次已展開</option><option value="inv-off">調查：小雯與目的不符</option><option value="obj">查對象：商家投訴客服偷看飼主電話</option><option value="obj-done">查對象：飼主 ••••6610 的紀錄</option><option value="auth">登入與驗證・7 天</option><option value="ev-sens">悠悠・攻擊性說明修改明細</option><option value="ev-sens-open">悠悠・攻擊性說明（已看內容）</option><option value="mark">標記已查看（填好結論）</option><option value="tl">時間軸・近 7 天</option><option value="zero">篩選後沒有紀錄</option><option value="exp">匯出 4 筆</option><option value="exp-over">全平台 30 天超過匯出上限</option><option value="ct-ww">證據鏈：汪汪 缺時間戳記</option><option value="ct-ok">證據鏈：肉球 重新驗證</option><option value="qlog">查詢紀錄</option><option value="clear">訊號全部查看完</option><option value="super">冠宇打開稽核中心</option><option value="support">客服打開稽核中心</option><option value="finance">財務打開稽核中心</option></select></label>
+  <label>下一次送出 <select id="p-send"><option value="ok">正常</option><option value="fail">連線中斷</option><option value="dup">別人剛處理過</option></select></label>
+  <label>下一次驗證 <select id="p-ver"><option value="ok">一致</option><option value="bad">不一致</option></select></label>
+  <label><input type="checkbox" id="p-off"> 離線</label>
+  <label><input type="checkbox" id="p-fail"> 載入失敗</label>
+  <label>字級 <select id="p-scale"><option value="1">100%</option><option value="2">200%</option></select></label>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <span class="tagp">原型</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+const I = {
+  inbox:'<path d="M4 13h4l1.5 2.5h5L16 13h4"/><path d="M5.5 5h13L20 13v6H4v-6l1.5-8Z"/>',
+  coins:'<ellipse cx="9" cy="7" rx="5" ry="2.5"/><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7"/><path d="M10 15.4c.9 1.3 3 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  dash:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 19c1-3.5 3.4-5 6-5s5 1.5 6 5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.3c1.7.7 2.9 2.2 3.5 4.7"/>',
+  scis:'<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17M8.6 15.6 20 7"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  doc:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  team:'<circle cx="10" cy="8" r="4"/><path d="M3 20c1.4-3.5 4-5 7-5 1.5 0 2.9.4 4 1.1M18 14v6M15 17h6"/>',
+  plan:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  fwd:'<path d="m10 6 6 6-6 6"/>',
+  up:'<path d="m6 14 6-6 6 6"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  paw:'<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  unlock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',
+  ban:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4V5Z"/>',
+  receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  stamp:'<path d="M9 4h6l-1 7h-4L9 4Z"/><path d="M5 15h14v3H5zM7 21h10"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  erase:'<path d="M8 20h12M4.5 15.5 14 6l5 5-7.5 7.5H8.5l-4-3Z"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/>',
+  swap:'<path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/>',
+  otp:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  layers:'<path d="m12 4 9 5-9 5-9-5 9-5Z"/><path d="m3 14 9 5 9-5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>'
+};
+Object.assign(I, {
+  store:'<path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8h13v-8M10 20v-5h4v5"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  tag:'<path d="M3.5 12.5V4h8.5l8.5 8.5-8.5 8.5-8.5-8.5Z"/><circle cx="8" cy="8.5" r="1.5"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  qr:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
+  play:'<circle cx="12" cy="12" r="8.5"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'
+});
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+Object.assign(I, {
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  dots:'<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+  board:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16M9 9v11"/>',
+  release:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M9 15h6" stroke-dasharray="2 2"/>'
+});
+Object.assign(I, {
+  print:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/>',
+  trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  tablet:'<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M11 18h2"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8M16 7l3 3M14 9l2 2"/>',
+  scale:'<path d="M12 4v16M7 20h10M5 8h14"/><path d="m5 8-3 6a3 3 0 0 0 6 0L5 8ZM19 8l-3 6a3 3 0 0 0 6 0l-3-6Z"/>',
+  home:'<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>'
+});
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  cage:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M8.5 5v15M12 5v15M15.5 5v15M4 12.5h16"/>',
+  pause:'<circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/>',
+  wrench:'<path d="M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5 2.5-2.5Z"/>',
+  move:'<path d="M4 12h16M15 7l5 5-5 5"/><path d="M4 6v12" stroke-dasharray="2 2"/>'
+});
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* a person's initial: skip the 阿 / 小 prefix so 阿凱 and 阿楷 stay apart (user decision 2026-10-11); pets keep their first character */
+const initialOf = n => /^[阿小]./.test(n) ? n[1] : n[0];
+const $ = id => document.getElementById(id);
+const qs = new URLSearchParams(location.search);
+const clone = o => JSON.parse(JSON.stringify(o));
+const chip = (tone, t) => `<span class="chip ${tone}">${t}</span>`;
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  logout:'<path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4M18 12H9"/>',
+  line:'<path d="M12 4.5c-5 0-9 3.2-9 7.2 0 3.6 3.2 6.5 7.5 7.1l-.4 2.2 3.3-2.2c4.4-.6 7.6-3.5 7.6-7.1 0-4-4-7.2-9-7.2Z"/>',
+  mail:'<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/>',
+  send:'<path d="M20 4 3 11l7 2.5L12.5 20 20 4Z"/><path d="m10 13.5 4.5-4.5"/>',
+  revoke:'<path d="M5 5h9l5 5v9H5z" stroke-dasharray="3 2.5"/><path d="m9 11 6 6M15 11l-6 6"/>',
+  seat:'<path d="M7 11V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v5"/><path d="M5 11h14v4H5zM7 15v5M17 15v5"/>'
+});
+Object.assign(I, {
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  sms:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 8h4M10 11h4M11 18h2"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  wall:'<path d="M5 4v16M19 4v16M5 9h14M5 15h14M12 4v5M9 9v6M15 9v6M12 15v5"/>',
+  hq:'<path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-5h6v5M9 11h.01M15 11h.01"/>'
+});
+Object.assign(I, {calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/>'});
+Object.assign(I, {
+  headset:'<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="13" width="4" height="6" rx="1.5"/><rect x="16.5" y="13" width="4" height="6" rx="1.5"/><path d="M18.5 19c0 1.4-1.6 2-4 2h-2"/>',
+  chart:'<path d="M4 20h16"/><path d="M7 16v-4M12 16V7M17 16v-6"/>',
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  hourglass:'<path d="M7 4h10M7 20h10M8 4c0 4 8 4 8 8s-8 4-8 8M16 4c0 4-8 4-8 8"/>',
+  out:'<path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4M18 12H9"/>',
+  trail:'<path d="M6 5h12M6 10h12M6 15h7"/><circle cx="17.5" cy="17.5" r="2.5"/>'
+});
+Object.assign(I, {
+  pay:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  clip:'<path d="m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.3 3.3 0 0 1 4.7 4.7L9.3 17a1.7 1.7 0 0 1-2.3-2.3L15 6.7"/>',
+  bank:'<path d="M3 10h18L12 4 3 10Z"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>',
+  code:'<path d="m8 8-4 4 4 4M16 8l4 4-4 4"/>'
+});
+
+/* ---------- the demo day ---------- */
+const FAST = qs.get('fast') === '1';
+/* 一份契約的一生 (prototypes/contract-life): ?life=ct-chain is 10/12（一）09:40, 宜蓁's first look at a contract signed on 美容契約 2026-10
+   (毛毛's, signed at 毛孩日和 on 10/10); re-verifying its hash posts the act's key action to the director page */
+const LIFE = qs.get('life') === 'ct-chain' ? 'ct-chain' : null;
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+const T0 = LIFE ? 9 * 60 + 40 : 11 * 60 + 20;            /* 10/9（五）11:20 */
+const p2 = n => String(n).padStart(2, '0');
+const clk = m => `${p2(Math.floor(m / 60))}:${p2(m % 60)}`;
+const WK = '日一二三四五六';
+const D = s => { const [m, d] = s.split('/').map(Number); return new Date(2026, m - 1, d); };
+const md = x => `${x.getMonth() + 1}/${x.getDate()}`;
+const addDays = (s, n) => { const x = D(s); x.setDate(x.getDate() + n); return md(x); };
+const TODAY = LIFE ? '10/12' : '10/9';
+const dw = s => `${s}（${WK[D(s).getDay()]}）`;
+const diff = (a, b) => Math.round((D(b) - D(a)) / 864e5);
+const num = n => n.toLocaleString('en-US');
+const M = v => ({m:v});                       /* a masked value: shown masked, exported masked */
+
+/* ---------- people and modules ---------- */
+const ME = {compliance:['宜蓁', '合規'], super:['冠宇', '最高管理者'], support:['小雯', '客服'], finance:['美玲', '財務'], data:['思妤', '資料']};
+const MODS = [
+  ['商家', [['tenants', '商家管理', 'store', ['super']], ['plans', '方案管理', 'plan', ['super', 'finance', 'support']], ['pay', '付款管理', 'card', ['super', 'finance']]]],
+  ['支援', [['support', '客服支援', 'headset', ['support', 'super']], ['notif', 'LINE／通知管理', 'bell', ['support', 'super']]]],
+  ['合規', [['tpl', '契約模板庫', 'doc', ['super', 'compliance', 'support']], ['audit', '稽核中心', 'shield', ['super', 'compliance']]]],
+  ['營運', [['gw', '金流設定', 'coins', ['super', 'finance']], ['usage', '用量監控', 'gauge', ['super', 'finance', 'support']], ['data', '產業數據', 'chart', ['super', 'data']]]],
+  ['系統', [['sys', '系統設定', 'wrench', ['super']]]]
+];
+/* the icon rail's short names */
+const SHORT = {tenants:'商家', plans:'方案', pay:'付款', support:'客服', notif:'通知', tpl:'契約', audit:'稽核', gw:'金流', usage:'用量', data:'數據', sys:'系統'};
+const meKey = () => state.role === 'super' ? 'az' : 'yz';
+const me = () => ME[state.role][0];
+const canOpen = () => state.role === 'compliance' || state.role === 'super';
+const canAct = () => canOpen() && !state.offline;
+const canWrite = () => canAct() && !state.phone;
+const whyQ = () => '離線中，連上網路才能查詢';
+const whyW = what => state.offline ? `離線中，連上網路才能${what}` : `手機只能看與查詢；${what}請用電腦`;
+
+/* ---------- shops (the twelve of 商家管理; fictional) and the platform itself ---------- */
+const SHOPS = [
+  {id:'pf', n:'寵派平台'},
+  {id:'mm', n:'喵喵寵物沙龍'}, {id:'hg', n:'好狗運寵物美容'}, {id:'wx', n:'汪星人旅館'}, {id:'cc', n:'柴柴美容室'},
+  {id:'xq', n:'小確幸寵物'}, {id:'af', n:'阿福寵物美容'}, {id:'sl', n:'毛孩森林'}, {id:'mhr', n:'毛孩日和'},
+  {id:'ww', n:'汪汪俱樂部'}, {id:'yy', n:'悠悠寵物旅館'}, {id:'rq', n:'肉球小舖'}, {id:'xs', n:'小森寵物美容'}
+];
+const shopN = id => id === 'multi' ? '多家店' : SHOPS.find(s => s.id === id)?.n || '';
+/* actors: name, role, organisation */
+const PPL = {
+  yz:['宜蓁', '合規', 'pf'], az:['冠宇', '最高管理者', 'pf'], xw:['小雯', '客服', 'pf'], jh:['家豪', '客服', 'pf'], ml:['美玲', '財務', 'pf'],
+  wwz:['張店長', '店長', 'ww'], wwk:['小傑', '櫃台', 'ww'], yyw:['吳先生', '店家管理者', 'yy'], yyl:['小琳', '櫃台', 'yy'],
+  mhc:['陳老闆', '店家管理者', 'mhr'], mht:['林店長', '店長', 'mhr'], rql:['李小姐', '店家管理者', 'rq'], afz:['周先生', '店家管理者', 'af'],
+  slh:['黃小姐', '店家管理者', 'sl'], xqx:['許小姐', '店家管理者', 'xq'], own:['王*君', '飼主', 'mhr'],
+  sys:['系統', '自動紀錄', 'pf']
+};
+const SRC = {app:'店員 App', web:'店家管理網頁', liff:'飼主 LINE', pf:'寵派後台'};
+const CAT = [['appt', '預約'], ['pay', '收款'], ['ct', '契約'], ['data', '個資與敏感資料'], ['auth', '登入與驗證'], ['set', '店家設定'], ['staff', '員工與權限'], ['pf', '寵派平台']];
+/* 查對象: the three kinds of object; every phone is shown as ••••末四碼 only, the same as M-03 and role permissions */
+const OBJ = {ph:['飼主手機末四碼', '例：6610', '飼主手機'], ap:['預約碼', '例：D3G8', '預約碼'], ct:['契約編號', '例：C-2610-0412', '契約']};
+const objText = o => o.k === 'ph' ? `${OBJ.ph[2]} ••••${o.v}` : `${OBJ[o.k][2]} ${o.v}`;
+const objKey = o => `${o.k}:${o.v}`;
+/* sensitive fields: folded on the timeline and in the panel until 看內容, which is recorded */
+const SENS = ['病史', '過敏', '攻擊性說明'];
+const catN = c => CAT.find(x => x[0] === c)?.[1] || '';
+
+/* ---------- the record (demonstration; every name is fictional) ---------- */
+let RQ = 0x8f2a10;
+const E = (id, at, t, who, cat, a, x, ba, why, o = {}) => ({id, side:'op', at, t, who, cat, a, x, ba, why, shop:o.shop || PPL[who][2], risk:!!o.risk, src:o.src || 'web', req:`req_${(RQ += 0x3b1d).toString(16)}`, ip:o.src === 'liff' ? '飼主手機' : '203.0.113.*', obj:o.obj || [], sens:(ba.find(b => SENS.includes(b[0])) || [])[0] || ''});
+const EE = (id, at, t, pet, amt, why) => E(id, at, t, at === '9/28' ? 'yyw' : 'wwz', 'pay', '緊急離店', `緊急離店：${pet}`, [['離店', '服務完成・未結清', '已離店（緊急離店）'], ['未收', '—', `NT$ ${amt} 列入待收款`]], why, {risk:1, src:'app'});
+const OPS0 = [
+  EE('e01', '10/9', '10:52', '可樂', '1,350', '飼主家裡急事要先接走，說明天匯款'),
+  E('e02', '10/9', '10:31', 'yyl', 'appt', '改期', '核准改期：豆豆 住宿', [['住宿', '10/12（一）–10/14（三）', '10/13（二）–10/15（四）'], ['住宿籠', 'B2', 'B2（重新鎖定）']], '飼主申請：出差延後一天'),
+  E('e03', '10/9', '10:05', 'xw', 'pf', '客服補發', '補發簽署連結：布丁 美容契約', [['簽署連結', '10/8 寄出・還沒開啟', '10/9 重新寄出・LINE'], ['飼主手機', M('••••6610'), '不變']], '工單 #A-1051：飼主說找不到連結', {shop:'mhr', src:'pf', obj:['ph:6610', 'ap:D3G8']}),
+  E('e04', '10/9', '09:40', 'mht', 'appt', '現場預約', '新增現場預約：可頌 基礎洗澡', [['預約', '—', '10/9 09:45 基礎洗澡・小型犬・美容台 B'], ['客戶', '—', '新客戶 林*安']], '', {src:'app'}),
+  E('e05', '10/9', '09:12', 'rql', 'set', '價格變更', '改價：大型犬洗澡', [['價格', 'NT$ 800', 'NT$ 900'], ['生效', '—', '11/1 之後的新預約']], '洗劑與水電漲價'),
+  /* 登入與驗證: locks, contact corrections and phone changes. A changed contact keeps only its channel and 末四碼 (or 「Email 網域已更正」), never the full address */
+  E('e33c', '10/9', '09:30', 'yz', 'pf', '巡檢已查看', '標記巡檢已查看：同一號碼反覆鎖定・汪汪俱樂部', [['訊號', '待查看', '已查看']], '小傑換了新手機還在用舊號碼收驗證碼；張店長 09:05 已更正號碼，09:12 新號碼驗證通過', {shop:'pf', src:'pf'}),
+  E('a01', '10/9', '09:12', 'wwk', 'auth', '換手機驗證', '換手機驗證：小傑', [['登入手機', M('••••1234'), M('••••5578')], ['驗證', '—', '新號碼收到簡訊驗證碼並通過']], '', {src:'app'}),
+  E('a02', '10/9', '09:05', 'wwz', 'auth', '聯絡方式更正', '更正員工手機：小傑', [['手機', M('簡訊・••••1234'), M('簡訊・••••5578')]], '小傑換了新手機，還在用舊號碼收驗證碼', {risk:1, obj:['ph:1234', 'ph:5578']}),
+  E('a03', '10/9', '08:32', 'sys', 'auth', '鎖定', '驗證碼鎖定：號碼 ••••1234', [['狀態', '可以收驗證碼', '鎖定中・累計錯 10 次'], ['解鎖', '—', '15 分鐘後自動解鎖・08:47']], '', {shop:'ww', src:'app', obj:['ph:1234']}),
+  E('e06', '10/8', '18:20', 'az', 'pf', '平台範本退回', '退回平台範本草稿：特殊疾病照護同意書 2026-10', [['狀態', '待核准', '已退回']], '第三條讓店家自行停藥，牴觸健康狀況告知與通知飼主的義務', {shop:'pf', src:'pf'}),
+  EE('e07', '10/8', '17:45', 'Lucky', '980', '飼主忘了帶錢包，晚上轉帳'),
+  E('e08', '10/8', '16:10', 'yyw', 'data', '敏感資料修改', '修改攻擊性說明：豆豆', [['攻擊性說明', '會護食，餵食時勿伸手', '會護食，餵食時勿伸手；陌生人摸頭會咬，需兩人保定']], '10/7 住宿時咬傷店員手指（輕傷），補記', {risk:1}),
+  E('e09', '10/8', '15:30', 'jh', 'pf', '客服補發', '補發通知 23 則：預約提醒改傳簡訊', [['通道', 'LINE・送不到', '簡訊'], ['範圍', '—', '23 則・6 家店']], '10/8 LINE 事故補發（工單 #A-1043）', {shop:'pf', src:'pf'}),
+  E('a04', '10/8', '21:10', 'sys', 'auth', '鎖定', '驗證碼鎖定：號碼 ••••1234', [['狀態', '可以收驗證碼', '鎖定中・累計錯 10 次'], ['解鎖', '—', '15 分鐘後自動解鎖・21:25']], '', {shop:'ww', src:'app', obj:['ph:1234']}),
+  E('a05', '10/8', '14:00', 'az', 'auth', '聯絡方式更正', '更正首位管理者 Email 並重發邀請：鄭小姐', [['聯絡方式', '', 'Email 網域已更正'], ['邀請連結', '10/6 寄出', '10/8 重寄・7 天有效，舊連結失效']], '鄭小姐來電說 Email 網域打錯，一直沒收到邀請', {shop:'mm', src:'pf'}),
+  E('e10', '10/8', '11:20', 'wwk', 'appt', '取消', '取消預約：小黑 美容', [['預約', '10/10（六）14:00 美容', '已取消'], ['取消費', '—', 'NT$ 0・免費期限內']], '飼主申請：臨時出遊'),
+  EE('e11', '10/7', '19:05', '小黑', '600', '飼主下班才能來付'),
+  E('e12', '10/7', '16:05', 'yz', 'pf', '平台範本送審', '送審平台範本：犬貓美容定型化契約 2026-10', [['狀態', '草稿', '待核准']], '依 114.6.9 範本補審閱期間條款', {shop:'pf', src:'pf'}),
+  E('e13', '10/7', '15:20', 'mhc', 'staff', '重設 PIN', '重設員工 PIN：小葵', [['PIN', '已設定', '已重設・下次登入時設定新的']], '小葵忘了 PIN'),
+  E('e14', '10/7', '10:15', 'xqx', 'set', '公休日變更', '新增特殊公休：10/20（二）', [['10/20', '營業 10:00–19:00', '公休']], '店內消毒'),
+  E('e15', '10/6', '18:30', 'mht', 'data', '敏感資料修改', '修改過敏：毛毛', [['過敏', '無', '雞肉過敏・皮膚紅疹']], '飼主告知，附獸醫診斷照片', {risk:1, src:'app'}),
+  E('e15b', '10/6', '13:10', 'az', 'pf', '金流環境切換', '切換金流環境：正式 → 測試', [['環境', '正式環境', '測試環境'], ['生效', '—', '10/6 13:10 之後的新交易']], '工程更新收款通知驗簽，要在測試環境驗證（工單 ENG-212）', {risk:1, shop:'pf', src:'pf'}),
+  E('e16', '10/6', '14:02', 'az', 'pf', '金流環境切換', '切換金流環境：測試 → 正式', [['環境', '測試環境', '正式環境'], ['生效', '—', '10/6 14:02 之後的新交易']], '工程確認收款通知驗簽通過（工單 ENG-212）', {risk:1, shop:'pf', src:'pf'}),
+  E('e17', '10/6', '11:00', 'afz', 'pay', '退款', '退款：旺財 加購費', [['實收', 'NT$ 1,100', 'NT$ 800'], ['退款', '—', 'NT$ 300・現金']], '指甲修剪沒做，退加購費', {risk:1}),
+  E('e18', '10/6', '10:20', 'rql', 'staff', '權限異動', '調整角色：阿美 櫃台 → 店長', [['角色', '櫃台', '店長'], ['分店', '本店', '本店']], '原店長離職，阿美升任', {risk:1}),
+  E('e19', '10/6', '09:50', 'ml', 'pf', '補款連結', '寄出補款連結：肉球小舖 10 月月費', [['帳單', '卡片過期・扣款失敗', '已寄補款連結・LINE＋Email']], '', {shop:'rq', src:'pf'}),
+  E('e20', '10/5', '16:40', 'wwz', 'ct', '契約作廢', '作廢並重簽：Lucky 美容契約', [['原契約', 'C-2610-0371 已簽', 'C-2610-0371 已作廢・證據鏈保留'], ['重簽', '—', 'C-2610-0412 寄出']], '飼主手機寫錯，作廢重簽', {risk:1, obj:['ct:C-2610-0371', 'ct:C-2610-0412']}),
+  E('e21', '10/5', '14:30', 'yz', 'pf', '平台範本送審', '送審平台範本：特殊疾病照護同意書 2026-10', [['狀態', '草稿', '待核准']], '', {shop:'pf', src:'pf'}),
+  E('e22', '10/5', '13:00', 'slh', 'data', '客戶合併', '合併客戶：林*如', [['客戶', '2 筆・同一支手機', '1 筆・寵物 2 隻'], ['手機', M('••••3215'), '不變']], '同一位飼主在 LINE 與現場各建了一筆', {obj:['ph:3215']}),
+  EE('e23', '10/4', '19:20', '可樂', '1,100', '刷卡機故障，飼主改天來付'),
+  E('e24', '10/4', '15:00', 'wwz', 'data', '敏感資料修改', '修改病史：小黑', [['病史', '—', '心雜音・2025 健檢']], '飼主提供健檢報告', {risk:1}),
+  E('e25', '10/4', '10:05', 'yyl', 'appt', '未到', '標記未到：球球 美容', [['預約', '10/4（日）10:00 美容', '未到'], ['未到費', '—', 'NT$ 200']], '', {src:'app'}),
+  E('e26', '10/3', '10:05', 'az', 'pf', '停權', '停權商家：小森寵物美容', [['商家', '營業中', '停權中'], ['影響', '—', '停止新預約與新收費；在店寵物、退房與查詢照常']], '月費連續兩期未付（9 月、10 月）', {risk:1, shop:'xs', src:'pf'}),
+  E('e27', '10/3', '09:30', 'own', 'data', '同意撤回', '撤回行銷訊息同意', [['行銷訊息', '同意', '不同意・交易通知照常']], '', {src:'liff'}),
+  E('e28', '10/2', '11:00', 'wwk', 'appt', '資源更換', '更換美容台：Lucky', [['美容台', '美容台 2', '美容台 3']], '美容台 2 吹水機故障', {src:'app'}),
+  E('e29', '10/2', '10:10', 'yz', 'pf', '新增平台範本', '新增平台範本：特殊疾病照護同意書', [['範本', '—', '草稿']], '', {shop:'pf', src:'pf'}),
+  E('e30', '10/1', '16:30', 'yyl', 'pay', '人工收款', '補收款 3 筆：豆豆、球球、麻吉', [['未收', 'NT$ 3,200', 'NT$ 0'], ['方式', '—', '刷卡 2 筆・轉帳 1 筆']], '9/28 緊急離店的款項補收', {src:'app'}),
+  E('e31', '10/1', '09:00', 'az', 'pf', '建立管理員', '建立寵派管理員：家豪（客服）', [['帳號', '—', '家豪・客服・已設定 MFA']], '新進客服，支援 10 月導入量', {risk:1, shop:'pf', src:'pf'}),
+  E('e32', '9/30', '17:40', 'az', 'pf', '平台範本發布', '核准發布平台範本：拍攝授權 2026-09', [['版本', '2026-01', '2026-09・最晚 10/30 更新']], '撤回授權後移除期限由 7 天改為 3 天', {shop:'pf', src:'pf'}),
+  E('e33', '9/30', '10:30', 'yz', 'pf', '巡檢已查看', '標記巡檢已查看：緊急離店偏多・悠悠寵物旅館', [['訊號', '待查看', '已查看']], '颱風停班日刷卡機斷線，三筆 10/1 都已補收', {shop:'pf', src:'pf'}),
+  EE('e34', '9/28', '18:10', '豆豆', '1,200', '颱風停班，刷卡機斷線'),
+  EE('e35', '9/28', '17:30', '球球', '900', '颱風停班，刷卡機斷線'),
+  EE('e36', '9/28', '16:50', '麻吉', '1,100', '颱風停班，刷卡機斷線')
+];
+/* the lookups: every search, export, signing-record view and re-verification */
+/* a lookup made inside a 客服 case carries the case's purpose (pur) and whether the action fits it (fit: true / false; absent when
+   the console does not compare, as for 查詢 and 名冊查詢). obj lists the objects it touched, for 查對象. rows: an aggregated lookup's
+   own lookups, opened with 展開 (itself recorded). */
+const Q = (id, at, t, who, k, x, c, n, o = {}) => ({id, side:'q', at, t, who, k, x, c, n, shop:o.shop || 'all', why:o.why || '', obj:[], ...o});
+/* 家豪's 47 lookups on 10/8 (工單 #A-1043), spread over the six shops whose reminders failed; deterministic so tests can count */
+const AGG_SHOPS = ['ww', 'mhr', 'yy', 'rq', 'mm', 'hg'], AGG_N = {ww:9, mhr:10, yy:8, rq:7, mm:7, hg:6};
+const aggRows = (() => {
+  const seq = [], left = {...AGG_N};
+  for (let i = 0; seq.length < 47; i++) { const s = AGG_SHOPS[i % 6]; if (left[s]) { left[s]--; seq.push(s); } }
+  return seq.map((s, i) => { const m = 10 * 60 + 2 + Math.round(i * (7 * 60 + 56) / 46); return {t:clk(m), shop:s, ph:String(1000 + (i * 7919 + 377) % 9000).padStart(4, '0').replace('6610', '6611'), fit:true}; });
+})();
+const QS0 = [
+  Q('q01', '10/9', '10:02', 'xw', 'appt', '查詢預約', '手機末四碼 ••••6610', '1 筆', {shop:'mhr', pur:'工單 #A-1051 收不到簽署連結', obj:['ph:6610', 'ap:D3G8']}),
+  Q('q01b', '10/9', '10:03', 'xw', 'reveal', '顯示完整號碼', '飼主 吳*文（布丁）••••6610', '1 筆', {shop:'mhr', pur:'工單 #A-1051 收不到簽署連結', rsn:'核對飼主身分', fit:true, obj:['ph:6610', 'ap:D3G8']}),
+  Q('q02', '10/9', '09:05', 'yz', 'audit', '查詢稽核紀錄', '動作：敏感資料修改・7 天', '3 筆'),
+  Q('q03', '10/8', '17:58', 'jh', 'appt', '查詢預約 47 次', '10:02–17:58', '47 次', {shop:'multi', shops:AGG_SHOPS, span:'跨 6 家店', pur:'工單 #A-1043 LINE 事故補發', rows:aggRows}),
+  Q('q03b', '10/8', '14:26', 'xw', 'reveal', '顯示完整號碼', '飼主 吳*文（布丁）••••6610', '1 筆', {shop:'mhr', pur:'案件 CS-1039 導入支援', rsn:'核對飼主身分', fit:false, obj:['ph:6610', 'ap:D3G8']}),
+  Q('q03a', '10/8', '14:22', 'xw', 'roster', '名冊查詢', '毛孩日和 10/17（六）的全部預約', '12 筆', {shop:'mhr', pur:'案件 CS-1039 導入支援', obj:['ph:6610', 'ap:D3G8']}),
+  Q('q04', '10/8', '16:30', 'az', 'audit', '查詢稽核紀錄', '商家：汪汪俱樂部・30 天', '21 筆', {shop:'ww'}),
+  Q('q05', '10/7', '11:00', 'yz', 'exp', '匯出稽核紀錄', '動作：權限異動・30 天', '6 筆', {why:'季度權限盤點：10 月第 1 週'}),
+  Q('q06', '10/6', '14:10', 'yz', 'ver', '重新驗證 hash', 'C-2610-0388・肉球小舖', '一致', {shop:'rq'}),
+  Q('q07', '10/5', '09:20', 'xw', 'sign', '查看簽署紀錄', 'C-2610-0371', '1 份', {shop:'ww', pur:'工單 #A-1032', obj:['ct:C-2610-0371']}),
+  Q('q08', '10/3', '10:20', 'yz', 'audit', '查詢稽核紀錄', '商家：小森寵物美容・30 天', '9 筆', {shop:'xs'}),
+  Q('q09', '10/1', '15:00', 'jh', 'appt', '查詢預約 6 次', '14:10–15:00・到職訓練', '6 次', {shop:'multi', shops:['hg', 'mhr', 'rq'], span:'跨 3 家店', pur:'訓練工單 #T-0001',
+    rows:[['14:10', 'hg', '2207'], ['14:18', 'mhr', '5531'], ['14:25', 'rq', '0918'], ['14:41', 'hg', '7342'], ['14:52', 'mhr', '4460'], ['15:00', 'rq', '1185']].map(([t, shop, ph]) => ({t, shop, ph, fit:true}))}),
+  Q('q10', '9/30', '10:00', 'yz', 'audit', '查詢稽核紀錄', '商家：悠悠寵物旅館・動作：緊急離店・7 天', '3 筆', {shop:'yy'})
+];
+
+/* ---------- 巡檢 rules (demonstration thresholds) ---------- */
+const DAYS = Array.from({length:14}, (_, i) => addDays(TODAY, i - 13));   /* 9/26 … 10/9 */
+const S = (id, o) => ({id, seen:null, ...o});
+const SIGS0 = [
+  S('ee-ww', {kind:'rate', t:'緊急離店偏多', on:'汪汪俱樂部', rule:'規則：一家店 7 天內緊急離店 3 次以上', w:7, f:{shop:'ww', act:'緊急離店', range:'7'}, find:'7 天 4 次・未收合計 NT$ 4,030', base:'前 4 週平均每週 0.5 次'}),
+  S('q-jh', {kind:'rate', t:'客服查詢量突增', on:'家豪・客服', rule:'規則：同一位客服單日查詢超過 40 次', w:7, th:40, f:{actor:'jh', range:'7'}, find:'10/8 單日 47 次', base:'10/1 到職；其他天 0–22 次',
+    days:[null, null, null, null, null, 6, 14, 0, 0, 18, 22, 19, 47, 9]}),
+  S('off', {kind:'any', t:'與目的不符', on:'小雯・客服', rule:'規則：與目的不符的動作一出現就列入', w:14, f:{actor:'xw', range:'7'}, find:'10/8 顯示完整號碼 1 次・毛孩日和，案件目的是導入支援',
+    days:DAYS.map(d => d === '10/8' ? 1 : 0)}),
+  S('sens', {kind:'any', t:'敏感資料修改', on:'3 家店', rule:'規則：病史、過敏、攻擊性說明一有修改就列入', w:7, f:{act:'敏感資料修改', range:'7'}, find:'7 天 3 筆：汪汪俱樂部、毛孩日和、悠悠寵物旅館'}),
+  S('sus', {kind:'any', t:'停權／復權', on:'小森寵物美容', rule:'規則：一出現就列入', w:14, f:{act:'停權', range:'7'}, find:'10/3 冠宇停權'}),
+  S('gw', {kind:'any', t:'金流環境切換', on:'寵派平台', rule:'規則：一出現就列入', w:14, f:{act:'金流環境切換', range:'7'}, find:'10/6 冠宇切到測試環境，52 分鐘後切回正式'}),
+  S('adm', {kind:'any', t:'建立管理員', on:'家豪・客服', rule:'規則：一出現就列入', w:14, f:{act:'建立管理員', range:'30'}, find:'10/1 冠宇建立'}),
+  S('ee-yy', {kind:'rate', t:'緊急離店偏多', on:'悠悠寵物旅館', rule:'規則：一家店 7 天內緊急離店 3 次以上', w:7, f:{shop:'yy', act:'緊急離店', range:'30'}, find:'9/28 單日 3 次・未收合計 NT$ 3,200',
+    seen:{by:'宜蓁', at:'9/30', t:'10:30', c:'颱風停班日刷卡機斷線，三筆 10/1 都已補收'}}),
+  S('lock', {kind:'rate', t:'同一號碼反覆鎖定', on:'號碼 ••••1234・汪汪俱樂部', rule:'規則：同一號碼 24 小時內鎖定 2 次以上', w:7, f:{shop:'ww', cat:'auth', range:'7'}, find:'10/8 21:10、10/9 08:32 各鎖定 1 次',
+    days:DAYS.map(d => d === '10/8' || d === '10/9' ? 1 : 0),
+    seen:{by:'宜蓁', at:'10/9', t:'09:30', c:'小傑換了新手機還在用舊號碼收驗證碼；張店長 09:05 已更正號碼，09:12 新號碼驗證通過'}})
+];
+/* rules that exist but did not fire in the last 7 days (demonstration thresholds) */
+const QUIET = [
+  ['同一位客服單日顯示完整號碼超過 3 次', '近 7 天最多是小雯一天 1 次'],
+  ['同一人收款後又退款', '人工標記已收款後，同一人 24 小時內又退同一筆就列入・近 7 天沒有']
+];
+const DEMO_DONE = {
+  'ee-ww':'張店長說明四筆都是熟客，已請店家 10/12 前補收並在待收款追蹤', 'q-jh':'展開 47 筆逐筆看過：都在工單 #A-1043 底下、都符合目的；同一天家豪補發 23 則提醒，也是 6 家店',
+  off:'小雯說明是林店長請她核對飼主號碼；應另開「其他」案件再看，已提醒她顯示完整號碼前先確認目的',
+  sens:'三筆都有原因且由店長以上修改，內容與照護安全有關', sus:'月費兩期未付，停權原因與生效時間都有記錄', gw:'工程工單 ENG-212 確認後切換，時間吻合', adm:'新進客服，已設定 MFA，權限只有客服'
+};
+
+/* ---------- contracts with an evidence chain (stops: 版本快照・首次送達・審閱・勾選同意・簽名・PDF hash・可信時間戳記) ---------- */
+const STOPS = ['版本快照', '首次送達', '審閱', '勾選同意', '簽名', 'PDF hash', '可信時間戳記'];
+/* plain words under the stops a non-engineer would not know */
+const STOP_PLAIN = {0:'快照包含條款全文，也包含飼主簽名時會看到的白話重點', 5:'檔案的指紋：檔案改一個字，重算就會不同', 6:'第三方證明這份檔案在這個時間已經存在'};
+const CT = (id, shop, kind, pet, owner, at, st, gap, o = {}) => ({id, shop, kind, pet, owner, at, st, gap, ...o});
+const CTS0 = [
+  CT('C-2610-0412', 'ww', '犬貓美容定型化契約', 'Lucky', '張*華', '10/7 21:38', [
+    ['店家第 4 版・依平台 2025-06', '快照 sha256 1c7e…40b2'], ['10/5 16:42・LINE', '店家重簽後寄出'], ['10/7 21:20–21:36・停留 16 分', ''], ['5 項・10/7 21:37', ''],
+    ['飼主手機手寫・10/7 21:38', '加做 OTP 驗證'], ['9f3c…a71e', '簽署時計算'], null], 6,
+    {gw:'時間戳記服務 10/7 21:40 沒有回應；系統每小時自動重試，已重試 3 次（最近 10/9 11:00）', rep:'取代 C-2610-0371（10/5 作廢，證據鏈保留）'}),
+  CT('C-2610-0405', 'yy', '住宿授權', '豆豆', '吳*婷', '10/7 08:55', [
+    ['店家第 1 版・依平台 2026-01', '快照 sha256 77a0…c19d'], null, ['10/7 08:40–08:53・停留 13 分', ''], ['4 項・10/7 08:54', ''],
+    ['平板手寫・10/7 08:55', '店內平板'], ['4be1…03f9', '簽署時計算'], ['10/7 08:55:31', '示範時間戳記服務']], 1,
+    {gw:'店家 10/6 改發新連結，舊連結的首次送達時間沒有帶到這份紀錄；送達只有「已交給 LINE」'}),
+  CT('C-2610-0398', 'mhr', '犬貓美容定型化契約', '毛毛', '王*君', '10/6 10:12', [
+    ['店家第 3 版・依平台 2025-06', '快照 sha256 d2f4…9e01'], ['10/6 10:10・店內 QR', '當日現場單'], null, ['5 項・10/6 10:11', ''],
+    ['平板手寫・10/6 10:12', '店內平板'], ['a40c…7b52', '簽署時計算'], ['10/6 10:12:47', '示範時間戳記服務']], 2,
+    {gw:'當日單即時審閱只停留 38 秒，低於示範門檻 2 分鐘'}),
+  CT('C-2610-0388', 'rq', '犬貓美容定型化契約', '麻糬', '李*芳', '10/5 15:02', [
+    ['店家第 1 版・依平台 2025-06', '快照 sha256 5e19…b8c4'], ['10/3 18:20・LINE', ''], ['10/5 14:40–14:58・停留 18 分', ''], ['5 項・10/5 14:59', ''],
+    ['飼主手機手寫・10/5 15:02', '加做 OTP 驗證'], ['e88b…10d6', '簽署時計算'], ['10/5 15:02:19', '示範時間戳記服務']], -1, {last:'10/6 宜蓁重新驗證：一致'})
+];
+/* 一份契約的一生: 毛毛's 第 4 版, with the hash the shop's 審核台 computes for the same PDF (1ff3…d2e3) */
+if (LIFE) CTS0.unshift(CT('C-2610-0431', 'mhr', '犬貓美容定型化契約', '毛毛', '王*君', '10/10 09:56', [
+    ['店家第 4 版・依平台 2026-10', '快照 sha256 b6a1…4c07'], ['10/9 11:20・LINE', '第 4 版發布後換版重送'], ['10/9 20:24–20:30・即時審閱 6 分', '離服務不到 1 天，在 LINE 計時閱讀、讀到最後'], ['6 項・10/9 20:29', ''],
+    ['平板手寫・10/10 09:56', '店內平板・加做 OTP'], ['1ff3…d2e3', '簽署時計算'], ['10/10 09:56:38', '示範時間戳記服務']], -1, {last:'寵派還沒有人重新驗證過'}));
+
+/* ---------- state ---------- */
+const F0 = {shop:'all', actor:'all', cat:'', act:'', range:'7', why:false, risk:false, obj:null};
+const INIT = {role:'compliance', view:'sig', panel:null, dlg:null, f:clone(F0), af:clone(F0), inv:null, qwho:'all', ctq:'', cterr:'', ok:'ph', ov:'', oerr:'', nextSend:'ok', nextVer:'ok', offline:false, loadFail:false, err:null, m:T0};
+const fresh = () => { const s = clone(INIT); s.ops = clone(OPS0); s.qs = clone(QS0); s.sigs = clone(SIGS0); s.cts = clone(CTS0); s.vr = {}; s.agg = {}; s.sensOpen = {}; s.qn = 11; s.en = 37; return s; };
+let state = fresh();
+
+/* ---------- derived ---------- */
+const inRange = (at, r) => { const d = diff(at, TODAY); return d >= 0 && d < (r === 'today' ? 1 : +r); };
+const opMatch = (e, f) => inRange(e.at, f.range) && (f.shop === 'all' || e.shop === f.shop) && (f.actor === 'all' || e.who === f.actor)
+  && (!f.cat || e.cat === f.cat) && (!f.act || e.a === f.act) && (!f.why || !!e.why) && (!f.risk || e.risk) && (!f.obj || e.obj.includes(objKey(f.obj)));
+const qMatch = (q, f) => inRange(q.at, f.range) && (f.shop === 'all' || q.shop === f.shop || (q.shops || []).includes(f.shop)) && (f.actor === 'all' || q.who === f.actor)
+  && (!f.obj || q.obj.includes(objKey(f.obj)));
+const ops = f => state.ops.filter(e => opMatch(e, f));
+const lookups = f => state.qs.filter(q => qMatch(q, f));
+/* the demo lists a sample; an unfiltered platform-wide range reports the real-sized total */
+const broad = f => f.shop === 'all' && f.actor === 'all' && !f.cat && !f.act && !f.why && !f.risk && !f.obj;
+/* wrong SMS codes on numbers that have no account: kept as a platform total only, never per number, so this page cannot be used
+   to test whether a phone has an account (demonstration counts) */
+const NOACC = {today:4, 7:31, 30:118};
+const total = f => broad(f) ? {today:412, 7:2968, 30:12480}[f.range] : ops(f).length;
+const CAP = 10000;
+const RANGES = [['today', '今天'], ['7', '7 天'], ['30', '30 天']];
+const condText = f => [f.obj && `對象：${objText(f.obj)}`, f.shop !== 'all' && `商家：${shopN(f.shop)}`, f.actor !== 'all' && `操作者：${PPL[f.actor][0]}`, f.cat && `類別：${catN(f.cat)}`, f.act && `動作：${f.act}`,
+  f.why && '有原因', f.risk && '高風險', RANGES.find(r => r[0] === f.range)[1]].filter(Boolean).join('・') || '全部';
+const sameF = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const openSigs = () => state.sigs.filter(s => !s.seen);
+const seenSigs = () => state.sigs.filter(s => s.seen);
+const gaps = () => state.cts.filter(c => c.gap >= 0 || state.vr[c.id] === 'bad');
+function sigDays(s) {
+  if (s.days) return s.days;
+  return DAYS.map(d => state.ops.filter(e => e.at === d && opMatch(e, {...F0, ...s.f, range:'30'})).length);
+}
+
+/* ---------- shell ---------- */
+function sideNav() {
+  const [w, r] = ME[state.role], n = canOpen() ? openSigs().length : 0;
+  const groups = MODS.map(([g, list]) => {
+    const vis = list.filter(m => m[3].includes(state.role));
+    if (!vis.length) return '';
+    return `<div class="sgrp" aria-hidden="true">${g}</div>${vis.map(([k, l, icon]) =>
+      `<button class="sitem" data-key="nav-${k}" data-do="nav" data-page="${k}" title="${l}" ${k === 'audit' ? 'aria-current="page"' : ''}>${ic(icon)}<span class="lf">${l}</span>${SHORT[k] ? `<span class="ls" aria-hidden="true">${SHORT[k]}</span>` : ''}${k === 'audit' && n ? `<span class="n warn" aria-label="${n} 條待查看">${n}</span>` : ''}</button>`).join('')}`;
+  }).join('');
+  return `<nav class="side" aria-label="寵派後台選單"><div class="brand"><span class="mark" aria-hidden="true">${ic('mark')}</span><span><b>寵派管理後台</b></span></div><div class="snav">${groups}</div>
+    <div class="me"><span class="av" aria-hidden="true">${initialOf(w)}</span><span><b>${w}</b><small>${r}</small></span></div></nav>`;
+}
+const ibar = () => `<section class="ibar" aria-label="寵派內部提示"><span class="in">${ic('shield', 'sm')}寵派內部</span><span class="ws">只給寵派員工使用・每一次查詢與匯出都會留下紀錄</span><span class="r">${dw(TODAY)} ${clk(state.m)}</span></section>`;
+const whoami = () => { const [w, r] = ME[state.role]; return `<span class="whoami"><span class="av" aria-hidden="true">${initialOf(w)}</span>${w}・${r}</span>`; };
+const av = k => { const p = PPL[k]; return `<span class="av2 ${k === 'sys' ? 'ow' : p[2] === 'pf' ? 'pf' : k === 'own' ? 'ow' : ''}" aria-hidden="true">${k === 'sys' ? ic('shield', 'spm') : initialOf(p[0])}</span>`; };
+const whoTxt = (k, shop) => { const p = PPL[k]; return k === 'sys' ? `自動紀錄${shop ? `・${shopN(shop)}` : ''}` : `${p[1]}・${p[2] === 'pf' ? '寵派' : shopN(p[2])}`; };
+const calmPage = () => !!state.panel || !!state.dlg;
+
+/* ---------- tabs ---------- */
+const TABS = [['sig', '巡檢', 'eye'], ['tl', '時間軸', 'trail'], ['ct', '證據鏈', 'link'], ['ql', '查詢紀錄', 'search']];
+function tabs() {
+  const cnt = {sig:openSigs().length, ct:gaps().length};
+  return `<div class="tabrow"><div class="tabs" role="tablist" aria-label="稽核中心">${TABS.map(([k, l, i]) =>
+    `<button role="tab" id="tab-${k}" aria-selected="${state.view === k}" aria-controls="tp" tabindex="${state.view === k ? 0 : -1}" data-do="tab" data-v="${k}" data-key="tab-${k}">${ic(i, 'spm')}${l}${cnt[k] ? `<span class="cnt">${cnt[k]}</span>` : ''}</button>`).join('')}</div></div>`;
+}
+
+/* ---------- 巡檢 ---------- */
+function stripHtml(s, big) {
+  const v = sigDays(s), max = Math.max(s.th ? s.th * 1.25 : 0, ...v.map(x => x || 0), s.kind === 'any' ? 3 : 1), w0 = 15 - s.w;
+  const hot = (x, i) => x && i >= w0 - 1 && (s.th ? x > s.th : s.kind === 'any' || s.id.startsWith('ee') || s.id.startsWith('hash'));
+  const bars = v.map((x, i) => x === null ? `<i class="na" style="--c:${i + 1}"></i>` : !x ? `<i class="z" style="--c:${i + 1}"></i>` : `<i class="${hot(x, i) ? 'hot' : ''}" style="--c:${i + 1};--v:${Math.round(x / max * 100)}"></i>`).join('');
+  const words = `${DAYS[0]} 到 ${DAYS[13]} 每天：${v.map((x, i) => `${DAYS[i]} ${x === null ? '帳號還沒建立' : x}`).filter((_, i) => v[i]).join('、') || '都沒有'}${s.th ? `；門檻 ${s.th}` : ''}`;
+  return `<div class="strip${big ? ' big' : ''}${s.th ? ' lim' : ''}" role="img" aria-label="${esc(words)}"><div class="bars"><span class="win" style="--w0:${w0}"></span>${bars}${s.th ? `<span class="th" style="--th:${Math.round(s.th / max * 100)}"><span>${s.th}</span></span>` : ''}</div>
+    <div class="ax" aria-hidden="true"><span>${DAYS[0]}</span><span class="wl">近 ${s.w} 天</span><span>${DAYS[13]}</span></div></div>`;
+}
+function sigRow(s, first) {
+  if (s.seen) return `<li class="sg seen${s.fresh ? ' fresh' : ''}" data-key="sg-${s.id}"><div class="tt"><div class="l1"><b>${s.t}</b><span class="on">${esc(s.on)}</span></div><span class="rule">${s.find}</span>
+      <p class="concl"><small>${s.seen.by} ${s.seen.at} ${s.seen.t} 已查看</small>${esc(s.seen.c)}</p></div>
+    <div class="acts"><button class="textbtn sm ln" data-do="invest" data-id="${s.id}" data-key="inv-${s.id}">再看一次紀錄</button></div></li>`;
+  const pri = first && !calmPage() && canAct();
+  const inv = canAct() ? `<button class="btn ${pri ? 'primary' : 'quiet'}" data-do="invest" data-id="${s.id}" data-key="inv-${s.id}">${ic('search', 'sm')}調查</button>`
+    : `<span class="cell" style="display:flex;flex-direction:column;align-items:flex-end"><button class="btn quiet" aria-disabled="true" data-key="inv-${s.id}" aria-describedby="inv-${s.id}-w">${ic('search', 'sm')}調查</button><span class="reason" id="inv-${s.id}-w">${whyQ()}</span></span>`;
+  const open = state.panel?.mode === 'sig' && state.panel.id === s.id;
+  return `<li class="sg${s.tone === 'danger' ? ' danger' : ''}" data-key="sg-${s.id}"><div class="tt"><div class="l1"><b>${s.t}</b><span class="on">${esc(s.on)}</span></div>
+      <span class="find">${ic('warn')}${s.find}</span><span class="rule">${s.rule}${s.base ? `・${s.base}` : ''}</span></div>
+    ${stripHtml(s)}
+    <div class="acts">${inv}<button class="textbtn sm ln" data-do="openSig" data-id="${s.id}" data-key="mk-${s.id}" aria-expanded="${open}">標記已查看</button></div></li>`;
+}
+function sigView() {
+  const o = openSigs(), sn = seenSigs();
+  const rec = ops({...F0, range:'7'}), risk = rec.filter(e => e.risk).length;
+  return `<div class="stack"><div class="oas qs" data-key="strip" role="group" aria-label="稽核中心摘要">
+      <span class="it">${ic('trail', 'spm')}<span>近 7 天 <b>${num(total({...F0}))}</b> 筆操作紀錄</span></span>
+      <span class="it">${ic('warn', 'spm')}<span>高風險 <b>${risk}</b> 筆</span></span>
+      <span class="sep" aria-hidden="true"></span>
+      ${o.length ? `<span class="it warn">${ic('eye', 'spm')}<span><b>${o.length}</b> 條訊號待查看</span></span>` : `<span class="done">${ic('check', 'spm')}沒有待查看的訊號</span>`}
+      <span class="it calm">${ic('link', 'spm')}<span>證據鏈缺口 <b>${gaps().length}</b> 份</span></span>
+      ${state.offline ? `<span class="offl" style="margin-left:auto">${ic('off', 'spm')}離線中・只能看已載入的紀錄</span>` : ''}</div>
+    <section class="sheet" aria-labelledby="sg-h" data-key="sigs"><div class="h"><h2 id="sg-h">${ic('eye')}巡檢訊號</h2><span class="demo">${ic('info')}規則與門檻是示範值</span><span class="aside">每條都寫出為什麼出現</span></div>
+      ${o.length ? `<ol class="sigs">${o.map((s, i) => sigRow(s, i === 0)).join('')}</ol>`
+        : `<div class="allclear" data-key="allclear">${ic('check')}<div><b>近 7 天沒有超過規則的訊號</b><p>新的緊急離店、查詢量、與目的不符、敏感資料修改、反覆鎖定、停權、金流切換與建立管理員，一出現就會列在這裡。</p></div></div>`}
+      <details class="seenbox" data-key="quiet" ${state.quietOpen ? 'open' : ''}><summary data-key="quiet-sum">${ic('list', 'spm')}這 7 天沒有觸發的規則 ${QUIET.length} 條${ic('chev', 'spm chevi')}</summary>
+        <ul class="qrl">${QUIET.map(([r, d]) => `<li><b>${r}</b><span>${d}</span></li>`).join('')}</ul></details>
+      ${sn.length ? `<details class="seenbox" data-key="seen" ${state.seenOpen ? 'open' : ''}><summary data-key="seen-sum">${ic('check', 'spm')}已查看 ${sn.length} 條${ic('chev', 'spm chevi')}</summary><ol class="sigs">${sn.map(s => sigRow(s)).join('')}</ol></details>` : ''}
+    </section></div>`;
+}
+
+/* ---------- 時間軸 ---------- */
+const sel = (id, label, opts, val) => `<label class="fsel"><span>${label}</span><select id="${id}" data-ff="${id.slice(2)}" data-key="${id}">${opts}</select></label>`;
+const opt = (v, t, cur) => `<option value="${v}" ${v === cur ? 'selected' : ''}>${esc(t)}</option>`;
+function filterBar() {
+  const f = state.f, dirty = !sameF(f, state.af), n = total(state.af), over = n > CAP;
+  const shopO = opt('all', '全部商家', f.shop) + SHOPS.map(s => opt(s.id, s.n, f.shop)).join('');
+  const pf = Object.keys(PPL).filter(k => PPL[k][2] === 'pf'), sh = Object.keys(PPL).filter(k => PPL[k][2] !== 'pf');
+  const actO = opt('all', '全部人', f.actor) + `<optgroup label="寵派">${pf.map(k => opt(k, `${PPL[k][0]}・${PPL[k][1]}`, f.actor)).join('')}</optgroup><optgroup label="店家與飼主">${sh.map(k => opt(k, `${PPL[k][0]}・${shopN(PPL[k][2])}`, f.actor)).join('')}</optgroup>`;
+  const qBtn = canAct() ? `<button class="btn ${calmPage() ? 'quiet' : 'primary'}${dirty && !calmPage() ? ' pending' : ''}" data-do="runQ" data-key="runq">${ic('search', 'sm')}查詢</button>`
+    : `<span class="cell"><button class="btn quiet" aria-disabled="true" data-key="runq" aria-describedby="runq-w">${ic('search', 'sm')}查詢</button><span class="reason" id="runq-w">${whyQ()}</span></span>`;
+  const why = !canWrite() ? whyW('匯出') : dirty ? '條件改了，先按「查詢」再匯出' : over ? `符合 ${num(n)} 筆，超過單次上限 ${num(CAP)} 筆；請把時間縮短到 7 天，或指定商家、類別` : !ops(state.af).length && !broad(state.af) ? '沒有符合的紀錄可以匯出' : '';
+  const xBtn = why ? `<span class="cell"><button class="btn quiet" aria-disabled="true" data-key="exp" aria-describedby="exp-w">${ic('dl', 'sm')}匯出…</button><span class="reason" id="exp-w" data-key="exp-w">${why}</span></span>`
+    : `<button class="btn quiet" data-do="openExp" data-key="exp">${ic('dl', 'sm')}匯出…</button>`;
+  return `<section class="sheet fbar" aria-label="查詢條件" data-key="fbar">
+    <div class="frow2">${sel('f-shop', '商家', shopO, f.shop)}${sel('f-actor', '操作者', actO, f.actor)}
+      <div class="fsel"><span id="rg-l">時間</span><div class="seg" role="radiogroup" aria-labelledby="rg-l">${RANGES.map(([v, t]) => `<button role="radio" aria-checked="${f.range === v}" tabindex="${f.range === v ? 0 : -1}" data-do="fRange" data-v="${v}" data-key="rg-${v}">${t}</button>`).join('')}</div></div>
+      <div class="go2">${qBtn}${xBtn}</div></div>
+    <div class="pills" role="group" aria-label="類別與條件">${CAT.map(([k, l]) => `<button class="pill" aria-pressed="${f.cat === k}" data-do="fCat" data-v="${k}" data-key="cat-${k}">${l}</button>`).join('')}
+      <button class="pill" aria-pressed="${f.why}" data-do="fFlag" data-v="why" data-key="fl-why">只看有原因的</button><button class="pill" aria-pressed="${f.risk}" data-do="fFlag" data-v="risk" data-key="fl-risk">只看高風險</button>
+      ${f.act ? `<button class="pill" aria-pressed="true" data-do="fAct" data-key="fl-act" aria-label="動作：${f.act}，按一下移除">動作：${f.act}<span class="x" aria-hidden="true">${ic('x')}</span></button>` : ''}
+      ${f.obj ? `<button class="pill obj" aria-pressed="true" data-do="fObj" data-key="fl-obj" aria-label="對象：${esc(objText(f.obj))}，按一下移除">對象：${esc(objText(f.obj))}<span class="x" aria-hidden="true">${ic('x')}</span></button>` : ''}</div>
+    ${objRow()}
+    ${dirty ? `<p class="pend" data-key="pend">${ic('info')}條件改了，按「查詢」才會更新；每次查詢都會記在右邊的查詢軌與查詢紀錄</p>` : ''}</section>`;
+}
+/* 查對象 (user decision 2026-10-18): one owner, booking or contract is a person's activity, so it needs a 案由 first; the 案由 is
+   written onto the 查詢軌 with the lookup. 商家、操作者與時間 stay purpose-free. */
+function objRow() {
+  const o = OBJ[state.ok], err = state.oerr;
+  const btn = canAct() ? `<button class="btn quiet" data-do="openObj" data-key="obj-go">${ic('search', 'sm')}查對象…</button>`
+    : `<span class="cell"><button class="btn quiet" aria-disabled="true" data-key="obj-go" aria-describedby="obj-w">${ic('search', 'sm')}查對象…</button><span class="reason" id="obj-w">${whyQ()}</span></span>`;
+  return `<div class="objrow" role="group" aria-labelledby="obj-l" data-key="objrow">
+    <label class="fsel"><span id="obj-l">查對象</span><select id="o-k" data-key="o-k" aria-label="對象種類">${Object.entries(OBJ).map(([k, [n]]) => opt(k, n, state.ok)).join('')}</select></label>
+    <label class="objin"><span>${o[0]}</span><input id="o-v" data-key="o-v" value="${esc(state.ov)}" placeholder="${o[1]}" autocomplete="off" ${state.ok === 'ph' ? 'inputmode="numeric" maxlength="4"' : ''} ${err ? 'aria-invalid="true" aria-describedby="o-v-e"' : 'aria-describedby="obj-h"'}>${err ? `<span class="err" id="o-v-e" data-key="o-v-e">${err}</span>` : ''}</label>
+    ${btn}<p class="hint" id="obj-h">查一位飼主、一筆預約或一份契約要先寫案由，連同案由記在查詢軌；只用商家、操作者、時間篩選不用。</p></div>`;
+}
+function opItem(e) {
+  const p = PPL[e.who], open = state.panel?.mode === 'ev' && state.panel.id === e.id;
+  const v = x => x?.m ? `<span class="masked">${ic('lock')}${x.m}</span>` : esc(x);
+  const folded = e.sens && !state.sensOpen[e.id];
+  const ba = folded ? `<span class="bl sensf">${ic('lock')}修改了${esc(e.sens)}・內容已收起</span>`
+    : e.ba.slice(0, 2).map(b => `<span class="bl">${esc(b[0])}：${b[1] && b[1] !== '—' ? `<s>${v(b[1])}</s><span class="to">→</span>` : ''}${b[2] ? v(b[2]) : '不變'}</span>`).join('');
+  const words = `${dw(e.at)} ${e.t}，${p[0]}（${whoTxt(e.who, e.shop)}）${e.x}${e.risk ? '，高風險' : ''}${folded ? `，修改了${e.sens}，內容已收起` : ''}`;
+  return `<li class="ev op${e.fresh ? ' fresh' : ''}" data-ev="${e.id}"><span class="nd" aria-hidden="true"><i></i><time>${e.t}</time></span>
+    <div class="bx"><button class="evb" data-do="openEv" data-id="${e.id}" data-key="ev-${e.id}" aria-expanded="${open}" aria-label="${esc(words)}">
+      <span class="who">${av(e.who)}<b>${p[0]}</b><span>${whoTxt(e.who, e.shop)}</span></span>
+      <span class="what">${esc(e.x)}${e.risk ? chip('warning', '高風險') : ''}</span>
+      <span class="ba">${ba}</span>${e.why ? `<span class="why">${esc(e.why)}</span>` : ''}</button>${folded ? sensBtn(e, 'tl') : ''}</div></li>`;
+}
+const sensBtn = (e, at) => canAct() ? `<button class="textbtn xs ln sensb" data-do="seeSens" data-id="${e.id}" data-key="sens-${at}-${e.id}" aria-label="看內容：${esc(e.x)}（會記在查詢軌）">${ic('eye', 'spm')}看內容</button>`
+  : `<span class="reason sensb" data-key="sens-${at}-${e.id}">${whyQ()}</span>`;
+const QI = {audit:'search', appt:'headset', exp:'dl', ver:'refresh', sign:'doc', reveal:'eye', roster:'list', obj:'search', sens:'lock', agg:'layers'};
+const fitTag = q => q.fit === false ? chip('warning', '與目的不符') : q.fit === true ? `<span class="fitc">${ic('check')}符合目的</span>` : '';
+/* the purpose and reason lines a lookup carries */
+const qLines = q => `${q.pur ? `<span class="why nb"><b>${q.k === 'obj' ? '案由' : '本案目的'}：</b>${esc(q.pur)}</span>` : ''}${q.rsn ? `<span class="why nb"><b>${q.k === 'reveal' ? '顯示原因' : '原因'}：</b>${esc(q.rsn)}</span>` : ''}`;
+function aggBox(q) {
+  const shop = state.af.shop, here = shop !== 'all' ? q.rows.filter(r => r.shop === shop).length : 0, open = !!state.agg[q.id];
+  const fit = q.rows.filter(r => r.fit).length;
+  const list = open ? `<ol class="agg" data-key="agg-${q.id}" aria-label="${esc(q.x)} 逐筆">${q.rows.map(r => `<li class="${r.shop === shop ? 'here' : ''}"><span class="t">${r.t}</span><span class="s">${shopN(r.shop)}</span><span class="p">••••${r.ph}</span>${fitTag(r)}</li>`).join('')}</ol>` : '';
+  const btn = canAct() ? `<button class="textbtn xs ln" data-do="aggT" data-id="${q.id}" data-key="aggb-${q.id}" aria-expanded="${open}">${open ? `${ic('up', 'spm')}收起` : `${ic('chev', 'spm')}展開 ${q.rows.length} 筆`}</button>` : '';
+  return `<div class="aggb">${btn}${here ? `<span class="k" data-key="agg-here-${q.id}">其中 ${here} 次在這家店</span>` : ''}${open ? `<span class="fitc">${ic('check')}${fit} 筆符合目的</span>` : ''}</div>${list}`;
+}
+function qItem(q) {
+  const p = PPL[q.who], mine = q.who === meKey();
+  const n = q.n ? `・${q.span ? `${q.n}・${q.span}` : q.n}` : '';
+  return `<li class="ev q${q.k === 'exp' ? ' exp' : ''}${mine ? ' mine' : ''}${q.fit === false ? ' off' : ''}${q.fresh ? ' fresh' : ''}" data-q="${q.id}"><span class="nd" aria-hidden="true"><i></i><time>${q.t}</time></span>
+    <div class="bx"><div class="evb" data-key="q-${q.id}"><span class="who">${av(q.who)}<b>${mine ? `${p[0]}（你）` : p[0]}</b><span>${p[1]}</span></span>
+      <span class="what">${ic(QI[q.k])}${esc(q.x)}${fitTag(q)}</span><span class="ba">${esc(q.c)}${n}</span>${qLines(q)}${q.why ? `<span class="why">${esc(q.why)}</span>` : ''}
+      ${q.rows ? aggBox(q) : ''}</div></div></li>`;
+}
+function tlView() {
+  const f = state.af, list = ops(f), ql = lookups(f), n = total(f);
+  const all = [...list, ...ql].sort((a, b) => D(b.at) - D(a.at) || b.t.localeCompare(a.t) || (a.side === 'q' ? -1 : 1));
+  let day = '', body = '';
+  all.forEach(x => { if (x.at !== day) { day = x.at; body += `<li class="dayh"><span>${dw(day)}</span></li>`; } body += x.side === 'op' ? opItem(x) : qItem(x); });
+  const s = state.inv && state.sigs.find(x => x.id === state.inv);
+  const inv = s ? `<div class="invb" data-key="invb">${ic('eye')}<span>正在調查：<b>${s.t}・${esc(s.on)}</b>${s.seen ? `・${s.seen.by} ${s.seen.at} 已查看` : ''}</span><span class="sp">
+      ${!s.seen ? canWrite() ? `<button class="textbtn" data-do="openSig" data-id="${s.id}" data-key="inv-mark">標記已查看…</button>` : '' : ''}<button class="textbtn" data-do="tab" data-v="sig" data-key="inv-back">回到巡檢</button></span></div>` : '';
+  const cnt = n === list.length ? `<b>${num(n)}</b> 筆操作` : `<b>${num(n)}</b> 筆操作 <small>示範只列出 ${list.length} 筆</small>`;
+  const nacct = (!f.cat || f.cat === 'auth') && f.shop === 'all' && f.actor === 'all' && !f.obj && !f.act
+    ? `<p class="nacct" data-key="nacct">${ic('lock')}<span>沒有帳號的號碼輸錯驗證碼 <b>${num(NOACC[f.range])}</b> 次（${RANGES.find(r => r[0] === f.range)[1]}）。這類只記總數、不列號碼，所以這裡不能拿來試某支手機有沒有帳號。</span></p>` : '';
+  const zw = f.obj ? `沒有和「${esc(objText(f.obj))}」有關的操作${ql.length ? '；下方只有查詢軌，包括你剛才這次查對象' : ''}。` : `${esc(condText(f))} 沒有任何操作${ql.length ? '；下方只有查詢軌，包括你剛才這次查詢' : ''}。`;
+  return `<div class="stack">${inv}${filterBar()}
+    <section class="sheet" aria-labelledby="tl-h" data-key="tl"><div class="h"><h2 id="tl-h">${ic('trail')}時間軸</h2><span class="aside">${esc(condText(f))}</span></div>
+      <div class="tlh"><span class="n" data-key="tl-n">${cnt}・<b>${ql.length}</b> 次查詢 <small>查詢軌只依商家・操作者・時間・對象篩選</small></span>
+        <ul class="legend" aria-label="圖例"><li><span class="lgn" aria-hidden="true"></span>操作</li><li><span class="lgn q" aria-hidden="true"></span>查詢</li><li><span class="lgn x" aria-hidden="true"></span>匯出</li></ul></div>
+      ${nacct}${!list.length ? `<div class="zero" data-key="zero"><b>沒有符合的操作紀錄</b><p>${zw}</p><button class="textbtn" data-do="clearF" data-key="clearf">${ic('x', 'spm')}清除篩選</button></div>` : ''}
+      ${all.length ? `<div class="lanes" aria-hidden="true"><span>操作・改了什麼</span><span></span><span>查詢・誰看過</span></div><ol class="tl" data-key="tl-list">${body}</ol>
+        <div class="tlmore"><span>${f.range === '30' ? '30 天內的紀錄到此為止' : '更早的紀錄請把時間放寬到 30 天'}</span></div>`
+        : ''}
+    </section></div>`;
+}
+
+/* ---------- 證據鏈 ---------- */
+const stopCls = (c, i) => !c.st[i] ? 'gap' : i === 5 && state.vr[c.id] === 'bad' ? 'bad' : '';
+function ctRow(c) {
+  const bad = state.vr[c.id] === 'bad', open = state.panel?.mode === 'ct' && state.panel.id === c.id;
+  const g = bad ? `<span class="g bad">PDF hash 重新驗證不一致${c.gap >= 0 ? `；另缺${STOPS[c.gap]}` : ''}</span>` : c.gap >= 0 ? `<span class="g">缺${STOPS[c.gap]}・${esc(c.gw)}</span>` : `<span class="g ok">七站齊全・${esc(state.vr[c.id] === 'ok' ? `${TODAY} ${me()}重新驗證：一致` : c.last)}</span>`;
+  return `<li><button class="ctr" data-do="openCt" data-id="${c.id}" data-key="ct-${c.id}" aria-expanded="${open}">
+    <span class="tx"><b>${shopN(c.shop)}・${c.kind}</b><small><span class="nw">${c.id}</span><span class="nw">・${c.pet}</span><span class="nw">・飼主 ${c.owner}</span><span class="nw">・${c.at} 簽署</span></small><small>${g}</small></span>
+    <span class="mch" role="img" aria-label="${STOPS.map((s, i) => `${s}${stopCls(c, i) === 'gap' ? '缺' : stopCls(c, i) === 'bad' ? '不一致' : '有'}`).join('、')}">${STOPS.map((_, i) => `<i class="${stopCls(c, i)}"></i>`).join('')}</span></button></li>`;
+}
+function ctView() {
+  const g = gaps(), ok = state.cts.filter(c => !g.includes(c));
+  return `<div class="stack"><section class="sheet" aria-labelledby="ct-h" data-key="cts"><div class="h"><h2 id="ct-h">${ic('link')}證據鏈缺口</h2><span class="aside">跨商家・已簽契約</span></div>
+      <p class="hint" style="margin:-4px 0 10px">每份已簽契約都要有七站：${STOPS.join('、')}。少一站或 hash 不一致就列在這裡。</p>
+      <p class="hint" style="margin:-4px 0 10px" data-key="ct-plain">PDF hash 是檔案的指紋，檔案改一個字，重算就會不同；可信時間戳記是第三方證明這份檔案在那個時間已經存在。</p>
+      ${g.length ? `<ol class="ctl" data-key="gaps">${g.map(ctRow).join('')}</ol>` : `<div class="allclear">${ic('check')}<div><b>目前沒有缺口</b><p>所有已簽契約的七站都齊全。</p></div></div>`}</section>
+    <section class="sheet" aria-labelledby="ct2-h" data-key="ctfind"><div class="h"><h2 id="ct2-h">${ic('search')}查一份契約</h2></div>
+      <div class="ctsrch"><div class="srch">${ic('search')}<input id="ct-q" data-key="ct-q" placeholder="契約編號，例：C-2610-0388" value="${esc(state.ctq)}" autocomplete="off" aria-label="契約編號" ${state.cterr ? 'aria-invalid="true" aria-describedby="ct-q-e"' : ''}>${state.cterr ? `<span class="err" id="ct-q-e" data-key="ct-q-e">${state.cterr}</span>` : ''}</div>
+        <button class="btn quiet" data-do="findCt" data-key="ct-go" ${canAct() ? '' : 'aria-disabled="true"'}>查看證據鏈</button></div>
+      ${ok.length ? `<ol class="ctl" style="margin-top:12px" data-key="okcts">${ok.map(ctRow).join('')}</ol>` : ''}
+      <p class="ph-note" style="margin-top:10px">${ic('lock')}<span>查看證據鏈與重新驗證都會記在查詢紀錄。已簽契約與證據鏈的保存期限待法務給定；給定前一律不清除。</span></p></section></div>`;
+}
+
+/* ---------- 查詢紀錄 ---------- */
+function qlView() {
+  const w = state.qwho, list = state.qs.filter(q => w === 'all' || (w === 'me' ? q.who === meKey() : PPL[q.who][1] === '客服')).slice().sort((a, b) => D(b.at) - D(a.at) || b.t.localeCompare(a.t));
+  return `<div class="stack"><section class="sheet" aria-labelledby="ql-h" data-key="ql"><div class="h"><h2 id="ql-h">${ic('search')}查詢紀錄</h2>
+      <div class="seg" role="radiogroup" aria-label="誰的查詢" style="margin-left:auto">${[['all', '全部'], ['me', '只看我的'], ['sup', '客服']].map(([v, t]) => `<button role="radio" aria-checked="${w === v}" tabindex="${w === v ? 0 : -1}" data-do="qWho" data-v="${v}" data-key="qw-${v}">${t}</button>`).join('')}</div></div>
+    <p class="hint" style="margin:-4px 0 8px">每一次查詢、查對象、匯出、查看簽署紀錄、查看敏感內容與重新驗證都記在這裡，包括你自己的；客服的顯示完整號碼與名冊查詢也在這裡。這些紀錄不能刪除或修改。</p>
+    <ol class="qlog" data-key="qlog">${list.map(q => `<li class="${q.fresh ? 'fresh' : ''}" data-key="ql-${q.id}"><span class="t">${dw(q.at)} ${q.t}</span><span class="p">${av(q.who)}<span>${PPL[q.who][0]}${q.who === meKey() ? '（你）' : ''}<br><small>${PPL[q.who][1]}</small></span></span>
+      <span class="w"><b>${esc(q.x)}</b> ${fitTag(q)}<small>${esc(q.c)}${q.span ? `・${q.span}` : ''}</small>${q.pur ? `<span class="rsn nb"><b>${q.k === 'obj' ? '案由' : '本案目的'}：</b>${esc(q.pur)}</span>` : ''}${q.rsn ? `<span class="rsn nb"><b>顯示原因：</b>${esc(q.rsn)}</span>` : ''}${q.why ? `<span class="rsn">${esc(q.why)}</span>` : ''}</span><span class="n">${esc(q.n)}</span></li>`).join('')}</ol></section></div>`;
+}
+
+/* ---------- panels ---------- */
+const closeBtn = () => `<div class="dp-top"><button class="ibtn x" data-do="closePanel" data-key="dp-x" aria-label="關閉">${ic('x')}</button></div>`;
+const panelErr = () => state.err ? `<div class="ferr" role="alert" data-key="dp-err">${ic('warn')}<span>${state.err}</span></div>` : '';
+const busy = () => state.panel?.busy;
+function busyBtn(cls, act, key, icon, label, busyLabel, extra = '') {
+  const b = busy() === key;
+  return `<button class="btn ${cls}${b ? ' busy' : ''}" data-do="${act}" data-key="${key}" ${extra}>${b ? '<span class="spin" aria-hidden="true"></span>' : ic(icon, 'sm')}${b ? busyLabel : label}</button>`;
+}
+const head2 = (tile, title, sub, warn) => `<div class="dph"><span class="ttile${warn ? ' warn' : ''}" aria-hidden="true">${tile}</span><div><h2 id="dp-h" tabindex="-1">${title}</h2><p>${sub}</p></div></div>`;
+const vv = x => x?.m ? `<span class="masked">${ic('lock')}${x.m}</span>` : esc(x);
+function panelEv() {
+  const e = state.ops.find(x => x.id === state.panel.id), p = PPL[e.who];
+  const looked = state.qs.filter(q => q.shop === e.shop || (q.shop === 'all' && q.k !== 'appt')).filter(q => diff(e.at, q.at) >= 0 || q.shop === e.shop).sort((x, y) => D(y.at) - D(x.at) || y.t.localeCompare(x.t)).slice(0, 4);
+  const folded = e.sens && !state.sensOpen[e.id];
+  const row = ([k, b, a]) => SENS.includes(k) && folded ? `<div><dt>${esc(k)}</dt><dd><span class="sensf">${ic('lock')}修改了${esc(k)}・內容已收起</span>${sensBtn(e, 'dp')}</dd></div>`
+    : b === '' ? `<div><dt>${esc(k)}</dt><dd><span class="af">${vv(a)}</span></dd></div>`
+    : `<div><dt>${esc(k)}</dt><dd><span class="b4"><span class="lb">之前</span>${b === '—' ? '（沒有）' : `<s>${vv(b)}</s>`}</span><span class="af"><span class="lb">之後</span>${a ? vv(a) : '（不變）'}</span></dd></div>`;
+  return `${closeBtn()}${head2(e.who === 'sys' ? ic('shield') : initialOf(p[0]), esc(e.x), `<span class="nw">${dw(e.at)} ${e.t}</span><span class="nw">・${shopN(e.shop)}</span>${e.risk ? chip('warning', '高風險') : ''}`)}
+    <dl class="kv" data-key="ev-kv"><dt>操作者</dt><dd>${p[0]}・${p[1]}</dd><dt>單位</dt><dd>${e.who === 'sys' ? shopN(e.shop) : p[2] === 'pf' ? '寵派平台' : shopN(p[2])}</dd><dt>類別</dt><dd>${catN(e.cat)}・${e.a}</dd>
+      <dt>來源</dt><dd>${SRC[e.src]}</dd><dt>請求編號</dt><dd class="mono">${e.req}<small>工程查系統紀錄用的編號</small></dd><dt>位址</dt><dd><span class="masked">${ic('lock')}${e.ip}</span></dd></dl>
+    <div class="dsec"><h3>${ic('swap')}改了什麼</h3><dl class="batbl" data-key="ev-ba">${e.ba.map(row).join('')}</dl>
+      ${e.sens ? `<p class="hint" data-key="ev-sens-h">${folded ? `${esc(e.sens)}的內容先收起來；按「看內容」才顯示，並記一筆「查看敏感內容」在查詢軌。` : `你在 ${state.sensOpen[e.id]} 看過內容，已記在查詢軌。`}</p>` : ''}
+      <p class="hint">電話一律只顯示末四碼（••••6610），LINE ID、驗證碼與密碼一律遮罩，匯出的檔案也一樣。稽核中心沒有顯示完整號碼的方式；客服的「顯示完整號碼」會連同原因記在查詢軌。</p></div>
+    <div class="dsec"><h3>${ic('msg')}原因</h3>${e.why ? `<p class="quote" data-key="ev-why"><small>${p[0]}填寫</small>${esc(e.why)}</p>` : '<p class="hint" data-key="ev-why">這類操作不必填原因。</p>'}</div>
+    <div class="dsec"><h3>${ic('eye')}之後誰查過這些紀錄</h3>${looked.length ? `<ul class="qlist" data-key="ev-looked">${looked.map(q => `<li>${av(q.who)}<span><b>${PPL[q.who][0]}</b> ${q.at} ${q.t}・${esc(q.x)}<br>${esc(q.c)}</span></li>`).join('')}</ul>` : '<p class="hint">還沒有人查過。</p>'}</div>
+    <p class="ph-note">${ic('lock')}<span>稽核紀錄不能修改或刪除；有錯只能由原單位用新的操作更正，並留下新紀錄。</span></p>`;
+}
+function panelSig() {
+  const s = state.sigs.find(x => x.id === state.panel.id), rel = ops({...F0, ...s.f}).slice(0, 6), e = state.panel.errs || {};
+  const form = s.seen ? `<p class="concl quote" data-key="sig-concl"><small>${s.seen.by} ${s.seen.at} ${s.seen.t} 已查看</small>${esc(s.seen.c)}</p>`
+    : canWrite() ? `<div class="field"><label for="sg-c">結論</label><textarea id="sg-c" data-mf="sg-c" data-key="sg-c" placeholder="例：已和店長確認原因，款項會在 10/12 前補收" ${e['sg-c'] ? 'aria-invalid="true" aria-describedby="sg-c-e"' : 'aria-describedby="sg-c-h"'}>${esc(state.panel.f['sg-c'] || '')}</textarea>${e['sg-c'] ? `<span class="err" id="sg-c-e" data-key="sg-c-e">${e['sg-c']}</span>` : '<span class="help" id="sg-c-h">至少 10 個字；會原文留在訊號上，也會寫進操作紀錄</span>'}</div>
+      ${panelErr()}<div class="go">${busyBtn('primary', 'doMark', 'mk-ok', 'check', '標記已查看', '送出中…')}<button class="btn secondary" data-do="closePanel" data-key="mk-cancel">取消</button></div>`
+      : `<p class="rocard" data-key="mk-ro">${ic('lock')}<span>${whyW('標記已查看')}。</span></p>`;
+  return `${closeBtn()}${head2(ic('eye'), `${s.t}・${esc(s.on)}`, s.rule, !s.seen)}
+    <div class="dsec"><h3>${ic('warn')}發現</h3><p class="lede"><b>${s.find}</b>${s.base ? `。${s.base}` : ''}</p>${stripHtml(s, true)}</div>
+    <div class="dsec"><h3>${ic('trail')}相關紀錄</h3>${rel.length ? `<ul class="minil" data-key="sig-rel">${rel.map(x => `<li><button data-do="openEv" data-id="${x.id}" data-key="rel-${x.id}"><span class="t">${x.at} ${x.t}</span><span>${PPL[x.who][0]}・${esc(x.x)}</span>${ic('fwd', 'spm')}</button></li>`).join('')}</ul>` : `<p class="hint">這條訊號的紀錄是查詢，請到時間軸右邊的查詢軌看。</p>`}
+      <button class="textbtn ln" style="align-self:flex-start" data-do="invest" data-id="${s.id}" data-key="sig-inv" ${canAct() ? '' : 'aria-disabled="true"'}>在時間軸查這些紀錄${ic('fwd', 'spm')}</button></div>
+    <div class="dsec"><h3>${ic('check')}${s.seen ? '已查看' : '標記已查看'}</h3>${form}</div>`;
+}
+function panelCt() {
+  const c = state.cts.find(x => x.id === state.panel.id), vr = state.vr[c.id];
+  const stops = STOPS.map((n, i) => {
+    const s = c.st[i], cl = stopCls(c, i);
+    const g = cl === 'gap' ? `<small class="g">缺：${esc(c.gw)}</small>` : cl === 'bad' ? '<small class="g">重新計算的 hash 和簽署時不一致</small>' : '';
+    return `<li class="${cl}" data-key="stop-${i}"><span class="cn" aria-hidden="true">${ic(cl === 'gap' ? 'warn' : cl === 'bad' ? 'x' : 'check')}</span><span class="tx"><b>${n}</b>${s ? `<span class="${i === 5 ? 'mono' : ''}">${esc(s[0])}</span>${s[1] ? `<small>${esc(s[1])}</small>` : ''}` : ''}${STOP_PLAIN[i] ? `<small class="pl">${STOP_PLAIN[i]}</small>` : ''}${g}</span></li>`;
+  }).join('');
+  const res = vr === 'ok' ? `<p class="vres ok" role="status" data-key="vres">${ic('check')}<span><b>一致。</b>重新計算的 hash 和簽署時記錄的 ${esc(c.st[5][0])} 相同，檔案沒有被改過。</span></p>`
+    : vr === 'bad' ? `<div class="vres bad" role="alert" data-key="vres">${ic('warn')}<span><b>不一致：檔案可能被改過或損毀。</b>不要重新產生 PDF，也不要通知店家改簽；保留現狀，已列入巡檢，請通知工程與法務一起查（示範）。</span></div>` : '';
+  const can = canAct() && c.st[5];
+  return `${closeBtn()}${head2(ic('doc'), `${c.kind}`, `<span class="nw">${c.id}</span><span class="nw">・${shopN(c.shop)}</span><span class="nw">・${c.pet}</span><span class="nw">・飼主 ${c.owner}</span>`, c.gap >= 0 || vr === 'bad')}
+    ${c.rep ? `<p class="notice info">${ic('info')}<span>${esc(c.rep)}</span></p>` : ''}
+    <div class="dsec"><h3>${ic('link')}證據鏈</h3><ol class="chain" data-key="chain">${stops}</ol>
+      <dl class="kv"><dt>請求編號</dt><dd class="mono">req_${c.id.slice(-4)}a9e<small>工程查系統紀錄用的編號</small></dd><dt>位址</dt><dd><span class="masked">${ic('lock')}203.0.113.*</span></dd><dt>裝置</dt><dd>${c.st[4][0].includes('平板') ? '店內平板・瀏覽器' : '飼主手機・LINE 內建瀏覽器'}</dd></dl></div>
+    <div class="dsec">${res}${panelErr()}<div class="go">${can ? busyBtn(vr ? 'quiet' : 'primary', 'verify', 'ver', 'refresh', vr ? '再驗證一次' : '重新驗證 hash', '計算中…') : `<button class="btn quiet" aria-disabled="true" data-key="ver" aria-describedby="ver-w">${ic('refresh', 'sm')}重新驗證 hash</button><span class="reason" id="ver-w">${state.offline ? '離線中，連上網路才能驗證' : '還沒有 PDF hash 可以驗證'}</span>`}</div>
+      <p class="hint">重新驗證會記在查詢紀錄；證據不能修改或刪除。保存期限待法務給定，給定前一律不清除。</p></div>`;
+}
+function panelBody() { return {ev:panelEv, sig:panelSig, ct:panelCt}[state.panel.mode](); }
+
+/* ---------- page ---------- */
+function noacc() {
+  const sup = state.role === 'support';
+  return `<div class="noacc" data-key="noacc"><h2>${ic('lock')}稽核中心只開放給合規與最高管理者</h2><p>${sup ? '客服與稽核分開。你自己的查詢與補發都會留下紀錄，在客服支援的「你今天結案的」可以看到。' : '財務看不到全平台的稽核紀錄；帳單與付款的異動紀錄在付款管理。'}</p>
+    <a class="textbtn ln" href="../${sup ? 'support-console' : 'payment-admin'}/index.html?role=${state.role}" data-key="noacc-go">到${sup ? '客服支援' : '付款管理'}${ic('fwd', 'spm')}</a></div>`;
+}
+function head() {
+  return `<header class="head"><h1 id="page-title" tabindex="-1">稽核中心</h1><div class="tools">${whoami()}</div>
+    <p class="sub">誰、在哪家店、對什麼、改了什麼、為什麼；查詢本身也會留下紀錄</p></header>
+    ${state.phone && canOpen() ? `<div class="banner neutral" data-key="banner-ph">${ic('lock')}<span>手機可以看與查詢；匯出與標記已查看請用<span class="nw">電腦。</span></span></div>` : ''}`;
+}
+function mainBody() {
+  if (!canOpen()) return noacc();
+  if (state.loadFail) return `<div class="fail" data-key="fail"><h2>${ic('warn')}稽核中心沒有載入</h2><p>網路或伺服器沒有回應。紀錄沒有遺失也沒有被改動，重新載入就好。</p><button class="btn quiet" data-do="retry" data-key="retry">${ic('refresh', 'sm')}重新載入</button></div>`;
+  const v = {sig:sigView, tl:tlView, ct:ctView, ql:qlView}[state.view]();
+  const wide = state.wide && state.panel;
+  return `${tabs()}<div class="wrap" id="tp" role="tabpanel" aria-labelledby="tab-${state.view}"><div class="lay${wide ? ' withp' : ''}"><div class="colmain">${v}</div>${wide ? `<aside class="dp" aria-labelledby="dp-h" data-key="dp">${panelBody()}</aside>` : ''}</div></div>`;
+}
+/* 資料 (data_admin) works only in 產業數據; every other module is closed to it */
+const dataOnly = () => `<header class="head"><h1 id="page-title" tabindex="-1">稽核中心</h1><div class="tools">${whoami()}</div></header><div class="wrap"><div class="noacc" data-key="noacc"><h2>${ic('lock')}稽核中心不開放給資料</h2><p>資料只負責去識別化的產業統計；商家、方案、付款、客服、合規與系統的資料都看不到。</p><a class="textbtn ln" href="../industry-data/index.html?role=data" data-key="noacc-go">到產業數據${ic('fwd', 'spm')}</a></div></div>`;
+/* the prototype strip's scenario, failure and simulate controls act on a page 資料 cannot see; only 身分 and 主題 stay live */
+function protoForData() {
+  const off = state.role === 'data';
+  document.querySelectorAll('.proto select, .proto input, .proto button').forEach(el => {
+    if (el.id === 'p-role' || el.id === 'p-theme' || el.id === 'p-scale') return;
+    if (off && !el.disabled) { el.disabled = true; el.dataset.dataOff = '1'; el.title = '資料看不到這一頁，模擬操作先停用'; }
+    else if (!off && el.dataset.dataOff) { el.disabled = false; delete el.dataset.dataOff; el.removeAttribute('title'); }
+  });
+}
+function render(focusKey) {
+  const app = $('app');
+  const keep = focusKey || document.activeElement?.dataset?.key;
+  const dpS = document.querySelector('#app .dp')?.scrollTop || 0;
+  app.className = state.compact ? 'compact' : state.rail ? `rail${state.big ? ' big' : ''}` : '';
+  const top = state.compact ? `<div class="topbar"><button class="ibtn" data-key="menu" data-do="openNav" aria-label="開啟選單">${ic('menu')}</button><span class="mark" aria-hidden="true">${ic('mark')}</span><b>稽核中心</b></div>` : '';
+  const body = mainBody();
+  app.innerHTML = `${ibar()}${state.compact ? '' : sideNav()}<main id="main">${top}${state.role === 'data' ? dataOnly() : `${head()}${canOpen() && !state.loadFail ? body : `<div class="wrap">${body}</div>`}`}</main>`;
+  const ibh = app.querySelector('.ibar')?.offsetHeight || 40; app.style.setProperty('--ibh', `${ibh}px`); app.style.setProperty('--ph', `${document.querySelector('.proto').offsetHeight}px`);
+  protoForData();
+  const dp = document.querySelector('#app .dp'); if (dp) { dp.scrollTop = dpS; if (state.noAnim) dp.style.animation = 'none'; }
+  state.noAnim = false;
+  renderOverlayPanel();
+  document.title = '稽核中心・寵派管理後台';
+  if (keep) { const el = document.querySelector(`#app [data-key="${keep}"], #layer [data-key="${keep}"]`); if (el && el !== document.activeElement) el.focus({preventScroll:true}); }
+  setTimeout(() => { state.ops.forEach(e => delete e.fresh); state.qs.forEach(q => delete q.fresh); state.sigs.forEach(s => delete s.fresh); }, 50);
+  syncUrl();
+}
+function renderOverlayPanel() {
+  const l = $('layer'), ex = l.querySelector('.pnl-s');
+  const body = state.wide || !state.panel || state.loadFail || !canOpen() ? '' : panelBody();
+  if (!body) { ex?.remove(); return; }
+  const html = `<div class="dp sheet" role="dialog" aria-modal="true" aria-labelledby="dp-h">${body}</div>`;
+  if (ex) { const sc = ex.firstChild.scrollTop; ex.innerHTML = html; ex.firstChild.style.animation = 'none'; ex.firstChild.scrollTop = sc; return; }
+  l.insertAdjacentHTML('afterbegin', `<div class="scrim side-r pnl-s" data-do="scrimPanel">${html}</div>`);
+}
+function announce(t) { const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+function say(text) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status"><span>${esc(text)}</span></div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 7000);
+}
+function failOnce() { if (state.nextSend !== 'fail') return false; state.nextSend = 'ok'; $('p-send').value = 'ok'; return true; }
+function dupOnce() { if (state.nextSend !== 'dup') return false; state.nextSend = 'ok'; $('p-send').value = 'ok'; return true; }
+const later = f => setTimeout(f, FAST ? 60 : 650);
+function focusPanel(k) {
+  const el = document.querySelector(`#app .dp [data-key="${k}"], #layer .dp [data-key="${k}"]`) || document.querySelector('#app .dp h2, #layer .dp h2');
+  if (el) { if (!el.matches('button,input,textarea,a,[tabindex]')) el.tabIndex = -1; el.focus({preventScroll:true}); }
+  const dp = document.querySelector('#app .dp'); if (dp && !k) dp.scrollTop = 0;
+}
+
+/* ---------- writes: every lookup is recorded ---------- */
+function record(k, x, c, n, o = {}) {
+  const q = {id:`q${state.qn++}`, side:'q', at:TODAY, t:clk(state.m), who:meKey(), k, x, c, n, shop:o.shop || 'all', why:o.why || '', obj:o.obj || [], fresh:true};
+  if (o.pur) q.pur = o.pur;
+  if (o.shops) q.shops = o.shops;
+  state.qs.push(q); state.m += 1; return q;
+}
+function runQuery(f, inv) {
+  state.af = clone(f); state.f = clone(f); state.inv = inv || null;
+  const n = total(f);
+  record('audit', '查詢稽核紀錄', condText(f), `${num(n)} 筆`, {shop:f.shop});
+  announce(`已查詢：${condText(f)}，${num(n)} 筆；這次查詢已記在查詢紀錄`);
+}
+
+/* ---------- dialogs ---------- */
+function dlgHtml() {
+  const d = state.dlg; if (!d) return '';
+  if (d.k === 'obj') return objDlg(d);
+  const b = d.busy, f = state.af, n = total(f);
+  return `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dl-h" data-key="dlg"><h2 id="dl-h">匯出稽核紀錄</h2>
+    <p class="lede">匯出的檔案仍然遮罩電話、LINE ID、驗證碼與密碼；誰在什麼時候匯出、為什麼，會記在查詢紀錄。</p>
+    <dl class="cdl"><dt>條件</dt><dd>${esc(condText(f))}</dd><dt>筆數</dt><dd data-key="dl-n">${num(n)} 筆（單次上限 ${num(CAP)}）</dd><dt>格式</dt><dd>CSV・含修改前後摘要與原因；病史、過敏、攻擊性說明只寫「有修改」，不含內容</dd></dl>
+    <div class="field"><label for="dl-why">匯出原因</label><textarea id="dl-why" data-key="dl-why" placeholder="例：季度權限盤點，交給法務" ${d.err ? 'aria-invalid="true" aria-describedby="dl-why-e"' : 'aria-describedby="dl-why-h"'}>${esc(d.why || '')}</textarea>${d.err ? `<span class="err" id="dl-why-e" data-key="dl-why-e">${d.err}</span>` : '<span class="help" id="dl-why-h">至少 10 個字</span>'}</div>
+    ${d.fail ? `<p class="ferr" role="alert" data-key="dlg-err">${ic('warn')}<span>${d.fail}</span></p>` : ''}
+    <div class="dbtns"><button class="btn secondary" data-do="closeDlg" data-key="dlg-cancel" ${b ? 'aria-disabled="true"' : ''}>取消</button><button class="btn primary${b ? ' busy' : ''}" data-do="doExp" data-key="dlg-ok">${b ? '<span class="spin" aria-hidden="true"></span>匯出中…' : `${ic('dl', 'sm')}匯出 ${num(n)} 筆`}</button></div></div>`;
+}
+/* 查對象's 案由: a complaint or ticket number, or a reason of at least 10 characters; one of the two */
+function objDlg(d) {
+  const b = d.busy, e = d.errs || {};
+  return `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dl-h" data-key="dlg-obj"><h2 id="dl-h">查「${esc(objText(d.o))}」前，先寫案由</h2>
+    <p class="lede">查一位飼主、一筆預約或一份契約，等於看某個人的紀錄，所以要先寫為什麼查。案由會和這次查詢一起記在查詢軌與查詢紀錄，之後誰都看得到。</p>
+    <div class="field"><label for="ob-t">投訴或工單編號</label><div class="tkt"><span aria-hidden="true">#</span><input id="ob-t" data-key="ob-t" value="${esc(d.tkt || '')}" placeholder="例：A-1058" autocomplete="off" ${e.t ? 'aria-invalid="true" aria-describedby="ob-e"' : 'aria-describedby="ob-h"'}></div></div>
+    <p class="orx" aria-hidden="true">或</p>
+    <div class="field"><label for="ob-w">原因</label><textarea id="ob-w" data-key="ob-w" placeholder="例：商家來電說客服看過飼主的電話，要查是誰、為什麼" ${e.w ? 'aria-invalid="true" aria-describedby="ob-e"' : 'aria-describedby="ob-h"'}>${esc(d.why || '')}</textarea></div>
+    ${e.msg ? `<span class="err" id="ob-e" data-key="ob-e" role="alert">${e.msg}</span>` : '<span class="help" id="ob-h">兩個填一個：投訴或工單編號，或至少 10 個字的原因。都填也可以。</span>'}
+    ${d.fail ? `<p class="ferr" role="alert" data-key="dlg-err">${ic('warn')}<span>${d.fail}</span></p>` : ''}
+    <div class="dbtns"><button class="btn secondary" data-do="closeDlg" data-key="dlg-cancel" ${b ? 'aria-disabled="true"' : ''}>取消</button><button class="btn primary${b ? ' busy' : ''}" data-do="doObj" data-key="dlg-ok">${b ? '<span class="spin" aria-hidden="true"></span>查詢中…' : `${ic('search', 'sm')}查詢並記錄案由`}</button></div></div>`;
+}
+function renderDlg(focus) {
+  const l = $('layer'); l.querySelector('.dlg-s')?.remove();
+  if (!state.dlg) return;
+  l.insertAdjacentHTML('beforeend', `<div class="scrim dlg-s" data-do="scrimDlg">${dlgHtml()}</div>`);
+  const f = focus && l.querySelector(`.dlg-s [data-key="${focus}"]`);
+  (f || l.querySelector('.dialog textarea'))?.focus();
+}
+function openDlg(d, focus) { d.ret = document.activeElement?.dataset?.key; state.dlg = d; render(); renderDlg(focus); }
+function closeDlg(focus) { const ret = focus || state.dlg?.ret; state.dlg = null; renderDlg(); render(); if (ret) document.querySelector(`[data-key="${ret}"]`)?.focus(); }
+
+/* ---------- actions ---------- */
+function openPanel(p, focus) { p.ret = p.ret || document.activeElement?.dataset?.key; state.panel = p; state.err = null; render(); focusPanel(focus); }
+function closePanel() { const ret = state.panel?.ret; state.panel = null; state.err = null; render(); if (ret) document.querySelector(`#app [data-key="${ret}"]`)?.focus(); }
+function setView(v, focus) { state.view = v; state.panel = null; render(focus || `tab-${v}`); scrollTo(0, 0); }
+const act = {
+  nav(el) {
+    const p = el.dataset.page; closeNavDrawer();
+    if (p === 'sys') { location.href = `../system-settings/index.html?role=${state.role}`; return; }
+    if (p === 'audit') { if (state.view !== 'sig') setView('sig'); return; }
+    const to = {tenants:'tenant-admin', plans:'plan-admin', pay:'payment-admin', support:'support-console', notif:'line-notify-admin', tpl:'contract-library', gw:'gateway-settings', usage:'usage-monitor', data:'industry-data'}[p];
+    if (to) { location.href = `../${to}/index.html?role=${state.role}`; return; }
+    say(`「${el.textContent.trim()}」的原型還沒做；目前有商家管理、方案管理、付款管理、客服支援、LINE／通知管理、契約模板庫、稽核中心、金流設定、用量監控與產業數據`);
+  },
+  retry() { state.loadFail = false; $('p-fail').checked = false; render('page-title'); say('已重新載入'); },
+  tab(el) { setView(el.dataset.v); },
+  invest(el) {
+    const s = state.sigs.find(x => x.id === el.dataset.id);
+    runQuery({...F0, ...s.f}, s.id); state.view = 'tl'; state.panel = null; render('invb'); scrollTo(0, 0);
+    say(`已查詢：${condText(state.af)}・已記錄查詢紀錄`);
+  },
+  openSig(el) { openPanel({mode:'sig', id:el.dataset.id, f:{}, errs:{}}, 'sg-c'); },
+  openEv(el) { const ret = state.panel?.mode === 'sig' ? state.panel.ret : undefined; openPanel({mode:'ev', id:el.dataset.id, ret}); },
+  openCt(el) {
+    const c = state.cts.find(x => x.id === el.dataset.id);
+    if (!(state.panel?.mode === 'ct' && state.panel.id === c.id) && canAct()) record('sign', '查看證據鏈', `${c.id}・${shopN(c.shop)}`, '1 份', {shop:c.shop, obj:[`ct:${c.id}`]});
+    openPanel({mode:'ct', id:c.id});
+  },
+  findCt() {
+    const v = ($('ct-q')?.value || '').trim().toUpperCase(); state.ctq = v;
+    if (!v) { state.cterr = '請輸入契約編號'; render('ct-q'); return; }
+    const c = state.cts.find(x => x.id === v || x.id.endsWith(v));
+    if (!c) { state.cterr = `找不到「${v}」；契約編號長得像 C-2610-0388`; render('ct-q'); return; }
+    state.cterr = ''; act.openCt({dataset:{id:c.id}});
+  },
+  verify() {
+    const c = state.cts.find(x => x.id === state.panel.id); state.panel.busy = 'ver'; state.err = null; render('ver');
+    later(() => {
+      if (failOnce()) { state.panel.busy = null; state.err = '沒有驗證：連線中斷。證據沒有被動到，連上後再按一次。'; render('ver'); return; }
+      const r = state.nextVer; state.nextVer = 'ok'; $('p-ver').value = 'ok';
+      state.vr[c.id] = r; state.panel.busy = null;
+      record('ver', '重新驗證 hash', `${c.id}・${shopN(c.shop)}`, r === 'ok' ? '一致' : '不一致', {shop:c.shop, obj:[`ct:${c.id}`]});
+      if (c.id === 'C-2610-0431' && r === 'ok') lifeSay('verified');
+      if (r === 'bad' && !state.sigs.some(s => s.id === `hash-${c.id}`)) state.sigs.unshift(S(`hash-${c.id}`, {kind:'any', tone:'danger', t:'證據鏈 hash 不一致', on:shopN(c.shop), rule:'規則：一出現就列入', w:14, f:{shop:c.shop, range:'today'}, find:`${c.id} 今天重新驗證不一致`, days:DAYS.map((_, i) => i === 13 ? 1 : 0), fresh:true}));
+      render('vres'); document.querySelector('[data-key="vres"]')?.scrollIntoView({block:'nearest'}); say(r === 'ok' ? `${c.id} hash 一致・已記錄查詢紀錄` : `${c.id} hash 不一致・已列入巡檢`);
+    });
+  },
+  doMark() {
+    const P = state.panel, s = state.sigs.find(x => x.id === P.id), c = (P.f['sg-c'] || '').trim();
+    if (c.length < 10) { P.errs = {'sg-c':c ? `再多寫一點，至少 10 個字（目前 ${c.length} 個字）` : '請寫下查看的結論'}; render('sg-c'); return; }
+    P.busy = 'mk-ok'; state.err = null; render('mk-ok');
+    later(() => {
+      P.busy = null;
+      if (failOnce()) { state.err = '沒有送出：連線中斷。結論還在，連上後再按一次。'; render('mk-ok'); return; }
+      if (dupOnce()) { s.seen = {by:'冠宇', at:TODAY, t:clk(state.m - 1), c:DEMO_DONE[s.id] || '已確認，沒有異常'}; s.fresh = true; render('sig-concl'); say(`冠宇剛標記這條訊號已查看，你的結論沒有送出`); return; }
+      s.seen = {by:me(), at:TODAY, t:clk(state.m), c}; s.fresh = true;
+      state.ops.push({...E(`e${state.en++}`, TODAY, clk(state.m), meKey(), 'pf', '巡檢已查看', `標記巡檢已查看：${s.t}・${s.on}`, [['訊號', '待查看', '已查看']], c, {shop:'pf', src:'pf'}), fresh:true});
+      state.m += 1; state.panel = null; state.seenOpen = true;
+      render(state.view === 'sig' ? `sg-${s.id}` : 'invb'); say('已標記已查看・已記錄操作紀錄'); announce(`${s.t}・${s.on} 已標記已查看`);
+    });
+  },
+  runQ() { runQuery(state.f, null); state.panel = null; render('runq'); say(`已查詢 ${num(total(state.af))} 筆・已記錄查詢紀錄`); },
+  fRange(el) { state.f.range = el.dataset.v; render(); },
+  fCat(el) { state.f.cat = state.f.cat === el.dataset.v ? '' : el.dataset.v; render(); },
+  fFlag(el) { state.f[el.dataset.v] = !state.f[el.dataset.v]; render(); },
+  fAct() { state.f.act = ''; render('runq'); },
+  clearF() { state.f = clone(F0); state.inv = null; render('runq'); },
+  openExp() { openDlg({why:''}); },
+  doExp() {
+    const d = state.dlg, why = (d.why || '').trim();
+    if (why.length < 10) { d.err = why ? `再多寫一點，至少 10 個字（目前 ${why.length} 個字）` : '請寫下為什麼要匯出'; renderDlg('dl-why'); return; }
+    d.busy = true; d.fail = null; renderDlg('dlg-ok');
+    later(() => {
+      d.busy = false;
+      if (failOnce()) { d.fail = '沒有匯出：連線中斷。原因還在，連上後再按一次。'; renderDlg('dlg-ok'); return; }
+      const n = total(state.af);
+      record('exp', '匯出稽核紀錄', condText(state.af), `${num(n)} 筆`, {shop:state.af.shop, why});
+      state.dlg = null; renderDlg(); render('exp'); say(`已匯出 ${num(n)} 筆（CSV）・已記錄操作紀錄`);
+    });
+  },
+  qWho(el) { state.qwho = el.dataset.v; render(`qw-${el.dataset.v}`); },
+  openObj() {
+    const k = state.ok; let v = ($('o-v')?.value || state.ov).trim().toUpperCase().replace(/\s/g, '');
+    const bad = !v ? `請輸入${OBJ[k][0]}` : k === 'ph' ? (!/^\d{4}$/.test(v) && '飼主手機只用末四碼查，請輸入 4 位數字，例：6610')
+      : k === 'ap' ? (!/^[A-Z0-9]{4}$/.test(v) && '預約碼是 4 碼英文和數字，例：D3G8')
+      : (!/^(C-)?\d{4}-\d{4}$/.test(v) && '契約編號長得像 C-2610-0412');
+    state.ov = v;
+    if (bad) { state.oerr = bad; render('o-v'); return; }
+    if (k === 'ct' && !v.startsWith('C-')) v = `C-${v}`;
+    state.oerr = ''; state.ov = v;
+    openDlg({k:'obj', o:{k, v}, tkt:'', why:'', errs:{}}, 'ob-t');
+  },
+  doObj() {
+    const d = state.dlg, tkt = (d.tkt || '').trim().replace(/^#/, '').toUpperCase(), why = (d.why || '').trim();
+    const tktOk = /^[A-Z]{1,3}-?\d{3,6}$/.test(tkt), whyOk = why.length >= 10;
+    if (!tktOk && !whyOk) {
+      d.errs = tkt && !tktOk ? {t:1, msg:'投訴或工單編號長得像 A-1058；沒有編號就在下面寫原因'} : why ? {w:1, msg:`原因再多寫一點，至少 10 個字（目前 ${why.length} 個字）；或填投訴、工單編號`} : {t:1, w:1, msg:'請填投訴或工單編號，或寫至少 10 個字的原因'};
+      renderDlg(d.errs.t ? 'ob-t' : 'ob-w'); return;
+    }
+    d.busy = true; d.fail = null; renderDlg('dlg-ok');
+    later(() => {
+      d.busy = false;
+      if (failOnce()) { d.fail = '沒有查詢：連線中斷。案由還在，連上後再按一次。'; renderDlg('dlg-ok'); return; }
+      const f = {...clone(state.f), obj:d.o}, pur = [tktOk ? `#${tkt}` : '', why].filter(Boolean).join(' ');
+      state.af = clone(f); state.f = clone(f); state.inv = null;
+      const n = ops(f).length;
+      record('obj', '查對象', condText(f), `${n} 筆`, {shop:f.shop, pur, obj:[objKey(d.o)]});
+      state.dlg = null; renderDlg(); state.view = 'tl'; state.panel = null; render('tl-n');
+      say(`已查「${objText(d.o)}」：${n} 筆操作・案由已記在查詢軌`);
+      announce(`已查${objText(d.o)}，${n} 筆操作；這次查詢連同案由記在查詢紀錄`);
+    });
+  },
+  fObj() { state.f.obj = null; render('runq'); },
+  aggT(el) {
+    const q = state.qs.find(x => x.id === el.dataset.id), open = !state.agg[q.id];
+    state.agg[q.id] = open;
+    if (open) { record('agg', '展開彙總查詢', `${PPL[q.who][0]} ${q.at} ${q.x}・逐筆列出時間、商家與末四碼`, `${q.rows.length} 筆`, {shop:q.shop, shops:q.shops}); say(`已展開 ${q.rows.length} 筆・這次展開記在查詢軌`); }
+    render(`aggb-${q.id}`);
+  },
+  seeSens(el) {
+    const e = state.ops.find(x => x.id === el.dataset.id), inPanel = el.dataset.key.startsWith('sens-dp');
+    state.sensOpen[e.id] = clk(state.m);
+    record('sens', '查看敏感內容', `${e.x}・${shopN(e.shop)}`, `${e.sens}・1 筆`, {shop:e.shop});
+    if (inPanel) { render(); focusPanel('ev-ba'); } else render(`ev-${e.id}`);
+    say(`已顯示${e.sens}的內容・已記在查詢軌`);
+  },
+  closePanel() { if (!busy()) closePanel(); },
+  scrimPanel(el, ev) { if (ev.target === el && !busy()) closePanel(); },
+  closeDlg() { if (!state.dlg?.busy) closeDlg(); },
+  scrimDlg(el, ev) { if (ev.target === el && !state.dlg?.busy) closeDlg(); },
+  openNav() { openNavDrawer(); },
+  navScrim(el, ev) { if (ev.target === el) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); } }
+};
+function openNavDrawer() {
+  const l = $('layer'); l.querySelector('.nav-scrim')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="scrim nav-scrim" data-do="navScrim" style="padding:0;justify-content:flex-start;align-items:stretch"><div class="drawer-nav" role="dialog" aria-modal="true" aria-label="寵派後台選單">${sideNav()}</div></div>`);
+  l.querySelector('.drawer-nav .sitem[aria-current]')?.focus();
+}
+function closeNavDrawer() { $('layer').querySelector('.nav-scrim')?.remove(); }
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-do]');
+  if (el && el.getAttribute('aria-disabled') !== 'true') act[el.dataset.do]?.(el, ev);
+});
+document.addEventListener('toggle', ev => { if (ev.target.classList?.contains('seenbox')) state[ev.target.dataset.key === 'quiet' ? 'quietOpen' : 'seenOpen'] = ev.target.open; }, true);
+document.addEventListener('change', ev => {
+  const t = ev.target;
+  if (t.dataset.ff) { state.f[t.dataset.ff] = t.value; render(t.dataset.key); }
+  if (t.id === 'o-k') { state.ok = t.value; state.ov = ''; state.oerr = ''; render('o-k'); }
+});
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if (t.id === 'o-v') { state.ov = t.value; if (state.oerr) { state.oerr = ''; t.removeAttribute('aria-invalid'); t.setAttribute('aria-describedby', 'obj-h'); t.parentElement.querySelector('.err')?.remove(); } return; }
+  if ((t.id === 'ob-t' || t.id === 'ob-w') && state.dlg) {
+    state.dlg[t.id === 'ob-t' ? 'tkt' : 'why'] = t.value;
+    if (state.dlg.errs?.msg) { state.dlg.errs = {}; document.querySelectorAll('.dialog [aria-invalid]').forEach(x => { x.removeAttribute('aria-invalid'); x.setAttribute('aria-describedby', 'ob-h'); }); const er = $('ob-e'); if (er) er.outerHTML = '<span class="help" id="ob-h">兩個填一個：投訴或工單編號，或至少 10 個字的原因。都填也可以。</span>'; }
+    return;
+  }
+  if (t.id === 'dl-why' && state.dlg) { state.dlg.why = t.value; if (state.dlg.err) { state.dlg.err = null; t.removeAttribute('aria-invalid'); t.closest('.field').querySelector('.err')?.remove(); } return; }
+  if (t.id === 'ct-q') { state.ctq = t.value; if (state.cterr) { state.cterr = ''; t.removeAttribute('aria-invalid'); t.parentElement.querySelector('.err')?.remove(); } return; }
+  if (t.dataset.mf && state.panel?.f) {
+    const P = state.panel; P.f[t.dataset.mf] = t.value;
+    if (P.errs?.[t.dataset.mf]) { delete P.errs[t.dataset.mf]; t.removeAttribute('aria-invalid'); t.closest('.field').querySelector('.err')?.remove(); }
+  }
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Enter' && ev.target.id === 'ct-q') { ev.preventDefault(); act.findCt(); return; }
+  if (ev.key === 'Enter' && ev.target.id === 'o-v' && canAct()) { ev.preventDefault(); act.openObj(); return; }
+  const overlay = $('layer').querySelector('.pnl-s');
+  const modal = state.dlg ? '.dialog' : $('layer').querySelector('.drawer-nav') ? '.drawer-nav' : overlay ? '.pnl-s .dp' : null;
+  if (ev.key === 'Escape') {
+    if (state.dlg) { if (!state.dlg.busy) closeDlg(); return; }
+    if ($('layer').querySelector('.drawer-nav')) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); return; }
+    if (state.panel) { if (!busy()) closePanel(); return; }
+  }
+  if (modal && ev.key === 'Tab') {
+    const f = [...document.querySelectorAll(`${modal} button, ${modal} a[href], ${modal} input, ${modal} select, ${modal} textarea, ${modal} summary`)].filter(x => x.getAttribute('aria-disabled') !== 'true' && x.offsetParent && x.tabIndex !== -1);
+    if (!f.length) return;
+    if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); }
+    else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); }
+  }
+  const r = ev.target.closest?.('[role="radiogroup"] [role="radio"], [role="tablist"] [role="tab"]');
+  if (r && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(ev.key)) {
+    ev.preventDefault();
+    const all = [...r.parentElement.querySelectorAll('[role="radio"], [role="tab"]')], i = all.indexOf(r), fw = ev.key === 'ArrowRight' || ev.key === 'ArrowDown';
+    all[(i + (fw ? 1 : all.length - 1)) % all.length].click();
+  }
+});
+
+/* ---------- prototype controls ---------- */
+function syncUrl() { const u = new URL(location); u.searchParams.set('role', state.role); u.searchParams.delete('go'); if (state.big) u.searchParams.set('scale', '2'); else u.searchParams.delete('scale'); history.replaceState(null, '', u); }
+function seed(v) {
+  const keep = {role:state.role, compact:state.compact, rail:state.rail, big:state.big, phone:state.phone, wide:state.wide, nextSend:state.nextSend, nextVer:state.nextVer, offline:state.offline};
+  state = Object.assign(fresh(), keep);
+  const R = r => { state.role = r; $('p-role').value = r; };
+  if (!canOpen() && !['support', 'finance'].includes(v)) R('compliance');
+  const inv = id => { const s = state.sigs.find(x => x.id === id); runQuery({...F0, ...s.f}, id); state.view = 'tl'; };
+  if (v === 'inv-ww') inv('ee-ww');
+  if (v === 'inv-jh') inv('q-jh');
+  if (v === 'ev-sens') { inv('sens'); state.panel = {mode:'ev', id:'e08'}; }
+  if (v === 'ev-sens-open') { inv('sens'); state.panel = {mode:'ev', id:'e08'}; state.sensOpen.e08 = clk(state.m); record('sens', '查看敏感內容', '修改攻擊性說明：豆豆・悠悠寵物旅館', '攻擊性說明・1 筆', {shop:'yy'}); }
+  if (v === 'agg') { inv('q-jh'); state.agg.q03 = true; record('agg', '展開彙總查詢', '家豪 10/8 查詢預約 47 次・逐筆列出時間、商家與末四碼', '47 筆', {shop:'multi', shops:AGG_SHOPS}); }
+  if (v === 'inv-off') inv('off');
+  if (v === 'obj') { state.view = 'tl'; state.ok = 'ph'; state.ov = '6610'; }
+  if (v === 'obj-done') {
+    state.view = 'tl'; state.ok = 'ph'; state.ov = '6610';
+    const f = {...F0, obj:{k:'ph', v:'6610'}}; state.af = clone(f); state.f = clone(f);
+    record('obj', '查對象', condText(f), `${ops(f).length} 筆`, {pur:'#A-1058 毛孩日和陳老闆投訴客服看過飼主電話', obj:['ph:6610']});
+  }
+  if (v === 'auth') { state.view = 'tl'; runQuery({...F0, cat:'auth'}); }
+  if (v === 'mark') { inv('ee-ww'); state.panel = {mode:'sig', id:'ee-ww', f:{'sg-c':'張店長說明四筆都是熟客，已請店家 10/12 前補收'}, errs:{}}; }
+  if (v === 'tl') state.view = 'tl';
+  if (v === 'zero') { state.view = 'tl'; runQuery({...F0, shop:'mm', range:'today'}); }
+  if (v === 'exp') { inv('ee-ww'); state.dlg = {why:'汪汪俱樂部緊急離店偏多，交給業務追蹤補收', ret:'exp'}; }
+  if (v === 'exp-over') { state.view = 'tl'; runQuery({...F0, range:'30'}); }
+  if (v === 'ct-ww') { state.view = 'ct'; state.panel = {mode:'ct', id:'C-2610-0412'}; }
+  if (v === 'ct-ok') { state.view = 'ct'; state.panel = {mode:'ct', id:'C-2610-0388'}; }
+  if (v === 'qlog') state.view = 'ql';
+  if (v === 'clear') { state.sigs.forEach(s => { if (!s.seen) s.seen = {by:'宜蓁', at:TODAY, t:'10:4' + (state.sigs.indexOf(s)), c:DEMO_DONE[s.id]}; }); state.seenOpen = false; }
+  if (v === 'super') R('super');
+  if (v === 'support') R('support');
+  if (v === 'finance') R('finance');
+}
+const ROLES = Object.keys(ME);
+if (ROLES.includes(qs.get('role'))) state.role = qs.get('role');
+const go0 = qs.get('go');
+$('p-role').value = state.role;
+$('p-role').onchange = e => { state.role = e.target.value; state.dlg = null; renderDlg(); state.panel = null; render(); };
+$('p-send').onchange = e => { state.nextSend = e.target.value; };
+$('p-ver').onchange = e => { state.nextVer = e.target.value; };
+$('p-off').onchange = e => { state.offline = e.target.checked; render(); };
+$('p-fail').onchange = e => { state.loadFail = e.target.checked; render(); };
+$('p-theme').onchange = e => { if (e.target.value) document.documentElement.dataset.theme = e.target.value; else delete document.documentElement.dataset.theme; };
+$('p-go').onchange = e => { const v = e.target.value; e.target.value = ''; if (!v) return; state.dlg = null; renderDlg(); seed(v); render(); if (state.dlg) renderDlg(); else if (state.panel) focusPanel(); else $('page-title')?.focus({preventScroll:true}); scrollTo(0, 0); };
+/* 200% text: the root grows, so the rem-based container queries fold the signal rows and the timeline lanes, the sidebar folds into
+   the short-name rail, and the side panel opens over the page instead of taking a fixed 400px */
+const big = () => parseFloat(getComputedStyle(document.documentElement).fontSize) > 20;
+const applyScale = v => { document.documentElement.style.fontSize = v > 1 ? `${v * 100}%` : ''; $('p-scale').value = String(v); };
+if (qs.get('scale') === '2') applyScale(2);
+const mq = matchMedia('(max-width: 1023px)'), mqR = matchMedia('(min-width: 1024px) and (max-width: 1279px)'), mqP = matchMedia('(max-width: 719px)'), mqW = matchMedia('(min-width: 1280px)');
+const layout = () => { state.big = big(); state.compact = mq.matches; state.rail = mqR.matches || (!mq.matches && state.big); state.phone = mqP.matches; state.wide = mqW.matches && !state.big; };
+const setCompact = () => { layout(); if (!state.compact) closeNavDrawer(); render(); };
+[mq, mqR, mqP, mqW].forEach(m => m.addEventListener('change', setCompact));
+$('p-scale').onchange = e => { applyScale(+e.target.value); setCompact(); };
+layout();
+if (go0) seed(go0);
+if (LIFE) document.querySelector('.proto .muted').textContent = '商家、人名與紀錄全為虛構示範・今天 10/12（一）09:40';
+render();
+if (state.dlg) renderDlg();
+</script>
+</body>
+</html>

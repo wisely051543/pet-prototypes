@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>管理 Web 登入原型</title>
+<script src="../test-kit/kit.js" data-proto="merchant-login"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens, fields, buttons, notice, toast and the prototype strip copied from prototypes/staff-login; the sidebar from prototypes/m01-dashboard. No new color tokens. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:24px;scroll-padding-bottom:180px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+
+/* ---------- buttons, chips, fields ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:12px 20px;border-radius:var(--r-md);font-size:1rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.wide{width:100%}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none}
+.btn.dangerish{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.lnk{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 6px;margin:0 -6px;border-radius:999px;color:var(--ink);font-weight:800;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.lnk:hover{background:var(--sunk)}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.9375rem;font-weight:800}
+.field input{width:100%;min-height:52px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:1.0625rem;font-weight:600}
+.field input:hover{border-color:var(--ink)}
+.field input::placeholder{color:var(--ink-muted);font-weight:500}
+.field input[aria-invalid="true"]{border-color:var(--danger);box-shadow:inset 0 0 0 1px var(--danger)}
+.err{display:flex;align-items:center;gap:6px;font-size:.875rem;font-weight:800;color:var(--danger)}
+.field .hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.pw{position:relative}
+.pw input{padding-right:56px}
+.pw .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:12px;display:grid;place-items:center;color:var(--ink-muted)}
+.pw .eye:hover{color:var(--ink);background:var(--sunk)}
+.code input{font-family:"Nunito",var(--font);font-size:1.5rem;font-weight:800;letter-spacing:.3em;text-align:center}
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.9375rem;font-weight:600;line-height:1.5}
+.notice b{display:block;font-weight:900}
+.notice .ico{flex:none;margin-top:2px}
+.notice>span{flex:1;min-width:0}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.danger{background:var(--danger-bg);color:var(--danger)}
+.notice.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.notice.info{background:var(--info-bg);color:var(--info)}
+.notice.success{background:var(--success-bg);color:var(--success)}
+.notice .lnk{color:inherit;margin:-10px 0}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(520px,calc(100vw - 32px));padding:10px 18px;border-radius:var(--r-lg);background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .35s var(--out)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+.proto .pbtn{flex:none;min-height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--proto-line);color:var(--proto-ink);font-size:.8125rem;font-weight:700;white-space:nowrap}
+.proto .pbtn:hover{background:var(--proto-line)}
+
+/* ---------- shell: the 管理 Web with its lights off ----------
+   The left column is the real 管理 Web sidebar (same width, groups and items as M-01), drawn dim before sign-in.
+   Signing in turns it on item by item and lands on the page this person opens first. */
+:root{--sidew:15rem}
+#app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px);background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+.side{position:sticky;top:0;height:calc(100vh - 44px);height:calc(100dvh - 44px);overflow:hidden;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;gap:2px;padding:18px 12px 16px;color:var(--rail-ink)}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+.mark{width:40px;height:40px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;flex:none}
+.mark .ico{width:24px;height:24px;stroke-width:0;fill:currentColor}
+.brand small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+.brand b{display:block;color:var(--rail-cur);font-size:1rem;font-weight:900;line-height:1.3}
+.ghost{display:flex;flex-direction:column;gap:2px}
+.sgrp{font-size:.75rem;font-weight:800;letter-spacing:.04em;padding:10px 12px 4px;color:var(--rail-ink);opacity:.82}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 12px;border-radius:12px;font-size:.9375rem;font-weight:700;line-height:1.3;color:var(--rail-ink)}
+.sitem.cur{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+/* lights off: the whole menu is there, dim and inert, so the person sees where they are going */
+.side.dark .ghost .sgrp,.side.dark .ghost .sitem{opacity:.26}
+.side.dark .brand b{opacity:.55}
+.side .lit{opacity:1 !important;transition:opacity .28s var(--out),background-color .3s var(--out),color .3s var(--out)}
+.side-foot{margin-top:auto;padding:14px 8px 0;border-top:1px solid var(--rail-hover);font-size:.8125rem;font-weight:700;line-height:1.45;color:var(--rail-ink)}
+.side-foot b{display:block;color:var(--rail-cur);font-weight:800}
+.me{display:flex;align-items:center;gap:10px}
+.me .av{width:36px;height:36px;border-radius:50%;background:var(--rail-hover);color:var(--rail-cur);display:grid;place-items:center;font-weight:900;flex:none}
+.me small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+main{min-width:0;display:flex;flex-direction:column}
+.topbar{display:none}
+
+/* ---------- the sheet ---------- */
+.page{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 32px 56px}
+.fsheet{width:100%;max-width:460px;margin:0 auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:34px 36px 30px}
+.fsheet.wide{max-width:540px}
+.fsheet h1{font-size:1.75rem;font-weight:900;line-height:1.25;text-wrap:balance}
+.lede{margin-top:6px;font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.fsheet form,.stack{display:flex;flex-direction:column;gap:18px;margin-top:24px}
+.alts{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;margin-top:-2px}
+.fine{margin-top:22px;padding-top:18px;border-top:1px solid var(--border);font-size:.875rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.fine .lnk{font-size:.875rem;min-height:32px}
+.back-row{width:100%;max-width:460px;margin:0 auto 8px}
+.back-row.wide{max-width:540px}
+.rules{list-style:none;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.rules li{display:flex;align-items:center;gap:6px}
+.rules li .ico{width:16px;height:16px;stroke-width:2.4}
+.rules li.met{color:var(--success)}
+.rules li.miss{color:var(--danger)}
+.rules li.idle .ico{stroke:var(--control-border)}
+.who-line{display:flex;align-items:center;gap:12px;margin-top:18px;padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border)}
+.who-line .av{width:40px;height:40px;border-radius:50%;background:var(--sunk);display:grid;place-items:center;font-weight:900;flex:none}
+.who-line b{display:block;font-weight:900}
+.who-line span span{display:block;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.who-line .lnk{margin-left:auto;font-size:.875rem}
+
+/* invite: three named steps, done ones solid, the rest dashed (the 客服支援 trace vocabulary) */
+.isteps{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);margin:0 0 22px}
+.isteps li{position:relative;padding-top:22px;font-size:.8125rem;font-weight:800;color:var(--ink-muted)}
+.isteps li::before{content:"";position:absolute;left:0;top:6px;width:13px;height:13px;border-radius:50%;border:2px dashed var(--control-border);background:var(--surface);z-index:1}
+.isteps li::after{content:"";position:absolute;left:13px;right:0;top:12px;border-top:2px dashed var(--control-border)}
+.isteps li:last-child::after{display:none}
+.isteps li.done,.isteps li.cur{color:var(--ink)}
+.isteps li.done::before{border:2px solid var(--ink);background:var(--ink)}
+.isteps li.done::after{border-top:2px solid var(--ink)}
+.isteps li.cur::before{border:2px solid var(--ink);background:var(--act)}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:10px 18px;margin-top:20px;padding:16px 18px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border)}
+.facts dt{font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.facts dd{font-weight:800;margin:0}
+.shopname{display:flex;align-items:center;gap:14px;margin-top:20px}
+.shopname .mark{width:52px;height:52px;border-radius:16px;background:var(--rail);color:var(--rail-cur)}
+.shopname .mark .ico{width:30px;height:30px}
+.shopname b{display:block;font-size:1.25rem;font-weight:900;line-height:1.25}
+.shopname span{display:block;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.check{display:flex;gap:12px;align-items:flex-start;font-size:.9375rem;font-weight:700;line-height:1.5;cursor:pointer}
+.check input{width:22px;height:22px;margin-top:1px;accent-color:var(--ink);flex:none}
+.check[aria-invalid="true"] span{color:var(--danger)}
+.agree{display:flex;flex-direction:column;gap:6px}
+.big-ico{width:72px;height:72px;border-radius:50%;background:var(--sunk);color:var(--ink-muted);display:grid;place-items:center;margin-bottom:16px}
+.big-ico .ico{width:32px;height:32px}
+.big-ico.ok{background:var(--success-bg);color:var(--success)}
+.btnrow{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+
+/* leaving: the sheet steps back while the menu comes on */
+.page.leave .fsheet,.page.leave .back-row{opacity:0;transform:translateY(8px) scale(.985);transition:opacity .3s var(--out),transform .3s var(--out)}
+.landing{position:fixed;left:calc(var(--sidew) + 50% - var(--sidew) / 2);top:50%;transform:translate(-50%,-50%);font-size:1rem;font-weight:800;color:var(--ink-muted);display:flex;align-items:center;gap:10px;animation:fade .3s var(--out) .2s both}
+@keyframes fade{from{opacity:0}}
+
+/* ---------- compact: no room for the sidebar, the 管理 Web's own top bar stands in ---------- */
+#app.compact{display:block;background:none}
+#app.compact .side{display:none}
+#app.compact .topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--rail);color:var(--rail-cur)}
+#app.compact .topbar .mark{width:36px;height:36px;border-radius:12px}
+#app.compact .topbar small{display:block;font-size:.75rem;font-weight:700;color:var(--rail-ink);line-height:1.2}
+#app.compact .topbar b{display:block;font-weight:900;line-height:1.25}
+#app.compact .page{justify-content:flex-start;padding:16px 16px 40px}
+#app.compact .fsheet{padding:24px 20px 22px}
+#app.compact .fsheet h1{font-size:1.5rem}
+#app.compact .landing{left:50%}
+@media (max-width: 420px){.isteps li{font-size:.75rem}.facts{grid-template-columns:1fr;gap:2px}.facts dd{margin-bottom:8px}}
+.bigtext .fsheet,.bigtext .back-row{max-width:600px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}}
+/* touch: DESIGN.md touch-target is 44px; mouse density stays as drawn */
+@media (pointer: coarse){.fine .lnk{position:relative}.fine .lnk::before{content:"";position:absolute;inset:-6px 0}}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>管理 Web 登入・互動原型</b><span class="muted">毛孩日和，資料全為虛構</span>
+  <label>情境 <select id="p-go">
+    <option value="login">登入</option>
+    <option value="invite">寵派開通邀請・店家管理者</option>
+    <option value="invite-staff">陳老闆的邀請・店長</option>
+    <option value="invite-expired">邀請已過期</option>
+    <option value="invite-expired-first">寵派開通邀請已過期</option>
+    <option value="invite-used">邀請已用過</option></select></label>
+  <label><input type="checkbox" id="p-known"> 這台電腦登入過</label>
+  <label><input type="checkbox" id="p-live" checked> 已正式啟用</label>
+  <label><input type="checkbox" id="p-susp"> 店家停權</label>
+  <label><input type="checkbox" id="p-off"> 離線</label>
+  <span class="muted">簡訊時間</span><button class="pbtn" id="p-ff1">快轉 1 分鐘</button><button class="pbtn" id="p-ff10">快轉 10 分鐘</button>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <label>字級 <select id="p-scale"><option value="1">100%</option><option value="1.3">130%</option><option value="2">200%</option></select></label>
+  <span class="muted">手機 0912000100 陳老闆・…101 林店長・…102 阿凱・…103 小葵・…107 已停用・…108 未開通・密碼 demo1234・驗證碼 135790</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<script>
+const I = {
+  dash:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  inbox:'<path d="M4 13h4l1.5 2.5h5L16 13h4"/><path d="M5.5 5h13L20 13v6H4v-6l1.5-8Z"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 19c1-3.5 3.4-5 6-5s5 1.5 6 5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.3c1.7.7 2.9 2.2 3.5 4.7"/>',
+  coins:'<ellipse cx="9" cy="7" rx="5" ry="2.5"/><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7"/><path d="M10 15.4c.9 1.3 3 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4"/>',
+  scis:'<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17M8.6 15.6 20 7"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  doc:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+  team:'<circle cx="10" cy="8" r="4"/><path d="M3 20c1.4-3.5 4-5 7-5 1.5 0 2.9.4 4 1.1M18 14v6M15 17h6"/>',
+  plan:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  fwd:'<path d="m10 6 6 6-6 6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  ban:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/>',
+  send:'<path d="M20 4 3 11l7 2 2 7 8-16Z"/><path d="m10 13 4-4"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff:'<path d="M3 3l18 18M10.6 6a9.8 9.8 0 0 1 1.4-.1c6 0 9.5 6.1 9.5 6.1a17 17 0 0 1-2.6 3.3M6.6 6.6C3.9 8.4 2.5 12 2.5 12S6 18.5 12 18.5c1.6 0 3-.4 4.2-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>',
+  dotI:'<circle cx="12" cy="12" r="3"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/>',
+  out:'<path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 16l-4-4 4-4M6 12h10"/>'
+};
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const FAST = params.get('fast') === '1';
+const calm = () => FAST || matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- demo data (fictional) ---------- */
+const SHOP = '毛孩日和';
+const PASS = 'demo1234', CODE = '135790', TRIES = 5;
+/* the M-01 sidebar, item for item */
+const NAV = [
+  ['營運', [['dash','儀表板','dash'],['cal','預約','cal'],['queue','待處理','inbox'],['cust','客戶與寵物','users'],['money','收款對帳','coins']]],
+  ['設定', [['svc','服務與價格','scis'],['hours','營業時間','clock'],['res','資源','res'],['tpl','契約模板','doc'],['pol','取消與改期政策','cxl'],['notify','通知設定','bell']]],
+  ['帳務', [['staff','員工與權限','team'],['plan','方案與用量','plan'],['audit','稽核紀錄','shield']]]
+];
+/* 管理 Web accounts sign in with the phone number on file; staff on the floor use the 店員 App */
+const ACCOUNTS0 = [
+  {ph:'0912000100', name:'陳老闆', ini:'陳', role:'店家管理者', key:'admin', scope:'兩家分店', status:'active'},
+  {ph:'0912000101', name:'林店長', ini:'林', role:'店長', key:'mgr', scope:'中山店・兼管信義店', status:'active'},
+  {ph:'0912000102', name:'阿凱', ini:'凱', role:'櫃台', key:'desk', scope:'中山店', status:'active'},
+  {ph:'0912000103', name:'小葵', ini:'葵', role:'美容照護', key:'groom', scope:'中山店', status:'active'},
+  {ph:'0912000107', name:'阿彥', ini:'彥', role:'美容照護', key:'groom', scope:'中山店', status:'disabled', by:'林店長', at:'10/9（五）'},
+  {ph:'0912000108', name:'小晴', ini:'晴', role:'美容照護', key:'groom', scope:'中山店', status:'invited', by:'林店長'}
+];
+/* invites: one from 寵派 opening the shop, one from 陳老闆 adding a 店長 */
+const INVITES = {
+  invite:      {ph:'0912000100', from:'寵派', fromWho:'寵派 冠宇', until:'10/18（日）23:59', plan:'基本方案・正式啟用那天起試用 14 天', first:true},
+  'invite-staff':{ph:'0912000101', from:'陳老闆', fromWho:'陳老闆（店家管理者）', until:'10/15（四）23:59'}
+};
+/* 毛孩日和開張 (prototypes/open-day): ?life=open-account is the evening of 10/9, after 寵派's 冠宇 added the shop at 11:20. The invite
+   is the one 商家管理 sent (7 days, the 14-day trial starting on go-live); opening the account posts the act's key action. */
+const LIFE = params.get('life') === 'open-account' ? 'open-account' : null;
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+if (LIFE) Object.assign(INVITES.invite, {until:'10/16（五）23:59'});
+/* expired invites: the person who clicks gets no new link here; asking only sends a note to whoever invited them (7 days, like every invite) */
+const DEAD = {
+  'invite-expired':       {who:'陳老闆', fromWho:'陳老闆（店家管理者）', sent:'10/1（四）', until:'10/8（四）23:59', join:`${SHOP}・中山店・櫃台`},
+  'invite-expired-first': {who:'寵派', fromWho:'寵派 冠宇', sent:'10/2（五）', until:'10/9（五）23:59', join:`${SHOP}・中山店・信義店・店家管理者`, ph:'0912000100', first:true}
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+const digitsOf = v => String(v || '').replace(/\D/g, '');
+const maskPh = ph => `••••${digitsOf(ph).slice(-4)}`;
+const PW_RULES = [['至少 8 碼', v => v.length >= 8], ['有英文字母', v => /[a-z]/i.test(v)], ['有數字', v => /\d/.test(v)]];
+
+/* ---------- the clock, wrong passwords and SMS codes ----------
+   The prototype strip can fast-forward the clock (快轉), so expiry, waits and locks can be shown without waiting. */
+let skew = 0;
+const clock = () => Date.now() + skew;
+const hm = t => { const d = new Date(t); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+/* wrong passwords count per phone number, outside any form: 忘記密碼 → 回到登入 cannot clear a lock */
+const pwBook = {};
+const pwOf = ph => pwBook[ph] || (pwBook[ph] = {tries:0, until:0});
+function pwLock(ph) { const s = pwOf(ph); if (s.until && s.until <= clock()) { s.until = 0; s.tries = 0; } return s.until; }
+/* SMS codes, the same rule on every surface (店員 App, 管理 Web, M-03 換手機): a code lives 10 minutes; resend opens after 60 s;
+   one number gets at most 5 texts an hour; 5 wrong tries kill a code (after that even the right digits are refused);
+   10 wrong in total lock the number for 15 minutes, written to the audit log. Also kept per phone number, outside any form. */
+const SMS = {life:10 * 60000, gap:60000, cap:5, hour:60 * 60000, perCode:5, lockAt:10, lockFor:15 * 60000};
+const smsBook = {};
+const smsOf = ph => smsBook[ph] || (smsBook[ph] = {sends:[], code:null, wrong:0, until:0});
+function smsLock(ph) { const s = smsOf(ph); if (s.until && s.until <= clock()) { s.until = 0; s.wrong = 0; } return s.until; }
+function smsCapUntil(ph) { const s = smsOf(ph), t = clock(); s.sends = s.sends.filter(x => t - x < SMS.hour); return s.sends.length >= SMS.cap ? s.sends[0] + SMS.hour : 0; }
+const capMsg = t => `這支手機一小時內已傳 ${SMS.cap} 次，請 ${hm(t)} 後再試`;
+/* '' when a new code went out, otherwise why not */
+function smsSend(ph) {
+  if (smsLock(ph)) return 'locked';
+  const cap = smsCapUntil(ph); if (cap) return capMsg(cap);
+  const s = smsOf(ph); s.sends.push(clock()); s.code = {at:clock(), tries:0}; return '';
+}
+const smsWait = ph => { const c = smsOf(ph).code; return c ? Math.max(0, Math.ceil((c.at + SMS.gap - clock()) / 1000)) : 0; };
+/* '' when right; 'locked' when this try locked the number; otherwise the error in words. real = false for a number with no
+   usable account: no code was ever sent there, so nothing typed can be right */
+function smsCheck(ph, v, real = true) {
+  const s = smsOf(ph), c = s.code;
+  if (smsLock(ph)) return 'locked';
+  if (!c) return '請重新傳送驗證碼';
+  if (c.tries >= SMS.perCode) return `這組驗證碼輸錯 ${SMS.perCode} 次，已經失效，請重新傳送`;
+  if (clock() - c.at > SMS.life) return '驗證碼已過期，請重新傳送';
+  if (real && v === CODE) { s.code = null; s.wrong = 0; return ''; }
+  c.tries++; s.wrong++;
+  if (s.wrong >= SMS.lockAt) { s.until = clock() + SMS.lockFor; s.code = null; return 'locked'; }
+  return c.tries >= SMS.perCode ? `這組驗證碼輸錯 ${SMS.perCode} 次，已經失效，請重新傳送` : `驗證碼不對，請再看一次簡訊（這組還能試 ${SMS.perCode - c.tries} 次）`;
+}
+/* one place for each lock's reason; the disabled button points at it */
+const lockNote = (id, b, until, more = '') => `<div class="notice warning" role="alert" id="${id}" data-key="${id}" tabindex="-1">${ic('lock','sm')}<span><b>${b}</b>15 分鐘後，${hm(until)} 可以再試。這是為了保護帳號，這次鎖定已寫入稽核紀錄。${more}</span></div>`;
+
+/* ---------- state ---------- */
+const state = {go:'login', known:false, live:true, suspended:false, offline:false, compact:false, view:'login', f:null, who:null, leaving:null};
+let A = [];
+const byPh = v => A.find(a => a.ph === digitsOf(v));
+const acc = ph => A.find(a => a.ph === ph);
+function newForm(pre = {}) { return {ph:'', pw:'', code:'', npw:'', agree:false, show:false, err:{}, top:null, sendErr:'', step:1, ...pre}; }
+function load(go) {
+  A = clone(ACCOUNTS0);
+  state.go = go; state.who = null; state.leaving = null;
+  if (go === 'invite' || go === 'invite-staff') {
+    const inv = INVITES[go], a = acc(inv.ph); a.status = 'invited'; a.by = inv.from;
+    if (go === 'invite') state.live = false;
+    state.view = 'invite'; state.f = newForm({ph:inv.ph, inv:go});
+  } else if (go in DEAD || go === 'invite-used') {
+    state.view = go; state.f = newForm();
+  } else { state.view = 'login'; state.f = newForm(); }
+}
+
+/* ---------- pieces ---------- */
+function sideNav() {
+  const lit = state.leaving, a = state.who && acc(state.who);
+  const shop = state.go.startsWith('invite') || lit ? SHOP : '店家管理 Web';
+  const groups = NAV.map(([g, list]) => `<div class="sgrp">${g}</div>${list.map(([k, l, icon]) => `<div class="sitem${lit && lit.nav === k ? ' cur' : ''}" data-nav="${k}">${ic(icon)}<span>${l}</span></div>`).join('')}`).join('');
+  const foot = a && lit ? `<div class="me"><span class="av">${esc(a.ini)}</span><span><b>${esc(a.name)}</b><small>${esc(a.role)}・${esc(a.scope)}</small></span></div>`
+    : `<b>登入後，選單會亮起來</b>店員在店裡請用店員 App。`;
+  return `<aside class="side${lit ? '' : ' dark'}" aria-hidden="true"><div class="brand"><span class="mark">${ic('mark')}</span><span><small>寵派商家中心</small><b>${esc(shop)}</b></span></div>
+    <div class="ghost">${groups}</div><div class="side-foot">${foot}</div></aside>`;
+}
+const topbar = () => `<header class="topbar"><span class="mark" aria-hidden="true">${ic('mark')}</span><span><small>寵派商家中心</small><b>${state.go.startsWith('invite') ? SHOP : '店家管理 Web'}</b></span></header>`;
+const fieldErr = (f, k) => f.err[k] ? `<span class="err" id="e-${k}">${ic('warn','sm')}${esc(f.err[k])}</span>` : '';
+const inv = (f, k) => f.err[k] ? ` aria-invalid="true" aria-describedby="e-${k}"` : '';
+function topNote(f) {
+  if (!f.top) return '';
+  const [tone, b, s, icon] = f.top;
+  return `<div class="notice ${tone}" role="alert" data-key="f-top">${ic(icon || (tone === 'neutral' ? 'off' : tone === 'warning' ? 'lock' : 'warn'),'sm')}<span><b>${esc(b)}</b>${s}</span></div>`;
+}
+function sheet(inner, opts = {}) {
+  const back = opts.back ? `<div class="back-row${opts.wide ? ' wide' : ''}"><button class="back" data-key="f-back" data-do="${opts.back[0]}">${ic('back')}${opts.back[1]}</button></div>` : '';
+  return `<div class="page">${back}<section class="fsheet${opts.wide ? ' wide' : ''}">${inner}</section></div>`;
+}
+const eyeBtn = (f, key) => `<button type="button" class="eye" data-key="${key}" data-do="toggleShow" aria-pressed="${f.show}" aria-label="顯示密碼">${ic(f.show ? 'eyeOff' : 'eye')}</button>`;
+function rulesHtml(v, showMiss) {
+  return `<ul class="rules" aria-label="密碼規則">${PW_RULES.map(([t, fn]) => { const c = !v ? 'idle' : fn(v) ? 'met' : showMiss ? 'miss' : 'idle'; return `<li class="${c}">${ic(c === 'met' ? 'check' : c === 'miss' ? 'warn' : 'dotI')}${t}</li>`; }).join('')}</ul>`;
+}
+/* the code's head line: sent (or, in 忘記密碼, the same reply for every number), not sent this time, or locked */
+function codeBlock(f, key, ph, generic) {
+  const until = smsLock(ph);
+  const head = until ? lockNote(`${key}-lock`, '驗證碼錯太多次，先暫停 15 分鐘', until)
+    : f.sendErr ? `<p class="notice warning" role="alert" data-key="${key}-unsent">${ic('warn','sm')}<span><b>這次沒有傳出驗證碼</b>${esc(f.sendErr)}。</span></p>`
+    : generic ? `<p class="notice info" role="status" data-key="${key}-sent">${ic('send','sm')}<span><b>如果這支手機有帳號，驗證碼已傳過去</b>手機 ${maskPh(ph)}，10 分鐘內有效。沒收到的話，請確認是邀請時登記的手機。</span></p>`
+    : `<p class="notice info" role="status" data-key="${key}-sent">${ic('send','sm')}<span>驗證碼已傳到 ${maskPh(ph)}，10 分鐘內有效。</span></p>`;
+  return `${head}
+    <div class="field code"><label for="${key}-code">6 碼驗證碼</label><input id="${key}-code" data-key="${key}-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="${esc(f.code)}"${inv(f,'code')}>${fieldErr(f,'code')}</div>`;
+}
+const codeGo = (key, ph, label) => smsLock(ph) ? `<button type="button" class="btn wide" aria-disabled="true" aria-describedby="${key}-lock" data-key="${key}-go">${label}</button>`
+  : `<button class="btn primary wide" type="submit" data-key="${key}-go">${label}</button>`;
+function resendRow(f, key, ph, extra = '') {
+  if (smsLock(ph)) return extra ? `<div class="alts">${extra}</div>` : '';
+  const wait = smsWait(ph), cap = smsCapUntil(ph);
+  const left = wait ? `<span class="reason" style="margin:0" data-key="${key}-wait">${wait} 秒後可以重新傳送</span>`
+    : cap ? `<span class="reason" style="margin:0" data-key="${key}-cap">${capMsg(cap)}</span>`
+    : `<button type="button" class="lnk" data-key="${key}-resend" data-do="resend">重新傳送驗證碼</button>`;
+  return `<div class="alts">${left}${extra}</div>`;
+}
+/* a new-password form names its account for password managers */
+const userFor = ph => `<input type="text" class="sr" name="username" autocomplete="username" value="${esc(ph)}" readonly tabindex="-1" aria-hidden="true">`;
+
+/* ---------- views ---------- */
+function loginView() {
+  const f = state.f, until = pwLock(digitsOf(f.ph));
+  /* the lock's reason lives in one place, the notice; the disabled button points at it */
+  const note = until ? lockNote('lg-lock', '錯太多次，先暫停 15 分鐘', until, '忘記密碼可以先用手機重設。') : topNote(f);
+  const submit = until ? `<button type="button" class="btn wide" aria-disabled="true" aria-describedby="lg-lock" data-key="lg-go">登入</button>`
+    : `<button class="btn primary wide" type="submit" data-key="lg-go">登入</button>`;
+  return sheet(`<h1 id="f-title" tabindex="-1">登入寵派商家中心</h1><p class="lede">店家管理者、店長用這裡管理預約、設定和帳務。</p>
+    <form data-form="login" novalidate>${note}
+      <div class="field"><label for="lg-ph">手機號碼</label><input id="lg-ph" data-key="lg-ph" name="username" type="tel" inputmode="tel" autocomplete="username" placeholder="例：0912 000 101" value="${esc(f.ph)}"${inv(f,'ph')}>${fieldErr(f,'ph')}</div>
+      <div class="field"><label for="lg-pw">密碼</label><div class="pw"><input id="lg-pw" data-key="lg-pw" name="password" type="${f.show ? 'text' : 'password'}" autocomplete="current-password" value="${esc(f.pw)}"${inv(f,'pw')}>${eyeBtn(f, 'lg-eye')}</div>${fieldErr(f,'pw')}</div>
+      ${submit}
+      <div class="alts"><button type="button" class="lnk" data-key="to-forgot" data-do="toForgot">忘記密碼</button></div>
+    </form>
+    <p class="fine">帳號由寵派或店家管理者邀請開通，邀請會用簡訊傳到你的手機。<br>在店裡報到、收款，請用櫃台平板上的 <a class="lnk" href="../staff-login/index.html" data-key="to-staff">店員 App</a>。</p>`);
+}
+function codeView() {
+  const f = state.f, a = acc(f.ph);
+  return sheet(`<h1 id="f-title" tabindex="-1">確認是你本人</h1><p class="lede">這台電腦第一次登入你的帳號，請輸入簡訊驗證碼。驗證後，下次在這台電腦只要手機和密碼。</p>
+    <div class="who-line"><span class="av" aria-hidden="true">${esc(a.ini)}</span><span><b>${esc(a.name)}</b><span>${esc(a.role)}・${esc(a.scope)}</span></span></div>
+    <form data-form="code" novalidate>${topNote(f)}${codeBlock(f, 'cd', f.ph)}
+      ${codeGo('cd', f.ph, '確認並登入')}${resendRow(f, 'cd', f.ph)}</form>`, {back:['toLogin', '換一個帳號']});
+}
+function forgotView() {
+  const f = state.f;
+  let body, title = '忘記密碼', lede = '用登記的手機收驗證碼，確認是你本人後設定新密碼。';
+  if (f.step === 1) body = `<div class="field"><label for="fp-ph">手機號碼</label><input id="fp-ph" data-key="fp-ph" type="tel" inputmode="tel" autocomplete="tel" placeholder="例：0912 000 101" value="${esc(f.ph)}"${inv(f,'ph')}>${fieldErr(f,'ph')}</div>
+      <button class="btn primary wide" type="submit" data-key="fp-send">傳送驗證碼</button>`;
+  else if (f.step === 2) { const ph = digitsOf(f.ph); body = codeBlock(f, 'fp', ph, true) + codeGo('fp', ph, '下一步') + resendRow(f, 'fp', ph, `<button type="button" class="lnk" data-key="fp-rephone" data-do="rephone">換一支手機</button>`); }
+  else {
+    const a = byPh(f.ph); title = '設定新密碼'; lede = `${esc(a.name)}，設定新的密碼。其他電腦上的登入會一併登出。`;
+    body = `${userFor(a.ph)}<div class="field"><label for="fp-npw">新密碼</label>${rulesHtml(f.npw, !!f.err.npw)}<div class="pw"><input id="fp-npw" data-key="fp-npw" type="${f.show ? 'text' : 'password'}" autocomplete="new-password" value="${esc(f.npw)}"${inv(f,'npw')}>${eyeBtn(f, 'fp-eye')}</div>${fieldErr(f,'npw')}</div>
+      <button class="btn primary wide" type="submit" data-key="fp-save">更新密碼</button>`;
+  }
+  return sheet(`<h1 id="f-title" tabindex="-1">${title}</h1><p class="lede">${lede}</p><form data-form="forgot" novalidate>${topNote(f)}${body}</form>`, {back:['toLogin', '回到登入']});
+}
+function inviteView() {
+  const f = state.f, I0 = INVITES[f.inv], a = acc(I0.ph);
+  const names = ['確認邀請', '驗證手機', '設定密碼'];
+  const steps = f.step <= 3 ? `<ol class="isteps" aria-label="開通步驟，第 ${f.step} 步，共 3 步">${names.map((n, i) => `<li class="${i + 1 < f.step ? 'done' : i + 1 === f.step ? 'cur' : ''}"${i + 1 === f.step ? ' aria-current="step"' : ''}>${n}</li>`).join('')}</ol>` : '';
+  let body;
+  if (f.step === 1) {
+    body = `<h1 id="f-title" tabindex="-1">${I0.first ? `開通「${SHOP}」的店家帳號` : `加入「${SHOP}」`}</h1>
+      <p class="lede">${esc(I0.fromWho)}邀請你${I0.first ? '開通寵派商家中心，成為這家店的' : '成為'}${esc(a.role)}。確認是你，再設定登入密碼。</p>
+      <div class="shopname"><span class="mark" aria-hidden="true">${ic('mark')}</span><span><b>${SHOP}</b><span>${I0.first ? '中山店・信義店' : esc(a.scope)}</span></span></div>
+      <dl class="facts"><dt>你的身分</dt><dd>${esc(a.name)}・${esc(a.role)}</dd><dt>可以管理</dt><dd>${esc(a.scope)}</dd>${I0.plan ? `<dt>方案</dt><dd>${esc(I0.plan)}</dd>` : ''}<dt>登入手機</dt><dd>${maskPh(a.ph)}</dd><dt>邀請有效到</dt><dd>${esc(I0.until)}</dd></dl>
+      ${topNote(f)}<div class="btnrow"><button class="btn primary wide" data-key="iv-accept" data-do="ivAccept">是我，接受邀請</button>
+      ${f.notMe ? '' : `<button class="lnk" style="align-self:center" data-key="iv-notme" data-do="ivNotMe">這不是我</button>`}</div>
+      ${f.notMe ? `<p class="notice neutral" role="status" id="iv-notme-note" data-key="iv-notme-note" tabindex="-1">${ic('info','sm')}<span><b>不用理會這則邀請</b>邀請會在 ${esc(I0.until)} 自動失效，不會開通任何帳號。如果有人冒用你的手機，請聯絡寵派客服。</span></p>` : ''}`;
+  } else if (f.step === 2) {
+    body = `<h1 id="f-title" tabindex="-1">驗證手機</h1><p class="lede">之後就用這支手機登入。</p>
+      <form data-form="ivcode" novalidate>${topNote(f)}${codeBlock(f, 'iv', a.ph)}${codeGo('iv', a.ph, '下一步')}${resendRow(f, 'iv', a.ph)}</form>`;
+  } else if (f.step === 3) {
+    body = `<h1 id="f-title" tabindex="-1">設定登入密碼</h1><p class="lede">登入寵派商家中心時，輸入手機 ${maskPh(a.ph)} 和這組密碼。</p>
+      <form data-form="ivpw" novalidate>${topNote(f)}${userFor(a.ph)}
+        <div class="field"><label for="iv-npw">密碼</label>${rulesHtml(f.npw, !!f.err.npw)}<div class="pw"><input id="iv-npw" data-key="iv-npw" type="${f.show ? 'text' : 'password'}" autocomplete="new-password" value="${esc(f.npw)}"${inv(f,'npw')}>${eyeBtn(f, 'iv-eye')}</div>${fieldErr(f,'npw')}</div>
+        <div class="agree"><label class="check" data-key="iv-agree-l"${f.err.agree ? ' aria-invalid="true"' : ''}><input type="checkbox" id="iv-agree" data-key="iv-agree"${f.agree ? ' checked' : ''}${f.err.agree ? ' aria-describedby="e-agree"' : ''}><span>我已閱讀並同意寵派商家中心的服務條款與隱私權政策（示範，正式條文待法務確認）</span></label>${fieldErr(f,'agree')}</div>
+        <button class="btn primary wide" type="submit" data-key="iv-save">開通帳號</button></form>`;
+  } else {
+    const first = I0.first;
+    body = `<div class="big-ico ok" aria-hidden="true">${ic('check')}</div><h1 id="f-title" tabindex="-1">帳號開通好了</h1>
+      <p class="lede">${first ? `接下來設定「${SHOP}」的營業時間、服務與價格、契約，完成 13 項就能試約、正式啟用。` : `你現在是${SHOP}的${esc(a.role)}，可以管理${esc(a.scope)}。`}</p>
+      <dl class="facts"><dt>登入手機</dt><dd>${maskPh(a.ph)}</dd><dt>這台電腦</dt><dd>已記住，下次不用驗證碼</dd></dl>
+      <div class="btnrow"><button class="btn primary wide" data-key="iv-enter" data-do="enter">${first ? '開始開店設定' : '進入儀表板'}${ic('fwd','sm')}</button></div>`;
+  }
+  return sheet(steps + body, {wide:true});
+}
+function deadInviteView() {
+  const f = state.f, used = state.view === 'invite-used', d = DEAD[state.view];
+  if (used) return sheet(`<div class="big-ico" aria-hidden="true">${ic('check')}</div><h1 id="f-title" tabindex="-1">這個邀請已經用過了</h1>
+       <p class="lede">林店長的帳號在 10/10（六）開通了。直接用手機和密碼登入就好。</p>
+       <div class="btnrow"><button class="btn primary wide" data-key="dead-login" data-do="toLoginWith" data-ph="0912000101">前往登入</button></div>`, {wide:true});
+  /* asking only sends a note to whoever invited; the new invite goes to the invited phone by SMS, never to this page */
+  const ask = f.asked
+    ? `<p class="notice success" role="status" id="dead-asked" data-key="dead-asked" tabindex="-1">${ic('check','sm')}<span><b>已通知${d.who}</b>${d.first ? `寵派冠宇會重新傳一次開通邀請到登記的手機 ${maskPh(d.ph)}。` : `${d.who}會收到一則提醒，請他在「員工與權限」重新邀請你。新的邀請會用簡訊傳到你的手機。`}這個頁面不會出現連結。</span></p>`
+    : `<button class="btn primary wide" data-key="dead-ask" data-do="askReinvite">請${d.who}重新邀請</button>`;
+  return sheet(`<div class="big-ico" aria-hidden="true">${ic('clock')}</div><h1 id="f-title" tabindex="-1">${d.first ? '這個開通邀請已經過期' : '這個邀請已經過期'}</h1>
+       <p class="lede">${d.first ? `寵派冠宇在 ${d.sent} 傳的開通邀請，已在 ${d.until} 過期，店家帳號還沒開通。請寵派重新傳一次開通邀請，新的邀請 7 天內有效；14 天試用從正式啟用那天才開始算，晚一點開通不會變少。`
+         : `邀請在 ${d.until} 過期，帳號還沒開通。請${d.who}重新傳一次邀請，新的邀請 7 天內有效。`}</p>
+       <dl class="facts"><dt>邀請你的人</dt><dd>${esc(d.fromWho)}</dd><dt>${d.first ? '要開通' : '要加入'}</dt><dd>${esc(d.join)}</dd>${d.first ? '<dt>寵派客服</dt><dd>LINE 搜尋「寵派商家中心」・週一到週六 <span style="white-space:nowrap">9:00–18:00</span></dd>' : ''}</dl>
+       ${topNote(f)}<div class="btnrow">${ask}</div>
+       <p class="fine">已經有帳號了？<button class="lnk" data-key="dead-login" data-do="toLogin">直接登入</button></p>`, {wide:true});
+}
+function suspView() {
+  const a = acc(state.who);
+  return sheet(`<div class="big-ico" aria-hidden="true">${ic('ban')}</div><h1 id="f-title" tabindex="-1">店家目前暫停新增服務</h1>
+    <p class="lede">寵派在 10/10（六）暫停了${SHOP}的新增服務。你還是可以登入查看資料。</p>
+    <dl class="facts"><dt>照常</dt><dd>已在店裡的寵物、報到、簽署、收款、住宿退房、查詢資料；飼主仍可取消預約</dd><dt>暫停</dt><dd>新預約（LINE、公開網頁、現場預約）、改期、新增收費功能</dd></dl>
+    <div class="btnrow"><button class="btn primary wide" data-key="susp-go" data-do="land">知道了，繼續</button>${a.key === 'admin' ? `<a class="lnk" style="align-self:center" href="../plan-usage/index.html?role=admin" data-key="susp-plan">查看方案與帳務</a>` : ''}</div>`, {wide:true});
+}
+
+/* ---------- render ---------- */
+function render(focusId) {
+  const app = $('app');
+  /* the breakpoint is in rem: 200% text on a 1024 screen drops the decorative menu, so the form keeps its width */
+  state.compact = innerWidth / (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16) < 56.25;
+  app.className = state.compact ? 'compact' : '';
+  const v = state.view;
+  const page = v === 'login' ? loginView() : v === 'code' ? codeView() : v === 'forgot' ? forgotView() : v === 'invite' ? inviteView() : v === 'susp' ? suspView() : deadInviteView();
+  app.innerHTML = `${sideNav()}<main>${topbar()}${page}</main>`;
+  const f = focusId && document.getElementById(focusId);
+  if (f) f.focus({preventScroll:false});
+}
+function say(text) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status" data-key="toast">${esc(text)}</div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 3600);
+}
+
+/* ---------- where each person lands ---------- */
+function target(a) {
+  if (a.key === 'admin') return {nav:'dash', page: state.live ? '儀表板' : '開店設定', href:`../m01-dashboard/index.html?role=admin${state.live ? '&live=1' : ''}`};
+  if (a.key === 'mgr') return {nav:'dash', page:'儀表板', href:`../m01-dashboard/index.html?role=mgr${state.live ? '&live=1' : ''}`};
+  if (a.key === 'desk') return {nav:'cal', page:'預約', href:'../m02-appointments/index.html?role=desk'};
+  return {nav:'cust', page:'客戶與寵物', href:'../m03-customers/index.html?role=groom'};
+}
+/* the one authored moment: the menu comes on top to bottom, the landing item lifts into its current pill, then the page opens */
+function land() {
+  const a = acc(state.who), t = target(a);
+  state.leaving = t;
+  if (params.get('stay') === '1') { render(); say(`會開啟${t.page}`); return; }
+  if (calm() || state.compact) { location.href = t.href; return; }
+  const items = [...document.querySelectorAll('.side .sgrp, .side .sitem, .side .brand b')];
+  document.querySelector('.page')?.classList.add('leave');
+  setTimeout(() => {
+    const keep = document.querySelector('.page');
+    $('app').querySelector('.side').outerHTML = sideNav();
+    const side = $('app').querySelector('.side');
+    side.classList.add('dark');
+    side.querySelectorAll('.sgrp, .sitem, .brand b').forEach((el, i) => setTimeout(() => el.classList.add('lit'), 24 * i));
+    keep.insertAdjacentHTML('afterend', `<p class="landing" role="status">${ic('fwd','sm')}正在開啟${t.page}</p>`);
+  }, 160);
+  setTimeout(() => { location.href = t.href; }, 1150);
+}
+function proceed(a) {
+  state.who = a.ph; state.known = true; $('p-known').checked = true;
+  if (state.suspended) { state.view = 'susp'; return render('f-title'); }
+  land();
+}
+
+/* ---------- submit handlers ---------- */
+function phoneErr(v) { const d = digitsOf(v); return !d ? '請輸入手機號碼' : !/^09\d{8}$/.test(d) ? '手機號碼是 09 開頭的 10 碼' : ''; }
+function submitLogin() {
+  const f = state.f; f.ph = $('lg-ph').value; f.pw = $('lg-pw').value; f.err = {}; f.top = null;
+  const pe = phoneErr(f.ph); if (pe) f.err.ph = pe;
+  if (!f.pw) f.err.pw = '請輸入密碼';
+  if (f.err.ph || f.err.pw) return render(f.err.ph ? 'lg-ph' : 'lg-pw');
+  if (state.offline) { f.top = ['neutral', '連不上網路', '登入需要連線。請確認網路後再試，已輸入的手機號碼會留著。']; return render(); }
+  /* a locked number is refused before the password is looked at, even the right one (Enter included) */
+  const ph = digitsOf(f.ph), pw = pwOf(ph);
+  if (pwLock(ph)) { f.pw = ''; return render('lg-lock'); }
+  const a = byPh(f.ph);
+  /* the same answer whether or not the number has an account; 停用 and 尚未開通 show only after the right password */
+  if (!a || f.pw !== PASS) {
+    pw.tries++; f.pw = '';
+    if (pw.tries >= TRIES) { pw.until = clock() + 15 * 60 * 1000; return render('lg-lock'); }
+    f.top = ['danger', '手機號碼或密碼不正確', pw.tries >= 3 ? `再錯 ${TRIES - pw.tries} 次要等 15 分鐘。` : '請再檢查一次。'];
+    return render('lg-pw');
+  }
+  if (a.status === 'invited') { f.top = ['warning', '這支手機的帳號還沒開通', '請打開邀請簡訊，從連結設定密碼。連結過期了，請邀請你的人重新傳一次。', 'mail']; f.pw = ''; return render(); }
+  if (a.status === 'disabled') { f.top = ['danger', '這個帳號已停用', `${esc(a.by)}在 ${esc(a.at)} 停用了這個帳號。有問題請聯絡${esc(a.by)}。`, 'ban']; f.pw = ''; return render(); }
+  pw.tries = 0;
+  if (!state.known) { const r = smsSend(a.ph); state.view = 'code'; state.f = newForm({ph:a.ph, sendErr: r === 'locked' ? '' : r}); tickWait(); return render(r === 'locked' ? 'cd-lock' : 'cd-code'); }
+  proceed(a);
+}
+/* real = false when no code was ever sent to this number (忘記密碼 for a number with no usable account) */
+function checkCode(f, key, ph, real = true) {
+  f.code = digitsOf($(`${key}-code`).value); f.err = {}; f.top = null;
+  if (smsLock(ph)) { f.code = ''; render(`${key}-lock`); return false; }
+  if (f.code.length !== 6) { f.err.code = '驗證碼是 6 位數字'; render(`${key}-code`); return false; }
+  const r = smsCheck(ph, f.code, real);
+  if (!r) return true;
+  f.code = '';
+  if (r === 'locked') { render(`${key}-lock`); return false; }
+  f.err.code = r; render(`${key}-code`); return false;
+}
+function submitCode() { const f = state.f; if (!checkCode(f, 'cd', f.ph)) return; proceed(acc(f.ph)); }
+function submitForgot() {
+  const f = state.f; f.err = {}; f.top = null;
+  if (f.step === 1) {
+    f.ph = $('fp-ph').value; const pe = phoneErr(f.ph); if (pe) { f.err.ph = pe; return render('fp-ph'); }
+    if (state.offline) { f.top = ['neutral', '連不上網路', '傳送驗證碼需要連線。']; return render(); }
+    /* every well-formed number gets the same reply and the same next step, account or not; only a real one gets a code */
+    const r = smsSend(digitsOf(f.ph));
+    if (r && r !== 'locked') { f.top = ['warning', '這次沒有傳出驗證碼', `${r}。`, 'clock']; return render('fp-ph'); }
+    f.step = 2; f.code = ''; f.sendErr = ''; tickWait(); return render(r ? 'fp-lock' : 'fp-code');
+  }
+  if (f.step === 2) { const a = byPh(f.ph); if (!checkCode(f, 'fp', digitsOf(f.ph), !!a && a.status === 'active')) return; f.step = 3; f.show = false; return render('fp-npw'); }
+  f.npw = $('fp-npw').value;
+  if (!f.npw) { f.err.npw = '請設定密碼'; return render('fp-npw'); }
+  if (!PW_RULES.every(([, fn]) => fn(f.npw))) { f.err.npw = '新密碼還不符合上面的規則'; return render('fp-npw'); }
+  if (f.npw === PASS) { f.err.npw = '不能和舊密碼一樣'; return render('fp-npw'); }
+  state.view = 'login'; state.f = newForm({ph:f.ph}); render('lg-pw'); say('密碼已更新，請用新密碼登入');
+}
+function submitInvite(kind) {
+  const f = state.f; f.err = {}; f.top = null;
+  if (kind === 'ivcode') { if (!checkCode(f, 'iv', INVITES[f.inv].ph)) return; f.step = 3; f.show = false; return render('iv-npw'); }
+  f.npw = $('iv-npw').value; f.agree = $('iv-agree').checked;
+  if (!f.npw) f.err.npw = '請設定密碼';
+  else if (!PW_RULES.every(([, fn]) => fn(f.npw))) f.err.npw = '密碼還不符合上面的規則';
+  if (!f.agree) f.err.agree = '請先勾選同意服務條款';
+  if (f.err.npw || f.err.agree) return render(f.err.npw ? 'iv-npw' : 'iv-agree');
+  if (state.offline) { f.top = ['neutral', '連不上網路', '開通帳號需要連線。密碼和勾選都會留著，恢復連線後再按一次。']; return render(); }
+  const a = acc(INVITES[f.inv].ph); a.status = 'active';
+  state.known = true; $('p-known').checked = true; state.who = a.ph;
+  f.step = 4; render('f-title');
+  if (f.inv === 'invite') lifeSay('activated');
+}
+/* the phone the code on screen went to */
+const codePh = () => state.view === 'invite' ? INVITES[state.f.inv].ph : digitsOf(state.f.ph);
+const codeKey = () => state.view === 'invite' ? 'iv' : state.view === 'forgot' ? 'fp' : 'cd';
+/* typed values survive a re-render */
+function keepInputs() {
+  const f = state.f; if (!f) return;
+  [['lg-ph','ph'],['lg-pw','pw'],['fp-ph','ph'],['fp-npw','npw'],['iv-npw','npw']].forEach(([id, k]) => { const el = $(id); if (el) f[k] = el.value; });
+  const c = document.querySelector('.code input'); if (c) f.code = digitsOf(c.value);
+  const ag = $('iv-agree'); if (ag) f.agree = ag.checked;
+}
+function rerender() { keepInputs(); const k = document.activeElement?.dataset?.key; render(); if (k) document.querySelector(`[data-key="${k}"]`)?.focus(); }
+let waitT;
+function tickWait() {
+  clearInterval(waitT);
+  waitT = setInterval(() => {
+    const el = document.querySelector('[data-key$="-wait"]');
+    if (!state.f || !el) return clearInterval(waitT);
+    const left = smsWait(codePh());
+    if (left <= 0) { clearInterval(waitT); rerender(); }
+    else el.textContent = `${left} 秒後可以重新傳送`;
+  }, 1000);
+}
+
+/* ---------- actions ---------- */
+const ACT = {
+  toForgot() { const ph = $('lg-ph')?.value || ''; state.view = 'forgot'; state.f = newForm({ph}); render('f-title'); },
+  toLogin() { const ph = state.view === 'forgot' ? digitsOf(state.f.ph) : ''; state.view = 'login'; state.f = newForm({ph}); render('f-title'); },
+  toLoginWith(el) { state.view = 'login'; state.f = newForm({ph:el.dataset.ph}); render('lg-pw'); },
+  toggleShow() { keepInputs(); state.f.show = !state.f.show; rerender(); },
+  resend() {
+    const f = state.f, ph = codePh(), key = codeKey(), r = smsSend(ph);
+    f.code = ''; f.err = {}; f.sendErr = r === 'locked' ? '' : r; tickWait(); render(r === 'locked' ? `${key}-lock` : `${key}-code`);
+    if (!r) say(state.view === 'forgot' ? '如果這支手機有帳號，驗證碼已重新傳過去' : `驗證碼已重新傳到 ${maskPh(ph)}`);
+  },
+  rephone() { const f = state.f; f.step = 1; f.code = ''; f.err = {}; render('fp-ph'); },
+  ivAccept() {
+    const f = state.f;
+    if (state.offline) { f.top = ['neutral', '連不上網路', '接受邀請需要連線。']; return render(); }
+    const r = smsSend(INVITES[f.inv].ph);
+    f.step = 2; f.code = ''; f.notMe = false; f.sendErr = r === 'locked' ? '' : r; tickWait(); render(r === 'locked' ? 'iv-lock' : 'iv-code');
+  },
+  /* the link goes away and its explanation takes the focus */
+  ivNotMe() { state.f.notMe = true; render('iv-notme-note'); },
+  askReinvite() {
+    const f = state.f;
+    if (state.offline) { f.top = ['neutral', '連不上網路', '通知需要連線。']; return render(); }
+    f.top = null; f.asked = true; render('dead-asked');
+  },
+  enter() { proceed(acc(state.who)); },
+  land
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-do]');
+  if (!el || el.getAttribute('aria-disabled') === 'true') return;
+  e.preventDefault(); ACT[el.dataset.do]?.(el);
+});
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const k = e.target.dataset.form;
+  if (k === 'login') submitLogin(); else if (k === 'code') submitCode(); else if (k === 'forgot') submitForgot(); else submitInvite(k);
+});
+document.addEventListener('input', e => {
+  const f = state.f; if (!f) return;
+  if (e.target.id === 'fp-npw' || e.target.id === 'iv-npw') { f.npw = e.target.value; const r = document.querySelector('.rules'); if (r) r.outerHTML = rulesHtml(f.npw, false); }
+  /* typing a different number shows that number's lock, or lifts the one shown */
+  if (e.target.id === 'lg-ph' && !!pwLock(digitsOf(e.target.value)) !== !!$('lg-lock')) {
+    const pos = e.target.selectionStart; keepInputs(); f.top = null; render('lg-ph'); $('lg-ph').setSelectionRange(pos, pos);
+  }
+});
+/* a pasted code often carries spaces or a dash (「135 790」): keep the digits */
+document.addEventListener('paste', e => {
+  const el = e.target; if (!el.closest?.('.code')) return;
+  const d = digitsOf(e.clipboardData?.getData('text')); if (!d) return;
+  e.preventDefault(); el.value = d.slice(0, 6);
+});
+addEventListener('resize', () => { clearTimeout(render.r); render.r = setTimeout(() => { if (!state.leaving) render(); }, 120); });
+
+/* ---------- prototype controls ---------- */
+function setTheme(v) { v ? document.documentElement.setAttribute('data-theme', v) : document.documentElement.removeAttribute('data-theme'); }
+function applyScale(s) { document.documentElement.style.fontSize = s > 1 ? s * 100 + '%' : ''; document.documentElement.classList.toggle('bigtext', s >= 1.3); }
+const GOS = ['login','invite','invite-staff','invite-expired','invite-expired-first','invite-used'];
+$('p-go').value = GOS.includes(params.get('go')) ? params.get('go') : 'login';
+$('p-known').checked = state.known = params.get('known') === '1';
+$('p-live').checked = state.live = params.get('live') !== '0';
+$('p-susp').checked = state.suspended = params.get('suspended') === '1';
+$('p-off').checked = state.offline = params.get('off') === '1';
+$('p-theme').value = params.get('theme') || ''; setTheme($('p-theme').value);
+$('p-scale').value = ['1.3', '2'].includes(params.get('scale')) ? params.get('scale') : '1'; applyScale(+$('p-scale').value);
+$('p-go').onchange = e => { load(e.target.value); $('p-live').checked = state.live; render('f-title'); };
+$('p-known').onchange = e => { state.known = e.target.checked; };
+$('p-live').onchange = e => { state.live = e.target.checked; };
+$('p-susp').onchange = e => { state.suspended = e.target.checked; };
+$('p-off').onchange = e => { state.offline = e.target.checked; };
+$('p-theme').onchange = e => setTheme(e.target.value);
+$('p-scale').onchange = e => { applyScale(+e.target.value); render(); };
+/* 快轉: the clock jumps, so a code can expire, a wait can end and a lock can lift without waiting */
+const fastForward = min => { skew += min * 60000; rerender(); tickWait(); say(`簡訊時間快轉 ${min} 分鐘，現在 ${hm(clock())}`); };
+$('p-ff1').onclick = () => fastForward(1);
+$('p-ff10').onclick = () => fastForward(10);
+load($('p-go').value); $('p-live').checked = state.live;
+render();
+</script>
+</body>
+</html>

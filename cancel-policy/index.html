@@ -1,0 +1,1368 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>取消與改期政策原型</title>
+<script src="../test-kit/kit.js" data-proto="cancel-policy"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens copied from the today board via M-04, M-06, M-08 and 方案與用量. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+:root{--sidew:15rem;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:24px;scroll-padding-bottom:120px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.spm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+.nw{white-space:nowrap}
+.muted{color:var(--ink-muted)}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .pbtn{border:1px solid var(--proto-line);border-radius:8px;padding:4px 10px;min-height:32px;color:var(--proto-ink);font-weight:700}
+.proto .pbtn:hover{border-color:var(--proto-ink)}
+.proto .tagp{border:1.5px dashed var(--proto-muted);border-radius:999px;padding:1px 8px;font-weight:800;color:var(--proto-muted)}
+
+/* ---------- shell: labeled cocoa sidebar (管理 Web) ---------- */
+#app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+#app.compact{display:block}
+.side{position:sticky;top:0;height:calc(100vh - 44px);height:calc(100dvh - 44px);overflow:hidden;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;gap:2px;padding:18px 12px 16px;color:var(--rail-ink)}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+.mark{width:40px;height:40px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;flex:none}
+.mark .ico{width:24px;height:24px;stroke-width:0;fill:currentColor}
+.brand small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+.brand b{display:block;color:var(--rail-cur);font-size:1rem;font-weight:900;line-height:1.3}
+.sgrp{font-size:.75rem;font-weight:800;letter-spacing:.04em;padding:10px 12px 4px;color:var(--rail-ink);opacity:.82}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 12px;border-radius:12px;font-size:.9375rem;font-weight:700;line-height:1.3;color:var(--rail-ink);transition:background-color .2s var(--out),color .2s var(--out)}
+.sitem:hover{background:var(--rail-hover);color:var(--rail-cur)}
+.sitem[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.sitem .n{margin-left:auto;min-width:24px;padding:0 8px;border-radius:999px;background:var(--rail-hover);color:var(--rail-cur);font-size:.75rem;font-weight:900;text-align:center;line-height:1.6}
+.sitem .n.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.sitem[aria-current="page"] .n:not(.hot){background:var(--sunk);color:var(--ink)}
+.side :focus-visible{outline-color:var(--rail-cur)}
+/* only the item list scrolls; the signed-in person sits below it and never covers an item (at 1024×768 the rail is taller than the window) */
+.snav{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:2px;margin:0 -6px;padding:4px 6px;-webkit-mask-image:linear-gradient(transparent,#000 10px,#000 calc(100% - 16px),transparent);mask-image:linear-gradient(transparent,#000 10px,#000 calc(100% - 16px),transparent)}
+.me{flex:none;display:flex;align-items:center;gap:10px;padding:14px 8px 0;margin-top:6px;border-top:1px solid var(--rail-hover);position:relative;background:var(--rail)}.me .av{width:36px;height:36px;border-radius:50%;background:var(--rail-hover);color:var(--rail-cur);display:grid;place-items:center;font-weight:900;flex:none}
+.me b{display:block;color:var(--rail-cur);font-weight:800;line-height:1.3}
+.me small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+/* compact: the sidebar becomes a top bar and a drawer */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--rail);color:var(--rail-cur)}
+.topbar .mark{width:36px;height:36px;border-radius:12px}
+.topbar b{font-weight:900}
+.topbar .ibtn{color:var(--rail-cur)}
+.topbar .ibtn:hover{background:var(--rail-hover)}
+.topbar :focus-visible{outline-color:var(--rail-cur)}
+.ibtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;transition:background-color .2s var(--out)}
+.ibtn:hover{background:var(--sunk)}
+.drawer-nav{position:fixed;inset:0 auto 0 0;z-index:80;width:min(18rem,86vw);box-shadow:var(--lift-hi);animation:slidein .32s var(--out)}
+.drawer-nav .side{height:100%}
+@keyframes slidein{from{transform:translateX(-100%)}}
+main{min-width:0;container:main / inline-size}
+/* 1024–1279: the labeled sidebar folds into the world's icon rail so the detail keeps its width */
+#app.rail{--sidew:5.25rem}
+#app.rail .side{padding:16px 6px;align-items:center;gap:4px}
+#app.rail .brand{padding:0 0 10px}
+#app.rail .brand>span:not(.mark),#app.rail .sgrp,#app.rail .me>span:not(.av){display:none}
+#app.rail .sitem{flex-direction:column;justify-content:center;gap:4px;width:4.25rem;min-height:3.75rem;padding:6px 2px;border-radius:16px;font-size:.75rem;font-weight:700;text-align:center;line-height:1.25;position:relative}
+#app.rail .sitem[aria-current="page"]{font-weight:900}
+#app.rail .snav{align-items:center;gap:4px;width:calc(100% + 12px)}
+/* a label that does not fit ends in an ellipsis instead of breaking a word across lines; the narrow rail shows a short name (政策) as in M-02 */
+.sitem>span:not(.n){min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sitem .ls{display:none}
+#app.rail .sitem:has(.ls) .lf{display:none}
+#app.rail .sitem .ls{display:block}
+#app.rail .sitem .n{position:absolute;top:2px;right:2px;margin:0;padding:0 6px;font-size:.75rem}
+#app.rail .me{padding:12px 0 0;justify-content:center}
+
+
+/* ---------- page head ---------- */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 16px;padding:22px 28px 0}
+.compact .head{padding:16px 16px 0}
+.head h1{font-size:1.75rem;font-weight:900;line-height:1.25;display:flex;align-items:center;gap:10px}
+.compact .head h1{font-size:1.375rem}
+.compact .head .tools{margin-left:0;order:4;flex-basis:100%}
+.head .sub{flex-basis:100%;order:3;font-size:.875rem;font-weight:600;color:var(--ink-muted);margin-top:-6px}
+.head .tools{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.scope{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--control-border);font-weight:800;font-size:.875rem}
+select.scope{appearance:none;padding-right:36px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;cursor:pointer}
+select.scope:hover{border-color:var(--ink)}
+.scope.fixed{border-style:dashed;color:var(--ink-muted)}
+.updated{font-size:.8125rem;font-weight:700;color:var(--ink-muted);display:inline-flex;align-items:center;gap:6px}
+.updated.off{color:var(--warning)}
+.banner{display:flex;gap:10px;align-items:flex-start;margin:14px 28px 0;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:700;line-height:1.5}
+.compact .banner{margin:12px 16px 0}
+.banner.warning{background:var(--warning-bg);color:var(--warning)}
+.banner.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.banner .ico{margin-top:1px}
+
+/* ---------- buttons, chips, tags ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:var(--r-md);font-size:.9375rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out),border-color .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.quiet{background:var(--surface);color:var(--ink);border-color:var(--control-border)}
+.btn.quiet:hover{border-color:var(--ink)}
+.btn.danger{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.btn.danger:hover{filter:brightness(1.08)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none;filter:none}
+.btn.busy{pointer-events:none}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(1turn)}}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+a.textbtn{text-decoration:none}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.textbtn[aria-disabled="true"]{color:var(--ink-muted);background:transparent;border:1.5px dashed var(--control-border);cursor:not-allowed}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4;text-wrap:pretty}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.warning{color:var(--warning);background:var(--warning-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.chip.plain{background:var(--sunk);color:var(--ink)}
+.chip.plain::before{display:none}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 9px;border-radius:999px;font-size:.875rem;line-height:1.4;white-space:nowrap}
+.tag.safety{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.tag.care{background:var(--warning-bg);color:var(--warning);font-weight:700}
+.cnt{min-width:26px;padding:1px 9px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;text-align:center;line-height:1.5}
+.cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.masked{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--sunk);color:var(--ink-muted);font-size:.8125rem;font-weight:800;border:1.5px dashed var(--control-border)}
+.masked .ico{width:14px;height:14px;stroke-width:2.2}
+
+/* filter pills and segmented control */
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--border);font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out),border-color .2s var(--out),transform .35s var(--spring)}
+.pill:hover{border-color:var(--control-border);color:var(--ink)}
+.pill:active{transform:scale(.96);transition-duration:.08s}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface);font-weight:900}
+.pill[aria-pressed="true"] .cnt{background:var(--surface);color:var(--ink)}
+.pill[aria-pressed="true"] .cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.pill .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);flex-wrap:wrap}
+.seg button{min-height:40px;padding:0 16px;border-radius:999px;font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out)}
+.seg button:hover{color:var(--ink)}
+.seg button:is([aria-pressed="true"],[aria-checked="true"]){background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+:root[data-theme="dark"] .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+/* ---------- 臉環 ---------- */
+.face{--s:56px;position:relative;flex:none;width:var(--s);height:var(--s);display:inline-grid;place-items:center;border-radius:50%}
+.face>svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.face circle{fill:none;stroke:var(--track);stroke-width:7;stroke-linecap:round}
+.face circle.done{stroke:var(--ink)}
+.face circle.cur{stroke:var(--ink);stroke-width:9;stroke-dasharray:0 600;animation:seg .7s var(--out) .15s forwards}
+@keyframes seg{to{stroke-dasharray:var(--dash) 600}}
+.face img,.face .ini{width:calc(var(--s) * .74);height:calc(var(--s) * .74);border-radius:50%;object-fit:cover;background:var(--sunk);display:grid;place-items:center;font-weight:900;color:var(--ink-muted);font-size:calc(var(--s) * .3)}
+.face.plain img,.face.plain .ini{width:calc(var(--s) * .9);height:calc(var(--s) * .9)}
+.face.person .ini{background:var(--sunk);color:var(--ink)}
+.face .badge{position:absolute;right:-2px;bottom:-2px;width:calc(var(--s) * .32);height:calc(var(--s) * .32);min-width:20px;min-height:20px;border-radius:50%;display:grid;place-items:center;background:var(--danger-solid);color:var(--on-danger-solid);border:2.5px solid var(--surface)}
+.face .badge .ico{width:62%;height:62%;stroke-width:2.4}
+.face .step{position:absolute;left:-2px;bottom:-2px;padding:1px 7px;border-radius:999px;background:var(--surface);color:var(--ink);border:2px solid var(--ink);font-size:.75rem;font-weight:900;line-height:1.25}
+button.face{cursor:pointer;transition:transform .35s var(--spring)}
+button.face:hover{transform:scale(1.04)}
+button.face:active{transform:scale(.95);transition-duration:.08s}
+
+/* ---------- money ---------- */
+.money{font-weight:900;white-space:nowrap;font-feature-settings:"tnum"}
+.money .cur{font-size:max(.78em, 11px);font-weight:700;color:var(--ink-muted);margin-right:1px}
+.money.neg{color:var(--ink)}
+
+/* ---------- panels ---------- */
+.panel{background:var(--surface);border-radius:var(--r-lg);padding:22px;box-shadow:var(--lift)}
+.panel-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.panel-h h2,.panel-h h3{font-size:1.0625rem;font-weight:900;line-height:1.3;display:inline-flex;align-items:center;gap:8px}
+.panel-h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+/* ---------- dialog ---------- */
+.dialog{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:24px;display:flex;flex-direction:column;gap:16px;animation:pop .35s var(--spring)}
+@keyframes pop{from{transform:translateY(16px) scale(.98);opacity:0}}
+.dialog h2{font-size:1.25rem;font-weight:900;line-height:1.35;text-wrap:balance}
+.dialog .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.cdl{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px 14px;padding:14px 16px;border-radius:var(--r-md);background:var(--sunk);font-size:.9375rem;font-weight:700}
+.cdl dt{color:var(--ink-muted);font-size:.875rem}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:.875rem;font-weight:800}
+.field input,.field textarea{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:.9375rem;font-weight:600}
+.field textarea{min-height:84px;resize:vertical;line-height:1.5}
+.field input:hover,.field textarea:hover{border-color:var(--ink)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink-muted)}
+.field [aria-invalid="true"]{border-color:var(--danger)}
+.field .err{font-size:.8125rem;font-weight:800;color:var(--danger)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.dbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:flex-start}
+.dbtns .cell{display:flex;flex-direction:column;align-items:flex-end}
+@media (max-width: 600px){
+  .dlg-s{align-items:flex-end;padding:0}
+  .dialog{border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:92dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+  .dbtns{flex-direction:column-reverse;align-items:stretch}
+  .dbtns .cell{align-items:stretch}
+}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(560px,calc(100vw - 32px));padding:10px 18px;border-radius:18px;background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .4s var(--spring)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+#app:not(.compact) ~ #layer .toast{left:calc(50% + var(--sidew) / 2)}
+#app.rail ~ #layer .toast{left:calc(50% + 2.625rem)}
+
+.whoami{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 6px;border-radius:999px;background:var(--sunk);font-weight:800;font-size:.875rem}
+.whoami .av{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900}
+:root{--boarding:#5B3BA6;--boarding-bg:#EDE7FA}
+:root[data-theme="dark"]{--boarding:#C6B3F5;--boarding-bg:#2D2347}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--boarding:#C6B3F5;--boarding-bg:#2D2347}}
+.chip.boarding{color:var(--boarding);background:var(--boarding-bg)}
+.btn.wide{width:100%}
+.btn .ico{flex:none}
+
+/* ---------- overlays ---------- */
+.scrim{position:fixed;inset:0;z-index:70;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s var(--out)}
+@keyframes fade{from{opacity:0}}
+.scrim.side-r{justify-content:flex-end;align-items:stretch;padding:0}
+@keyframes slidein-r{from{transform:translateX(40px);opacity:0}}
+
+/* ---------- page frame ---------- */
+.wrap{padding:14px 28px 56px}
+.compact .wrap{padding:12px 16px 48px}
+.head .pre-act{display:flex;flex-direction:column;align-items:flex-end}
+.compact .head .pre-act{align-items:stretch;flex-basis:100%}
+.head .pre-act .reason{margin-top:4px}
+.btn.primary.calm{background:var(--surface);color:var(--ink);border-color:var(--control-border);box-shadow:none;font-weight:700}
+.btn.primary.calm:hover{border-color:var(--ink);background:var(--surface)}
+
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:800;line-height:1.5}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.info{background:var(--info-bg);color:var(--info)}
+.notice .ico{margin-top:1px}
+.notice:focus{outline:2.5px solid var(--focus);outline-offset:2px}
+
+/* pickers: radiogroups of options */
+.fs{border:0;display:flex;flex-direction:column;gap:8px}
+.fs legend,.fs .lgd{font-size:.875rem;font-weight:900;margin-bottom:8px;padding:0}
+.rg{display:flex;flex-wrap:wrap;gap:6px}
+.opt{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:6px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:800;line-height:1.3;color:var(--ink);text-align:center;transition:box-shadow .2s var(--out),background-color .2s var(--out),transform .35s var(--spring)}
+.opt:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.opt:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.opt small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.opt[aria-checked="true"]{background:var(--ink);color:var(--surface);box-shadow:none}
+.opt[aria-checked="true"] small{color:var(--surface)}
+.opt[aria-disabled="true"]{background:transparent;box-shadow:none;border:1.5px dashed var(--control-border);color:var(--ink-muted);cursor:not-allowed}
+.ferr{display:flex;gap:8px;align-items:flex-start;font-size:.875rem;font-weight:800;color:var(--danger);line-height:1.45}
+.ferr .ico{margin-top:1px;width:18px;height:18px}
+.srch{position:relative}
+.srch .ico{position:absolute;left:14px;top:14px;color:var(--ink-muted)}
+.srch input{width:100%;min-height:48px;padding:10px 14px 10px 44px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);font-size:.9375rem;font-weight:600}
+.srch input:hover{border-color:var(--ink)}
+.srch input::placeholder{color:var(--ink-muted)}
+.hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+/* ---------- shared bits carried from M-07 ---------- */
+.fail{padding:32px 24px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.fail h2{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:900;color:var(--danger)}
+.fail p{font-size:.9375rem;font-weight:600;color:var(--ink-muted)}
+.noacc{max-width:36rem;margin:40px auto 0;padding:32px 28px;border-radius:var(--r-xl);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.noacc h2{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:900}
+.noacc p{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.banner.danger{background:var(--danger-tint);color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.dialog select{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:0 14px;font-weight:700}
+.pre-x{display:inline-flex;flex-direction:column;align-items:flex-end}
+:root{--hair:#F3EBE2}
+:root[data-theme="dark"]{--hair:#2B221C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hair:#2B221C}}
+
+/* ---------- M-04: rule strip and tabs ---------- */
+.rule{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:14px 28px 0;padding:12px 16px;border-radius:var(--r-lg);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.875rem;font-weight:700;line-height:1.5}
+.compact .rule{margin:12px 16px 0}
+.rule .ico{color:var(--ink-muted)}
+.rule b{font-weight:900}
+.tabs{margin:16px 28px 0;flex-wrap:nowrap;max-width:calc(100% - 56px);overflow-x:auto}
+.compact .tabs{margin:14px 16px 0;max-width:calc(100% - 32px)}
+.compact .tabs button{padding:0 14px}
+@media (max-width: 719px){.tabs button .ico{display:none}.compact .tabs button{padding:0 12px}}
+.tabs button{min-height:44px;padding:0 18px;font-size:.9375rem;white-space:nowrap;display:inline-flex;align-items:center;gap:8px}
+.tabs button .ico{width:18px;height:18px}
+.seg button[aria-selected="true"]{background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+:root[data-theme="dark"] .seg button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+.sheet{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:6px 14px 12px;container:sheet / inline-size}
+.colside{display:flex;flex-direction:column;gap:16px;min-width:0}
+.colmain{display:flex;flex-direction:column;gap:16px;min-width:0}
+.pendl{display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:0 10px 0 8px;margin:-6px 0;border-radius:999px;background:var(--warning-bg);color:var(--warning);font-weight:800;vertical-align:middle;transition:box-shadow .2s var(--out)}
+.pendl:hover{box-shadow:inset 0 0 0 1.5px var(--warning)}
+.pendl .ico{width:15px;height:15px;stroke-width:2.2}
+.textbtn.dg{color:var(--danger);background:transparent;box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.textbtn.dg:hover{background:var(--danger-tint)}
+.textbtn.ln{background:transparent;box-shadow:inset 0 0 0 1.5px var(--border)}
+.textbtn.ln:hover{background:var(--sunk);box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.sitem .n.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.dp{position:sticky;top:12px;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:20px;display:flex;flex-direction:column;gap:16px;animation:slidein-r .36s var(--out)}
+.dp.sheet{position:relative;top:0;width:min(440px,100vw);height:100%;max-height:none;border-radius:var(--r-xl) 0 0 var(--r-xl)}
+@media (max-width: 600px){.dp.sheet{border-radius:0;padding:16px 16px calc(24px + env(safe-area-inset-bottom))}}
+.dp-top{display:flex;align-items:center;gap:6px;margin:-6px -6px 0}
+.dp-top .back{margin-right:auto}
+.dp-top .x{margin-left:auto}
+.dp-id{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center}
+.dp-id .face{--s:72px}
+.dp-id h2{font-size:1.375rem;font-weight:900;line-height:1.25}
+.dp-id p{font-size:.875rem;font-weight:700;color:var(--ink-muted);margin-top:2px}
+.dp-id .masked{margin-top:6px}
+.dp h2.mode{font-size:1.25rem;font-weight:900;line-height:1.3}
+.dp h3{font-size:.9375rem;font-weight:900;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.notes{list-style:none;display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:var(--r-md);background:var(--danger-tint);box-shadow:inset 0 0 0 1px var(--border-danger)}
+.notes.care{background:var(--warning-bg);box-shadow:none}
+.notes li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:.875rem;font-weight:700;line-height:1.45}
+.kv{display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:9px 14px;font-weight:700;font-size:.9375rem;line-height:1.45}
+.dph{display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;align-items:center}
+.ttile{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--sunk);color:var(--ink)}
+.ttile .ico{width:26px;height:26px;stroke-width:1.7}
+.ttile.dash{background:transparent;border:2px dashed var(--control-border);color:var(--ink-muted)}
+.dph h2{font-size:1.375rem;font-weight:900;line-height:1.25}
+.dph p{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:.875rem;font-weight:700;color:var(--ink-muted);margin-top:4px}
+.dsec{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--border)}
+.dsec>h3{margin-bottom:0}
+.dsec>.hint{margin-top:-4px}
+.hist{list-style:none;display:flex;flex-direction:column;gap:8px;font-size:.875rem;font-weight:700;line-height:1.45}
+.hist li{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:10px}
+.hist li span:first-child{color:var(--ink-muted);font-size:.8125rem;font-feature-settings:"tnum"}
+.hist li small{display:block;font-size:.8125rem;color:var(--ink-muted)}
+.endz{padding-top:14px;border-top:1.5px dashed var(--border-danger);display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+
+/* ---------- 取消與改期政策: page layout (two policy sheets beside a 360px column) ---------- */
+.lay{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
+.compact .lay,.rail .lay{grid-template-columns:minmax(0,1fr)}
+.rule a{color:inherit;font-weight:900;text-underline-offset:3px;text-decoration-thickness:1.5px}
+.linkb{display:inline;padding:0;font-weight:900;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+.demo{display:inline-flex;align-items:center;padding:1px 9px;border-radius:999px;border:1.5px dashed var(--control-border);font-size:.75rem;font-weight:800;color:var(--ink-muted);white-space:nowrap}
+
+/* one sheet per kind of service */
+.psheet{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:20px 24px 20px;display:flex;flex-direction:column;gap:14px;container:psheet / inline-size;transition:box-shadow .2s var(--out)}
+.psheet.editing{box-shadow:var(--lift-hi),inset 0 0 0 2px var(--ink)}
+.psh{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}
+.psh h2{font-size:1.1875rem;font-weight:900;line-height:1.3;display:flex;align-items:center;gap:8px}
+.psh h2 .ico{color:var(--ink-muted)}
+.psh .aside{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.psh .ed{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end}
+.said{font-size:1rem;font-weight:700;line-height:1.65;max-width:68ch;text-wrap:pretty}
+.said b{font-weight:900}
+
+/* the countdown ruler: time runs left to right toward the appointment, the fee is the height of each step */
+.rul{position:relative;padding-top:30px;margin-top:2px;container-type:inline-size}
+.stair{--area:128px;position:relative;height:var(--area);box-shadow:inset 0 -2px 0 var(--ink)}
+.stair i,.tks span{font-style:normal}
+.stair .hl{position:absolute;top:0;bottom:0;width:0;border-left:1px solid var(--hair)}
+.stp{position:absolute;bottom:0;border-radius:8px 8px 0 0;background:var(--ink);transition:none}
+.stp.fr{background:transparent}
+.stp.ns{background:repeating-linear-gradient(135deg,var(--ink) 0 3px,var(--ink-muted) 3px 6.5px)}
+.stp .lb{position:absolute;z-index:5;padding:0 4px;border-radius:6px;background:var(--surface);bottom:calc(100% + 6px);left:10px;font-size:.875rem;font-weight:900;line-height:1.2;white-space:nowrap;color:var(--ink)}
+.stp.fr .lb{bottom:8px;color:var(--ink-muted);background:none}
+.stp.fe .lb{left:auto;right:10px}
+.stp.ns .lb{left:50%;transform:translateX(-50%)}
+.stp.zero .lb{bottom:8px}
+.stp.gh{background:transparent;border:2px dashed var(--ink-muted);border-bottom:0;z-index:0}
+.stp.gh.fr{border:0}
+.stp.gh .lb{display:none}
+.bd{position:absolute;top:-10px;bottom:-12px;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--ink);z-index:2}
+.bd.gh{width:0;margin-left:-1px;background:none;border-left:2px dashed var(--ink-muted);z-index:1}
+.ap{position:absolute;top:-10px;bottom:-12px;width:0;margin-left:-1px;border-left:2px dashed var(--ink);z-index:2}
+/* while a fee changes, the current height stays on the ruler as a dashed edge drawn over the new step (it alternates
+   surface and muted ink so it reads on the solid step and on the ground alike) */
+.was-ln{position:absolute;height:2px;margin-bottom:-1px;background:repeating-linear-gradient(90deg,var(--surface) 0 6px,var(--ink-muted) 6px 12px);z-index:3;pointer-events:none}
+.was-ln span{position:absolute;right:6px;top:5px;padding:0 7px;border-radius:999px;border:1.5px dashed var(--ink-muted);background:var(--surface);color:var(--ink-muted);font-size:.75rem;font-weight:900;line-height:1.4;white-space:nowrap}
+.was-ln.ns span{right:2px}
+.stair.anim .stp,.stair.anim .bd{transition:left .9s var(--out),width .9s var(--out),height .9s var(--out),opacity .5s var(--out)}
+.stair.anim .bd.gh.old{transition:opacity .6s var(--out) .9s}
+.tks{position:relative;height:34px;margin-top:4px}
+/* enlarged text: the appointment label drops to a second row and hangs left of its line, so it neither runs off the ruler
+   nor sits on the tick before it (it shares .ap's width:0, so it needs its width back) */
+@container (max-width: 15rem){.tks{height:calc(34px + 1.75em)}.tk.ap{width:auto;top:calc(8px + 1.75em);transform:translateX(-100%);padding-right:6px}}
+.tk{position:absolute;top:8px;transform:translateX(-50%);font-size:.75rem;font-weight:800;line-height:1.5;color:var(--ink-muted);white-space:nowrap}
+.tk.first{transform:none}
+.tk.on{top:6px;padding:1px 9px;border-radius:999px;background:var(--ink);color:var(--surface);font-weight:900}
+.tk.gh{top:6px;padding:0 8px;border-radius:999px;border:1.5px dashed var(--ink-muted);background:var(--surface);color:var(--ink-muted);font-weight:900}
+.tk.ap{color:var(--ink);font-weight:900;border:0}
+
+/* the example pet stands on the step it would land on; a native range input drives it */
+.thumb{position:absolute;left:var(--x);bottom:calc(var(--y) + 2px);transform:translateX(-50%);z-index:3;pointer-events:none;transition:bottom .25s var(--out)}
+.thumb .face{--s:40px;box-shadow:0 0 0 3px var(--surface),var(--lift);border-radius:50%}
+.thumb .face img{width:100%;height:100%}
+.xr{position:absolute;left:0;right:0;top:-30px;bottom:-14px;width:100%;height:calc(100% + 44px);margin:0;opacity:0;cursor:grab;z-index:4}
+.xr:active{cursor:grabbing}
+.stair:has(.xr:focus-visible) .thumb .face{outline:3px solid var(--focus);outline-offset:3px}
+.stair:has(.xr:hover) .thumb .face{transform:scale(1.06)}
+.thumb .face{transition:transform .35s var(--spring)}
+
+/* the worked example under the ruler */
+.calc{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:start;padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.875rem;font-weight:700;line-height:1.55}
+.calc .ico{margin-top:1px;color:var(--ink-muted)}
+.calc b{font-weight:900}
+.calc .r{display:flex;flex-wrap:wrap;gap:2px 14px}
+.calc .r>span{min-width:0}
+.calc small{grid-column:2;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+/* who has to approve: a small table under the ruler */
+.rvw{overflow-x:auto}
+.rvt{width:100%;min-width:520px;border-collapse:separate;border-spacing:0;font-size:.875rem;line-height:1.45}
+.rvt caption{text-align:left;font-size:.9375rem;font-weight:900;padding-bottom:6px}
+.rvt th,.rvt td{padding:9px 12px;text-align:left;vertical-align:middle}
+.rvt thead th{font-weight:900;border-bottom:1.5px solid var(--border);vertical-align:bottom}
+.rvt thead th small{display:block;font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.rvt tbody th{font-weight:900;width:4.5rem}
+.rvt tbody tr+tr>*{border-top:1px solid var(--hair)}
+.rvt td{font-weight:800}
+.rv{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.rnote.nsl{display:none}
+.vh{font-size:.8125rem;font-weight:900;color:var(--ink-muted);margin-top:2px}
+.vh~.vh{margin-top:8px}
+.rv .ico{width:17px;height:17px;stroke-width:2.1}
+.rv.auto{color:var(--success)}
+.rv.rev{color:var(--ink)}
+.rvt .fixed{color:var(--ink-muted);font-weight:700;font-size:.8125rem;border-left:1px solid var(--hair)}
+.rvt .seg button{min-height:40px;padding:0 12px;font-size:.8125rem}
+.rnote{font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+
+/* a change waiting for its date */
+.sch{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 12px 10px 14px;border-radius:var(--r-md);border:1.5px dashed var(--ink-muted);font-size:.875rem;font-weight:700;line-height:1.5}
+.sch>.ico{color:var(--ink-muted)}
+.sch .tx{flex:1 1 20rem;min-width:0;text-wrap:pretty}
+.sch b{font-weight:900}
+.sch small{display:block;font-size:.8125rem;color:var(--ink-muted)}
+.sch.fresh{animation:pop .5s var(--spring)}
+/* schedules stack as in M-04 and M-05: one strip per effective date, each cancelled on its own */
+.schs{display:flex;flex-direction:column;gap:8px}
+
+/* editing in place: pickers above the ruler, the tray below */
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:14px 22px;padding:14px 0 4px;border-top:1px solid var(--border)}
+.pick .fs legend{display:flex;flex-direction:column;gap:1px;margin-bottom:8px}
+.pick .fs legend small{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.opt.was{box-shadow:inset 0 0 0 1.5px var(--border),0 0 0 0 transparent;position:relative}
+.opt.was::after{content:"目前";position:absolute;top:-8px;right:-4px;padding:0 6px;border-radius:999px;background:var(--surface);border:1.5px dashed var(--ink-muted);font-size:.75rem;font-weight:900;color:var(--ink-muted);line-height:1.4}
+.soft{display:flex;gap:8px;align-items:flex-start;font-size:.8125rem;font-weight:800;color:var(--warning);line-height:1.45}
+.soft .ico{width:16px;height:16px;margin-top:1px}
+.soft.eq{color:var(--ink-muted)}
+/* what most shops pick (same marks as M-01's 開店設定); a mark, not a preselection */
+.opt .most{margin-top:2px;padding:0 6px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--control-border);font-size:.6875rem;font-weight:800;line-height:1.6}
+.opt[aria-checked="true"] .most{box-shadow:inset 0 0 0 1px var(--surface)}
+/* which bookings: a native disclosure, in the tray and in the confirm */
+.who{margin-top:2px}
+.who summary{display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:0 10px 0 6px;margin-left:-6px;border-radius:999px;font-size:.8125rem;font-weight:900;cursor:pointer;list-style:none;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+.who summary::-webkit-details-marker{display:none}
+.who summary:hover{background:var(--sunk-hover)}
+.who summary .ico{width:16px;height:16px;transition:transform .2s var(--out)}
+.who[open] summary .ico{transform:rotate(180deg)}
+.bkl{list-style:none;display:flex;flex-direction:column;margin-top:4px;padding:4px 12px;border-radius:var(--r-sm);background:var(--surface);box-shadow:inset 0 0 0 1px var(--border);font-size:.8125rem;font-weight:700;line-height:1.45}
+.bkl li{display:grid;grid-template-columns:8.5rem minmax(0,1fr) auto;gap:2px 10px;padding:6px 0;border-top:1px solid var(--hair)}
+.bkl li:first-child{border-top:0}
+.bkl li span:first-child{color:var(--ink-muted);font-feature-settings:"tnum"}
+.bkl li b{font-weight:900}
+.bkl li small{font-size:.75rem;font-weight:800;color:var(--ink-muted);white-space:nowrap}
+.cdl .bkl{background:var(--surface)}
+@media (pointer: coarse){.who summary{min-height:44px}}
+.tray{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:var(--r-lg);background:var(--sunk)}
+.tray .fs{gap:6px}
+.tray .opt{background:var(--surface)}
+.tray .opt[aria-checked="true"]{background:var(--ink)}
+.imp{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:.875rem;font-weight:700;line-height:1.5}
+.imp>li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px}
+.imp>li>.ico{width:18px;height:18px;margin-top:2px;color:var(--ink-muted)}
+.imp b{font-weight:900}
+.imp a{color:inherit;font-weight:900;text-underline-offset:3px}
+.tacts{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;align-items:flex-start}
+.tacts .cell{display:flex;flex-direction:column;align-items:flex-end}
+
+/* side column: what the owner sees, and the versions */
+.side-c{display:flex;flex-direction:column;gap:16px;min-width:0}
+.compact .side-c,.rail .side-c{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr));align-items:start}
+.scard{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.scard h2{font-size:1.0625rem;font-weight:900;line-height:1.3;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.scard h2 .ico{color:var(--ink-muted)}
+.scard .seg{align-self:flex-start}
+.scard .seg button{min-height:40px;padding:0 13px;font-size:.8125rem}
+.pvnote{font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+.pvnote.draft{color:var(--ink);font-weight:800;display:flex;gap:6px;align-items:flex-start}
+.pvnote.draft .ico{width:16px;height:16px;margin-top:1px}
+.bubble{padding:14px 16px;border-radius:20px 20px 20px 8px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.9375rem;font-weight:600;line-height:1.6}
+.bubble .from{display:block;font-size:.75rem;font-weight:800;color:var(--ink-muted);margin-bottom:4px}
+.bubble b{font-weight:900}
+.bubble ul{list-style:none;margin-top:6px}
+.bubble li{padding-left:14px;position:relative}
+.bubble li::before{content:"";position:absolute;left:2px;top:.72em;width:5px;height:5px;border-radius:50%;background:var(--control-border)}
+
+/* owner-facing tokens for the LIFF preview, copied from M-07 (the demo shop's sage brand) */
+:root{--o-surface:#FFFFFF;--o-variant:#F6EFE7;--o-ink:#2B211C;--o-muted:#6E6058;--o-border:#EADFD3;--o-control:#9A8878;--brand:#3D6B57;--on-brand:#FFFFFF;--brand-tint:#E6EFE6;--brand-ink:#2F5A47}
+:root[data-theme="dark"]{--o-surface:#211915;--o-variant:#15100D;--o-ink:#F6EDE6;--o-muted:#BCAEA3;--o-border:#3A2E27;--o-control:#8D7C6F;--brand:#93CBB0;--on-brand:#0E2A1F;--brand-tint:#20302A;--brand-ink:#93CBB0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--o-surface:#211915;--o-variant:#15100D;--o-ink:#F6EDE6;--o-muted:#BCAEA3;--o-border:#3A2E27;--o-control:#8D7C6F;--brand:#93CBB0;--on-brand:#0E2A1F;--brand-tint:#20302A;--brand-ink:#93CBB0}}
+.oph{border-radius:26px;background:#1A1310;padding:8px;box-shadow:var(--lift)}
+.oscr{border-radius:20px;overflow:hidden;background:var(--o-variant);color:var(--o-ink);font-size:.875rem;line-height:1.55}
+.o-top{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--o-surface);box-shadow:0 1px 0 var(--o-border)}
+.o-top .ob{width:28px;height:28px;border-radius:10px;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-weight:900;font-size:.8125rem;flex:none}
+.o-top b{display:block;font-weight:900;line-height:1.25;font-size:.875rem}
+.o-top small{display:block;font-size:.75rem;font-weight:700;color:var(--o-muted)}
+.o-body{padding:14px 14px 4px;display:flex;flex-direction:column;gap:10px}
+.o-body h3{font-size:1.0625rem;font-weight:900;line-height:1.35}
+.o-body .om{font-size:.8125rem;font-weight:700;color:var(--o-muted)}
+.o-card{background:var(--o-surface);border-radius:14px;padding:12px 14px;box-shadow:var(--lift)}
+.o-card h4{font-size:.875rem;font-weight:900;margin-bottom:6px}
+.o-card ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.o-card li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:6px;font-weight:700;font-size:.8125rem}
+.o-card li .ico{color:var(--brand-ink);width:15px;height:15px;margin-top:3px}
+.o-fee{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:8px;padding-top:8px;border-top:1px solid var(--o-border);font-weight:800}
+.o-fee small{display:block;font-size:.75rem;font-weight:700;color:var(--o-muted)}
+.o-fee .money .cur{color:var(--o-muted)}
+.o-go{padding:10px 14px 14px;display:flex;flex-direction:column;gap:6px}
+.o-btn{min-height:44px;border-radius:12px;background:var(--brand);color:var(--on-brand);font-weight:900;display:flex;align-items:center;justify-content:center;cursor:default}
+.o-go small{font-size:.75rem;font-weight:700;color:var(--o-muted);text-align:center}
+
+.vers{list-style:none;display:flex;flex-direction:column}
+.vers li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;padding:10px 0;border-top:1px solid var(--hair);font-size:.875rem;font-weight:700;line-height:1.45}
+.vers li:first-child{border-top:0}
+.vers .vn{grid-row:span 2;align-self:start;min-width:3.25rem;padding:1px 8px;border-radius:999px;background:var(--sunk);font-size:.75rem;font-weight:900;text-align:center}
+.vers li.cur .vn{background:var(--ink);color:var(--surface)}
+.vers li.vsch .vn{background:transparent;border:1.5px dashed var(--ink-muted);color:var(--ink-muted)}
+.vers b{font-weight:900}
+.vers small{grid-column:2;font-size:.8125rem;color:var(--ink-muted)}
+.vers li.fresh{animation:pop .5s var(--spring)}
+
+/* narrow sheets: the ruler keeps its shape, the step labels move into the sentence */
+@container psheet (max-width: 600px){
+  .stp .lb{font-size:.75rem;left:6px}
+  .stp.ns .lb{left:auto;right:0;transform:none}
+  .tk:not(.on):not(.ap){display:none}
+  .rvt{min-width:0}
+  .rvt th,.rvt td{padding:8px 6px}
+  .rvt th:nth-child(4),.rvt .fixed{display:none}
+  .rnote.nsl{display:block}
+  .stp.fe .lb{right:4px}
+  .pick{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width: 719px){
+  .psheet{padding:16px 16px 16px}
+  .tacts{flex-direction:column-reverse;align-items:stretch}
+  .tacts .cell{align-items:stretch}
+}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}.sch.fresh,.vers li.fresh{animation:fresh-rm 1.6s var(--out) !important}@keyframes fresh-rm{0%,40%{background:var(--act-tint)}}}
+/* touch: DESIGN.md touch-target is 44px; mouse density stays as drawn */
+@media (pointer: coarse){.seg>button{min-height:44px !important}}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>取消與改期政策・原型</b><span class="muted">店家、預約與政策數字全為虛構示範・今天 10/9（五）11:20</span>
+  <label>身分 <select id="p-role"><option value="admin">陳老闆・店家管理者</option><option value="mgr">林店長・店長（中山店）</option><option value="desk">阿凱・櫃台（中山店）</option></select></label>
+  <label>跳到 <select id="p-go"><option value="">選擇情境</option><option value="now">中山店現行政策</option><option value="board">中山店住宿・11/1 排程中</option><option value="edit">修改美容政策</option><option value="loose">修改：未到費比取消費低</option><option value="ns">試算：沒到也沒取消</option><option value="liff">預覽飼主取消畫面</option><option value="xy">信義店</option></select></label>
+  <label>下一次寫入 <select id="p-write"><option value="ok">正常</option><option value="conflict">被其他人修改</option></select></label>
+  <label><input type="checkbox" id="p-fail"> 載入失敗</label>
+  <label><input type="checkbox" id="p-off"> 離線</label>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <span class="tagp">原型</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+const I = {
+  inbox:'<path d="M4 13h4l1.5 2.5h5L16 13h4"/><path d="M5.5 5h13L20 13v6H4v-6l1.5-8Z"/>',
+  coins:'<ellipse cx="9" cy="7" rx="5" ry="2.5"/><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7"/><path d="M10 15.4c.9 1.3 3 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  dash:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 19c1-3.5 3.4-5 6-5s5 1.5 6 5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.3c1.7.7 2.9 2.2 3.5 4.7"/>',
+  scis:'<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17M8.6 15.6 20 7"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  doc:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  team:'<circle cx="10" cy="8" r="4"/><path d="M3 20c1.4-3.5 4-5 7-5 1.5 0 2.9.4 4 1.1M18 14v6M15 17h6"/>',
+  plan:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  fwd:'<path d="m10 6 6 6-6 6"/>',
+  up:'<path d="m6 14 6-6 6 6"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  paw:'<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  unlock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',
+  ban:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4V5Z"/>',
+  receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  stamp:'<path d="M9 4h6l-1 7h-4L9 4Z"/><path d="M5 15h14v3H5zM7 21h10"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  erase:'<path d="M8 20h12M4.5 15.5 14 6l5 5-7.5 7.5H8.5l-4-3Z"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/>',
+  swap:'<path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/>',
+  otp:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  layers:'<path d="m12 4 9 5-9 5-9-5 9-5Z"/><path d="m3 14 9 5 9-5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>'
+};
+Object.assign(I, {
+  store:'<path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8h13v-8M10 20v-5h4v5"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  tag:'<path d="M3.5 12.5V4h8.5l8.5 8.5-8.5 8.5-8.5-8.5Z"/><circle cx="8" cy="8.5" r="1.5"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  qr:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
+  play:'<circle cx="12" cy="12" r="8.5"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'
+});
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+Object.assign(I, {
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  dots:'<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+  board:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16M9 9v11"/>',
+  release:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M9 15h6" stroke-dasharray="2 2"/>'
+});
+Object.assign(I, {
+  print:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/>',
+  trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  tablet:'<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M11 18h2"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8M16 7l3 3M14 9l2 2"/>',
+  scale:'<path d="M12 4v16M7 20h10M5 8h14"/><path d="m5 8-3 6a3 3 0 0 0 6 0L5 8ZM19 8l-3 6a3 3 0 0 0 6 0l-3-6Z"/>',
+  home:'<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>'
+});
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  cage:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M8.5 5v15M12 5v15M15.5 5v15M4 12.5h16"/>',
+  pause:'<circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/>',
+  wrench:'<path d="M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5 2.5-2.5Z"/>',
+  move:'<path d="M4 12h16M15 7l5 5-5 5"/><path d="M4 6v12" stroke-dasharray="2 2"/>'
+});
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* a person's initial: skip the 阿 / 小 prefix so 阿凱 and 阿楷 stay apart (user decision 2026-10-11); pets keep their first character */
+const initialOf = n => /^[阿小]./.test(n) ? n[1] : n[0];
+const $ = id => document.getElementById(id);
+const qs = new URLSearchParams(location.search);
+const clone = o => JSON.parse(JSON.stringify(o));
+const chip = (tone, t) => `<span class="chip ${tone}">${t}</span>`;
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  logout:'<path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4M18 12H9"/>',
+  line:'<path d="M12 4.5c-5 0-9 3.2-9 7.2 0 3.6 3.2 6.5 7.5 7.1l-.4 2.2 3.3-2.2c4.4-.6 7.6-3.5 7.6-7.1 0-4-4-7.2-9-7.2Z"/>',
+  mail:'<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/>',
+  send:'<path d="M20 4 3 11l7 2.5L12.5 20 20 4Z"/><path d="m10 13.5 4.5-4.5"/>',
+  revoke:'<path d="M5 5h9l5 5v9H5z" stroke-dasharray="3 2.5"/><path d="m9 11 6 6M15 11l-6 6"/>',
+  seat:'<path d="M7 11V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v5"/><path d="M5 11h14v4H5zM7 15v5M17 15v5"/>'
+});
+Object.assign(I, {
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  sms:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 8h4M10 11h4M11 18h2"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  wall:'<path d="M5 4v16M19 4v16M5 9h14M5 15h14M12 4v5M9 9v6M15 9v6M12 15v5"/>',
+  hq:'<path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-5h6v5M9 11h.01M15 11h.01"/>'
+});
+Object.assign(I, {calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/>'});
+
+/* ---------- time: the demo day ---------- */
+const STEP_MS = qs.get('fast') === '1' ? 120 : 800;
+/* 臨時取消和沒來的那天 (prototypes/late-cancel): ?life=lc-policy is 10/9（五）11:40. At 10:50 王太太 cancelled 毛毛's 10/10（六）10:00 inside
+   24 hours (林店長 approved it at 11:10, 取消費 NT$240) and at 11:20 湯圓 was marked 未到 (NT$180). 陳老闆 lengthens 美容・安親's free period
+   to 48 小時 and the fee to 30% from 10/12（一）; bookings made before then keep 第 2 版. Scheduling that change posts 'scheduled'. */
+const LIFE = (v => ['lc-policy'].includes(v) ? v : null)(qs.get('life'));
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+const NOWS = LIFE ? '11:40' : '11:20';
+const WK = '日一二三四五六';
+const p2 = n => String(n).padStart(2, '0');
+const dt = d => `${d.getMonth() + 1}/${d.getDate()}（${WK[d.getDay()]}）${p2(d.getHours())}:${p2(d.getMinutes())}`;
+
+/* ---------- demo data (fictional; every number is a demo number) ---------- */
+const SHOP = '毛孩日和';
+const BR = {zs:'中山店', xy:'信義店'};
+/* the two halves of a branch's policy. Units are hours before the appointment (or the boarding check-in). */
+const KIND = {
+  groom:{n:'美容・安親', icon:'scis', svc:'洗澡・美容・SPA・安親', S:96, step:1, at:'預約時間', price:'服務費', ticks:[96, 72, 48, 24, 12], frees:[12, 24, 48, 72], ctr:'犬貓美容定型化契約', clause:'第三條、第七條',
+    ex:{pet:'小米', img:'pets/xiaomi.webp', what:'基礎洗澡・中型犬', price:800, dep:300, t:new Date(2026, 9, 9, 14, 0)}},   /* M-02's z0-xiaomi: today 14:00, NT$300 paid, owner's cancel request waiting for review */
+  board:{n:'住宿', icon:'moon', svc:'住宿', S:240, step:6, at:'入住時間', price:'住宿費', ticks:[240, 168, 120, 72, 24], frees:[24, 48, 72, 120, 168], ctr:'住宿同意書', clause:'取消條款',
+    ex:{pet:'布丁', img:'pets/buding.webp', what:'住宿 3 晚', price:3600, dep:1000, t:new Date(2026, 9, 26, 14, 0)}}   /* after 布丁's 10/18 grooming (M-02 rs-buding); a stay of this page's own */
+};
+const KK = ['groom', 'board'];
+const FEES = [10, 20, 30, 50, 100], NSS = [0, 20, 30, 50, 100], LATES = [1, 2, 3];
+/* review: c = 取消, r = 改期; f = inside the free period, p = inside the fee period. spec default: free cancellations go through on their own; fee cancellations and every reschedule go to the shop */
+const RV0 = {cf:'auto', cp:'rev', rf:'rev', rp:'rev'};
+const POL0 = {
+  zs:{groom:{free:24, fee:20, ns:30, late:2, rv:clone(RV0), schs:[]}, board:{free:24, fee:20, ns:30, rv:clone(RV0), schs:[{at:'1101', v:{free:72, fee:20, ns:30, rv:clone(RV0)}, by:'陳老闆', on:'10/7'}]}},
+  xy:{groom:{free:24, fee:20, ns:30, late:2, rv:clone(RV0), schs:[]}, board:{free:24, fee:20, ns:30, rv:clone(RV0), schs:[]}}
+};
+/* what most shops pick (M-01's 開店設定, search 多數店家): marked on the matching option, never preselected */
+const MOST = {free:24, fee:20, ns:30};
+/* the bookings already made, per half. A policy-driven contract version applies only to bookings made after it takes effect:
+   signed ones keep what they signed, unsigned ones sign the version in force when they were made, at its fees (user decision 2026-10-17).
+   Pets and owners follow M-02 and M-03; the dates and which ones are signed are this page's own. */
+const BKP = {
+  zs:{groom:['毛毛','小米','布丁','阿福','小黑','花生','球球','糖糖','拿鐵','麻糬','皮皮','可樂','奶茶','可可','奶油','芝麻','黑糖','餅乾'], board:['阿福','可樂','小黑','布丁']},
+  xy:{groom:['嘟嘟','胖虎','歐告','雪球','妞妞','咖啡','旺財','嘟嘟','胖虎','雪球','咖啡','旺財','妞妞','歐告','嘟嘟','雪球','胖虎','咖啡','旺財','妞妞','歐告','嘟嘟','雪球'], board:['胖虎','歐告','旺財']}
+};
+const BKU = {zs:{groom:7, board:1}, xy:{groom:8, board:1}};
+function bookings(br, k) {
+  const names = BKP[br][k], u = BKU[br][k], board = k === 'board', TM = [[10, 0], [11, 30], [13, 0], [14, 30], [16, 0]], SV = ['洗澡', '洗澡＋美容', 'SPA', '安親'];
+  /* the nearest ones were made earliest and are signed; the first three grooming ones were made before 10/1, under 第 1 版 */
+  return names.map((pet, i) => ({pet, at:dt(new Date(2026, 9, 10 + Math.floor(i * 1.4), ...TM[i % 5])), what:board ? `住宿 ${2 + i % 3} 晚` : SV[i % 4],
+    signed:i < names.length - u, n:board ? 1 : i < 3 ? 1 : 2}));
+}
+/* each half keeps its own version line; every booking remembers the version it was made under */
+const VER0 = {
+  zs:{groom:[{n:2, from:'10/1', t:'免費期限 48 小時 → 24 小時、取消費 30% → 20%、接回寬限 3 → 2 小時', by:'陳老闆 9/20'},
+             {n:1, from:'2025/7/1', to:'2026/9/30', t:'開店設定', by:'陳老闆'}],
+      board:[{n:2, sch:true, at:'1101', from:'11/1', t:'免費期限 1 天 → 3 天', by:'陳老闆 10/7 排定'},
+             {n:1, from:'2025/7/1', t:'開店設定', by:'陳老闆'}]},
+  xy:{groom:[{n:2, from:'10/1', t:'免費期限 48 小時 → 24 小時、取消費 30% → 20%、接回寬限 3 → 2 小時', by:'陳老闆 9/20'},
+             {n:1, from:'2025/11/1', to:'2026/9/30', t:'分店開幕', by:'陳老闆'}],
+      board:[{n:1, from:'2025/11/1', t:'分店開幕', by:'陳老闆'}]}
+};
+const EFF = {now:['立即生效', `今天 ${NOWS} 之後`], '1012':['10/12（一）起', '下週一'], '1101':['11/1（日）起', '下個月 1 日']};
+const EFFK = ['now', '1012', '1101'];
+const EORD = {now:0, '1012':1, '1101':2};
+const effShort = at => EFF[at][0].replace('起', '').replace(/（.）/, '');
+const VIEWER = {admin:'陳老闆', mgr:'林店長', desk:'阿凱'};
+const ME = {admin:['陳老闆', '店家管理者', '兩家分店'], mgr:['林店長', '店長', '中山店'], desk:['阿凱', '櫃台', '中山店']};
+const X0 = {groom:78, board:228};
+const INIT = {role:'admin', br:'zs', pol:clone(POL0), ver:clone(VER0), edit:null, x:clone(X0), pk:'groom', pv:'line', dlg:null, offline:false, loadFail:false, nextWrite:'ok', seq:0};
+let state = clone(INIT);
+
+/* ---------- numbers and words ---------- */
+const fmt = n => Math.round(n).toLocaleString('en-US');
+const money = n => `<span class="money"><span class="cur">NT$</span>${fmt(n)}</span>`;
+const pctL = p => p === 100 ? '全額' : `${p}%`;
+/* durations read the way the shop says them: hours for grooming under 3 days, days for boarding */
+function dur(k, h) {
+  if (h < 24 || (k === 'groom' && h < 72)) return `${h} 小時`;
+  const d = Math.floor(h / 24), r = h % 24;
+  return r ? `${d} 天 ${r} 小時` : `${d} 天`;
+}
+const P = () => state.pol[state.br];
+const cur = k => P()[k];
+/* what the ruler and the preview show: the draft while that section is being edited */
+const view = k => state.edit?.k === k ? state.edit.d : cur(k);
+const schs = k => cur(k).schs || [];
+/* the rule in force just before a date: the latest earlier schedule, else the live rule */
+const prevAt = (k, at) => { const xs = schs(k).filter(x => EORD[x.at] < EORD[at]); return xs.length ? xs[xs.length - 1].v : cur(k); };
+/* one phrase for the no-show, in the sentence, the example and the owner's LINE message alike */
+const NSW = '沒到也沒事先取消';
+function sentence(k, v) {
+  const K = KIND[k], f = dur(k, v.free);
+  return `${K.at} <b>${f}前</b>取消或改期，不收費用；${f}內取消或改期，收${K.price} <b>${pctL(v.fee)}</b>；${NSW}，${v.ns ? `收${K.price} <b>${pctL(v.ns)}</b>` : '<b>不另外收費</b>'}。`;
+}
+const bullets = (k, v) => {
+  const K = KIND[k], f = dur(k, v.free);
+  return [`${K.at} ${f}前取消或改期，不收費用。`, `${f}內取消或改期，收${K.price} ${pctL(v.fee)}。`, v.ns ? `${NSW}，收${K.price} ${pctL(v.ns)}。` : `${NSW}，不另外收費。`];
+};
+
+/* ---------- ruler geometry ---------- */
+const W = k => KIND[k].S * 7 / 6;
+const pos = (k, h) => (KIND[k].S - h) / W(k) * 100;
+const NSP = 600 / 7;
+const sh = p => p ? 18 + p * 1.1 : 0;
+/* the example: x is how far along the ruler (0 = far before, past S = never came) */
+const hOf = (k, x) => KIND[k].S - x;
+function outcome(k, v, x) {
+  const K = KIND[k], h = hOf(k, x);
+  if (h < 0) return {z:'ns', pct:v.ns, fee:Math.round(K.ex.price * v.ns / 100), h};
+  if (h >= v.free) return {z:'fr', pct:0, fee:0, h};
+  return {z:'fe', pct:v.fee, fee:Math.round(K.ex.price * v.fee / 100), h};
+}
+const yOf = (v, o) => o.z === 'fr' ? 0 : sh(o.z === 'ns' ? v.ns : v.fee);
+
+/* ---------- who may do what ---------- */
+const noAccess = () => state.role === 'desk';
+const editor = () => !noAccess() && !state.phone;
+const writeLock = () => state.offline ? '需連線' : null;
+const me = () => VIEWER[state.role];
+const branches = () => state.role === 'mgr' ? ['zs'] : ['zs', 'xy'];
+
+/* ---------- shell (from 方案與用量) ---------- */
+const NAV = [
+  ['營運', [['dash','儀表板','dash'],['cal','預約','cal'],['queue','待處理','inbox'],['cust','客戶與寵物','users'],['money','收款對帳','coins']]],
+  ['設定', [['svc','服務與價格','scis'],['hours','營業時間','clock'],['res','資源','res'],['tpl','契約模板','doc'],['pol','取消與改期政策','cxl'],['notify','通知設定','bell']]],
+  ['帳務', [['staff','員工與權限','team'],['plan','方案與用量','plan'],['audit','稽核紀錄','shield']]]
+];
+/* the narrow rail shows a short name (客戶, 政策…) rather than cutting the full one to 「取…」 (from M-02) */
+const SHORT = {cust:'客戶', money:'收款', svc:'服務', pol:'政策', staff:'員工', plan:'方案'};
+function sideNav() {
+  const staffOnly = noAccess(), [w, r, b] = ME[state.role];
+  const groups = NAV.filter(([g]) => !staffOnly || g === '營運').map(([g, list]) => `<div class="sgrp" aria-hidden="true">${g}</div>${list.map(([k, l, icon]) =>
+    `<button class="sitem" data-key="nav-${k}" data-do="nav" data-page="${k}" title="${l}" ${k === 'pol' && !staffOnly ? 'aria-current="page"' : ''}>${ic(icon)}<span class="lf">${l}</span>${SHORT[k] ? `<span class="ls" aria-hidden="true">${SHORT[k]}</span>` : ''}</button>`).join('')}`).join('');
+  return `<nav class="side" aria-label="主選單"><div class="brand"><span class="mark" aria-hidden="true">${ic('mark')}</span><span><small>寵派商家中心</small><b>${SHOP}</b></span></div><div class="snav">${groups}</div>
+    <div class="me"><span class="av" aria-hidden="true">${initialOf(w)}</span><span><b>${w}</b><small>${r}・${b}</small></span></div></nav>`;
+}
+const whoami = () => { const [w, r] = ME[state.role]; return `<span class="whoami"><span class="av" aria-hidden="true">${initialOf(w)}</span>${w}・${r}</span>`; };
+const curVer = k => state.ver[state.br][k].find(v => !v.sch);
+function pageHead() {
+  const scope = branches().length > 1 ? `<select class="scope" id="br" data-key="br" aria-label="分店">${branches().map(b => `<option value="${b}"${b === state.br ? ' selected' : ''}>${BR[b]}</option>`).join('')}</select>` : `<span class="scope fixed" data-key="br">${ic('store','sm')}${BR[state.br]}</span>`;
+  const upd = state.offline ? `<span class="updated off">${ic('off','sm')}離線・資料停在 ${NOWS}</span>` : `<span class="updated">${ic('refresh','sm')}${NOWS} 更新</span>`;
+  const sub = [SHOP, BR[state.br], ...KK.map(k => `${KIND[k].n}第 ${curVer(k).n} 版（${curVer(k).from} 起）`), '已成立的預約照當時的版本計算'].join('・');
+  return `<header class="head"><h1 id="page-title" tabindex="-1">取消與改期政策</h1><div class="tools">${whoami()}${scope}${upd}</div><p class="sub">${sub}</p></header>
+    ${state.offline ? `<div class="banner warning" role="status">${ic('off')}<span>離線中：可以查看政策與試算；修改需要連線。</span></div>` : ''}
+    ${state.phone ? `<div class="banner neutral" role="note">${ic('info')}<span>手機上只能查看；修改政策請用電腦或平板。</span></div>` : ''}
+    <p class="rule" role="note">${ic('lock','sm')}<span><b>取消費與未到費由系統照這份政策算，不能手動輸入。</b>店家原因的取消與改期一律不收費。<a href="../m07-contract-templates/index.html?role=${state.role}" data-key="to-m07">契約模板</a>裡的取消與接回數字取自這裡。</span></p>`;
+}
+
+/* ---------- the ruler ---------- */
+function steps(k, v, gh) {
+  const b = pos(k, v.free), c = gh ? ' gh' : '';
+  return `<i class="stp fr${c}" style="left:0;width:${b}%;height:0"><span class="lb">不收費</span></i>
+    <i class="stp fe${c}${v.fee ? '' : ' zero'}" style="left:${b}%;width:${NSP - b}%;height:${sh(v.fee)}px"><span class="lb">收 ${pctL(v.fee)}</span></i>
+    <i class="stp ns${c}${v.ns ? '' : ' zero'}" style="left:${NSP}%;width:${100 - NSP}%;height:${sh(v.ns)}px"><span class="lb">未到${v.ns ? ` ${pctL(v.ns)}` : '不收'}</span></i>
+    <i class="bd${c}" style="left:${b}%"></i>`;
+}
+function ghostOf(k) {
+  const e = state.edit, n = schs(k)[0];
+  if (e?.k === k) return changed(e.d, cur(k)) ? {v:cur(k), lab:`目前 ${dur(k, cur(k).free)}前`} : null;
+  /* the next schedule to take effect hangs as the ghost; later ones are listed in their strips */
+  if (n) return {v:n.v, lab:`${EFF[n.at][0].replace('起', '')}起 ${dur(k, n.v.free)}前`};
+  return null;
+}
+/* a fee being changed keeps its current height on the ruler: a dashed edge with 「目前 20%」 over the new step */
+function wasLines(k) {
+  const e = state.edit; if (e?.k !== k) return '';
+  const c = cur(k), b0 = pos(k, c.free);
+  return [['fee', b0, NSP - b0], ['ns', NSP, 100 - NSP]].filter(([f]) => e.d[f] !== c[f] && c[f])
+    .map(([f, l, w]) => `<i class="was-ln ${f}" data-key="was-${k}-${f}" style="left:${l}%;width:${w}%;bottom:${sh(c[f])}px"><span>目前 ${pctL(c[f])}</span></i>`).join('');
+}
+function ticks(k, v, g) {
+  const b = pos(k, v.free), K = KIND[k];
+  const near = h => Math.abs(pos(k, h) - b) < 9 || (g && Math.abs(pos(k, h) - pos(k, g.v.free)) < 9);
+  const plain = K.ticks.filter(h => h !== v.free && !near(h)).map(h => `<span class="tk${h === K.S ? ' first' : ''}" style="left:${pos(k, h)}%">${dur(k, h)}前</span>`).join('');
+  /* a ghost label close to the live boundary hangs away from it instead of being covered by it (10/12 起 2 天前 beside 1 天前) */
+  const gp = g ? pos(k, g.v.free) : 0, away = g && Math.abs(gp - b) < 16 ? (gp < b ? ';transform:translateX(calc(-100% + 10px))' : ';transform:translateX(-10px)') : '';
+  const gt = g && g.v.free !== v.free ? `<span class="tk gh" style="left:${gp}%${away}">${g.lab}</span>` : '';
+  return `${plain}${gt}<span class="tk on" style="left:${b}%">${dur(k, v.free)}前</span><span class="tk ap" style="left:${NSP}%">${K.at}</span>`;
+}
+function readout(k, v, x) {
+  const K = KIND[k], E = K.ex, o = outcome(k, v, x), rv = v.rv;
+  const when = o.z === 'ns' ? NSW : `${dt(new Date(E.t - o.h * 3600e3))} 取消（${K.at === '預約時間' ? '預約' : '入住'}前 ${dur(k, o.h)}）`;
+  const ok = o.z === 'fr' ? (rv.cf === 'auto' ? '自動通過，時段馬上釋放' : '送店家審核，核准前時段保留') : o.z === 'fe' ? (rv.cp === 'auto' ? '自動通過，時段馬上釋放' : '送店家審核，核准前時段保留') : '店員標記未到，不需要審核';
+  const d = E.dep - o.fee;
+  const settle = !o.fee ? `已收訂金 ${money(E.dep)} 全額退回或轉抵` : d > 0 ? `從訂金 ${money(E.dep)} 扣，退 ${money(d)}` : d === 0 ? `訂金 ${money(E.dep)} 剛好抵掉` : `訂金 ${money(E.dep)} 不夠，還要收 ${money(-d)}`;
+  /* while editing, an example whose fee moves says both: 改前 NT$160 → 改後 NT$240 */
+  const lab = o.z === 'ns' ? '未到費' : '取消費', now = o.fee ? `<b>${money(o.fee)}</b>（${K.price} ${pctL(o.pct)}）` : '<b>不收費</b>';
+  const was = state.edit?.k === k ? outcome(k, cur(k), x) : null, moved = was && was.fee !== o.fee;
+  const fee = moved ? `${lab} 改前 ${was.fee ? money(was.fee) : '不收費'} → 改後 ${now}` : o.fee ? `${lab} ${now}` : now;
+  const vt = `${when}：${o.fee ? `${lab} ${fmt(o.fee)} 元` : '不收費'}${moved ? `（改前${was.fee ? ` ${fmt(was.fee)} 元` : '不收費'}）` : ''}`;
+  return {vt, html:`${ic('calc')}<span class="r"><span><b>${esc(E.pet)}</b>・${esc(E.what)} ${money(E.price)}・${dt(E.t)}</span></span><span class="r" style="grid-column:2"><span>${when}</span><span>${fee}</span><span>${settle}</span><span>${ok}</span></span><small>拖曳${esc(E.pet)}試算；示範預約，不會寫入</small>`};
+}
+function ruler(k) {
+  const v = view(k), g = ghostOf(k), x = state.x[k], o = outcome(k, v, x), r = readout(k, v, x), K = KIND[k];
+  const hl = K.ticks.map(h => `<i class="hl" style="left:${pos(k, h)}%"></i>`).join('');
+  return `<div class="rul" data-k="${k}"><div class="stair" data-key="st-${k}">${hl}${g ? steps(k, g.v, true) : ''}${steps(k, v)}${wasLines(k)}<i class="ap" style="left:${NSP}%"></i>
+      <span class="thumb" style="--x:${x / W(k) * 100}%;--y:${yOf(v, o)}px" aria-hidden="true"><span class="face plain"><img src="${K.ex.img}" alt=""></span></span>
+      <input type="range" class="xr" id="x-${k}" data-key="x-${k}" min="0" max="${W(k)}" step="${K.step}" value="${x}" aria-label="試算：${esc(K.ex.pet)}的飼主什麼時候取消" aria-valuetext="${esc(r.vt)}"></div>
+    <div class="tks" aria-hidden="true">${ticks(k, v, g)}</div></div>
+    <p class="calc" data-key="calc-${k}">${r.html}</p>`;
+}
+/* dragging the example only touches the thumb, the worked example and the preview */
+function moveX(k, x) {
+  state.x[k] = +x; state.pk = k;
+  const v = view(k), o = outcome(k, v, +x), r = readout(k, v, +x), st = document.querySelector(`[data-key="st-${k}"]`);
+  if (!st) return;
+  const th = st.querySelector('.thumb'); th.style.setProperty('--x', `${x / W(k) * 100}%`); th.style.setProperty('--y', `${yOf(v, o)}px`);
+  st.querySelector('.xr').setAttribute('aria-valuetext', r.vt);
+  document.querySelector(`[data-key="calc-${k}"]`).innerHTML = r.html;
+  renderPreview();
+}
+
+/* ---------- who approves ---------- */
+const RVL = {auto:[ 'check', '自動通過'], rev:['inbox', '送審']};
+function rvCell(k, key, v, edit) {
+  if (!edit) { const [i, t] = RVL[v.rv[key]]; return `<span class="rv ${v.rv[key]}">${ic(i)}${t}</span>`; }
+  return `<div class="seg" role="radiogroup" aria-label="${key[0] === 'c' ? '取消' : '改期'}・${key[1] === 'f' ? '免費期內' : '收費期內'}">${['auto', 'rev'].map(o => `<button role="radio" aria-checked="${v.rv[key] === o}" data-do="rv" data-r="${key}" data-v="${o}" data-key="rv-${k}-${key}-${o}" tabindex="${v.rv[key] === o ? 0 : -1}">${RVL[o][1]}</button>`).join('')}</div>`;
+}
+function rvTable(k) {
+  const v = view(k), edit = state.edit?.k === k, f = dur(k, v.free);
+  return `<div class="rvw"><table class="rvt" data-key="rvt-${k}"><caption>要不要店家審核</caption>
+    <thead><tr><th scope="col"><span class="sr">申請</span></th><th scope="col">免費期內<small>${f}前・不收費</small></th><th scope="col">收費期內<small>${f}內・收 ${pctL(v.fee)}</small></th><th scope="col">未到<small>${v.ns ? `收 ${pctL(v.ns)}` : '不收'}</small></th></tr></thead>
+    <tbody><tr><th scope="row">取消</th><td>${rvCell(k, 'cf', v, edit)}</td><td>${rvCell(k, 'cp', v, edit)}</td><td class="fixed" rowspan="2">店員標記，不需審核；撤銷需店長</td></tr>
+    <tr><th scope="row">改期</th><td>${rvCell(k, 'rf', v, edit)}</td><td>${rvCell(k, 'rp', v, edit)}</td></tr></tbody></table></div>
+    <p class="rnote nsl">未到（收 ${v.ns ? pctL(v.ns) : '不收'}）：店員標記，不需審核；撤銷需店長。</p><p class="rnote">送審時，核准前原時段保留；任何人都不能核准自己送出的申請。</p>`;
+}
+
+/* ---------- editing in place ---------- */
+const changed = (a, b) => ['free', 'fee', 'ns', 'late'].some(f => a[f] !== b[f]) || Object.keys(RV0).some(r => a.rv[r] !== b.rv[r]);
+function radios(k, f, list, lab, sub, word) {
+  const d = state.edit.d, was = cur(k)[f];
+  return `<fieldset class="fs"><legend>${lab}<small>${sub}</small></legend><div class="rg" role="radiogroup" aria-label="${lab}">${list.map(o => `<button class="opt${o === was && o !== d[f] ? ' was' : ''}" role="radio" aria-checked="${d[f] === o}" tabindex="${d[f] === o ? 0 : -1}" data-do="pick" data-f="${f}" data-v="${o}" data-key="pk-${f}-${o}">${word(o)}${MOST[f] === o ? '<small class="most">多數店家</small>' : ''}</button>`).join('')}</div></fieldset>`;
+}
+function pickers(k) {
+  const K = KIND[k], d = state.edit.d, c = cur(k);
+  /* equal fees are allowed; once a change makes them equal, a quiet note says what that means */
+  const soft = d.ns && d.ns < d.fee ? `<p class="soft" role="note">${ic('warn')}<span>未到費比取消費低：飼主不取消、直接不來反而比較便宜。</span></p>` : !d.ns ? `<p class="soft" role="note">${ic('info')}<span>未到不收費時，時段空掉的損失由店家吸收。</span></p>`
+    : d.ns === d.fee && (d.ns !== c.ns || d.fee !== c.fee) ? `<p class="soft eq" role="note" data-key="eq-${k}">${ic('info')}<span>未到費和取消費一樣，都收 ${pctL(d.ns)}：事先取消和直接不來付的一樣多。</span></p>` : '';
+  return `<div class="pick">${radios(k, 'free', K.frees, '免費取消期限', `${K.at}前多久取消或改期不收費`, h => `${dur(k, h)}前`)}
+    ${radios(k, 'fee', FEES, '之後取消或改期', `收${K.price}的`, pctL)}
+    <div>${radios(k, 'ns', NSS, '未到費', `沒到也沒事先取消，收${K.price}的`, p => p ? pctL(p) : '不收')}${soft}</div>
+    ${k === 'groom' ? radios(k, 'late', LATES, '接回寬限', '服務完成通知後多久沒接回，開始算逾時照護費', h => `${h} 小時`) : ''}</div>`;
+}
+/* the version a save would create: a schedule on the same date is merged and keeps its number */
+const nextN = (k, eff) => { const hv = state.ver[state.br][k], same = eff !== 'now' && hv.find(v => v.sch && v.at === eff); return same ? same.n : Math.max(...hv.map(v => v.n)) + 1; };
+/* the three groups a policy change meets: signed (unchanged), made but unsigned (sign the version in force when made, old fees), made after it takes effect (new) */
+function groups(k, eff, pre = '') {
+  const all = bookings(state.br, k), s = all.filter(b => b.signed), u = all.filter(b => !b.signed);
+  const ns = [...new Set(u.map(b => b.n))], effW = eff === 'now' ? `今天 ${NOWS} 之後` : EFF[eff][0];
+  const uv = ns.length === 1 ? `第 ${ns[0]} 版` : `各自成立時的版本（${ns.map(n => `第 ${n} 版 ${u.filter(b => b.n === n).length} 筆`).join('、')}）`;
+  const g = pre + (pre ? '-' : '');
+  const list = (id, xs) => xs.length ? `<details class="who" data-g="${g}${id}"${state.who?.[g + id] ? ' open' : ''}><summary data-key="who-${g}${id}">哪幾筆${ic('chev')}</summary><ul class="bkl" data-key="bk-${g}${id}">${xs.map(b => `<li><span>${b.at}</span><span><b>${esc(b.pet)}</b>・${esc(b.what)}</span><small>${b.signed ? '已簽' : '未簽'}・第 ${b.n} 版</small></li>`).join('')}</ul></details>` : '';
+  return {sn:s.length, s:`不變。${list('s', s)}`, un:u.length, u:`簽成立時的${uv}、照舊費用。${list('u', u)}`, effW, n:`簽新版（第 ${nextN(k, eff)} 版），用新規則。`};
+}
+/* schedules stack (as in M-04 and M-05): a new date never replaces another; the same date joins it, and says so */
+function stackNote(k, eff) {
+  const xs = schs(k); if (!xs.length) return [];
+  const sum = v => [`${dur(k, v.free)}前免費`, `之後 ${pctL(v.fee)}`, `未到 ${v.ns ? pctL(v.ns) : '不收'}`].join('・');
+  return xs.map(x => ['layers', x.at === eff ? `<b>併入 ${effShort(x.at)} 起的排程</b>：這次的數字取代它（原本 ${sum(x.v)}）。`
+    : EORD[x.at] < EORD[eff] ? `<b>${effShort(x.at)} 起的排程照舊</b>（${sum(x.v)}）；${EFF[eff][0]}改用這次的數字。`
+    : `<b>${effShort(x.at)} 起的排程照舊</b>（${sum(x.v)}）；${effShort(x.at)} 起成立的預約改用排程的數字。`]);
+}
+function tray(k) {
+  const E = state.edit, K = KIND[k], c = cur(k), diff = changed(E.d, c), lk = writeLock();
+  const effDate = EFF[E.eff][0], G = groups(k, E.eff);
+  const imp = [
+    ...stackNote(k, E.eff),
+    ['shield', `<b>已簽 ${G.sn} 筆</b>：${G.s}`],
+    ['pen', `<b>已成立未簽 ${G.un} 筆</b>：${G.u}`],
+    ['cal', `<b>${G.effW}成立的</b>：${G.n}${E.eff === 'now' ? '' : `在那之前成立的照目前第 ${curVer(k).n} 版。`}`],
+    ['doc', `${K.ctr}的${K.clause}跟著出新版。`],
+    ['line', '不另外通知飼主；新預約的確認訊息會寫出新規則。']
+  ];
+  const err = E.err ? `<p class="ferr" role="alert" tabindex="-1" id="t-err">${ic('warn')}<span>${E.err}</span></p>` : '';
+  const why = !diff ? '還沒有修改' : lk;
+  const okL = E.eff === 'now' ? '儲存並立即生效' : `排定 ${effDate.replace('起', '')}生效`;
+  const ok = E.busy ? `<button class="btn primary busy" aria-disabled="true" data-key="t-ok"><span class="spin" aria-hidden="true"></span>儲存中</button>`
+    : why ? `<span class="cell"><button class="btn" aria-disabled="true" aria-describedby="t-ok-r" data-key="t-ok">${okL}</button><span class="reason" id="t-ok-r">${why}</span></span>`
+    : `<button class="btn primary" data-do="save" data-key="t-ok">${okL}</button>`;
+  return `<div class="tray" data-key="tray"><fieldset class="fs"><legend>什麼時候生效</legend><div class="rg" role="radiogroup" aria-label="什麼時候生效">${EFFK.map(e => `<button class="opt" role="radio" aria-checked="${E.eff === e}" tabindex="${E.eff === e ? 0 : -1}" data-do="eff" data-v="${e}" data-key="ef-${e}">${EFF[e][0]}<small>${EFF[e][1]}</small></button>`).join('')}</div></fieldset>
+    <ul class="imp">${imp.map(([i, t]) => `<li>${ic(i)}<div>${t}</div></li>`).join('')}</ul>${schs(k).length ? '<p class="hint">排程不會被這次的修改取消；要取消某一個，存好後在排程清單逐一取消。</p>' : ''}${err}
+    <div class="tacts">${E.err ? `<button class="btn quiet" data-do="reload" data-key="t-reload">${ic('refresh')}重新載入</button>` : ''}<button class="btn secondary" data-do="editX" data-key="t-no">放棄修改</button>${ok}</div></div>`;
+}
+function schStrip(k) {
+  const xs = schs(k); if (!xs.length || state.edit?.k === k) return '';
+  const lk = writeLock();
+  /* each schedule is said against the rule just before it: the live one, or the schedule ahead of it */
+  return `<div class="schs" data-key="sch-${k}">${xs.map((n, i) => {
+    const c = i ? xs[i - 1].v : cur(k), was = i ? `${effShort(xs[i - 1].at)} 起` : '目前', id = `sx-${k}-${n.at}`;
+    const parts = [n.v.free !== c.free ? `${k === 'groom' ? '預約' : '入住'} ${dur(k, n.v.free)}前免費（${was} ${dur(k, c.free)}前）` : '', n.v.fee !== c.fee ? `之後收 ${pctL(n.v.fee)}（${was} ${pctL(c.fee)}）` : '', n.v.ns !== c.ns ? `未到 ${n.v.ns ? pctL(n.v.ns) : '不收'}（${was} ${c.ns ? pctL(c.ns) : '不收'}）` : '', n.v.late && n.v.late !== c.late ? `接回寬限 ${n.v.late} 小時（${was} ${c.late}）` : ''].filter(Boolean);
+    const btn = !editor() ? '' : lk ? `<span class="pre-x"><button class="textbtn" aria-disabled="true" aria-describedby="${id}-r" data-key="${id}">取消這個排程</button><span class="reason" id="${id}-r">${lk}</span></span>` : `<button class="textbtn ln" data-do="schX" data-k="${k}" data-at="${n.at}" data-key="${id}">取消這個排程</button>`;
+    return `<div class="sch${state.freshSch === `${k}${n.at}` ? ' fresh' : ''}" data-key="sch-${k}-${n.at}">${ic('clock')}<p class="tx"><b>${EFF[n.at][0]}：</b>${parts.join('、') || '審核設定調整'}<small>${n.by} ${n.on} 排定；${i ? `接在 ${effShort(xs[i - 1].at)} 的排程之後` : '虛線是排定後的樣子'}。之前成立的預約照${i ? '前一個排程' : '目前規則'}。</small></p>${btn}</div>`;
+  }).join('')}</div>`;
+}
+function section(k) {
+  const K = KIND[k], v = view(k), E = state.edit, editing = E?.k === k, lk = writeLock();
+  let ed = '';
+  if (editor() && !editing) ed = E ? `<span class="ed"><button class="textbtn" aria-disabled="true" aria-describedby="ed-${k}-r" data-key="ed-${k}">${ic('pen','sm')}修改</button><span class="reason" id="ed-${k}-r">先儲存或放棄${KIND[E.k].n}的修改</span></span>`
+    : lk ? `<span class="ed"><button class="textbtn" aria-disabled="true" aria-describedby="ed-${k}-r" data-key="ed-${k}">${ic('pen','sm')}修改</button><span class="reason" id="ed-${k}-r">${lk}</span></span>`
+    : `<span class="ed"><button class="textbtn" data-do="edit" data-k="${k}" data-key="ed-${k}">${ic('pen','sm')}修改</button></span>`;
+  const late = k === 'groom' ? ` 接回寬限 <b>${v.late} 小時</b>：服務完成通知後超過這段時間沒接回，開始算逾時照護費。` : '';
+  return `<section class="psheet${editing ? ' editing' : ''}" aria-labelledby="h-${k}" data-key="sec-${k}">
+    <div class="psh"><h2 id="h-${k}" tabindex="-1">${ic(K.icon,'sm')}${K.n}${editing ? '・修改中' : ''}</h2><span class="aside">${K.svc}</span>${ed}</div>
+    <p class="said" data-key="said-${k}">${sentence(k, v)}${late}</p>
+    ${editing ? pickers(k) : ''}${ruler(k)}${schStrip(k)}${rvTable(k)}${editing ? tray(k) : ''}</section>`;
+}
+
+/* ---------- side column ---------- */
+function preview() {
+  const k = state.pk, K = KIND[k], v = view(k), E = K.ex, draft = state.edit?.k === k && changed(state.edit.d, cur(k));
+  const note = draft ? `<p class="pvnote draft">${ic('pen')}<span>預覽修改後的規則；儲存前飼主看不到。</span></p>` : `<p class="pvnote">飼主在 LINE 與預約頁看到的就是這段；店名一律標出。</p>`;
+  let body;
+  if (state.pv === 'line') {
+    body = `<div class="bubble"><span class="from">LINE・寵派小管家（${SHOP}）</span><b>預約成立</b>：${esc(E.pet)}・${esc(E.what)}・${dt(E.t)}・${BR[state.br]}<br><b>取消與改期</b><ul>${bullets(k, v).map(t => `<li>${t}</li>`).join('')}</ul></div>`;
+  } else {
+    const o = outcome(k, v, state.x[k]), when = o.z === 'ns' ? null : new Date(E.t - o.h * 3600e3);
+    const feeRow = o.z === 'ns' ? `<div class="o-fee"><span>未到的情形<small>這個畫面只在取消時出現</small></span>${money(o.fee)}</div>` : `<div class="o-fee"><span>現在取消的取消費<small>${dt(when)} 取消・${o.fee ? `${K.price} ${pctL(o.pct)}` : '在免費期限內'}</small></span>${money(o.fee)}</div>`;
+    const rv = o.z === 'fr' ? v.rv.cf : v.rv.cp, back = E.dep - o.fee;
+    const refund = o.z === 'ns' ? '' : `<div class="o-fee"><span>${back > 0 ? '退款' : '還要付'}<small>${!o.fee ? `已付訂金 NT$${fmt(E.dep)} 全額退回` : back > 0 ? `已付訂金 NT$${fmt(E.dep)} 扣掉取消費` : back === 0 ? `已付訂金 NT$${fmt(E.dep)} 剛好抵掉` : `已付訂金 NT$${fmt(E.dep)} 不夠付取消費`}</small></span>${money(Math.abs(back))}</div>`;
+    body = `<div class="oph" aria-label="飼主手機畫面預覽"><div class="oscr"><div class="o-top"><span class="ob" aria-hidden="true">毛</span><span><b>${SHOP}</b><small>${BR[state.br]}・寵派小管家</small></span></div>
+      <div class="o-body"><h3>取消預約</h3><p class="om">${esc(E.pet)}・${esc(E.what)}・${dt(E.t)}</p><div class="o-card"><h4>取消與改期規則</h4><ul>${bullets(k, v).map(t => `<li>${ic('check')}<span>${t}</span></li>`).join('')}</ul>${feeRow}${refund}</div></div>
+      <div class="o-go"><span class="o-btn" aria-hidden="true">我了解並繼續</span><small>${o.z === 'ns' ? '' : rv === 'auto' ? '送出後馬上取消，時段會釋放給其他人。' : '要店家確認；確認前預約仍然保留。'}</small></div></div></div>`;
+  }
+  return `${note}${body}`;
+}
+function renderPreview() { const el = $('pv-body'); if (el) el.innerHTML = preview(); }
+function sideCol() {
+  const segK = `<div class="seg" role="radiogroup" aria-label="預覽哪一段">${KK.map(k => `<button role="radio" aria-checked="${state.pk === k}" tabindex="${state.pk === k ? 0 : -1}" data-do="pk" data-v="${k}" data-key="pvk-${k}">${KIND[k].n}</button>`).join('')}</div>`;
+  const segV = `<div class="seg" role="radiogroup" aria-label="預覽哪個畫面">${[['line', 'LINE 預約確認'], ['liff', '取消畫面']].map(([v, l]) => `<button role="radio" aria-checked="${state.pv === v}" tabindex="${state.pv === v ? 0 : -1}" data-do="pv" data-v="${v}" data-key="pv-${v}">${l}</button>`).join('')}</div>`;
+  /* scheduled versions on top, latest date first, then the live and the closed ones */
+  const vrows = k => { const hv = state.ver[state.br][k]; return [...hv.filter(v => v.sch).sort((a, b) => EORD[b.at] - EORD[a.at]), ...hv.filter(v => !v.sch)]; };
+  const ver = KK.map(k => { const cv = curVer(k); return `<h3 class="vh">${KIND[k].n}</h3><ul class="vers" data-key="vers-${k}">${vrows(k).map(v => `<li class="${v.sch ? 'vsch' : v === cv ? 'cur' : ''}${state.freshVer === `${k}${v.n}` ? ' fresh' : ''}"><span class="vn">第 ${v.n} 版</span><span><b>${v.sch ? `${v.from} 起・排定` : v === cv ? `${v.from} 起・目前` : `${v.from}–${v.to}`}</b></span><span>${v.t}</span><small>${v.by}</small></li>`).join('')}</ul>`; }).join('');
+  return `<aside class="side-c"><section class="scard" aria-labelledby="pv-h" data-key="pv"><h2 id="pv-h">${ic('eye','sm')}飼主會看到什麼</h2>${segK}${segV}<div id="pv-body">${preview()}</div></section>
+    <section class="scard" aria-labelledby="vr-h" data-key="vers"><h2 id="vr-h">${ic('layers','sm')}版本</h2>${ver}<p class="pvnote">每筆預約記住成立當時的版本；取消、改期、未到都照那一版算。</p></section></aside>`;
+}
+
+/* ---------- render ---------- */
+function noAccessPage() {
+  return `<section class="noacc" role="alert"><h2>${ic('lock','lg')}取消與改期政策只有店長以上能看</h2><p>櫃台在取消或改期時，看到的費用已經照這份政策算好。要調整規則請找林店長或陳老闆。</p><a class="textbtn" href="../m02-appointments/index.html?role=desk" data-key="na-cal">${ic('cal','sm')}回預約行事曆</a></section>`;
+}
+function mainBody() {
+  if (noAccess()) return noAccessPage();
+  if (state.loadFail) return `<section class="fail" role="alert"><h2>${ic('warn','lg')}取消與改期政策載入失敗</h2><p>網路或伺服器沒有回應。再試一次通常就好；預約的取消與改期照常運作，費用照各自的版本計算。</p>${state.retrying ? `<button class="btn secondary busy" aria-disabled="true" data-key="retry"><span class="spin" aria-hidden="true"></span>重新載入中</button>` : `<button class="btn secondary" data-do="retry" data-key="retry">${ic('refresh')}再試一次</button>`}</section>`;
+  return `<div class="lay"><div class="colmain">${KK.map(section).join('')}</div>${sideCol()}</div>`;
+}
+function render(focusKey) {
+  const app = $('app');
+  const keep = focusKey || document.activeElement?.dataset?.key, navTop = app.querySelector('.snav')?.scrollTop;
+  app.className = state.compact ? 'compact' : state.rail ? 'rail' : '';
+  const top =state.compact ? `<div class="topbar"><button class="ibtn" data-key="menu" data-do="openNav" aria-label="開啟選單">${ic('menu')}</button><span class="mark" aria-hidden="true">${ic('mark')}</span><b>取消與改期政策</b></div>` : '';
+  app.innerHTML = `${state.compact ? '' : sideNav()}<main>${top}${noAccess() ? '' : pageHead()}<div class="wrap">${mainBody()}</div></main>`;
+  document.title = `${state.edit ? `修改${KIND[state.edit.k].n}・` : ''}取消與改期政策・寵派商家中心`;
+  /* the item list keeps its scroll across renders; on first draw and on each layout change it brings the current page into view */
+  const sn = app.querySelector('.snav');
+  if (sn) {
+    if (navTop != null) sn.scrollTop = navTop;
+    if (render.shown !== app.className) {
+      render.shown = app.className;
+      const c = sn.querySelector('[aria-current]'), r = c?.getBoundingClientRect(), s = sn.getBoundingClientRect();
+      if (r && r.bottom > s.bottom - 20) sn.scrollTop += r.bottom - s.bottom + 28; else if (r && r.top < s.top) sn.scrollTop -= s.top - r.top + 8;
+    }
+  }
+  if (keep) { const el = document.querySelector(`#app [data-key="${keep}"], #layer [data-key="${keep}"]`); if (el && el !== document.activeElement) el.focus({preventScroll:true}); }
+  state.freshSch = null; state.freshVer = null;
+  syncUrl();
+}
+function announce(t) { const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+function say(text) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status">${esc(text)}</div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 5200);
+}
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* the signature move: saving moves the boundary. The steps slide and grow to the new rule and the old boundary
+   stays behind as a dashed line that fades; a change that waits for its date leaves its dashed staircase in place instead */
+function signature(k, from) {
+  if (reduced()) return;
+  const st = document.querySelector(`[data-key="st-${k}"]`); if (!st) return;
+  const to = cur(k), live = [...st.querySelectorAll('.stp:not(.gh), .bd:not(.gh)')];
+  const geo = v => { const b = pos(k, v.free); return [{left:'0%', width:`${b}%`, height:'0px'}, {left:`${b}%`, width:`${NSP - b}%`, height:`${sh(v.fee)}px`}, {left:`${NSP}%`, width:`${100 - NSP}%`, height:`${sh(v.ns)}px`}, {left:`${b}%`}]; };
+  const g0 = geo(from), g1 = geo(to);
+  live.forEach((el, i) => Object.assign(el.style, g0[i]));
+  st.insertAdjacentHTML('beforeend', `<i class="bd gh old" style="left:${pos(k, from.free)}%"></i>`);
+  const old = st.lastElementChild; st.getBoundingClientRect();
+  st.classList.add('anim');
+  live.forEach((el, i) => Object.assign(el.style, g1[i]));
+  old.style.opacity = '0';
+  setTimeout(() => { old.remove(); st.classList.remove('anim'); }, 1700);
+}
+
+/* ---------- dialogs (from 方案與用量) ---------- */
+function openDlg(d) { state.dlg = Object.assign({busy:false, ret:document.activeElement?.dataset?.key}, d); renderDlg('dg-h'); }
+function closeDlg(focus) { const ret = focus || state.dlg?.ret; state.dlg = null; renderDlg(); if (ret) document.querySelector(`[data-key="${ret}"]`)?.focus(); }
+function renderDlg(focus) {
+  const l = $('layer'); l.querySelector('.dlg-s')?.remove();
+  const d = state.dlg; if (!d) return;
+  const ok = d.busy ? `<button class="btn ${d.danger ? 'danger' : 'primary'} busy" data-key="dg-ok" aria-disabled="true"><span class="spin" aria-hidden="true"></span>處理中</button>` : `<button class="btn ${d.danger ? 'danger' : 'primary'}" data-key="dg-ok" data-do="dlgOk">${d.ok}</button>`;
+  const no = `<button class="btn secondary" data-key="dg-no" ${d.busy ? 'aria-disabled="true"' : 'data-do="closeDlg"'}>${d.no || '返回'}</button>`;
+  l.insertAdjacentHTML('beforeend', `<div class="scrim dlg-s" data-do="scrimDlg" style="z-index:85"><div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dg-h" aria-describedby="dg-d"><h2 id="dg-h" tabindex="-1">${d.title}</h2>${d.lede ? `<p class="lede" id="dg-d">${d.lede}</p>` : ''}<dl class="cdl"${d.lede ? '' : ' id="dg-d"'}>${d.rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl><div class="dbtns">${no}${ok}</div></div></div>`);
+  const f = focus && (document.getElementById(focus) || l.querySelector(`[data-key="${focus}"]`)); f?.focus();
+}
+
+/* ---------- writes ---------- */
+function diffWords(k, a, b) {
+  const w = [];
+  if (a.free !== b.free) w.push(`免費期限 ${dur(k, a.free)} → ${dur(k, b.free)}`);
+  if (a.fee !== b.fee) w.push(`取消費 ${pctL(a.fee)} → ${pctL(b.fee)}`);
+  if (a.ns !== b.ns) w.push(`未到費 ${a.ns ? pctL(a.ns) : '不收'} → ${b.ns ? pctL(b.ns) : '不收'}`);
+  if (a.late !== b.late) w.push(`接回寬限 ${a.late} → ${b.late} 小時`);
+  const rn = {cf:'免費期內取消', cp:'收費期內取消', rf:'免費期內改期', rp:'收費期內改期'};
+  Object.keys(rn).forEach(r => { if (a.rv[r] !== b.rv[r]) w.push(`${rn[r]}改為${RVL[b.rv[r]][1]}`); });
+  return w;
+}
+function commitSave() {
+  const E = state.edit, k = E.k, K = KIND[k], from = clone(cur(k)), d = clone(E.d);
+  if (state.nextWrite === 'conflict') {
+    state.nextWrite = 'ok'; $('p-write').value = 'ok';
+    const who = state.role === 'mgr' ? '陳老闆' : '林店長', hv = state.ver[state.br][k], c = cur(k);
+    /* the other editor's save: grooming pickup grace 2 → 3, boarding no-show 50% → 30% */
+    const theirs = k === 'groom' ? {late:3} : {ns:30}, w = diffWords(k, c, Object.assign(clone(c), theirs));
+    curVer(k).to = '10/9'; Object.assign(c, theirs);
+    hv.unshift({n:Math.max(...hv.map(v => v.n)) + 1, from:'10/9', t:w.join('、'), by:`${who} 10/9 11:18`});
+    E.busy = false; E.err = `${who}在 11:18 改過${BR[state.br]}的${K.n}政策，你的修改沒有存。按「重新載入」看最新版本，再改一次。`;
+    render('t-err'); $('t-err')?.focus({preventScroll:true}); announce(E.err); return;
+  }
+  const hv = state.ver[state.br][k], nn = nextN(k, E.eff);
+  /* schedules stack: saving now or on another date leaves every schedule in place; the same date merges into its schedule */
+  if (E.eff === 'now') {
+    const keep = clone(d); keep.schs = from.schs || []; P()[k] = keep;
+    curVer(k).to = '10/9';
+    hv.unshift({n:nn, from:'10/9', t:diffWords(k, from, d).join('、'), by:`${me()} 10/9 ${NOWS}`});
+  } else {
+    const xs = P()[k].schs, t = diffWords(k, prevAt(k, E.eff), d).join('、') || '審核設定調整';
+    const x = {at:E.eff, v:{free:d.free, fee:d.fee, ns:d.ns, late:d.late, rv:clone(d.rv)}, by:me(), on:'10/9'}, i = xs.findIndex(s => s.at === E.eff);
+    if (i >= 0) xs[i] = x; else { xs.push(x); xs.sort((a, b) => EORD[a.at] - EORD[b.at]); }
+    const row = hv.find(v => v.sch && v.at === E.eff), nv = {n:nn, sch:true, at:E.eff, from:effShort(E.eff), t, by:`${me()} 10/9 排定`};
+    if (row) Object.assign(row, nv); else hv.unshift(nv);
+  }
+  state.edit = null; state.freshVer = `${k}${nn}`; if (E.eff !== 'now') state.freshSch = `${k}${E.eff}`;
+  render(`ed-${k}`);
+  document.querySelector(`[data-key="ed-${k}"]`)?.focus({preventScroll:true});
+  if (E.eff === 'now') signature(k, from);
+  const msg = E.eff === 'now' ? `${BR[state.br]}${K.n}政策已更新為第 ${nn} 版，今天起的新預約適用` : `${BR[state.br]}${K.n}政策排定 ${EFF[E.eff][0].replace('起', '')}生效（第 ${nn} 版）`;
+  say(`${msg}・已記錄操作紀錄`); announce(`${msg}。已成立的預約不受影響。已記錄操作紀錄。`);
+  if (k === 'groom' && E.eff === '1012') lifeSay('scheduled');
+}
+
+/* ---------- actions ---------- */
+const STUB = '原型只做取消與改期政策';
+const act = {
+  nav(el) {
+    const p = el.dataset.page, r = state.role; closeNavDrawer();
+    if (p === 'pol') { render(); return; }
+    if (p === 'notify' && r !== 'desk') { location.href = `../notify-settings/index.html?role=${r}`; return; }
+    if (p === 'staff' && r !== 'desk') { location.href = `../m08-staff/index.html?role=${r}`; return; }
+    if (p === 'plan' && r !== 'desk') { location.href = `../plan-usage/index.html?role=${r}`; return; }
+    if (p === 'svc' && r !== 'desk') { location.href = `../m04-services/index.html?role=${r}`; return; }
+    if (p === 'hours' && r !== 'desk') { location.href = `../m05-hours/index.html?role=${r}`; return; }
+    if (p === 'res' && r !== 'desk') { location.href = `../m06-resources/index.html?role=${r}`; return; }
+    if (p === 'tpl' && r !== 'desk') { location.href = `../m07-contract-templates/index.html?role=${r}`; return; }
+    if (p === 'cal') { location.href = `../m02-appointments/index.html?role=${r}`; return; }
+    if (p === 'cust') { location.href = `../m03-customers/index.html?role=${r}`; return; }
+    if (p === 'dash' && r in {admin:1, mgr:1}) { location.href = `../m01-dashboard/index.html?live=1&role=${r}`; return; }
+    if (['queue','money','audit'].includes(p)) { location.href = `../admin-review-desk/index.html?role=${r}&page=${p}`; return; }
+    say(`${el.innerText.trim()}：${STUB}`);
+  },
+  edit(el) {
+    const k = el.dataset.k, c = cur(k), d = clone(c); delete d.schs;
+    state.edit = {k, d, eff:'1101', busy:false, err:null}; state.pk = k; state.who = {};
+    render(); $(`h-${k}`)?.focus({preventScroll:true});
+    document.querySelector(`[data-key="sec-${k}"]`)?.scrollIntoView({block:'start', behavior:reduced() ? 'auto' : 'smooth'});
+  },
+  pick(el) { const E = state.edit; E.d[el.dataset.f] = +el.dataset.v; E.err = null; render(el.dataset.key); },
+  rv(el) { const E = state.edit; E.d.rv[el.dataset.r] = el.dataset.v; E.err = null; render(el.dataset.key); },
+  eff(el) { state.edit.eff = el.dataset.v; render(el.dataset.key); },
+  editX() {
+    const k = state.edit.k; state.edit = null; render(); document.querySelector(`[data-key="ed-${k}"]`)?.focus({preventScroll:true});
+  },
+  save() {
+    const E = state.edit, k = E.k, K = KIND[k], c = cur(k), words = diffWords(k, c, E.d), eff = EFF[E.eff][0], G = groups(k, E.eff, 'dg');
+    const sameDay = schs(k).find(x => x.at === E.eff);
+    state.who = {};
+    openDlg({kind:'save', title:E.eff === 'now' ? `${BR[state.br]}的${K.n}政策要立即生效嗎？` : `${eff}改用新的${K.n}政策？`,
+      lede:'只有生效後成立的預約用新版；已成立的預約照成立時的版本，契約內容和費用都不變。',
+      rows:[['變更', words.join('<br>')], ['已簽', `<b>${G.sn} 筆</b>：${G.s}`], ['已成立未簽', `<b>${G.un} 筆</b>：${G.u}`],
+        ['生效後成立', `${G.effW}成立的：${G.n}`], ...(sameDay ? [['排程', `併入 ${effShort(E.eff)} 起的排程，取代它的數字`]] : []),
+        ['契約', `${K.ctr}的${K.clause}出新版`], ['飼主', '不另外通知；新預約的確認訊息寫新規則']],
+      ok:E.eff === 'now' ? '立即生效' : '排定變更', no:'返回修改'});
+  },
+  reload() {
+    const k = state.edit.k; state.edit = null; render(); document.querySelector(`[data-key="ed-${k}"]`)?.focus({preventScroll:true});
+    say('已載入最新版本'); announce('已載入最新版本，請再修改一次。');
+  },
+  schX(el) {
+    const k = el.dataset.k, n = schs(k).find(x => x.at === el.dataset.at);
+    openDlg({kind:'schx', k, at:n.at, title:`取消 ${EFF[n.at][0]}的排程？`, lede:`${KIND[k].n}政策維持目前的規則。`, rows:[['排程', `${n.by} ${n.on} 排定`], ['之後', '要改可以重新排定']], ok:'取消排程', no:'保留排程'});
+  },
+  pk(el) { state.pk = el.dataset.v; render(el.dataset.key); },
+  pv(el) { state.pv = el.dataset.v; render(el.dataset.key); },
+  dlgOk() {
+    const d = state.dlg; if (!d || d.busy) return;
+    d.busy = true; renderDlg('dg-ok');
+    if (d.kind === 'save') state.edit.busy = true;
+    setTimeout(() => {
+      if (d.kind === 'save') { state.dlg = null; renderDlg(); commitSave(); return; }
+      if (d.kind === 'schx') {
+        /* only this date's schedule goes; the others stay */
+        const k = d.k, hv = state.ver[state.br][k], xs = P()[k].schs;
+        xs.splice(xs.findIndex(x => x.at === d.at), 1);
+        const i = hv.findIndex(v => v.sch && v.at === d.at); if (i >= 0) hv.splice(i, 1);
+        state.dlg = null; renderDlg(); render(`ed-${k}`); document.querySelector(`[data-key="ed-${k}"]`)?.focus({preventScroll:true});
+        say(`已取消 ${effShort(d.at)} 起的排程${xs.length ? '，其他排程照舊' : `，${KIND[k].n}政策維持目前的規則`}・已記錄操作紀錄`); announce('已取消排程。已記錄操作紀錄。');
+      }
+    }, STEP_MS);
+  },
+  closeDlg() { closeDlg(); },
+  scrimDlg(el, ev) { if (ev.target === el && !state.dlg?.busy) closeDlg(); },
+  retry() { state.retrying = true; render('retry'); setTimeout(() => { state.retrying = false; state.loadFail = false; $('p-fail').checked = false; render(); announce('取消與改期政策已重新載入'); }, STEP_MS); },
+  openNav() { openNavDrawer(); },
+  navScrim(el, ev) { if (ev.target === el) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); } }
+};
+function openNavDrawer() {
+  const l = $('layer'); l.querySelector('.nav-scrim')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="scrim nav-scrim" data-do="navScrim" style="padding:0;justify-content:flex-start;align-items:stretch"><div class="drawer-nav" role="dialog" aria-modal="true" aria-label="主選單">${sideNav()}</div></div>`);
+  l.querySelector('.drawer-nav .sitem[aria-current]')?.focus();
+}
+function closeNavDrawer() { $('layer').querySelector('.nav-scrim')?.remove(); }
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-do]');
+  if (el && el.getAttribute('aria-disabled') !== 'true') act[el.dataset.do]?.(el, ev);
+});
+/* 哪幾筆 stays open across the tray's re-renders while a picker changes */
+document.addEventListener('toggle', ev => { const g = ev.target.dataset?.g; if (g && state.who) state.who[g] = ev.target.open; }, true);
+document.addEventListener('input', ev => { if (ev.target.classList?.contains('xr')) moveX(ev.target.closest('.rul').dataset.k, ev.target.value); });
+document.addEventListener('change', ev => {
+  if (ev.target.id === 'br') {
+    if (state.edit) { ev.target.value = state.br; say(`先存好或放棄${KIND[state.edit.k].n}的修改，再換分店`); return; }
+    state.br = ev.target.value; render('br'); announce(`已切換到${BR[state.br]}`);
+  }
+});
+document.addEventListener('keydown', ev => {
+  const modal = state.dlg ? '.dialog' : $('layer').querySelector('.drawer-nav') ? '.drawer-nav' : null;
+  if (ev.key === 'Escape') {
+    if (state.dlg) { if (!state.dlg.busy) closeDlg(); return; }
+    if ($('layer').querySelector('.drawer-nav')) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); return; }
+  }
+  if (modal && ev.key === 'Tab') {
+    const f = [...document.querySelectorAll(`${modal} button, ${modal} summary, ${modal} a[href], ${modal} input, ${modal} select, ${modal} textarea, ${modal} [tabindex="0"]`)].filter(x => x.getAttribute('aria-disabled') !== 'true' && x.offsetParent);
+    if (!f.length) return;
+    if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); }
+    else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); }
+  }
+  /* the 試算 slider: PageUp / PageDown jump to the next step instead of a tenth of the ruler (free, the fee step, no-show) */
+  if (ev.target.classList?.contains('xr') && (ev.key === 'PageUp' || ev.key === 'PageDown')) {
+    ev.preventDefault();
+    const x = ev.target, k = x.closest('.rul').dataset.k, K = KIND[k], v = view(k), now = +x.value;
+    const stops = [0, K.S - v.free + K.step, K.S + K.step];
+    const to = ev.key === 'PageUp' ? stops.find(s => s > now) ?? +x.max : [...stops].reverse().find(s => s < now) ?? 0;
+    x.value = to; moveX(k, to); return;
+  }
+  /* radio groups: arrows move and select */
+  const r = ev.target.closest?.('[role="radiogroup"] [role="radio"]');
+  if (r && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(ev.key)) {
+    ev.preventDefault();
+    const all = [...r.closest('[role="radiogroup"]').querySelectorAll('[role="radio"]')], i = all.indexOf(r), fw = ev.key === 'ArrowRight' || ev.key === 'ArrowDown';
+    all[(i + (fw ? 1 : all.length - 1)) % all.length].click();
+  }
+});
+
+/* ---------- prototype controls ---------- */
+function syncUrl() {
+  const u = new URL(location);
+  u.searchParams.set('role', state.role);
+  state.br !== 'zs' ? u.searchParams.set('br', state.br) : u.searchParams.delete('br');
+  history.replaceState(null, '', u);
+}
+function seedScen() {
+  const keep = {role:state.role, offline:state.offline, loadFail:state.loadFail, nextWrite:state.nextWrite, compact:state.compact, rail:state.rail, phone:state.phone};
+  state = Object.assign(clone(INIT), keep);
+}
+function applyQs() {
+  if (qs.get('role') in VIEWER) state.role = qs.get('role');
+  if (qs.get('br') === 'xy' && state.role !== 'mgr') state.br = 'xy';
+  if (qs.get('off') === '1') state.offline = true;
+  if (qs.get('fail') === '1') state.loadFail = true;
+}
+applyQs();
+$('p-role').value = state.role; $('p-off').checked = state.offline; $('p-fail').checked = state.loadFail;
+$('p-role').onchange = e => { state.role = e.target.value; state.edit = null; state.dlg = null; if (state.role === 'mgr') state.br = 'zs'; renderDlg(); render(); };
+$('p-write').onchange = e => { state.nextWrite = e.target.value; };
+$('p-fail').onchange = e => { state.loadFail = e.target.checked; render(); };
+$('p-off').onchange = e => { state.offline = e.target.checked; render(); };
+$('p-theme').onchange = e => { if (e.target.value) document.documentElement.dataset.theme = e.target.value; else delete document.documentElement.dataset.theme; };
+$('p-go').onchange = e => {
+  const v = e.target.value; e.target.value = '';
+  state.dlg = null; renderDlg();
+  if (noAccess()) { render(); say('櫃台沒有取消與改期政策'); return; }
+  seedScen();
+  if (v === 'xy') { if (state.role === 'mgr') { render(); say('林店長只管中山店'); return; } state.br = 'xy'; }
+  if (v === 'ns') state.x.groom = 104;
+  if (v === 'liff') { state.pv = 'liff'; state.x.groom = 82; }
+  render();
+  if (v === 'edit' || v === 'loose') {
+    if (!editor()) { say('手機上只能查看'); return; }
+    act.edit({dataset:{k:'groom'}});
+    if (v === 'loose') { state.edit.d.fee = 50; render(); }
+  }
+  if (v === 'board') document.querySelector('[data-key="sec-board"]')?.scrollIntoView({block:'start'});
+};
+const mq = matchMedia('(max-width: 1023px)'), mqR = matchMedia('(min-width: 1024px) and (max-width: 1279px)'), mqP = matchMedia('(max-width: 719px)');
+const setCompact = () => { state.compact = mq.matches; state.rail = mqR.matches; state.phone = mqP.matches; if (!state.compact) closeNavDrawer(); if (state.phone) state.edit = null; render(); };
+[mq, mqR, mqP].forEach(m => m.addEventListener('change', setCompact));
+state.compact = mq.matches; state.rail = mqR.matches; state.phone = mqP.matches;
+render();
+if (qs.get('edit') === 'groom' && editor()) act.edit({dataset:{k:'groom'}});
+</script>
+</body>
+</html>

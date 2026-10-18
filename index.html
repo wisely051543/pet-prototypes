@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>寵派小管家原型</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227%22 cy=%2210%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%226.5%22 r=%221.6%22/%3E%3Ccircle cx=%2214.5%22 cy=%226.5%22 r=%221.6%22/%3E%3Ccircle cx=%2218%22 cy=%2210%22 r=%221.6%22/%3E%3Cpath d=%22M12.5 11c2.6 0 5 3.3 5 5.6 0 1.5-1.2 2.1-2.4 2.1-1.1 0-1.7-.5-2.6-.5s-1.5.5-2.6.5c-1.2 0-2.4-.6-2.4-2.1 0-2.3 2.4-5.6 5-5.6z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world: the prototype index. Staff tokens copied from prototypes/m01-dashboard; no new color tokens.
+   Each main flow is drawn in the 客服支援 trace vocabulary: a stop with a prototype is solid, a stop without one is dashed. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;--hair:#F3EBE2;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-ink:#DCCDC0;--rail-cur:#F6EFE7;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--info:#1D5FA8;--info-bg:#E0EEFB;
+  --neutral:#4A4F57;--neutral-bg:#ECEDEF;--boarding:#5B3BA6;--boarding-bg:#EDE7FA;
+  --sh-1:0 1px 2px rgba(74,48,30,.06),0 4px 14px rgba(74,48,30,.07);
+  --sh-2:0 2px 4px rgba(74,48,30,.07),0 10px 28px rgba(74,48,30,.11);
+  --r-md:12px;--r-lg:18px;--r-xl:24px;
+  --out:cubic-bezier(.16,1,.3,1);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;--hair:#2B221C;
+  --act:#FF8257;--act-hover:#FF956F;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-ink:#BCAEA3;--rail-cur:#F6EDE6;--focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--info:#8CC2F5;--info-bg:#14304F;
+  --neutral:#C3C7CE;--neutral-bg:#2E3136;--boarding:#C6B3F5;--boarding-bg:#2D2347;
+  --sh-1:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.28);--sh-2:0 2px 4px rgba(0,0,0,.32),0 10px 28px rgba(0,0,0,.36);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;--hair:#2B221C;
+  --act:#FF8257;--act-hover:#FF956F;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-ink:#BCAEA3;--rail-cur:#F6EDE6;--focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--info:#8CC2F5;--info-bg:#14304F;
+  --neutral:#C3C7CE;--neutral-bg:#2E3136;--boarding:#C6B3F5;--boarding-bg:#2D2347;
+  --sh-1:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.28);--sh-2:0 2px 4px rgba(0,0,0,.32),0 10px 28px rgba(0,0,0,.36);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scrollbar-color:var(--control-border) transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 .9375rem/1.5 var(--font);font-feature-settings:"tnum";-webkit-font-smoothing:antialiased}
+::selection{background:var(--act-tint);color:var(--ink)}
+h1,h2,h3,p,ol,ul,dl,dd{margin:0}
+ol,ul{padding:0;list-style:none}
+a{color:inherit;text-underline-offset:3px}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:3px;border-radius:8px}
+.ico{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+
+/* ---------- header ---------- */
+.top{background:var(--rail);color:var(--rail-cur)}
+.top-in{max-width:1200px;margin:0 auto;padding:28px 24px 30px;display:grid;grid-template-columns:auto 1fr auto;gap:18px 20px;align-items:center}
+.mark{width:52px;height:52px;border-radius:50%;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center}
+.mark .ico{width:30px;height:30px;fill:currentColor;stroke:none}
+.top h1{font-size:1.75rem;font-weight:900;line-height:1.25;letter-spacing:.01em}
+.top p{color:var(--rail-ink);font-weight:700;font-size:.9375rem;margin-top:2px;text-wrap:pretty}
+.tally{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.tally span{display:inline-flex;align-items:baseline;gap:4px;padding:6px 12px;border-radius:999px;background:rgba(246,239,231,.1);font-weight:800;font-size:.8125rem;color:var(--rail-ink);white-space:nowrap}
+.tally b{font-size:1.0625rem;color:var(--rail-cur);font-weight:900}
+.theme{display:inline-flex;align-items:center;gap:6px;text-decoration:none;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid rgba(246,239,231,.28);background:transparent;color:var(--rail-cur);font:800 .8125rem var(--font);cursor:pointer}
+.theme:hover{border-color:var(--rail-cur)}
+
+/* ---------- layout ---------- */
+main{max-width:1200px;margin:0 auto;padding:36px 24px 72px}
+.sec+.sec{margin-top:56px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.sec-h h2{font-size:1.375rem;font-weight:900;line-height:1.25}
+.sec-h p{color:var(--ink-muted);font-weight:700;font-size:.875rem;max-width:60ch}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.8125rem;font-weight:800;color:var(--ink-muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{display:inline-block;width:26px;height:0;border-top:3px solid var(--ink)}
+.legend i.gap{border-top:3px dashed var(--control-border)}
+
+/* ---------- flows: one trace per flow ---------- */
+.flows{display:grid;gap:14px}
+.flow{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--sh-1);padding:20px 22px 18px;display:grid;grid-template-columns:220px 1fr;gap:16px 24px;align-items:start}
+.flow-h h3{font-size:1.0625rem;font-weight:900;line-height:1.3}
+.flow-h .who{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.flow-h .note{margin-top:10px;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.45;text-wrap:pretty}
+.flow-h .note.warn{color:var(--warning)}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:.75rem;font-weight:800;line-height:1.5;white-space:nowrap;background:var(--sunk);color:var(--ink)}
+.chip.owner{background:var(--act-tint);color:var(--act-ink)}
+.chip.floor{background:var(--success-bg);color:var(--success)}
+.chip.shop{background:var(--info-bg);color:var(--info)}
+.chip.plat{background:var(--neutral-bg);color:var(--neutral)}
+.chip.stay{background:var(--boarding-bg);color:var(--boarding)}
+.chip.warn{background:var(--warning-bg);color:var(--warning)}
+
+.trace{display:flex;align-items:stretch;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:thin;scroll-snap-type:x proximity}
+.stop{position:relative;flex:1 0 132px;min-width:132px;max-width:220px;padding-top:26px;scroll-snap-align:start}
+/* the line runs from this stop's node to the next one */
+.stop::before{content:"";position:absolute;left:9px;right:-9px;top:8px;border-top:3px solid var(--ink)}
+.stop:last-child::before{display:none}
+.stop.gap::before,.stop:has(+ .gap)::before{border-top-style:dashed;border-top-color:var(--control-border)}
+.node{position:absolute;left:0;top:0;width:19px;height:19px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 4px var(--surface)}
+.stop.gap .node{background:var(--surface);border:2.5px dashed var(--control-border)}
+.stop.last .node{background:var(--act)}
+.stop a,.stop .nolink{display:block;margin-right:12px;padding:8px 10px 9px;border-radius:var(--r-md);text-decoration:none;transition:background-color .2s var(--out),transform .2s var(--out)}
+.stop a:hover{background:var(--sunk)}
+.stop a:active{transform:scale(.97);transition-duration:.08s}
+.stop b{display:block;font-weight:900;font-size:.9375rem;line-height:1.35;text-wrap:balance}
+.stop small{display:flex;align-items:center;gap:4px;margin-top:3px;font-size:.75rem;font-weight:800;color:var(--ink-muted);line-height:1.4}
+.stop a small .ico{opacity:0;transform:translateX(-4px);transition:opacity .2s var(--out),transform .2s var(--out)}
+.stop a:hover small .ico,.stop a:focus-visible small .ico{opacity:1;transform:none}
+.stop.gap .nolink{border:1.5px dashed var(--control-border)}
+.stop.gap b{color:var(--ink-muted)}
+.stop.gap small{color:var(--warning)}
+
+/* ---------- directory: four ends ---------- */
+.ends{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+.end{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--sh-1);overflow:hidden}
+.end-h{padding:16px 18px 14px;border-bottom:1px solid var(--border)}
+.end-h h3{font-size:1.0625rem;font-weight:900;display:flex;align-items:center;gap:8px}
+.end-h h3 i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.end-h p{margin-top:4px;font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+.pages li+li{border-top:1px solid var(--hair)}
+.pg{display:block;padding:12px 18px 13px}
+.pg>a{display:flex;align-items:baseline;gap:8px;text-decoration:none;font-weight:900;font-size:.9375rem;line-height:1.35}
+.pg>a:hover{text-decoration:underline;text-decoration-thickness:2px}
+.pg>a code{font:800 .6875rem/1 var(--font);letter-spacing:.02em;color:var(--ink-muted);background:var(--sunk);padding:3px 6px;border-radius:6px;flex:none;transform:translateY(-1px)}
+.pg .roles{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.pg .roles a{display:inline-flex;align-items:center;min-height:28px;padding:0 9px;border-radius:999px;border:1.5px solid var(--border);font-size:.75rem;font-weight:800;color:var(--ink-muted);text-decoration:none;transition:border-color .15s,color .15s}
+.pg .roles a:hover{border-color:var(--ink);color:var(--ink)}
+.pg .desc{margin-top:4px;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.45;text-wrap:pretty}
+
+/* ---------- gaps ---------- */
+.extra{margin-top:14px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.extra a{font-weight:800;color:var(--ink)}
+
+footer{max-width:1200px;margin:0 auto;padding:0 24px 40px;color:var(--ink-muted);font-size:.8125rem;font-weight:700}
+
+/* ---------- responsive ---------- */
+@media (max-width: 1080px){.ends{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width: 820px){
+  .flow{grid-template-columns:1fr;gap:12px}
+  .top-in{grid-template-columns:auto 1fr}
+  .tally{grid-column:1 / -1;justify-content:flex-start}
+}
+@media (max-width: 640px){
+  .top-in{padding:22px 16px 24px}
+  .top h1{font-size:1.5rem}
+  main{padding:28px 16px 56px}
+  footer{padding:0 16px 32px}
+  .ends{grid-template-columns:1fr}
+  .flow{padding:18px 16px 14px}
+  /* phone: the trace turns on its side, nodes down the left */
+  .trace{flex-direction:column;overflow:visible;padding:0}
+  .stop{flex:none;max-width:none;min-width:0;padding:0 0 4px 30px}
+  .stop::before{left:8px;right:auto;top:10px;bottom:-10px;border-top:0;border-left:3px solid var(--ink)}
+  .stop.gap::before,.stop:has(+ .gap)::before{border-left-style:dashed;border-left-color:var(--control-border)}
+  .node{top:10px}
+  .stop a,.stop .nolink{margin-right:0}
+  .stop a small .ico{opacity:1;transform:none}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="mark" aria-hidden="true"><svg class="ico" viewBox="0 0 24 24"><circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="18" cy="10" r="1.6"/><path d="M12.5 11c2.6 0 5 3.3 5 5.6 0 1.5-1.2 2.1-2.4 2.1-1.1 0-1.7-.5-2.6-.5s-1.5.5-2.6.5c-1.2 0-2.4-.6-2.4-2.1 0-2.3 2.4-5.6 5-5.6z"/></svg></div>
+    <div>
+      <h1>寵派小管家原型</h1>
+      <p>沿著一條主流程一站一站點下去，或直接打開某一端的畫面。示範資料都是虛構的。管理 Web 的示範日是 10/9（五）11:20；今日看板與通知補發用自己的示範日 10/5（一）09:55。</p>
+    </div>
+    <div class="tally" aria-label="原型數量">
+      <span><b>32</b>個畫面</span><span><b>4</b>端</span><span><b>11</b>條主流程</span>
+      <a class="theme" href="test.html">使用者測試</a>
+      <button class="theme" type="button" id="theme" aria-pressed="false"><svg class="ico sm" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span>深色</span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="sec" aria-labelledby="h-flows">
+    <div class="sec-h">
+      <h2 id="h-flows">主流程</h2>
+      <div class="legend" aria-hidden="true"><span><i></i>有原型，可以點</span><span><i class="gap"></i>還沒有原型</span></div>
+    </div>
+    <ol class="flows" id="flows"></ol>
+  </section>
+
+  <section class="sec" aria-labelledby="h-ends">
+    <div class="sec-h">
+      <h2 id="h-ends">依端瀏覽</h2>
+      <p>點畫面名稱用預設身分打開；下面的身分標籤可以換人看同一頁。</p>
+    </div>
+    <div class="ends" id="ends"></div>
+  </section>
+
+  <section class="sec">
+    <p class="extra">設計比較稿，不是產品畫面：<a href="today-board/looks-compare.html">今日看板外觀比較</a>・<a href="today-board/handover-compare.html">平板簽署交接比較</a></p>
+  </section>
+</main>
+<footer>原型只在瀏覽器裡模擬，不會送出任何資料。規格以 docs/ 內的主流程 Wireflow 與 V1.0b 補丁為準。</footer>
+
+<script>
+const ic = (n, c = 'sm') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${{fwd:'<path d="M5 12h14M13 6l6 6-6 6"/>', warn:'<path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.01"/>', moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>', sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'}[n]}</svg>`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* who walks each flow: owner, floor staff, shop management, platform */
+const WHO = {owner:['owner','飼主'], floor:['floor','現場店員'], shop:['shop','店家管理'], plat:['plat','寵派後台'], stay:['stay','住宿']};
+
+/* a stop: [what happens, page name, href]; href null = no prototype yet */
+const FLOWS = [
+  {t:'商家開通與開店設定', who:['plat','shop'], note:'開店設定的每一項都能接到完整設定頁。', stops:[
+    ['新增商家、寄出邀請', '商家管理', 'tenant-admin/index.html?role=super'],
+    ['接受邀請、設定密碼', '管理 Web 登入', 'merchant-login/index.html?go=invite'],
+    ['開店設定 13 項', '開店設定', 'm01-dashboard/index.html?role=admin'],
+    ['服務、時間、資源、契約', '服務與價格', 'm04-services/index.html?role=admin'],
+    ['試約、正式啟用', '開店設定', 'm01-dashboard/index.html?role=admin'],
+    ['每天看儀表板', '儀表板', 'm01-dashboard/index.html?live=1&role=admin']]},
+  {t:'飼主 LINE 預約', who:['owner'], stops:[
+    ['找到店、挑時段', '公開網頁', 'public-web/index.html'],
+    ['選服務、毛孩、時段', '飼主 LIFF', 'liff-booking/index.html'],
+    ['第一次來的飼主', '飼主 LIFF', 'liff-booking/index.html?visit=first'],
+    ['店員看到新預約', '今日看板', 'today-board/index.html?role=clerk']]},
+  {t:'電子同意書簽署', who:['owner','floor'], note:'以平板簽署原型為準；今日看板裡的簽署畫面跟著它走。', stops:[
+    ['在家審閱、簡訊驗證', '飼主 LIFF', 'liff-booking/index.html'],
+    ['到店快速簽', '平板簽署', 'tablet-signing/index.html?sc=fast'],
+    ['沒讀過，現場審閱', '平板簽署', 'tablet-signing/index.html?sc=live'],
+    ['契約改版要重簽', '平板簽署', 'tablet-signing/index.html?sc=ver'],
+    ['簽完就能報到', '今日看板', 'today-board/index.html?role=clerk']]},
+  {t:'報到、服務、收款、離店', who:['floor'], stops:[
+    ['店員登入', '店員登入', 'staff-login/index.html'],
+    ['今天的預約', '今日看板', 'today-board/index.html?role=clerk'],
+    ['看注意事項', '寵物卡', 'pet-card/index.html?role=desk'],
+    ['報到 → 服務 → 收款 → 離店', '今日看板', 'today-board/index.html?role=clerk'],
+    ['接回時簽服務紀錄', '平板簽署', 'tablet-signing/index.html?sc=record']]},
+  {t:'現場預約', who:['floor'], stops:[
+    ['新增現場預約', '今日看板', 'today-board/index.html?role=clerk'],
+    ['沒有 LINE 的新客簽約', '平板簽署', 'tablet-signing/index.html?sc=walkin'],
+    ['建立並報到', '今日看板', 'today-board/index.html?role=clerk']]},
+  {t:'住宿入住與退房', who:['owner','floor','stay'], stops:[
+    ['飼主選入住、退房日期', '飼主 LIFF', 'liff-booking/index.html?at=stay'],
+    ['簽住宿與醫療授權', '平板簽署', 'tablet-signing/index.html?sc=stay'],
+    ['入住、在住、退房', '今日看板', 'today-board/index.html?role=mgr'],
+    ['房間排程', '資源', 'm06-resources/index.html?role=mgr'],
+    ['住宿行事曆', '預約行事曆', 'm02-appointments/index.html?role=mgr']]},
+  {t:'取消、改期、未到', who:['owner','floor','shop'], stops:[
+    ['飼主申請取消或改期', '飼主 LIFF', 'liff-booking/index.html'],
+    ['依政策算取消費', '取消與改期政策', 'cancel-policy/index.html?role=admin'],
+    ['店長審核', '審核台', 'admin-review-desk/index.html?role=mgr&page=queue'],
+    ['行事曆上改期', '預約行事曆', 'm02-appointments/index.html?role=mgr'],
+    ['標記或撤銷未到', '今日看板', 'today-board/index.html?role=mgr']]},
+  {t:'收款、退款、對帳', who:['floor','shop'], stops:[
+    ['現場收款', '今日看板', 'today-board/index.html?role=clerk'],
+    ['儀表板看待收', '儀表板', 'm01-dashboard/index.html?live=1&role=admin'],
+    ['收款對帳', '審核台', 'admin-review-desk/index.html?role=admin&page=money']]},
+  {t:'通知補發與客服', who:['floor','plat'], stops:[
+    ['看板上的通知失敗', '今日看板', 'today-board/index.html?role=clerk'],
+    ['補發或改傳簡訊', '通知補發', 'notify-resend/index.html?role=desk'],
+    ['寵派客服查詢、補發簽署連結', '客服支援', 'support-console/index.html?role=support'],
+    ['LINE 大量失敗處理', 'LINE／通知管理', 'line-notify-admin/index.html?role=support']]},
+  {t:'方案升級與訂閱付款', who:['shop','plat'], stops:[
+    ['店家管理者登入', '管理 Web 登入', 'merchant-login/index.html'],
+    ['看到用量快滿', '儀表板', 'm01-dashboard/index.html?live=1&role=admin'],
+    ['升級方案', '方案與用量', 'plan-usage/index.html?role=admin'],
+    ['寵派處理方案', '方案管理', 'plan-admin/index.html?role=super'],
+    ['扣款與補款', '付款管理', 'payment-admin/index.html?role=finance']]},
+  {t:'寵派後台日常', who:['plat'], stops:[
+    ['登入、設定 MFA', '寵派後台登入', 'platform-login/index.html'],
+    ['盯用量', '用量監控', 'usage-monitor/index.html?role=super'],
+    ['查稽核紀錄', '稽核中心', 'audit-center/index.html?role=compliance'],
+    ['停權或恢復商家', '商家管理', 'tenant-admin/index.html?role=super']]}
+];
+
+const R = {admin:'店家管理者', mgr:'店長', desk:'櫃台', clerk:'櫃台', groom:'美容照護', groomer:'美容照護', care:'美容照護',
+  super:'最高管理者', support:'客服', finance:'財務', compliance:'合規', data:'資料'};
+/* [code, name, folder, roles (first is the default), one line] */
+const ENDS = [
+  {t:'飼主端', c:'var(--act)', d:'LINE LIFF 與公開網頁，不用裝 App。', pages:[
+    ['W-01', '公開網頁', 'public-web', [], '店家頁、最近空檔，接 LINE 登入'],
+    ['L-01–08', '飼主 LIFF', 'liff-booking', [], '美容與住宿預約五步、契約審閱、我的預約、我的毛孩']]},
+  {t:'店員現場 App', c:'var(--success)', d:'櫃台平板與個人手機。', pages:[
+    ['S-01', '店員登入', 'staff-login', [], '員工牆、帳密、OTP、首次設定'],
+    ['S-02', '今日看板', 'today-board', ['clerk', 'mgr'], '報到到離店、現場預約、住宿、改期取消'],
+    ['S-04', '寵物卡', 'pet-card', ['desk', 'groomer', 'mgr'], '注意事項、來店紀錄、今日備註'],
+    ['S-06', '平板簽署', 'tablet-signing', [], '六種簽署情境，交給飼主操作'],
+    ['S-09', '通知補發', 'notify-resend', ['desk', 'mgr', 'care'], '補發、改傳簡訊']]},
+  {t:'店家管理 Web', c:'var(--info)', d:'店家管理者與店長。', pages:[
+    ['', '管理 Web 登入', 'merchant-login', [], '開通邀請、手機密碼登入、新電腦驗證、忘記密碼'],
+    ['M-01', '儀表板與開店設定', 'm01-dashboard', ['admin', 'mgr'], '開店設定 13 項、試約、啟用後儀表板'],
+    ['M-02', '預約行事曆', 'm02-appointments', ['admin', 'mgr', 'desk'], '日、週、列表，改期與取消'],
+    ['M-03', '客戶與寵物', 'm03-customers', ['admin', 'mgr', 'desk', 'groom'], '搜尋、合併、刪除申請'],
+    ['M-04', '服務與價格', 'm04-services', ['admin', 'mgr'], '價格矩陣、排程改價、住宿計價'],
+    ['M-05', '營業時間', 'm05-hours', ['admin', 'mgr'], '每週時間、特殊日期、臨時公休'],
+    ['M-06', '資源', 'm06-resources', ['admin', 'mgr'], '美容台與房間 14 天占用'],
+    ['M-07', '契約模板', 'm07-contract-templates', ['admin', 'mgr'], '補充條款、發布、契約公告 QR'],
+    ['M-08', '員工與權限', 'm08-staff', ['admin', 'mgr'], '分店與角色、邀請、停用'],
+    ['', '審核台', 'admin-review-desk', ['admin', 'mgr', 'desk'], '待處理、收款對帳、稽核紀錄'],
+    ['', '取消與改期政策', 'cancel-policy', ['admin', 'mgr'], '取消費尺規與試算'],
+    ['', '通知設定', 'notify-settings', ['admin', 'mgr'], '一筆預約會收到哪些通知'],
+    ['', '方案與用量', 'plan-usage', ['admin', 'mgr'], '本期用量、升級、帳務']]},
+  {t:'寵派後台', c:'var(--neutral)', d:'寵派內部的五種平台角色。', pages:[
+    ['', '寵派後台登入', 'platform-login', [], '公司 Email、驗證 App、第一次設定、備用碼'],
+    ['C-01', '商家管理', 'tenant-admin', ['super', 'support', 'finance', 'data'], '開通看板、停權與恢復'],
+    ['', '方案管理', 'plan-admin', ['super', 'finance', 'support', 'data'], '方案目錄、指派、降級申請'],
+    ['', '付款管理', 'payment-admin', ['finance', 'super', 'support', 'data'], '收款階梯、帳單、對帳、退款'],
+    ['C-02', '客服支援', 'support-console', ['support', 'super', 'finance', 'data'], '開案、門號查詢、補發簽署連結'],
+    ['C-03', '契約模板庫', 'contract-library', ['compliance', 'super', 'support', 'finance', 'data'], '平台模板分發與審核'],
+    ['', 'LINE／通知管理', 'line-notify-admin', ['support', 'super', 'finance', 'data'], '失敗處理、OA 狀態、範本'],
+    ['', '金流設定', 'gateway-settings', ['super', 'finance', 'support', 'compliance', 'data'], '通道健康、回呼、金鑰'],
+    ['', '稽核中心', 'audit-center', ['compliance', 'super', 'support', 'finance', 'data'], '巡檢、時間軸、證據鏈'],
+    ['', '用量監控', 'usage-monitor', ['super', 'finance', 'support', 'compliance', 'data'], '突增與超量的店'],
+    ['', '產業數據', 'industry-data', ['data', 'super', 'finance', 'support', 'compliance'], '去識別化報表'],
+    ['', '系統設定', 'system-settings', ['super', 'data', 'finance', 'support', 'compliance'], '全域參數、管理員、維護模式']]}
+];
+
+const chip = k => `<span class="chip ${WHO[k][0]}">${WHO[k][1]}</span>`;
+const stop = ([what, page, href], i, all) => {
+  const end = i === all.length - 1 ? ' last' : '';
+  if (!href) return `<li class="stop gap${end}"><span class="node"></span><span class="nolink"><b>${esc(what)}</b><small>${ic('warn')}${esc(page)}</small></span></li>`;
+  return `<li class="stop${end}"><span class="node"></span><a href="${href}"><b>${esc(what)}</b><small>${esc(page)}${ic('fwd')}</small></a></li>`;
+};
+document.getElementById('flows').innerHTML = FLOWS.map(f => `<li class="flow">
+  <div class="flow-h"><h3>${esc(f.t)}</h3><div class="who">${f.who.map(chip).join('')}</div>${f.note ? `<p class="note${f.warn ? ' warn' : ''}">${esc(f.note)}</p>` : ''}</div>
+  <ol class="trace" aria-label="${esc(f.t)}的步驟">${f.stops.map(stop).join('')}</ol></li>`).join('');
+
+const href = (dir, role) => `${dir}/index.html${role ? `?role=${role}` : ''}`;
+document.getElementById('ends').innerHTML = ENDS.map(e => `<section class="end" style="--c:${e.c}" aria-labelledby="e-${e.pages[0][2]}">
+  <div class="end-h"><h3 id="e-${e.pages[0][2]}"><i aria-hidden="true"></i>${e.t}</h3><p>${e.d}</p></div>
+  <ul class="pages">${e.pages.map(([code, name, dir, roles, d]) => `<li class="pg">
+    <a href="${href(dir, roles[0])}">${code ? `<code>${code}</code>` : ''}<span>${name}</span></a>
+    <p class="desc">${d}</p>
+    ${roles.length > 1 ? `<div class="roles" aria-label="${name}換身分看">${roles.map(r => `<a href="${href(dir, r)}">${R[r]}</a>`).join('')}</div>` : ''}</li>`).join('')}</ul></section>`).join('');
+
+/* theme: follows the system until the viewer picks one */
+const btn = document.getElementById('theme');
+const dark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+const paint = () => { const d = dark(); btn.setAttribute('aria-pressed', String(d)); btn.innerHTML = `${ic(d ? 'sun' : 'moon')}<span>${d ? '淺色' : '深色'}</span>`; };
+try { const t = localStorage.getItem('proto-theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t; } catch (e) {}
+btn.addEventListener('click', () => { const t = dark() ? 'light' : 'dark'; document.documentElement.dataset.theme = t; try { localStorage.setItem('proto-theme', t); } catch (e) {} paint(); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paint);
+paint();
+</script>
+</body>
+</html>

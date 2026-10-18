@@ -1,0 +1,2078 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>付款管理原型</title>
+<script src="../test-kit/kit.js" data-proto="payment-admin"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens copied from the today board via 客服支援, LINE／通知管理 and 商家管理. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+:root{--sidew:15rem;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:24px;scroll-padding-bottom:120px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.spm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+.nw{white-space:nowrap}
+.muted{color:var(--ink-muted)}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .pbtn{border:1px solid var(--proto-line);border-radius:8px;padding:4px 10px;min-height:32px;color:var(--proto-ink);font-weight:700}
+.proto .pbtn:hover{border-color:var(--proto-ink)}
+.proto .tagp{border:1.5px dashed var(--proto-muted);border-radius:999px;padding:1px 8px;font-weight:800;color:var(--proto-muted)}
+
+/* ---------- shell: labeled cocoa sidebar (管理 Web) ---------- */
+#app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+#app.compact{display:block}
+.side{position:sticky;top:0;height:calc(100vh - 44px);height:calc(100dvh - 44px);overflow-y:auto;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;gap:2px;padding:18px 12px 16px;color:var(--rail-ink)}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+.mark{width:40px;height:40px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;flex:none}
+.mark .ico{width:24px;height:24px;stroke-width:0;fill:currentColor}
+.brand small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+.brand b{display:block;color:var(--rail-cur);font-size:1rem;font-weight:900;line-height:1.3}
+.sgrp{font-size:.75rem;font-weight:800;letter-spacing:.04em;padding:10px 12px 4px;color:var(--rail-ink);opacity:.82}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 12px;border-radius:12px;font-size:.9375rem;font-weight:700;line-height:1.3;color:var(--rail-ink);transition:background-color .2s var(--out),color .2s var(--out)}
+.sitem:hover{background:var(--rail-hover);color:var(--rail-cur)}
+.sitem[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.sitem .n{margin-left:auto;min-width:24px;padding:0 8px;border-radius:999px;background:var(--rail-hover);color:var(--rail-cur);font-size:.75rem;font-weight:900;text-align:center;line-height:1.6}
+.sitem .n.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.sitem[aria-current="page"] .n:not(.hot){background:var(--sunk);color:var(--ink)}
+.side :focus-visible{outline-color:var(--rail-cur)}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid var(--rail-hover);position:sticky;bottom:-16px;background:var(--rail);margin-bottom:-16px;padding-bottom:16px}
+.me::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:28px;background:linear-gradient(to bottom,transparent,var(--rail));pointer-events:none}
+.me .av{width:36px;height:36px;border-radius:50%;background:var(--rail-hover);color:var(--rail-cur);display:grid;place-items:center;font-weight:900;flex:none}
+.me b{display:block;color:var(--rail-cur);font-weight:800;line-height:1.3}
+.me small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+/* compact: the sidebar becomes a top bar and a drawer */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--rail);color:var(--rail-cur)}
+.topbar .mark{width:36px;height:36px;border-radius:12px}
+.topbar b{font-weight:900}
+.topbar .ibtn{color:var(--rail-cur)}
+.topbar .ibtn:hover{background:var(--rail-hover)}
+.topbar :focus-visible{outline-color:var(--rail-cur)}
+.ibtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;transition:background-color .2s var(--out)}
+.ibtn:hover{background:var(--sunk)}
+.drawer-nav{position:fixed;inset:0 auto 0 0;z-index:80;width:min(18rem,86vw);box-shadow:var(--lift-hi);animation:slidein .32s var(--out)}
+.drawer-nav .side{height:100%}
+@keyframes slidein{from{transform:translateX(-100%)}}
+main{min-width:0;container:main / inline-size}
+/* 1024–1279: the labeled sidebar folds into the world's icon rail so the detail keeps its width */
+#app.rail{--sidew:5.25rem}
+#app.rail .side{padding:16px 6px;align-items:center;gap:4px}
+#app.rail .brand{padding:0 0 10px}
+#app.rail .brand>span:not(.mark),#app.rail .sgrp,#app.rail .me>span:not(.av){display:none}
+#app.rail .sitem{flex-direction:column;justify-content:center;gap:4px;width:4.25rem;min-height:3.75rem;padding:6px 2px;border-radius:16px;font-size:.75rem;font-weight:700;text-align:center;line-height:1.25;position:relative}
+#app.rail .sitem[aria-current="page"]{font-weight:900}
+#app.rail .sitem .n{position:absolute;top:2px;right:2px;margin:0;padding:0 6px;font-size:.75rem}
+#app.rail .me{padding:12px 0 0;justify-content:center}
+
+
+/* ---------- page head ---------- */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 16px;padding:22px 28px 0}
+.compact .head{padding:16px 16px 0}
+.head h1{font-size:1.75rem;font-weight:900;line-height:1.25;display:flex;align-items:center;gap:10px}
+.compact .head h1{font-size:1.375rem}
+.compact .head .tools{margin-left:0;order:4;flex-basis:100%}
+.head .sub{flex-basis:100%;order:3;font-size:.875rem;font-weight:600;color:var(--ink-muted);margin-top:-6px}
+.head .tools{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.scope{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--control-border);font-weight:800;font-size:.875rem}
+select.scope{appearance:none;padding-right:36px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;cursor:pointer}
+select.scope:hover{border-color:var(--ink)}
+.scope.fixed{border-style:dashed;color:var(--ink-muted)}
+.updated{font-size:.8125rem;font-weight:700;color:var(--ink-muted);display:inline-flex;align-items:center;gap:6px}
+.updated.off{color:var(--warning)}
+.banner{display:flex;gap:10px;align-items:flex-start;margin:14px 28px 0;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:700;line-height:1.5}
+.compact .banner{margin:12px 16px 0}
+.banner.warning{background:var(--warning-bg);color:var(--warning)}
+.banner.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.banner .ico{margin-top:1px}
+
+/* ---------- buttons, chips, tags ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:var(--r-md);font-size:.9375rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out),border-color .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.quiet{background:var(--surface);color:var(--ink);border-color:var(--control-border)}
+.btn.quiet:hover{border-color:var(--ink)}
+.btn.danger{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.btn.danger:hover{filter:brightness(1.08)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none;filter:none}
+.btn.busy{pointer-events:none}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(1turn)}}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+a.textbtn{text-decoration:none}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.textbtn[aria-disabled="true"]{color:var(--ink-muted);background:transparent;border:1.5px dashed var(--control-border);cursor:not-allowed}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4;text-wrap:pretty}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.warning{color:var(--warning);background:var(--warning-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.chip.plain{background:var(--sunk);color:var(--ink)}
+.chip.plain::before{display:none}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 9px;border-radius:999px;font-size:.875rem;line-height:1.4;white-space:nowrap}
+.tag.safety{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.tag.care{background:var(--warning-bg);color:var(--warning);font-weight:700}
+.cnt{min-width:26px;padding:1px 9px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;text-align:center;line-height:1.5}
+.cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.masked{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--sunk);color:var(--ink-muted);font-size:.8125rem;font-weight:800;border:1.5px dashed var(--control-border)}
+.masked .ico{width:14px;height:14px;stroke-width:2.2}
+
+/* filter pills and segmented control */
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--border);font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out),border-color .2s var(--out),transform .35s var(--spring)}
+.pill:hover{border-color:var(--control-border);color:var(--ink)}
+.pill:active{transform:scale(.96);transition-duration:.08s}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface);font-weight:900}
+.pill[aria-pressed="true"] .cnt{background:var(--surface);color:var(--ink)}
+.pill[aria-pressed="true"] .cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.pill .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);flex-wrap:wrap}
+.seg button{min-height:40px;padding:0 16px;border-radius:999px;font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out)}
+.seg button:hover{color:var(--ink)}
+.seg button:is([aria-pressed="true"],[aria-checked="true"]){background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+:root[data-theme="dark"] .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+/* ---------- 臉環 ---------- */
+.face{--s:56px;position:relative;flex:none;width:var(--s);height:var(--s);display:inline-grid;place-items:center;border-radius:50%}
+.face>svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.face circle{fill:none;stroke:var(--track);stroke-width:7;stroke-linecap:round}
+.face circle.done{stroke:var(--ink)}
+.face circle.cur{stroke:var(--ink);stroke-width:9;stroke-dasharray:0 600;animation:seg .7s var(--out) .15s forwards}
+@keyframes seg{to{stroke-dasharray:var(--dash) 600}}
+.face img,.face .ini{width:calc(var(--s) * .74);height:calc(var(--s) * .74);border-radius:50%;object-fit:cover;background:var(--sunk);display:grid;place-items:center;font-weight:900;color:var(--ink-muted);font-size:calc(var(--s) * .3)}
+.face.plain img,.face.plain .ini{width:calc(var(--s) * .9);height:calc(var(--s) * .9)}
+.face.person .ini{background:var(--sunk);color:var(--ink)}
+.face .badge{position:absolute;right:-2px;bottom:-2px;width:calc(var(--s) * .32);height:calc(var(--s) * .32);min-width:20px;min-height:20px;border-radius:50%;display:grid;place-items:center;background:var(--danger-solid);color:var(--on-danger-solid);border:2.5px solid var(--surface)}
+.face .badge .ico{width:62%;height:62%;stroke-width:2.4}
+.face .step{position:absolute;left:-2px;bottom:-2px;padding:1px 7px;border-radius:999px;background:var(--surface);color:var(--ink);border:2px solid var(--ink);font-size:.75rem;font-weight:900;line-height:1.25}
+button.face{cursor:pointer;transition:transform .35s var(--spring)}
+button.face:hover{transform:scale(1.04)}
+button.face:active{transform:scale(.95);transition-duration:.08s}
+
+/* ---------- money ---------- */
+.money{font-weight:900;white-space:nowrap;font-feature-settings:"tnum"}
+.money .cur{font-size:max(.6875rem,.78em);font-weight:700;color:var(--ink-muted);margin-right:1px}
+.money.neg{color:var(--ink)}
+
+/* ---------- panels ---------- */
+.panel{background:var(--surface);border-radius:var(--r-lg);padding:22px;box-shadow:var(--lift)}
+.panel-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.panel-h h2,.panel-h h3{font-size:1.0625rem;font-weight:900;line-height:1.3;display:inline-flex;align-items:center;gap:8px}
+.panel-h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+/* ---------- dialog ---------- */
+.dialog{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:24px;display:flex;flex-direction:column;gap:16px;animation:pop .35s var(--spring)}
+@keyframes pop{from{transform:translateY(16px) scale(.98);opacity:0}}
+.dialog h2{font-size:1.25rem;font-weight:900;line-height:1.35;text-wrap:balance}
+.dialog .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.cdl{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px 14px;padding:14px 16px;border-radius:var(--r-md);background:var(--sunk);font-size:.9375rem;font-weight:700}
+.cdl dt{color:var(--ink-muted);font-size:.875rem}
+.invp{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:var(--r-md);box-shadow:inset 0 0 0 1.5px var(--border)}
+.invp h3{font-size:1rem;font-weight:900;text-align:center}
+.invp .ino{text-align:center;font-weight:900;font-size:1.25rem;letter-spacing:.04em;font-variant-numeric:tabular-nums}
+@media print{
+  body:has(.dialog.inv) > :not(#layer), #layer > :not(.dlg-s), .dialog.inv h2, .dialog.inv .lede, .dialog.inv .dbtns{display:none!important}
+  body:has(.dialog.inv){background:#fff}
+  body:has(.dialog.inv) .dlg-s{position:static;background:none;padding:0}
+  body:has(.dialog.inv) .dialog.inv{box-shadow:none;max-height:none;overflow:visible;width:100%}
+}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:.875rem;font-weight:800}
+.field input,.field textarea{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:.9375rem;font-weight:600}
+.field textarea{min-height:84px;resize:vertical;line-height:1.5}
+.field input:hover,.field textarea:hover{border-color:var(--ink)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink-muted)}
+.field [aria-invalid="true"]{border-color:var(--danger)}
+.field .err{font-size:.8125rem;font-weight:800;color:var(--danger)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.dbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:flex-start}
+.dbtns .cell{display:flex;flex-direction:column;align-items:flex-end}
+@media (max-width: 600px){
+  .dlg-s{align-items:flex-end;padding:0}
+  .dialog{border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:92dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+  .dbtns{flex-direction:column-reverse;align-items:stretch}
+  .dbtns .cell{align-items:stretch}
+}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(560px,calc(100vw - 32px));padding:10px 18px;border-radius:18px;background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .4s var(--spring)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+#app:not(.compact) ~ #layer .toast{left:calc(50% + var(--sidew) / 2)}
+#app.rail ~ #layer .toast{left:calc(50% + 2.625rem)}
+
+.whoami{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 6px;border-radius:999px;background:var(--sunk);font-weight:800;font-size:.875rem}
+.whoami .av{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900}
+:root{--boarding:#5B3BA6;--boarding-bg:#EDE7FA}
+:root[data-theme="dark"]{--boarding:#C6B3F5;--boarding-bg:#2D2347}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--boarding:#C6B3F5;--boarding-bg:#2D2347}}
+.chip.boarding{color:var(--boarding);background:var(--boarding-bg)}
+.btn.wide{width:100%}
+.btn .ico{flex:none}
+
+/* ---------- overlays ---------- */
+.scrim{position:fixed;inset:0;z-index:70;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s var(--out)}
+@keyframes fade{from{opacity:0}}
+.scrim.side-r{justify-content:flex-end;align-items:stretch;padding:0}
+@keyframes slidein-r{from{transform:translateX(40px);opacity:0}}
+
+/* ---------- page frame ---------- */
+.wrap{padding:14px 28px 56px}
+.compact .wrap{padding:12px 16px 48px}
+.head .pre-act{display:flex;flex-direction:column;align-items:flex-end}
+.compact .head .pre-act{align-items:stretch;flex-basis:100%}
+.head .pre-act .reason{margin-top:4px}
+.btn.primary.calm{background:var(--surface);color:var(--ink);border-color:var(--control-border);box-shadow:none;font-weight:700}
+.btn.primary.calm:hover{border-color:var(--ink);background:var(--surface)}
+
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:800;line-height:1.5}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.info{background:var(--info-bg);color:var(--info)}
+.notice .ico{margin-top:1px}
+.notice:focus{outline:2.5px solid var(--focus);outline-offset:2px}
+
+/* pickers: radiogroups of options */
+.fs{border:0;display:flex;flex-direction:column;gap:8px}
+.fs legend,.fs .lgd{font-size:.875rem;font-weight:900;margin-bottom:8px;padding:0}
+.rg{display:flex;flex-wrap:wrap;gap:6px}
+.opt{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:6px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:800;line-height:1.3;color:var(--ink);text-align:center;transition:box-shadow .2s var(--out),background-color .2s var(--out),transform .35s var(--spring)}
+.opt:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.opt:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.opt small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.opt[aria-checked="true"]{background:var(--ink);color:var(--surface);box-shadow:none}
+.opt[aria-checked="true"] small{color:var(--surface)}
+.opt[aria-disabled="true"]{background:transparent;box-shadow:none;border:1.5px dashed var(--control-border);color:var(--ink-muted);cursor:not-allowed}
+.ferr{display:flex;gap:8px;align-items:flex-start;font-size:.875rem;font-weight:800;color:var(--danger);line-height:1.45}
+.ferr .ico{margin-top:1px;width:18px;height:18px}
+.srch{position:relative}
+.srch .ico{position:absolute;left:14px;top:14px;color:var(--ink-muted)}
+.srch input{width:100%;min-height:48px;padding:10px 14px 10px 44px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);font-size:.9375rem;font-weight:600}
+.srch input:hover{border-color:var(--ink)}
+.srch input::placeholder{color:var(--ink-muted)}
+.hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+/* ---------- shared bits carried from M-07 ---------- */
+.fail{padding:32px 24px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.fail h2{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:900;color:var(--danger)}
+.fail p{font-size:.9375rem;font-weight:600;color:var(--ink-muted)}
+.noacc{max-width:36rem;margin:40px auto 0;padding:32px 28px;border-radius:var(--r-xl);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.noacc h2{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:900}
+.noacc p{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.banner.danger{background:var(--danger-tint);color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.dialog select{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:0 14px;font-weight:700}
+.pre-x{display:inline-flex;flex-direction:column;align-items:flex-end}
+:root{--hair:#F3EBE2}
+:root[data-theme="dark"]{--hair:#2B221C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hair:#2B221C}}
+
+/* ---------- 寵派後台 shell: the cocoa internal banner joins the sidebar into one frame ---------- */
+#app{grid-template-rows:auto minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+.ibar{grid-column:1 / -1;position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;min-height:40px;padding:0 20px;background:var(--rail);color:var(--rail-cur);font-size:.8125rem;font-weight:800;box-shadow:inset 0 -1px 0 var(--rail-hover)}
+.ibar .in{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:999px;background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.ibar .in .ico{width:15px;height:15px;stroke-width:2.2}
+.ibar .ws{color:var(--rail-ink);font-weight:700}
+.ibar .r{margin-left:auto;color:var(--rail-ink);font-weight:700}
+.ibar :focus-visible{outline-color:var(--rail-cur)}
+#app>.side{grid-row:2;top:40px;height:calc(100vh - 84px);height:calc(100dvh - 84px)}
+#app>main{grid-row:2}
+#app.compact .ibar{position:static}
+.compact .topbar{top:0}
+
+
+/* ---------- carried from 客服支援 ---------- */
+.sheet{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:20px 22px 18px;container:sheet / inline-size}
+.sheet h2{font-size:1.0625rem;font-weight:900;line-height:1.3;display:flex;align-items:center;gap:8px}
+.sheet .h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.sheet .h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.empty{padding:28px 8px 18px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.empty b{font-size:1rem;font-weight:900}
+.empty p{font-size:.875rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.tkt{display:flex;align-items:stretch}
+.tkt span{display:grid;place-items:center;padding:0 12px;border:1.5px solid var(--control-border);border-right:0;border-radius:var(--r-md) 0 0 var(--r-md);background:var(--sunk);font-weight:900}
+.tkt input{border-radius:0 var(--r-md) var(--r-md) 0 !important;font-feature-settings:"tnum";letter-spacing:.04em}
+.rg.col{flex-direction:column;align-items:stretch}
+.rg.col .opt{flex-direction:row;justify-content:flex-start;gap:10px;text-align:left;padding:10px 14px}
+.rg.col .opt::before{content:"";width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--control-border);flex:none}
+.rg.col .opt[aria-checked="true"]::before{box-shadow:inset 0 0 0 5px var(--surface)}
+.aud{display:flex;gap:8px;align-items:flex-start;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.45}
+.aud .ico{width:16px;height:16px;margin-top:1px}
+.bubble{padding:14px 16px;border-radius:20px 20px 20px 8px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.9375rem;font-weight:600;line-height:1.6;white-space:pre-line;overflow-wrap:anywhere}
+.bubble .from{display:block;font-size:.75rem;font-weight:800;color:var(--ink-muted);margin-bottom:4px;white-space:normal}
+.bubble b{font-weight:900}
+.bubble .nt{display:block;margin-top:8px;padding-top:8px;border-top:1px dashed var(--control-border);white-space:normal;color:var(--ink-muted)}
+.bubble .bb{display:flex;align-items:center;justify-content:center;margin-top:10px;min-height:40px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--border);font-weight:900;font-size:.875rem;white-space:normal}
+.smsb{padding:12px 14px;border-radius:16px 16px 16px 6px;background:var(--neutral-bg);color:var(--ink);font-size:.875rem;font-weight:600;line-height:1.55;word-break:break-all}
+.pvm{display:flex;justify-content:space-between;gap:8px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.pvm.over{color:var(--warning)}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);overflow-x:auto;max-width:100%;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;font-size:.9375rem;font-weight:800;color:var(--ink-muted);white-space:nowrap;transition:background-color .2s var(--out),color .2s var(--out)}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+.tabs .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+:root[data-theme="dark"] .tabs button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tabs button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+.tabrow{padding:16px 28px 0;display:flex}
+.compact .tabrow{padding:12px 16px 0}
+
+/* ---------- the OA status strip ---------- */
+.oas{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:10px 12px 10px 18px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);font-size:.875rem;font-weight:700;line-height:1.4}
+.oas .it{display:inline-flex;align-items:center;gap:8px;color:var(--ink)}
+.oas .it .ico{color:var(--ink-muted)}
+.oas .it b{font-weight:900;font-feature-settings:"tnum"}
+.oas .it.warn{color:var(--warning)}
+.oas .it.warn .ico{color:var(--warning)}
+.oas .sep{width:1px;align-self:stretch;background:var(--border)}
+.oas .textbtn{margin-left:auto}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;background:currentColor}
+.dot.success{color:var(--success)}.dot.warning{color:var(--warning)}.dot.danger{color:var(--danger)}
+
+
+/* ---------- carried from 方案與用量: the docked 400px panel ---------- */
+.lay{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+.lay.withp{grid-template-columns:minmax(0,1fr) 400px}
+.colmain{display:flex;flex-direction:column;gap:16px;min-width:0}
+.dp{position:sticky;top:52px;max-height:calc(100vh - 64px);max-height:calc(100dvh - 64px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:20px;display:flex;flex-direction:column;gap:16px;animation:slidein-r .36s var(--out)}
+.dp.sheet{position:relative;top:0;width:min(440px,100vw);height:100%;max-height:none;border-radius:var(--r-xl) 0 0 var(--r-xl)}
+@media (max-width: 600px){.dp.sheet{border-radius:0;padding:16px 16px calc(24px + env(safe-area-inset-bottom))}}
+.dp-top{display:flex;align-items:center;gap:6px;margin:-6px -6px 0}
+.dp-top .x{margin-left:auto}
+.dp h3{font-size:.9375rem;font-weight:900;display:flex;align-items:center;gap:8px}
+.dph{display:grid;grid-template-columns:3.25rem minmax(0,1fr);gap:14px;align-items:center}
+.ttile{width:3.25rem;height:3.25rem;border-radius:16px;display:grid;place-items:center;background:var(--sunk);color:var(--ink);font-size:1.375rem;font-weight:900}
+.ttile .ico{width:26px;height:26px;stroke-width:1.7}
+.ttile.warn{background:var(--warning-bg);color:var(--warning)}
+.dph h2{font-size:1.375rem;font-weight:900;line-height:1.25;text-wrap:balance}
+.dph p{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:.875rem;font-weight:700;color:var(--ink-muted);margin-top:4px}
+.dsec{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--border)}
+.dsec>.hint{margin-top:-4px}
+.dp .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.dp .lede b{color:var(--ink);font-weight:900}
+.dp .go{display:flex;flex-direction:column;gap:8px}
+.dp .go .btn{width:100%}
+.dp .notice{font-weight:700}
+.dp .notice b{font-weight:900}
+.kv{display:grid;grid-template-columns:5rem minmax(0,1fr);gap:8px 14px;font-weight:700;font-size:.9375rem;line-height:1.45}
+.kv dt{color:var(--ink-muted);font-size:.875rem}
+.hist{list-style:none;display:flex;flex-direction:column;gap:8px;font-size:.875rem;font-weight:700;line-height:1.45}
+.hist li{display:grid;grid-template-columns:5.25rem minmax(0,1fr);gap:10px}
+.hist li span:first-child{color:var(--ink-muted);font-size:.8125rem;font-feature-settings:"tnum"}
+.hist li.fresh{animation:fresh 1.6s var(--out);border-radius:8px}
+@keyframes fresh{0%,40%{background:var(--act-tint)}}
+.textbtn.ln{background:transparent;box-shadow:inset 0 0 0 1.5px var(--border)}
+.textbtn.ln:hover{background:var(--sunk);box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.linkb{display:inline;padding:0;font-weight:900;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+
+/* ---------- the 待寵派處理 strip ---------- */
+.qs{gap:6px 14px}
+.qs .it.warn b{color:var(--warning)}
+.qs .who{display:inline-flex;flex-wrap:wrap;gap:6px}
+.lnk{display:inline-flex;align-items:center;gap:6px;min-height:2.25rem;padding:0 12px 0 10px;border-radius:999px;background:var(--warning-bg);color:var(--warning);font-weight:800;font-size:.8125rem;transition:box-shadow .2s var(--out),background-color .2s var(--out)}
+.lnk:hover{box-shadow:inset 0 0 0 1.5px var(--warning)}
+.lnk[aria-expanded="true"]{background:var(--warning);color:var(--surface)}
+.lnk .ico{width:15px;height:15px;stroke-width:2.2}
+.lnk .k{font-weight:700;opacity:.9}
+
+
+/* ---------- panel bits carried from 方案管理 ---------- */
+.sum2{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;padding:12px 14px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700;font-feature-settings:"tnum"}
+.sum2 .tot{font-weight:900;font-size:1rem;padding-top:6px;border-top:1px solid var(--control-border)}
+.sum2 span:nth-child(even){text-align:right}
+.sum2 .neg{color:var(--danger)}
+.pw{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:var(--r-md);background:var(--info-bg);color:var(--info);font-weight:800;font-size:.875rem;line-height:1.5}
+.pw .r1{display:flex;align-items:center;gap:8px;font-size:.9375rem;font-weight:900}
+.offl{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;font-weight:800;color:var(--warning)}
+.qs .done{display:inline-flex;align-items:center;gap:8px;color:var(--success);font-weight:800}
+.qs .done .ico{color:var(--success)}
+.sitem .n.warn,.sitem[aria-current="page"] .n.warn,#app.rail .sitem .n.warn{background:var(--warning-bg);color:var(--warning)}
+@media (max-width: 719px){.ibar{padding:0 16px}.ibar .ws{display:none}.ibar .r{white-space:nowrap}}
+.toast .textbtn{background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor;min-height:36px}
+.frow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width: 600px){.frow{grid-template-columns:minmax(0,1fr)}}
+.field .opt-l{font-weight:700;color:var(--ink-muted);font-size:.8125rem;margin-left:4px}
+.field .help{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.unit{position:relative;display:block}
+.unit input{padding-right:2.75rem !important}
+.unit .u{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:.8125rem;font-weight:700;color:var(--ink-muted);pointer-events:none}
+.unit.pre input{padding-left:3.25rem !important;padding-right:14px !important}
+.unit.pre .u{left:14px;right:auto}
+.trl{list-style:none;display:flex;flex-direction:column}
+.trl li{display:grid;grid-template-columns:5.75rem minmax(0,1fr);gap:10px;padding:9px 0;border-bottom:1px solid var(--hair);font-size:.8125rem;font-weight:700;line-height:1.45}
+.trl li:last-child{border-bottom:0}
+.trl .t{color:var(--ink-muted);font-feature-settings:"tnum"}
+.trl li.fresh{animation:fresh 1.6s var(--out);border-radius:8px}
+.proto .pbtn:disabled{opacity:.5;cursor:not-allowed}
+.legend{list-style:none;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.legend li{display:inline-flex;align-items:center;gap:7px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}.tk.land-r .c{animation-duration:1.4s !important}.hist li.fresh,.trl li.fresh{animation-duration:1.6s !important}}
+
+/* ---------- the summary strip ---------- */
+.qs .it .money{font-size:.9375rem}
+.qs .it .k{color:var(--ink-muted);font-weight:700}
+.qs .who{display:inline-flex;flex-wrap:wrap;gap:6px}
+.lnk.danger{background:var(--danger-bg);color:var(--danger)}
+.lnk.danger:hover{box-shadow:inset 0 0 0 1.5px var(--danger)}
+.lnk.danger[aria-expanded="true"]{background:var(--danger);color:var(--surface)}
+.tabrow2{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap}
+.tabrow2 .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+/* ---------- 收款階梯 (signature): every bill a token standing on the tread it reached ---------- */
+.lad{padding:18px 22px 16px;container:lad / inline-size}
+.lad .h .seg button{min-height:36px;padding:0 14px}
+.stairs{display:grid;grid-template-columns:minmax(0,1.75fr) repeat(4,minmax(0,1fr));margin-top:4px}
+.tr{--lv:0;--tone:var(--ink);position:relative;display:flex;flex-direction:column;min-width:0}
+.tr.ok{--tone:var(--success)}
+.tr.retry,.tr.out{--tone:var(--warning)}
+.tr.link{--tone:var(--info)}
+.tr.s14{--tone:var(--danger-solid)}
+.tr .stand{height:calc(var(--sh,96px) + var(--lv) * 34px);display:flex;align-items:flex-end;padding:0 4px 8px}
+.tr .tks{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 2px;width:100%}
+.tr .ln{position:relative;height:4px;background:var(--tone)}
+.tr.link .ln{background:repeating-linear-gradient(to right,var(--tone) 0 12px,transparent 12px 18px)}
+.tr:first-child .ln{border-radius:999px 0 0 999px}
+.tr:last-child .ln{border-radius:0 999px 999px 0}
+.tr:not(:first-child) .ln::before{content:"";position:absolute;left:-1px;bottom:0;width:2px;height:38px;background:var(--control-border)}
+.tr .cap{display:flex;flex-direction:column;gap:2px;padding:10px 10px 0 10px;min-width:0}
+.tr .cap b{display:flex;align-items:center;gap:7px;font-size:.9375rem;font-weight:900;line-height:1.3}
+.tr .cap b .ico{width:17px;height:17px;color:var(--tone)}
+.tr.s14 .cap b .ico{color:var(--danger)}
+.tr .cap small{font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.4;text-wrap:pretty}
+.tr .cap .sm{margin-top:4px;font-size:.8125rem;font-weight:800;color:var(--ink);font-feature-settings:"tnum"}
+.tr .cap .sm .money{font-size:.875rem}
+.tr .ticks{display:flex;gap:4px;margin-top:6px}
+.tr .ticks{flex-wrap:wrap}
+.tr .ticks span{display:inline-flex;align-items:center;justify-content:center;min-width:2.25rem;padding:0 6px;min-height:1.375rem;white-space:nowrap;border-radius:999px;font-size:.75rem;font-weight:800;color:var(--warning);box-shadow:inset 0 0 0 1.5px var(--warning)}
+.ghost{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%;font-size:.8125rem;font-weight:700;color:var(--ink-muted);padding:0 0 4px}
+.ghost i{width:2.75rem;height:2.75rem;border-radius:50%;border:1.5px dashed var(--control-border);flex:none}
+
+/* the token: the shop's initial on a 44px coin, its state in the coin's material */
+.tk{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;width:max(82px,5.125rem);max-width:100%;padding:6px 2px 4px;border-radius:14px;transition:background-color .2s var(--out)}
+.tk:hover{background:var(--surface-2)}
+.tk .c{position:relative;width:2.75rem;height:2.75rem;border-radius:50%;display:grid;place-items:center;font-size:1.0625rem;font-weight:900;line-height:1;background:var(--ink);color:var(--surface);box-shadow:0 0 0 2.5px var(--surface);transition:transform .35s var(--spring)}
+.tk:hover .c{transform:translateY(-2px)}
+.tk .c>i{position:relative;font-style:normal}
+.tk.retry .c,.tk.out .c{background:repeating-linear-gradient(135deg,var(--warning) 0 2.5px,var(--warning-bg) 2.5px 6px);color:var(--warning);box-shadow:0 0 0 2.5px var(--surface),inset 0 0 0 2px var(--warning)}
+.tk.retry .c::before,.tk.out .c::before{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--warning-bg)}
+.tk.out .c{box-shadow:0 0 0 2.5px var(--surface),0 0 0 5px var(--warning),inset 0 0 0 2px var(--warning)}
+.tk.link .c{background:var(--surface);color:var(--info);box-shadow:0 0 0 2.5px var(--surface);outline:2px dashed var(--info);outline-offset:-2px}
+.tk.s14 .c{background:var(--danger-solid);color:var(--on-danger-solid)}
+.tk.sus .c{background:var(--surface);color:var(--ink-muted);outline:1.5px dashed var(--ink-muted);outline-offset:-1.5px}
+.tk[aria-expanded="true"]{background:var(--sunk)}
+.tk[aria-expanded="true"] .c{box-shadow:0 0 0 2.5px var(--sunk),0 0 0 5px var(--ink)}
+.tk.out[aria-expanded="true"] .c{box-shadow:0 0 0 2.5px var(--sunk),0 0 0 5px var(--ink),inset 0 0 0 2px var(--warning)}
+.tk .bd{position:absolute;right:-7px;top:-5px;width:1.25rem;height:1.25rem;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--ink);box-shadow:0 0 0 1.5px var(--ink)}
+.tk .bd .ico{width:.75rem;height:.75rem;stroke-width:2.4}
+.tk .tp{position:absolute;left:-8px;top:-6px;padding:0 5px;border-radius:999px;background:var(--surface);color:var(--ink);box-shadow:0 0 0 1.5px var(--ink);font-size:.75rem;font-weight:900;line-height:1.45}
+.tk .n{max-width:100%;font-size:.75rem;font-weight:800;line-height:1.25;text-align:center;overflow-wrap:anywhere}
+.tk .a{font-size:.75rem;font-weight:700;line-height:1.2;color:var(--ink-muted);font-feature-settings:"tnum"}
+.tk .due{margin-top:1px;padding:0 7px;border-radius:999px;font-size:.75rem;font-weight:800;line-height:1.5;white-space:nowrap;background:var(--sunk);color:var(--ink)}
+.tk .due.info{background:var(--info-bg);color:var(--info)}
+.tk .due.warning{background:var(--warning-bg);color:var(--warning)}
+.tk .due.danger{background:var(--danger-bg);color:var(--danger)}
+.tk.land .c{animation:land .5s var(--spring)}
+.tk.land-r .c{animation:ringin 1.4s var(--out)}
+@keyframes ringin{0%,45%{box-shadow:0 0 0 2.5px var(--surface),0 0 0 6px var(--act)}}
+@keyframes land{0%{transform:scale(1)}45%{transform:scale(1.22)}100%{transform:scale(1)}}
+
+/* suspended shops stand off the stairs */
+.well{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-top:18px;padding:10px 16px 10px 10px;border:1.5px dashed var(--control-border);border-radius:var(--r-lg)}
+.well .wt{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 18rem}
+.well .wt b{display:flex;align-items:center;gap:8px;font-size:.9375rem;font-weight:900}
+.well .wt b .ico{width:17px;height:17px;color:var(--ink-muted)}
+.well .wt small{font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.45;text-wrap:pretty}
+.well .tks{display:flex;gap:4px}
+.lad .legend{margin-top:14px;padding-top:12px;border-top:1px solid var(--hair)}
+.lg{flex:none;width:1.25rem;height:1.25rem;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.lg .ico{width:.75rem;height:.75rem;stroke-width:2.4}
+.lg.t{width:auto;padding:0 5px;border-radius:999px;font-size:.75rem;font-weight:900;line-height:1.25rem}
+
+@container lad (max-width: 860px){
+  .stairs{grid-template-columns:minmax(0,1fr)}
+  /* the same stairs turned on their side: each tread a short 4px rule at the top of its block, a 1px riser down to the next */
+  .tr{display:grid;grid-template-columns:minmax(0,10.5rem) minmax(0,1fr);padding-top:0;margin-left:calc(var(--lv) * 14px)}
+  .tr::before{content:"";position:absolute;top:0;left:0;width:10.5rem;height:4px;border-radius:0 999px 999px 0;background:var(--tone)}
+  .tr:not(:first-child)::before{left:-14px;width:calc(10.5rem + 14px)}
+  .tr.link::before{background:repeating-linear-gradient(to right,var(--tone) 0 12px,transparent 12px 18px)}
+  .tr:not(:last-child)::after{content:"";position:absolute;left:0;top:4px;bottom:0;width:1px;background:var(--control-border)}
+  .tr .ln{display:none}
+  .tr .stand{height:auto;grid-column:2;grid-row:1;padding:12px 4px 10px}
+  .tr .cap{grid-column:1;grid-row:1;padding:14px 10px 12px 12px}
+  .ghost{padding:12px 0}
+}
+/* enlarged text on a phone: the label no longer fits beside the coins, so each tread puts its coins under its label */
+@container lad (max-width: 18rem){
+  .tr{grid-template-columns:minmax(0,1fr);margin-left:calc(var(--lv) * 6px)}
+  .tr::before{width:min(10.5rem,100%)}
+  .tr:not(:first-child)::before{left:-6px;width:min(calc(10.5rem + 6px),calc(100% + 6px))}
+  .tr .stand{grid-column:1;grid-row:2;padding-top:0}
+}
+/* narrow sheet: the caption sits on its tread and the tokens under it, so the deepest step keeps room for a 44px coin */
+@container lad (max-width: 440px){
+  .tr{grid-template-columns:minmax(0,1fr)}
+  .tr .cap{padding-bottom:4px}
+  .tr .stand{grid-column:1;grid-row:2;padding:4px 4px 12px 12px}
+}
+
+/* ---------- the trace in the bill panel: solid where reached, dashed where still to come ---------- */
+.trc{list-style:none;display:flex;flex-direction:column}
+.trc li{position:relative;display:grid;grid-template-columns:1.5rem minmax(0,1fr);gap:10px;padding-bottom:12px;font-size:.875rem;font-weight:700;line-height:1.45}
+.trc li::before{content:"";position:absolute;left:calc(.75rem - 1px);top:calc(1.5rem + 2px);bottom:2px;width:2px;background:var(--ink)}
+.trc li:last-child{padding-bottom:0}
+.trc li:last-child::before{display:none}
+.trc li.dsh::before{background:none;border-left:2px dashed var(--control-border);width:0}
+.trc .nd{width:1.5rem;height:1.5rem;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--surface)}
+.trc .nd .ico{width:.875rem;height:.875rem;stroke-width:2.6}
+.trc .nd.bad{background:var(--warning-bg);color:var(--warning);box-shadow:inset 0 0 0 1.5px var(--warning)}
+.trc .nd.good{background:var(--success);color:var(--surface)}
+.trc .nd.info{background:var(--info-bg);color:var(--info);box-shadow:inset 0 0 0 1.5px var(--info)}
+.trc .nd.stop{background:var(--danger-solid);color:var(--on-danger-solid)}
+.trc .nd.pend{background:var(--surface);color:var(--ink-muted);box-shadow:none;outline:1.5px dashed var(--control-border);outline-offset:-1.5px}
+.trc .tx{display:flex;flex-direction:column;min-width:0}
+.trc .tx b{font-weight:900}
+.trc .tx small{font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+.trc li.pend .tx b{color:var(--ink-muted);font-weight:800}
+.trc .tm{font-feature-settings:"tnum";color:var(--ink-muted);font-weight:700;margin-right:6px}
+.raw{margin-top:8px;padding:10px 12px;border-radius:var(--r-sm);background:var(--sunk);font-family:var(--mono);font-size:.75rem;line-height:1.55;white-space:pre-wrap;word-break:break-all;color:var(--ink)}
+.cbl{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:.8125rem;font-weight:700}
+.cbl li{display:grid;grid-template-columns:5.75rem minmax(0,1fr);gap:8px;align-items:start}
+.cbl .t{color:var(--ink-muted);font-feature-settings:"tnum"}
+.cbl code{font-family:var(--mono);font-size:.75rem;padding:1px 6px;border-radius:999px;background:var(--sunk)}
+.cbl .dup{color:var(--info)}
+.att{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 6px 0 12px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800}
+.att .ibtn{width:32px;height:32px}
+.dashadd{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:var(--r-md);border:1.5px dashed var(--control-border);font-size:.875rem;font-weight:800;color:var(--ink);transition:border-color .2s var(--out)}
+.dashadd:hover{border-color:var(--ink)}
+.ptag{display:inline-flex;align-items:center;padding:0 8px;border-radius:999px;border:1.5px dashed currentColor;font-size:.75rem;font-weight:800;line-height:1.5;color:var(--warning)}
+.opt .ptag{margin-left:6px}
+.rg.col .opt .ov{margin-left:auto;font-weight:900;font-feature-settings:"tnum"}
+.rg.col .opt .sub{display:block;font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.rg.col .opt[aria-checked="true"] .sub{color:var(--surface)}
+.rg.col .opt .lb{display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+.invt{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.875rem;font-weight:700;line-height:1.5}
+.invt .ico{margin-top:1px;color:var(--ink-muted)}
+.invt b{font-weight:900}
+
+/* ---------- tables: 帳單 and 對帳 ---------- */
+.tbl{width:100%;border-collapse:collapse;font-size:.875rem;font-weight:700;font-feature-settings:"tnum"}
+.tbl th{padding:8px 12px;text-align:left;font-size:.8125rem;font-weight:800;color:var(--ink-muted);white-space:nowrap;border-bottom:1px solid var(--border)}
+.tbl td{padding:10px 12px;border-top:1px solid var(--hair);vertical-align:middle}
+.tbl tbody tr:first-child td{border-top:0}
+.tbl .r{text-align:right}
+.tbl tr.hot td{background:var(--warning-bg)}
+.tbl tr.hot td:first-child{border-radius:12px 0 0 12px}
+.tbl tr.hot td:last-child{border-radius:0 12px 12px 0}
+.tbl tr.sel td{background:var(--sunk)}
+.rowb{display:inline-flex;align-items:center;gap:10px;min-height:40px;font-weight:900;text-align:left;border-radius:10px;padding:0 8px 0 0}
+.rowb .ini{width:1.875rem;height:1.875rem;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--surface);font-size:.8125rem;font-weight:900;flex:none}
+.rowb:hover span:last-child{text-decoration:underline;text-underline-offset:3px}
+.tbl small{display:block;font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.tbl .ok{color:var(--success);font-weight:800}
+.tbl .w{color:var(--warning);font-weight:800}
+.tbl .nil{color:var(--ink-muted);font-weight:700}
+.tbl .fix{min-height:36px;padding:0 12px}
+.tfoot{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.tfoot b{color:var(--ink);font-weight:900}
+.tnote{display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:.8125rem;font-weight:700;color:var(--info);line-height:1.45}
+.tnote .ico{width:16px;height:16px;margin-top:1px}
+.filt{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-bottom:12px}
+@container sheet (max-width: 700px){
+  .tbl thead{display:none}
+  .tbl,.tbl tbody{display:block}
+  .tbl tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2px 12px;padding:10px 4px;border-top:1px solid var(--hair)}
+  .tbl tbody tr:first-child{border-top:0}
+  .tbl td{display:block;padding:0;border:0}
+  .tbl td[data-l]::before{content:attr(data-l) "・";color:var(--ink-muted);font-weight:700}
+  .tbl td:first-child{grid-column:1 / -1}
+  .tbl .r{text-align:left}
+  .tbl tr.hot{background:var(--warning-bg);border-radius:12px;padding:10px 12px}
+  .tbl tr.hot td{background:none}
+}
+
+/* ---------- 退款 tab ---------- */
+.rlist{list-style:none;display:flex;flex-direction:column}
+.rlist li{display:grid;grid-template-columns:5.75rem minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:12px 0;border-top:1px solid var(--hair);font-size:.875rem;font-weight:700;line-height:1.45}
+.rlist li:first-child{border-top:0}
+.rlist .t{color:var(--ink-muted);font-feature-settings:"tnum"}
+.rlist .w b{font-weight:900}
+.rlist .w small{display:block;font-size:.8125rem;color:var(--ink-muted)}
+.req{display:grid;grid-template-columns:2.75rem minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:14px 16px;border-radius:var(--r-lg);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border)}
+.req+.req{margin-top:10px}
+.req .c{width:2.75rem;height:2.75rem;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--surface);font-weight:900}
+.req b{font-weight:900}
+.req small{display:block;font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+@container sheet (max-width: 560px){.rlist li{grid-template-columns:minmax(0,1fr) auto}.rlist .t{grid-column:1 / -1}.req{grid-template-columns:44px minmax(0,1fr)}.req .textbtn{grid-column:1 / -1}}
+.stack{display:flex;flex-direction:column;gap:16px}
+.typed{letter-spacing:.04em;font-feature-settings:"tnum"}
+.tk:focus-visible{outline-offset:0}
+.qbox{padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.9375rem;font-weight:800;line-height:1.55;text-wrap:pretty}
+.qbox small{display:block;font-size:.8125rem;font-weight:700;color:var(--ink-muted);margin-top:4px}
+.ferr2{font-size:.8125rem;font-weight:800;color:var(--danger)}
+@media (max-width: 719px){.tabs button{padding:0 11px;gap:5px;font-size:.875rem}.tabs button .ico{display:none}}
+.hand{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+
+/* touch: DESIGN.md touch-target is 44px; mouse density stays as drawn */
+@media (pointer: coarse){.who .lnk,.seg>button,.fold .textbtn,.textbtn.batch{min-height:44px !important}}
+
+/* ---------- 2026-10-18: scale to ~40 shops ---------- */
+.qs .qsub{display:block;font-size:.75rem;font-weight:700;color:var(--ink-muted);line-height:1.35}
+.qs .it.warn .qsub{color:var(--warning)}
+/* 已收到 folds into one stack: the count, the total and 看全部 */
+.fold{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:max(82px,5.125rem);max-width:100%;padding:6px 2px 4px;text-align:center}
+.stk{position:relative;width:3.75rem;height:2.75rem;flex:none}
+.stk i{position:absolute;top:0;width:2.75rem;height:2.75rem;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2.5px var(--surface)}
+.stk i:nth-child(1){left:0;opacity:.35}.stk i:nth-child(2){left:.5rem;opacity:.6}.stk i:nth-child(3){left:1rem}
+.fold .ft{display:flex;flex-direction:column;align-items:center;font-size:.75rem;font-weight:800;line-height:1.25;color:var(--ink-muted)}
+.fold .ft b{font-size:.8125rem;font-weight:900;color:var(--ink)}
+.fold .ft .money{font-size:.75rem;font-weight:800}
+.fold .textbtn:hover{background:var(--sunk);box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.fold .textbtn{background:transparent;box-shadow:inset 0 0 0 1.5px var(--border);min-height:2rem;padding:0 6px 0 12px;font-size:.8125rem;margin-top:2px;gap:2px}
+.textbtn.batch{flex-wrap:wrap;justify-content:flex-start;column-gap:0;align-self:flex-start;margin-top:8px;min-height:2.25rem;padding:4px 12px;font-size:.8125rem;line-height:1.3;text-align:left;background:var(--warning-bg);color:var(--warning);border-radius:var(--r-md)}
+.textbtn.batch span{display:inline-block;white-space:nowrap}
+.textbtn.batch:hover{box-shadow:inset 0 0 0 1.5px var(--warning);background:var(--warning-bg)}
+.tr .cap .reason{margin-top:4px}
+/* checkboxes look like checkboxes (squares that take a check), not the radio dot */
+.rg.col .opt[role="checkbox"]::before{display:none}
+.cbx{flex:none;width:1.125rem;height:1.125rem;border-radius:5px;display:grid;place-items:center;background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.cbx .ico{width:.875rem;height:.875rem;stroke-width:3;opacity:0}
+.opt[aria-checked="true"] .cbx{box-shadow:none}
+.opt[aria-checked="true"] .cbx .ico{opacity:1}
+/* dense tables for ~40 rows a month */
+.tbl.dense th{padding:6px 10px}
+.tbl.dense td{padding:5px 10px}
+.tbl.dense .rowb{min-height:2.25rem;gap:8px}
+.tbl.dense .rowb .ini{width:1.625rem;height:1.625rem;font-size:.75rem}
+.tbl.dense .chip{padding:1px 9px}
+.fsr{flex:1 1 13rem;max-width:20rem}
+.fsr .ico{top:50%;left:13px;transform:translateY(-50%)}
+.fsr input{min-height:2.5rem;padding:6px 12px 6px 40px}
+.plbl{align-self:center;font-size:.8125rem;font-weight:800;color:var(--ink-muted);margin-right:2px}
+.seg button .cnt{margin-left:6px}
+.seg button{display:inline-flex;align-items:center}
+/* the batch confirm list */
+.blist{list-style:none;display:flex;flex-direction:column;padding:2px 14px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700;font-feature-settings:"tnum"}
+.blist li{display:grid;grid-template-columns:2rem minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--border)}
+.blist li:first-child{border-top:0}
+.blist .ini{width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--surface);font-weight:900;font-size:.8125rem}
+.blist .w{display:flex;flex-direction:column;min-width:0}
+.blist b{font-weight:900}
+.blist small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.blist .sumr{border-top:1.5px solid var(--control-border)}
+.blist .money-c .money{font-size:.9375rem}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>付款管理・原型</b><span class="muted">商家、人名、卡片與金額全為虛構示範・今天 10/9（五）11:20</span>
+  <label>身分 <select id="p-role"><option value="finance">美玲・財務</option><option value="super">冠宇・最高管理者</option><option value="support">小雯・客服</option><option value="data">思妤・資料</option></select></label>
+  <label>跳到 <select id="p-go"><option value="">選擇情境</option><option value="home">首頁・待處理 7 件</option><option value="s14">球球・連結過期，建議停權</option><option value="out">悠悠・重試用完</option><option value="link">悠悠・寄補款連結</option><option value="expire">肉球・連結今天到期</option><option value="manual">肉球・人工標記付款</option><option value="manualbad">人工標記・金額比應收多</option><option value="topup">毛孩日和・補差額等付款</option><option value="refund">毛孩日和・退款申請</option><option value="refundold">毛孩日和 8 月・跨期開折讓單</option><option value="inv">對帳・汪汪發票開立失敗</option><option value="cb">汪汪・金流回呼原文</option><option value="sus">小森・停權中</option><option value="d2">10/2・悠悠重試中</option><option value="d15">10/15・悠悠第 14 天、連結還有效</option><option value="d17">10/17・悠悠連結過期，建議停權</option><option value="batch">重試用完 3 家・一次寄連結</option><option value="seat">毛毛森林・超額席次</option><option value="clear">10 月全部收齊</option><option value="sep">9 月帳單</option><option value="bills">帳單分頁</option><option value="refunds">退款分頁</option><option value="support">客服打開付款管理</option></select></label>
+  <button class="pbtn" id="p-paid" type="button" disabled>模擬：店家用連結付款成功</button>
+  <label>下一次送出 <select id="p-send"><option value="ok">正常</option><option value="fail">連線中斷</option><option value="dup">別人剛處理過</option></select></label>
+  <label><input type="checkbox" id="p-off"> 離線</label>
+  <label><input type="checkbox" id="p-fail"> 載入失敗</label>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <span class="tagp">原型</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+const I = {
+  inbox:'<path d="M4 13h4l1.5 2.5h5L16 13h4"/><path d="M5.5 5h13L20 13v6H4v-6l1.5-8Z"/>',
+  coins:'<ellipse cx="9" cy="7" rx="5" ry="2.5"/><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7"/><path d="M10 15.4c.9 1.3 3 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  dash:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 19c1-3.5 3.4-5 6-5s5 1.5 6 5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.3c1.7.7 2.9 2.2 3.5 4.7"/>',
+  scis:'<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17M8.6 15.6 20 7"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  doc:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  team:'<circle cx="10" cy="8" r="4"/><path d="M3 20c1.4-3.5 4-5 7-5 1.5 0 2.9.4 4 1.1M18 14v6M15 17h6"/>',
+  plan:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  fwd:'<path d="m10 6 6 6-6 6"/>',
+  up:'<path d="m6 14 6-6 6 6"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  paw:'<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  unlock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',
+  ban:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4V5Z"/>',
+  receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  stamp:'<path d="M9 4h6l-1 7h-4L9 4Z"/><path d="M5 15h14v3H5zM7 21h10"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  erase:'<path d="M8 20h12M4.5 15.5 14 6l5 5-7.5 7.5H8.5l-4-3Z"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/>',
+  swap:'<path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/>',
+  otp:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  layers:'<path d="m12 4 9 5-9 5-9-5 9-5Z"/><path d="m3 14 9 5 9-5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>'
+};
+Object.assign(I, {
+  store:'<path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8h13v-8M10 20v-5h4v5"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  tag:'<path d="M3.5 12.5V4h8.5l8.5 8.5-8.5 8.5-8.5-8.5Z"/><circle cx="8" cy="8.5" r="1.5"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  qr:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
+  play:'<circle cx="12" cy="12" r="8.5"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'
+});
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+Object.assign(I, {
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  dots:'<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+  board:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16M9 9v11"/>',
+  release:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M9 15h6" stroke-dasharray="2 2"/>'
+});
+Object.assign(I, {
+  print:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/>',
+  trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  tablet:'<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M11 18h2"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8M16 7l3 3M14 9l2 2"/>',
+  scale:'<path d="M12 4v16M7 20h10M5 8h14"/><path d="m5 8-3 6a3 3 0 0 0 6 0L5 8ZM19 8l-3 6a3 3 0 0 0 6 0l-3-6Z"/>',
+  home:'<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>'
+});
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  cage:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M8.5 5v15M12 5v15M15.5 5v15M4 12.5h16"/>',
+  pause:'<circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/>',
+  wrench:'<path d="M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5 2.5-2.5Z"/>',
+  move:'<path d="M4 12h16M15 7l5 5-5 5"/><path d="M4 6v12" stroke-dasharray="2 2"/>'
+});
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* a person's initial: skip the 阿 / 小 prefix so 阿凱 and 阿楷 stay apart (user decision 2026-10-11); pets keep their first character */
+const initialOf = n => /^[阿小]./.test(n) ? n[1] : n[0];
+const $ = id => document.getElementById(id);
+const qs = new URLSearchParams(location.search);
+const clone = o => JSON.parse(JSON.stringify(o));
+const chip = (tone, t) => `<span class="chip ${tone}">${t}</span>`;
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  logout:'<path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4M18 12H9"/>',
+  line:'<path d="M12 4.5c-5 0-9 3.2-9 7.2 0 3.6 3.2 6.5 7.5 7.1l-.4 2.2 3.3-2.2c4.4-.6 7.6-3.5 7.6-7.1 0-4-4-7.2-9-7.2Z"/>',
+  mail:'<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/>',
+  send:'<path d="M20 4 3 11l7 2.5L12.5 20 20 4Z"/><path d="m10 13.5 4.5-4.5"/>',
+  revoke:'<path d="M5 5h9l5 5v9H5z" stroke-dasharray="3 2.5"/><path d="m9 11 6 6M15 11l-6 6"/>',
+  seat:'<path d="M7 11V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v5"/><path d="M5 11h14v4H5zM7 15v5M17 15v5"/>'
+});
+Object.assign(I, {
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  sms:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 8h4M10 11h4M11 18h2"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  wall:'<path d="M5 4v16M19 4v16M5 9h14M5 15h14M12 4v5M9 9v6M15 9v6M12 15v5"/>',
+  hq:'<path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-5h6v5M9 11h.01M15 11h.01"/>'
+});
+Object.assign(I, {calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/>'});
+Object.assign(I, {
+  headset:'<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="13" width="4" height="6" rx="1.5"/><rect x="16.5" y="13" width="4" height="6" rx="1.5"/><path d="M18.5 19c0 1.4-1.6 2-4 2h-2"/>',
+  chart:'<path d="M4 20h16"/><path d="M7 16v-4M12 16V7M17 16v-6"/>',
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  hourglass:'<path d="M7 4h10M7 20h10M8 4c0 4 8 4 8 8s-8 4-8 8M16 4c0 4-8 4-8 8"/>',
+  out:'<path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4M18 12H9"/>',
+  trail:'<path d="M6 5h12M6 10h12M6 15h7"/><circle cx="17.5" cy="17.5" r="2.5"/>'
+});
+Object.assign(I, {
+  pay:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  clip:'<path d="m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.3 3.3 0 0 1 4.7 4.7L9.3 17a1.7 1.7 0 0 1-2.3-2.3L15 6.7"/>',
+  bank:'<path d="M3 10h18L12 4 3 10Z"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>',
+  code:'<path d="m8 8-4 4 4 4M16 8l4 4-4 4"/>'
+});
+
+/* ---------- the demo day ---------- */
+const FAST = qs.get('fast') === '1';
+/* 毛孩日和的月費 (prototypes/monthly-fee): ?life=fee-rec is 10/9（五）17:20 and ?life=fee-refund 17:30. By then the 補差額 link 美玲 sent
+   from 方案管理 at 11:05 was paid at 16:45 with the company's Mastercard •••• 8810 (金流設定's 16:45 notice T2610091645052, order
+   PAY-2610-mhr-up), so 毛孩日和 is on 專業方案 and its 補 bill is on 已收到 with its invoice YQ-48231140; the refund's reissued invoice is
+   YQ-48231141, the next number, as in the base data. Opening that bill from 對帳 (fee-rec) or refunding C-1027 (fee-refund) posts the act's key action to the director page. */
+/* 毛孩日和被停權到恢復 (prototypes/suspend): ?life=sus-flag is 11/16（一）09:30. October closed as in the 10 月全部收齊 scenario (and the
+   10/9 upgrade is paid, so 毛孩日和 is on 專業方案); on 11/1 the 11 月月費 NT$4,179 failed on the card on file, VISA •••• 4242 (額度不足,
+   the card that declined the upgrade on 10/9), the three retries failed, and 美玲's 補款連結 of 11/8 ran out on 11/15 unpaid. Day 15 is
+   建議停權; handing it to 冠宇 posts 'handed'. The other three paying shops paid on 11/1; 小森 is still suspended, so it has no 11 月 bill. */
+const LIFE = ['fee-rec', 'fee-refund', 'sus-flag'].includes(qs.get('life')) ? qs.get('life') : null;
+const SUSF = LIFE === 'sus-flag';
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+const T0 = SUSF ? 9 * 60 + 30 : LIFE === 'fee-rec' ? 17 * 60 + 20 : LIFE ? 17 * 60 + 30 : 11 * 60 + 20;            /* 10/9（五）11:20 */
+const p2 = n => String(n).padStart(2, '0');
+const clk = m => `${p2(Math.floor(m / 60))}:${p2(m % 60)}`;
+const fmt = n => n.toLocaleString('en-US');
+const WK = '日一二三四五六';
+const D = s => { const [m, d] = s.split('/').map(Number); return new Date(2026, m - 1, d); };
+const md = x => `${x.getMonth() + 1}/${x.getDate()}`;
+const addDays = (s, n) => { const x = D(s); x.setDate(x.getDate() + n); return md(x); };
+const today = () => `${state.mo}/${state.day}`;
+const dw = s => `${s}（${WK[D(s).getDay()]}）`;
+const diff = (a, b) => Math.round((D(b) - D(a)) / 864e5);
+const seen = s => D(s) <= D(today());
+const mask = e => e.replace(/^(.)[^@]*/, '$1•••');
+const pill = t => `<span class="masked">${ic('lock')}${esc(t)}</span>`;
+const money = n => `<span class="money"><span class="cur">NT$</span>${fmt(n)}</span>`;
+const nt = n => `NT$${fmt(n)}`;
+const nb = h => h.replace(/(\d) (?=[家則份天筆期件])/g, '$1 ');
+
+/* ---------- people and modules ---------- */
+const ME = {finance:['美玲', '財務'], super:['冠宇', '最高管理者'], support:['小雯', '客服'], data:['思妤', '資料']};
+const MODS = [
+  ['商家', [['tenants', '商家管理', 'store', ['super']], ['plans', '方案管理', 'plan', ['super', 'finance', 'support']], ['pay', '付款管理', 'card', ['super', 'finance']]]],
+  ['支援', [['support', '客服支援', 'headset', ['support', 'super']], ['notif', 'LINE／通知管理', 'bell', ['support', 'super']]]],
+  ['合規', [['tpl', '契約模板庫', 'doc', ['super', 'compliance', 'support']], ['audit', '稽核中心', 'shield', ['super', 'compliance']]]],
+  ['營運', [['gw', '金流設定', 'coins', ['super', 'finance']], ['usage', '用量監控', 'gauge', ['super', 'finance', 'support']], ['data', '產業數據', 'chart', ['super', 'data']]]],
+  ['系統', [['sys', '系統設定', 'wrench', ['super']]]]
+];
+const canAct = () => state.role !== 'support';
+const isSuper = () => state.role === 'super';
+const writable = () => canAct() && !state.phone;
+const me = () => ME[state.role][0];
+
+/* ---------- the rules (demo values) ----------
+   失敗後第 1、3、7 天自動重試；重試用完（最早第 8 天）才寄補款連結，卡片過期不重試、直接寄；連結 7 天有效。
+   建議停權 only once no payment path is left open: the retries are used up and the last 補款連結 has expired unpaid
+   (user decision 2026-10-18; not on a calendar day). A 超額席次 is NT$300 per seat per month before tax, charged on the next bill. */
+const RETRY = [1, 3, 7], LINK_DAYS = 7, TAXR = .05, MON_DAYS = 31, SEAT = 300;
+
+/* ---------- shops (the paying five of 商家管理; fictional) ---------- */
+const SHOPS0 = [
+  {id:'mhr', n:'毛孩日和', a:'和', plan:'基本方案', who:'陳老闆', em:'billing@maohai-demo.example', st:'paid'},
+  {id:'ww', n:'汪汪俱樂部', a:'汪', plan:'專業方案', who:'張店長', em:'chang@wangwang.tw', st:'paid'},
+  {id:'yy', n:'悠悠寵物旅館', a:'悠', plan:'基本方案', who:'吳先生', em:'wu@yoyohotel.tw', st:'paid'},
+  {id:'rq', n:'肉球小舖', a:'肉', plan:'基本方案', who:'李小姐', em:'lee@pawshop.tw', st:'paid'},
+  {id:'xs', n:'小森寵物美容', a:'小', plan:'基本方案', who:'林小姐', em:'lin@komori.tw', st:'sus', sus:{at:'10/3', t:'09:00', why:'月費連續兩期未付', by:'冠宇'}}
+];
+/* the other 35 paying shops (fictional), so the page is drawn at the real scale of about 40 shops: six with something going on, the rest paid on the 1st */
+const XS = [
+  ['pd', '胖達寵物美容', '胖', '基本方案', '黃先生'], ['ab', '阿布狗狗學校', '布', '專業方案', '鄭小姐'], ['qq', '球球貓旅館', '球', '基本方案', '蔡小姐'],
+  ['du', '嘟嘟寵物', '嘟', '基本方案', '許先生'], ['lk', '樂可寵物沙龍', '樂', '基本方案', '何小姐'], ['mf', '毛毛森林寵物會館', '毛', '專業方案', '周店長'],
+  ['dg', '大狗狗寵物會館', '大', '專業方案', '王先生'], ['mm', '咪咪貓咖啡', '咪', '基本方案', '劉小姐'], ['hp', '好朋友寵物美容', '好', '基本方案', '楊先生'],
+  ['bk', '貝殼狗狗旅館', '貝', '專業方案', '謝小姐'], ['ty', '太陽寵物美容', '太', '基本方案', '洪先生'], ['wl', '旺來寵物沙龍', '旺', '基本方案', '郭小姐'],
+  ['xm', '喜米貓旅館', '喜', '專業方案', '曾先生'], ['gl', '果粒寵物美容', '果', '基本方案', '邱小姐'], ['jz', '橘子寵物', '橘', '基本方案', '廖先生'],
+  ['hy', '海洋寵物會館', '海', '專業方案', '賴小姐'], ['dm', '豆麻寵物美容', '豆', '基本方案', '徐先生'], ['yz', '柚子狗狗學校', '柚', '基本方案', '葉小姐'],
+  ['ch', '春花寵物旅館', '春', '專業方案', '宋先生'], ['ln', '藍鯨寵物美容', '藍', '基本方案', '蘇小姐'], ['fx', '飛象寵物', '飛', '基本方案', '盧先生'],
+  ['jk', '金卡寵物美容', '金', '專業方案', '江小姐'], ['bm', '白米寵物旅館', '白', '基本方案', '方先生'], ['sg', '山谷狗狗營', '山', '基本方案', '潘小姐'],
+  ['tt', '甜甜貓美容', '甜', '專業方案', '杜先生'], ['lb', '蘿蔔寵物', '蘿', '基本方案', '石小姐'], ['qm', '晴美寵物沙龍', '晴', '基本方案', '馬先生'],
+  ['wu', '烏龍寵物會館', '烏', '專業方案', '傅小姐'], ['zz', '棗子寵物美容', '棗', '基本方案', '侯先生'], ['dq', '點點寵物', '點', '基本方案', '彭小姐'],
+  ['fy', '楓葉寵物旅館', '楓', '專業方案', '范先生'], ['nn', '奶茶貓旅館', '奶', '基本方案', '魏小姐'], ['sy', '松鼠寵物', '松', '基本方案', '紀先生'],
+  ['kl', '可樂狗狗沙龍', '可', '專業方案', '溫小姐'], ['yu', '雨林寵物美容', '雨', '基本方案', '施先生']
+];
+SHOPS0.push(...XS.map(([id, n, a, plan, who]) => ({id, n, a, plan, who, em:`${id}@shop-demo.example`, st:'paid'})));
+const FEE = {'基本方案':1980, '專業方案':3980};
+
+/* ---------- bills: charged on the 1st, that month's fee plus last month's overage, 5% tax on top ---------- */
+const ok = (at, t) => ({at, t, k:'charge', ok:true});
+const no = (at, t, why, k = 'charge') => ({at, t, k, ok:false, why});
+const DECL = '發卡行拒絕・額度不足';
+const BILLS0 = [
+  {id:'mhr10', shop:'mhr', mon:10, at:'10/1', kind:'month', items:[['10 月月費・基本方案', 1980], ['9 月超量・簡訊 46 則 × NT$1', 46, 'ov']], card:'VISA •••• 4242',
+    ev:[ok('10/1', '03:00')], paid:{at:'10/1', t:'03:00', how:'auto'}, inv:{no:'YQ-48213075', at:'10/1'},
+    cb:[{at:'10/1', t:'03:00', ev:'charge.succeeded', code:'00', txn:'T2610010300417'}]},
+  {id:'ww10', shop:'ww', mon:10, at:'10/1', kind:'month', items:[['10 月月費・專業方案', 3980], ['9 月超量・簡訊 380 則 × NT$1', 380, 'ov']], card:'Mastercard •••• 5108',
+    ev:[ok('10/1', '03:01')], paid:{at:'10/1', t:'03:01', how:'auto'}, inv:{fail:'電子發票平台沒有回應（逾時）', at:'10/1', t:'03:04'},
+    cb:[{at:'10/1', t:'03:01', ev:'charge.succeeded', code:'00', txn:'T2610010301022'}, {at:'10/1', t:'03:07', ev:'charge.succeeded', code:'00', txn:'T2610010301022', dup:true}]},
+  {id:'yy10', shop:'yy', mon:10, at:'10/1', kind:'month', items:[['10 月月費・基本方案', 1980]], card:'VISA •••• 0057',
+    ev:[no('10/1', '03:02', DECL), no('10/2', '03:00', DECL, 'retry'), no('10/4', '03:00', DECL, 'retry'), no('10/8', '03:00', DECL, 'retry')],
+    cb:[{at:'10/1', t:'03:02', ev:'charge.failed', code:'51', txn:'T2610010302188'}, {at:'10/2', t:'03:00', ev:'charge.failed', code:'51', txn:'T2610020300031'}, {at:'10/4', t:'03:00', ev:'charge.failed', code:'51', txn:'T2610040300027'}, {at:'10/8', t:'03:00', ev:'charge.failed', code:'51', txn:'T2610080300019'}]},
+  {id:'rq10', shop:'rq', mon:10, at:'10/1', kind:'month', items:[['10 月月費・基本方案', 1980]], card:'JCB •••• 3311', noRetry:'卡片 9 月已到期，重試不會成功，系統不重試',
+    ev:[no('10/1', '03:02', '卡片已過期（09/26）'), {at:'10/2', t:'09:40', k:'link', by:'美玲', via:'Email・LINE', until:'10/9'}],
+    cb:[{at:'10/1', t:'03:02', ev:'charge.failed', code:'54', txn:'T2610010302240'}]},
+  {id:'xs10', shop:'xs', mon:10, at:'10/1', kind:'month', items:[['10 月月費・基本方案', 1980]], card:'VISA •••• 7720',
+    ev:[no('10/1', '03:02', DECL)], cb:[{at:'10/1', t:'03:02', ev:'charge.failed', code:'51', txn:'T2610010302301'}]},
+  /* the top-up's invoice number is fixed (YQ-48231140, the one 方案與用量 and 金流設定 show once it is paid), so every scenario that pays it
+     shows the same document; paidCard is the company card the link is paid with (16:45 in the 10 月全部收齊 scenario and in prototypes/monthly-fee) */
+  {id:'mhrUp', shop:'mhr', mon:10, at:'10/9', kind:'top', items:[['升級專業方案・10/9–10/31 按日補差額', 1484]], card:'由店家在付款頁選擇', invNo:'YQ-48231140', paidCard:'Mastercard •••• 8810', noRetry:'補差額只走付款連結',
+    note:'付款成功才改為專業方案；沒付就維持基本方案', ev:[{at:'10/9', t:'11:05', k:'link', by:'美玲', via:'Email・LINE', until:'10/16', from:'方案管理'}], cb:[]},
+  {id:'mhr9', shop:'mhr', mon:9, at:'9/1', kind:'month', items:[['9 月月費・基本方案', 1980]], card:'VISA •••• 4242', ev:[ok('9/1', '03:00')], paid:{at:'9/1', t:'03:00', how:'auto'}, inv:{no:'YQ-39102846', at:'9/1'}, cb:[{at:'9/1', t:'03:00', ev:'charge.succeeded', code:'00', txn:'T2609010300112'}]},
+  {id:'ww9', shop:'ww', mon:9, at:'9/1', kind:'month', items:[['9 月月費・專業方案', 3980], ['8 月超量・簡訊 210 則 × NT$1', 210, 'ov']], card:'Mastercard •••• 5108', ev:[ok('9/1', '03:01')], paid:{at:'9/1', t:'03:01', how:'auto'}, inv:{no:'YQ-39102851', at:'9/1'}, cb:[{at:'9/1', t:'03:01', ev:'charge.succeeded', code:'00', txn:'T2609010301004'}]},
+  {id:'yy9', shop:'yy', mon:9, at:'9/1', kind:'first', items:[['9 月月費・基本方案（首期）', 1980]], card:'VISA •••• 0057', ev:[ok('9/1', '03:02')], paid:{at:'9/1', t:'03:02', how:'auto'}, inv:{no:'YQ-39102853', at:'9/1'}, cb:[{at:'9/1', t:'03:02', ev:'charge.succeeded', code:'00', txn:'T2609010302066'}]},
+  {id:'rq9', shop:'rq', mon:9, at:'9/8', kind:'first', items:[['9 月月費・基本方案（9/8–9/30 按日）', 1518]], card:'銀行匯款', ev:[{at:'9/8', t:'10:00', k:'link', by:'美玲', via:'Email', until:'9/15'}],
+    paid:{at:'9/10', t:'14:26', how:'manual', ref:'9/10 匯款・末五碼 80231', by:'美玲'}, inv:{no:'YQ-39188420', at:'9/10'}, cb:[]},
+  {id:'xs9', shop:'xs', mon:9, at:'9/1', kind:'month', items:[['9 月月費・基本方案', 1980]], card:'VISA •••• 7720',
+    ev:[no('9/1', '03:02', DECL), no('9/2', '03:00', DECL, 'retry'), no('9/4', '03:00', DECL, 'retry'), no('9/8', '03:00', DECL, 'retry'), {at:'9/9', t:'10:12', k:'link', by:'美玲', via:'Email・LINE', until:'9/16'}],
+    cb:[{at:'9/1', t:'03:02', ev:'charge.failed', code:'51', txn:'T2609010302290'}]},
+  {id:'mhr8', shop:'mhr', mon:8, at:'8/1', kind:'month', items:[['8 月月費・基本方案', 1980], ['7 月超量・簡訊 12 則 × NT$1', 12, 'ov']], card:'VISA •••• 4242', ev:[ok('8/1', '03:00')], paid:{at:'8/1', t:'03:00', how:'auto'}, inv:{no:'YQ-27719354', at:'8/1'}, cb:[{at:'8/1', t:'03:00', ev:'charge.succeeded', code:'00', txn:'T2608010300090'}]},
+  {id:'ww8', shop:'ww', mon:8, at:'8/1', kind:'month', items:[['8 月月費・專業方案', 3980], ['7 月超量・LINE 300 則 × NT$0.2', 60, 'ov']], card:'Mastercard •••• 5108', ev:[ok('8/1', '03:01')], paid:{at:'8/1', t:'03:01', how:'auto'},
+    inv:{no:'YQ-27725518', at:'8/12', first:'8/1', ft:'03:01', voided:['YQ-27719360']}, refunds:[{at:'8/12', t:'16:40', amt:63, ux:60, why:'系統問題補償', note:'7 月 LINE 重送故障多算 300 則', by:'美玲', inv:'作廢 YQ-27719360，重開 YQ-27725518 NT$4,179'}], cb:[{at:'8/1', t:'03:01', ev:'charge.succeeded', code:'00', txn:'T2608010301011'}]},
+  {id:'xs8', shop:'xs', mon:8, at:'8/1', kind:'month', items:[['8 月月費・基本方案', 1980]], card:'VISA •••• 7720', ev:[ok('8/1', '03:02')], paid:{at:'8/1', t:'03:02', how:'auto'}, inv:{no:'YQ-27719371', at:'8/1'}, cb:[{at:'8/1', t:'03:02', ev:'charge.succeeded', code:'00', txn:'T2608010302075'}]}
+];
+/* the 35 other shops: six with a story in October, the rest charged fine on the 1st of every month */
+const BRAND = ['VISA', 'Mastercard', 'JCB'];
+const xCard = i => `${BRAND[i % 3]} •••• ${String(1000 + (i * 379) % 9000)}`;
+const INV_BASE = {8:27719400, 9:39102900, 10:48213100, 11:58340300};
+function xPaid(id, i, m) {
+  const s = SHOPS0.find(x => x.id === id), fee = FEE[s.plan], t = `03:${p2(3 + Math.floor(i / 6))}`;
+  const items = [[`${m} 月月費・${s.plan}`, fee]];
+  if (i % 4 === 2) items.push([`${m - 1} 月超量・簡訊 ${18 + i * 3} 則 × NT$1`, 18 + i * 3, 'ov']);
+  return {id:`${id}${m}`, shop:id, mon:m, at:`${m}/1`, kind:'month', items, card:xCard(i), ev:[ok(`${m}/1`, t)], paid:{at:`${m}/1`, t, how:'auto'},
+    inv:{no:`YQ-${INV_BASE[m] + i}`, at:`${m}/1`}, cb:[{at:`${m}/1`, t, ev:'charge.succeeded', code:'00', txn:`T26${p2(m)}01${t.replace(':', '')}${p2(i)}${p2(m)}`}]};
+}
+const fails = (id, code, at, t, why, retries) => ({
+  ev:[no(at, t, why), ...retries.map(d => no(d, '03:00', why, 'retry'))],
+  cb:[[at, t], ...retries.map(d => [d, '03:00'])].map(([a, tt], k) => ({at:a, t:tt, ev:'charge.failed', code, txn:`T26${p2(+a.split('/')[0])}${p2(+a.split('/')[1])}${tt.replace(':', '')}${id.toUpperCase()}${k}`}))});
+const QUIET = XS.map(x => x[0]).filter(id => !['pd', 'ab', 'qq', 'du', 'lk', 'mf'].includes(id));
+const XBILLS = [
+  {id:'pd10', shop:'pd', mon:10, at:'10/1', kind:'month', items:[['10 月月費・基本方案', 1980]], card:'VISA •••• 6612', ...fails('pd', '51', '10/1', '03:03', DECL, ['10/2', '10/4', '10/8'])},
+  {id:'ab10', shop:'ab', mon:10, at:'10/1', kind:'month', items:[['10 月月費・專業方案', 3980], ['9 月超量・簡訊 64 則 × NT$1', 64, 'ov']], card:'Mastercard •••• 2290', ...fails('ab', '57', '10/1', '03:03', '發卡行拒絕・交易受限', ['10/2', '10/4', '10/8'])},
+  {id:'qq10', shop:'qq', mon:10, at:'10/1', kind:'month', items:[['10 月月費・基本方案', 1980]], card:'JCB •••• 4471', noRetry:'卡片 9 月已到期，重試不會成功，系統不重試',
+    ev:[no('10/1', '03:04', '卡片已過期（09/28）'), {at:'10/1', t:'09:30', k:'link', by:'美玲', via:'Email・LINE', until:'10/8'}], cb:[{at:'10/1', t:'03:04', ev:'charge.failed', code:'54', txn:'T2610010304QQ0'}]},
+  {id:'du10', shop:'du', mon:10, at:'10/6', kind:'first', items:[['10 月月費・基本方案（10/6–10/31 按日）', 1661]], card:'VISA •••• 3105', ...fails('du', '91', '10/6', '10:12', '發卡行沒有回應', ['10/7', '10/9'])},
+  {id:'lk10', shop:'lk', mon:10, at:'10/1', kind:'month', items:[['10 月月費・基本方案', 1980]], card:'VISA •••• 8834',
+    ev:[...fails('lk', '51', '10/1', '03:04', DECL, ['10/2', '10/4']).ev, {at:'10/5', t:'10:30', k:'link', by:'美玲', via:'LINE', until:'10/12'}], cb:fails('lk', '51', '10/1', '03:04', DECL, ['10/2', '10/4']).cb,
+    note:'店家來電說要先換卡付款，所以沒等重試用完就寄了連結'},
+  {...xPaid('mf', 5, 10), items:[['10 月月費・專業方案', 3980], ['超額席次 2 席・10 月 × NT$300', 2 * SEAT, 'seat', 2]]},
+  ...QUIET.map(id => xPaid(id, XS.findIndex(x => x[0] === id), 10)),
+  ...XS.filter(x => x[0] !== 'du').flatMap(([id]) => [9, 8].map(m => xPaid(id, XS.findIndex(x => x[0] === id), m)))
+];
+BILLS0.push(...XBILLS);
+const REQS0 = [
+  {id:'c1027', bill:'mhr10', at:'10/8', t:'15:12', tk:'C-1027', from:'小雯（客服）', who:'陳老闆', n:31, amt:32,
+    note:'9/14 寵派簡訊重送故障，同一則簽署驗證碼送了兩次。9 月的 46 則超量裡有 31 則是重送的，請退這 31 則。'}
+];
+const LOG0 = [
+  {at:'10/9', t:'11:05', a:'美玲在方案管理為毛孩日和寄出補差額付款連結 NT$1,558・付款成功才改為專業方案', bill:'mhrUp'},
+  {at:'10/9', t:'03:00', a:'嘟嘟寵物 10 月首期第 2 次重試失敗（發卡行沒有回應）・下次 10/13', bill:'du10'},
+  {at:'10/8', t:'23:59', a:'球球貓旅館的補款連結到期，店家沒有付款・重試與連結都用完，建議停權', bill:'qq10'},
+  {at:'10/8', t:'15:12', a:'小雯轉來客服工單 C-1027：毛孩日和申請退回 9 月重送的 31 則簡訊', bill:'mhr10'},
+  {at:'10/8', t:'03:00', a:'悠悠寵物旅館 10 月月費第 3 次重試失敗（額度不足）・重試用完', bill:'yy10'},
+  {at:'10/8', t:'03:00', a:'胖達寵物美容 10 月月費第 3 次重試失敗（額度不足）・重試用完', bill:'pd10'},
+  {at:'10/8', t:'03:00', a:'阿布狗狗學校 10 月月費第 3 次重試失敗（發卡行拒絕）・重試用完', bill:'ab10'},
+  {at:'10/6', t:'10:12', a:'嘟嘟寵物 10 月首期扣款失敗（發卡行沒有回應）・已通知店家', bill:'du10'},
+  {at:'10/5', t:'10:30', a:'美玲寄補款連結給樂可寵物沙龍（店家來電要先付）・10/12 前有效', bill:'lk10'},
+  {at:'10/3', t:'09:00', a:'冠宇在商家管理停權小森寵物美容・月費連續兩期未付', bill:'xs10'},
+  {at:'10/2', t:'09:40', a:'美玲寄補款連結給肉球小舖（卡片已過期）・10/9 前有效', bill:'rq10'},
+  {at:'10/1', t:'09:30', a:'美玲寄補款連結給球球貓旅館（卡片已過期）・10/8 前有效', bill:'qq10'},
+  {at:'10/1', t:'03:10', a:'10 月自動扣款跑完：成功 32 筆、失敗 7 筆；失敗的店已轉為逾期並通知店家'},
+  {at:'10/1', t:'03:04', a:'汪汪俱樂部 10 月發票開立失敗：電子發票平台逾時', bill:'ww10'}
+];
+
+/* 11 月 for prototypes/suspend (?life=sus-flag only): 毛孩日和's 11 月月費 on 專業方案 (no overage: since the 10/9 upgrade October counts against
+   專業方案's allowance) fails; the other paying shops pay on 11/1; 肉球小舖 put a new card on file after paying October by transfer */
+const NOV = [
+  {id:'mhr11', shop:'mhr', mon:11, at:'11/1', kind:'month', items:[['11 月月費・專業方案', 3980]], card:'VISA •••• 4242',
+    ev:[no('11/1', '03:00', DECL), no('11/2', '03:00', DECL, 'retry'), no('11/4', '03:00', DECL, 'retry'), no('11/8', '03:00', DECL, 'retry'), {at:'11/8', t:'10:20', k:'link', by:'美玲', via:'Email・LINE', until:'11/15'}],
+    cb:[{at:'11/1', t:'03:00', ev:'charge.failed', code:'51', txn:'T2611010300406'}, {at:'11/2', t:'03:00', ev:'charge.failed', code:'51', txn:'T2611020300022'}, {at:'11/4', t:'03:00', ev:'charge.failed', code:'51', txn:'T2611040300018'}, {at:'11/8', t:'03:00', ev:'charge.failed', code:'51', txn:'T2611080300025'}]},
+  {id:'ww11', shop:'ww', mon:11, at:'11/1', kind:'month', items:[['11 月月費・專業方案', 3980], ['10 月超量・簡訊 420 則 × NT$1', 420, 'ov']], card:'Mastercard •••• 5108', ev:[ok('11/1', '03:01')], paid:{at:'11/1', t:'03:01', how:'auto'}, inv:{no:'YQ-58340211', at:'11/1'}, cb:[{at:'11/1', t:'03:01', ev:'charge.succeeded', code:'00', txn:'T2611010301015'}]},
+  {id:'yy11', shop:'yy', mon:11, at:'11/1', kind:'month', items:[['11 月月費・基本方案', 1980]], card:'VISA •••• 0057', ev:[ok('11/1', '03:02')], paid:{at:'11/1', t:'03:02', how:'auto'}, inv:{no:'YQ-58340212', at:'11/1'}, cb:[{at:'11/1', t:'03:02', ev:'charge.succeeded', code:'00', txn:'T2611010302071'}]},
+  {id:'rq11', shop:'rq', mon:11, at:'11/1', kind:'month', items:[['11 月月費・基本方案', 1980]], card:'JCB •••• 6620', ev:[ok('11/1', '03:02')], paid:{at:'11/1', t:'03:02', how:'auto'}, inv:{no:'YQ-58340213', at:'11/1'}, cb:[{at:'11/1', t:'03:02', ev:'charge.succeeded', code:'00', txn:'T2611010302203'}]}
+];
+const NOV_LOG = [
+  {at:'11/15', t:'23:59', a:'毛孩日和的補款連結到期，店家沒有付款', bill:'mhr11'},
+  {at:'11/8', t:'10:20', a:'美玲寄補款連結給毛孩日和・11/15 前有效', bill:'mhr11'},
+  {at:'11/8', t:'03:00', a:'毛孩日和 11 月月費第 3 次重試失敗（額度不足）・重試用完', bill:'mhr11'},
+  {at:'11/1', t:'03:10', a:'11 月自動扣款跑完：成功 38 筆、失敗 1 筆；失敗的店已轉為逾期並通知店家'}
+];
+NOV.push(...XS.map(([id], i) => xPaid(id, i, 11)));
+/* October's open bills of the other shops, settled by 補款連結 (the 10 月全部收齊, 10/15, 10/17 and 11 月 scenarios): a new link
+   on 10/9 wherever none is still open, paid on `on` */
+function settleX(s, on, t, until = '10/16') {
+  ['pd10', 'ab10', 'qq10', 'du10', 'lk10'].forEach((id, k) => {
+    const b = s.bills.find(x => x.id === id);
+    if (id !== 'lk10') b.ev.push({at:'10/9', t:`11:${p2(42 + k)}`, k:'link', by:'美玲', via:'Email・LINE', until});
+    b.paid = {at:on, t:`${p2(+t.split(':')[0] + (k > 2 ? 1 : 0))}:${p2(10 + k * 7)}`, how:'link'}; b.inv = {no:`YQ-${s.inv++}`, at:on};
+  });
+}
+
+/* the gateway's notice of the top-up paid at 16:45 (金流設定 shows the same one) */
+const TOPUP_CB = {at:'10/9', t:'16:45', ev:'charge.succeeded', code:'00', txn:'T2610091645052'};
+
+/* ---------- state ---------- */
+const INIT = {role:'finance', mo:10, day:9, m:T0, tab:'stairs', mon:10, bf:'all', br:'', q:'', rf:'bad', recKeep:[], panel:null, dlg:null, raw:{}, handed:{}, nextSend:'ok', offline:false, loadFail:false, busy:null, err:null};
+const fresh = () => { const s = clone(INIT); s.shops = clone(SHOPS0); s.bills = clone(BILLS0); s.reqs = clone(REQS0); s.log = clone(LOG0); s.inv = 48231141; s.zr = 1;
+  if (LIFE) {
+    const u = s.bills.find(b => b.id === 'mhrUp');
+    Object.assign(u, {card:u.paidCard, paid:{at:'10/9', t:'16:45', how:'link'}, inv:{no:u.invNo, at:'10/9'}, cb:[TOPUP_CB]});
+    s.shops.find(x => x.id === 'mhr').plan = '專業方案';
+    s.log.unshift({at:'10/9', t:'16:45', a:'毛孩日和補差額已付，立即改為專業方案 v1', bill:'mhrUp'}, {at:'10/9', t:'16:45', a:'毛孩日和用補差額連結付款成功 NT$1,558・發票自動開立', bill:'mhrUp'});
+    const i = s.log.findIndex(e => e.bill === 'mhrUp' && e.t === '11:05');
+    s.log.splice(i + 1, 0, {at:'10/9', t:'10:40', a:'毛孩日和在方案與用量自己升級，刷卡沒過（卡片額度不足）・方案維持基本方案'});
+  }
+  if (SUSF) {
+    const B = id => s.bills.find(b => b.id === id);
+    B('ww10').inv = {no:'YQ-48231142', at:'10/9'};
+    B('yy10').ev.push({at:'10/9', t:'11:32', k:'link', by:'美玲', via:'Email・LINE', until:'10/16'}); B('yy10').paid = {at:'10/9', t:'14:02', how:'link'}; B('yy10').inv = {no:'YQ-48231143', at:'10/9'};
+    B('rq10').paid = {at:'10/9', t:'15:20', how:'manual', ref:'10/9 匯款・末五碼 80231', by:'美玲'}; B('rq10').inv = {no:'YQ-48231144', at:'10/9'};
+    s.reqs[0].done = true;
+    s.inv = 48231145; settleX(s, '10/10', '10:00');
+    s.bills.unshift(...NOV);
+    s.log.unshift(...NOV_LOG);
+    Object.assign(s, {mo:11, day:16, mon:11, inv:58340214});
+  }
+  return s; };
+let state = fresh();
+const shopOf = id => state.shops.find(s => s.id === id);
+const billOf = id => state.bills.find(b => b.id === id);
+
+/* ---------- what a bill is now ---------- */
+const subOf = b => b.items.reduce((a, i) => a + i[1], 0);
+const taxOf = b => Math.round(subOf(b) * TAXR);
+const totOf = b => subOf(b) + taxOf(b);
+const ovOf = b => b.items.filter(i => i[2] === 'ov').reduce((a, i) => a + i[1], 0);
+const refsOf = b => (b.refunds || []).filter(r => seen(r.at));
+const refundedOf = b => refsOf(b).reduce((a, r) => a + r.amt, 0);
+/* a refund re-prices the bill: the new invoice is (untaxed left) + 5% rounded, and the refund is what was paid minus that new total.
+   毛孩日和 10 月 less 31 簡訊: untaxed 2,026 − 31 = 1,995, tax 100, new total 2,095, refund 2,127 − 2,095 = NT$32 */
+const taxed = u => u + Math.round(u * TAXR);
+const uxLeft = b => subOf(b) - refsOf(b).reduce((a, r) => a + (r.ux || 0), 0);
+const leftOf = b => totOf(b) - refundedOf(b);
+const cutOf = (b, u) => leftOf(b) - taxed(Math.max(0, uxLeft(b) - u));
+/* what the shop still owes: a part already wired in (人工標記 short) comes off */
+const dueOf = b => leftOf(b) - (!isPaid(b) && b.part ? b.part.amt : 0);
+const evs = b => b.ev.filter(e => seen(e.at));
+const isPaid = b => !!b.paid && seen(b.paid.at);
+const tries = b => evs(b).filter(e => e.k === 'charge' || e.k === 'retry');
+const firstFail = b => tries(b).find(e => !e.ok);
+const lastLink = b => [...evs(b)].reverse().find(e => e.k === 'link');
+const openLink = b => { const l = lastLink(b); return l && !l.void && D(l.until) >= D(today()) ? l : null; };
+const visBills = () => state.bills.filter(b => seen(b.at));
+const monBills = m => visBills().filter(b => b.mon === m);
+/* 's14' keeps its old key; it now means 建議停權: no payment path is open any more (retries used up, the last link expired unpaid) */
+function stage(b) {
+  if (isPaid(b)) return 'ok';
+  if (shopOf(b.shop).st === 'sus') return 'sus';
+  if (openLink(b)) return 'link';
+  const f = firstFail(b);
+  if (f && !b.noRetry && tries(b).length < 1 + RETRY.length) return 'retry';
+  if (lastLink(b)) return b.kind === 'top' ? 'lapse' : 's14';
+  return 'out';
+}
+const expiredLink = b => { const l = lastLink(b); return l && !openLink(b) ? l : null; };
+function nextRetry(b) { const f = firstFail(b), n = tries(b).length; return f && n - 1 < RETRY.length ? addDays(f.at, RETRY[n - 1]) : null; }
+const dayN = b => { const f = firstFail(b); return f ? diff(f.at, today()) : 0; };
+const billName = b => b.kind === 'top' ? '升級補差額' : b.kind === 'first' ? `${b.mon} 月首期` : `${b.mon} 月月費`;
+const HOW = {auto:['自動扣款', 'pay'], link:['補款連結', 'link'], manual:['人工標記', 'pen']};
+function stChip(b) {
+  const s = stage(b), r = refundedOf(b);
+  if (s === 'ok') return r ? (r >= totOf(b) ? chip('neutral', '已全額退款') : chip('info', `已收到・退 ${fmt(r)}`)) : chip('success', '已收到');
+  if (s === 'retry') return chip('warning', `重試中・${tries(b).length - 1}／${RETRY.length}`);
+  if (s === 'out') return chip('warning', b.noRetry ? '待寄補款連結' : '重試用完');
+  if (s === 'link') return chip('info', openLink(b).until === today() ? '連結今天到期' : `等店家付款・${openLink(b).until} 前`);
+  if (s === 's14') return chip('danger', '建議停權');
+  if (s === 'lapse') return chip('neutral', '沒付・維持原方案');
+  return chip('danger', '停權中');
+}
+/* the first decline, in a word, for the 失敗原因 column and filter */
+const REASONS = [['額度不足', /額度不足/], ['卡片過期', /過期/], ['發卡行拒絕', /拒絕/], ['發卡行沒回應', /沒有回應|逾時/]];
+const reasonOf = b => { const f = (b.ev || []).find(e => (e.k === 'charge' || e.k === 'retry') && !e.ok && seen(e.at)); if (!f) return ''; const r = REASONS.find(([, re]) => re.test(f.why)); return r ? r[0] : f.why; };
+
+/* ---------- the queue: what needs 寵派 today ---------- */
+const QKIND = {s14:['建議停權', 'ban', 'danger'], out:['重試用完', 'warn', ''], exp:['連結今天到期', 'hourglass', ''], ref:['退款申請', 'undo', ''], inv:['發票開立失敗', 'receipt', '']};
+function queue() {
+  const q = [];
+  visBills().forEach(b => {
+    const s = stage(b);
+    if (s === 's14') q.push({id:`s-${b.id}`, bill:b.id, k:'s14'});
+    if (s === 'out') q.push({id:`o-${b.id}`, bill:b.id, k:'out'});
+    if (s === 'link' && openLink(b).until === today()) q.push({id:`l-${b.id}`, bill:b.id, k:'exp'});
+    if (isPaid(b) && b.inv?.fail) q.push({id:`i-${b.id}`, bill:b.id, k:'inv'});
+  });
+  state.reqs.filter(r => !r.done && seen(r.at)).forEach(r => q.push({id:`r-${r.id}`, bill:r.bill, k:'ref', req:r.id}));
+  const ord = ['s14', 'out', 'exp', 'ref', 'inv'];
+  return q.sort((a, b) => ord.indexOf(a.k) - ord.indexOf(b.k));
+}
+
+/* ---------- shell ---------- */
+function sideNav() {
+  const [w, r] = ME[state.role], n = canAct() ? queue().length : 0;
+  const groups = MODS.map(([g, list]) => {
+    const vis = list.filter(m => m[3].includes(state.role));
+    if (!vis.length) return '';
+    return `<div class="sgrp" aria-hidden="true">${g}</div>${vis.map(([k, l, icon]) =>
+      `<button class="sitem" data-key="nav-${k}" data-do="nav" data-page="${k}" ${k === 'pay' ? 'aria-current="page"' : ''}>${ic(icon)}<span>${l}</span>${k === 'pay' && n ? `<span class="n warn" aria-label="${n} 件待處理">${n}</span>` : ''}</button>`).join('')}`;
+  }).join('');
+  return `<nav class="side" aria-label="寵派後台選單"><div class="brand"><span class="mark" aria-hidden="true">${ic('mark')}</span><span><b>寵派管理後台</b></span></div>${groups}
+    <div class="me"><span class="av" aria-hidden="true">${initialOf(w)}</span><span><b>${w}</b><small>${r}</small></span></div></nav>`;
+}
+const ibar = () => `<section class="ibar" aria-label="寵派內部提示"><span class="in">${ic('shield', 'sm')}寵派內部</span><span class="ws">只給寵派員工使用・寄補款連結、標記付款與退款都會留下紀錄</span><span class="r">${dw(today())} ${clk(state.m)}</span></section>`;
+const whoami = () => { const [w, r] = ME[state.role]; return `<span class="whoami"><span class="av" aria-hidden="true">${initialOf(w)}</span>${w}・${r}</span>`; };
+
+/* ---------- the summary strip ---------- */
+function qStrip() {
+  const list = monBills(state.mon), grp = k => list.filter(b => k.includes(stage(b)));
+  const sum = l => l.reduce((a, b) => a + dueOf(b), 0);
+  const okL = grp(['ok']), ch = grp(['retry', 'out', 'link', 's14']), su = grp(['sus']);
+  const q = queue();
+  const label = r => { const s = shopOf(billOf(r.bill).shop); return `${esc(s.n)}<span class="k">・${QKIND[r.k][0]}</span>`; };
+  /* 追款中 names what it holds, tread by tread; 停權中 counts shops and everything they still owe, as the well does */
+  const parts = TREADS.slice(1).map(t => [t.n, ch.filter(b => stage(b) === t.k).length]).filter(x => x[1]).map(([n, c]) => `${n}\u00a0${c}`).join('・');
+  const susShops = [...new Set(su.map(b => b.shop))], owed = visBills().filter(b => susShops.includes(b.shop) && stage(b) === 'sus');
+  return `<div class="oas qs" data-key="strip" role="group" aria-label="${state.mon} 月帳單摘要">
+    <span class="it">${ic('receipt', 'spm')}<span>${state.mon} 月 <b>${list.length}</b> 筆帳單</span></span>
+    <span class="it" data-key="s-ok">${ic('check', 'spm')}<span>已收到 <b>${okL.length}</b> 筆 ${money(sum(okL))}</span></span>
+    ${ch.length ? `<span class="it warn" data-key="s-chase">${ic('refresh', 'spm')}<span>追款中 <b>${ch.length}</b> 筆 ${money(sum(ch))}<small class="qsub">${parts}</small></span></span>` : ''}
+    ${su.length ? `<span class="it" data-key="s-sus">${ic('ban', 'spm')}<span>停權中 <b>${susShops.length}</b> 家・欠 ${money(owed.reduce((a, b) => a + dueOf(b), 0))}</span></span>` : ''}
+    <span class="sep" aria-hidden="true"></span>
+    ${q.length ? `<span class="it warn">${ic('inbox', 'spm')}<span>待寵派處理 <b>${q.length}</b> 件</span></span>
+      <span class="who">${q.map(r => `<button class="lnk ${QKIND[r.k][2]}" data-do="openQ" data-id="${r.id}" data-key="q-${r.id}" aria-expanded="${qOpen(r)}">${ic(QKIND[r.k][1])}${label(r)}</button>`).join('')}</span>`
+      : `<span class="done" data-key="q-empty">${ic('check', 'spm')}目前沒有等寵派處理的事</span>`}
+    ${state.offline ? `<span class="offl" style="margin-left:auto">${ic('off', 'spm')}離線中・只能看</span>` : ''}</div>`;
+}
+const qOpen = r => !!state.panel && state.panel.bill === r.bill && (r.k === 'ref' ? state.panel.mode === 'refund' : state.panel.mode === 'bill');
+
+/* ---------- 收款階梯 (signature) ---------- */
+const TREADS = [
+  {k:'ok', n:'已收到', icon:'check', rule:'自動扣款・補款連結・人工標記'},
+  {k:'retry', n:'重試中', icon:'refresh', rule:`失敗後第 ${RETRY.join('、')} 天自動重試`},
+  {k:'out', n:'重試用完', icon:'warn', rule:`最早第 ${RETRY[RETRY.length - 1] + 1} 天寄補款連結・卡片過期不重試，直接寄`},
+  {k:'link', n:'等店家付款', icon:'link', rule:`補款連結 ${LINK_DAYS} 天有效・還能付就不停權`},
+  {k:'s14', n:'建議停權', icon:'ban', rule:'連結過期仍未付・停權在商家管理'}
+];
+function dueChip(b) {
+  const s = stage(b);
+  if (s === 'retry') return `<span class="due warning">下次 ${nextRetry(b)}</span>`;
+  if (s === 'out') return `<span class="due warning">${nb(`第 ${dayN(b)} 天`)}</span>`;
+  if (s === 'link') { const u = openLink(b).until; return u === today() ? '<span class="due warning">今天到期</span>' : `<span class="due info">${u} 前</span>`; }
+  if (s === 's14') return `<span class="due danger">${expiredLink(b).until} 過期</span>`;
+  if (s === 'ok' && refundedOf(b)) return `<span class="due">退 ${fmt(refundedOf(b))}</span>`;
+  return '';
+}
+function stageWords(b) {
+  const s = stage(b);
+  return {ok:`已收到（${isPaid(b) ? HOW[b.paid.how][0] : ''}）`, retry:`重試中，下次 ${nextRetry(b)}`, out:b.noRetry ? '卡片過期，等寵派寄補款連結' : '重試用完，等寵派寄補款連結', link:`等店家付款，連結 ${openLink(b)?.until} 前有效`, s14:`補款連結 ${expiredLink(b)?.until} 到期仍未付，建議停權`, sus:'停權中', lapse:'沒付，維持原方案'}[s];
+}
+function token(b) {
+  const s = shopOf(b.shop), st = stage(b), due = dueOf(b), open = state.panel?.bill === b.id;
+  const bd = st === 'ok' && isPaid(b) ? `<em class="bd" aria-hidden="true">${ic(HOW[b.paid.how][1])}</em>` : '';
+  return `<button class="tk ${st}" data-do="openBill" data-id="${b.id}" data-key="tk-${b.id}" data-tk="${b.id}" aria-expanded="${open}" aria-label="${esc(s.n)}・${billName(b)}・${nt(due)}・${stageWords(b)}">
+    <span class="c" aria-hidden="true"><i>${s.a}</i>${bd}${b.kind === 'top' ? '<em class="tp">補</em>' : ''}</span>
+    <span class="n" aria-hidden="true">${esc(s.n)}</span><span class="a" aria-hidden="true">${nt(due)}</span>${dueChip(b).replace('<span', '<span aria-hidden="true"')}</button>`;
+}
+/* at ~40 shops 已收到 folds: a coin only for a paid bill that still needs 寵派 (a refund request, a failed invoice), the open one,
+   or one that changed today, at most FOLD − 1 of them; the rest is one stack with its count, total and 「看全部」 */
+const FOLD = 8;
+const needsUs = b => b.id === state.panel?.bill || !!b.inv?.fail || state.reqs.some(r => r.bill === b.id && !r.done && seen(r.at));
+const touched = b => { const t = today(); return [isPaid(b) && b.paid.at === t ? b.paid.t : '', ...refsOf(b).filter(r => r.at === t).map(r => r.t || ''), b.inv?.at === t && b.inv.no ? '00:00' : ''].sort().pop(); };
+function okSplit(l) {
+  if (l.length <= FOLD) return [l, []];
+  const act = l.filter(needsUs), now = l.filter(b => !needsUs(b) && touched(b)).sort((a, b) => touched(b).localeCompare(touched(a)));
+  const coins = [...act, ...now].slice(0, FOLD - 1);
+  return [coins, l.filter(b => !coins.includes(b))];
+}
+function foldHtml(rest, some) {
+  const shops = new Set(rest.map(b => b.shop)).size;
+  return `<div class="fold" data-key="fold-ok"><span class="stk" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="ft"><b>${nb(`${some ? '其他 ' : ''}${shops} 家${shops === rest.length ? '' : `・${rest.length} 筆`}`)}</b>${money(rest.reduce((a, b) => a + dueOf(b), 0))}</span>
+    <button class="textbtn fb" data-do="seeOk" data-key="ok-all" aria-label="看全部 ${shops} 家已收到的帳單">看全部${ic('fwd', 'spm')}</button></div>`;
+}
+function batchBtn(l) {
+  if (l.length < 2 || !writable()) return '';
+  if (state.offline) return `<button class="textbtn batch" aria-disabled="true" data-key="batch-go"><span>${nb(`一次寄出 ${l.length} 家`)}</span><span>補款連結</span></button><span class="reason">需連線</span>`;
+  return `<button class="textbtn batch" data-do="batchAsk" data-key="batch-go"><span>${nb(`一次寄出 ${l.length} 家`)}</span><span>補款連結</span></button>`;
+}
+function stairs() {
+  const list = monBills(state.mon), on = k => list.filter(b => stage(b) === k);
+  const sus = on('sus');
+  const treads = TREADS.map((t, i) => {
+    const l = on(t.k), sum = l.reduce((a, b) => a + dueOf(b), 0);
+    const [coins, rest] = t.k === 'ok' ? okSplit(l) : [l, []];
+    const ticks = t.k === 'retry' ? `<span class="ticks" aria-hidden="true">${RETRY.map(d => `<span>${nb(`第 ${d} 天`)}</span>`).join('')}</span>` : '';
+    return `<div class="tr ${t.k}" style="--lv:${i}" role="group" aria-labelledby="tr-${t.k}" data-key="tr-${t.k}">
+      <div class="stand"><div class="tks">${l.length ? coins.map(token).join('') + (rest.length ? foldHtml(rest, coins.length > 0) : '') : `<span class="ghost"><i aria-hidden="true"></i>沒有</span>`}</div></div>
+      <div class="ln" aria-hidden="true"></div>
+      <div class="cap"><b id="tr-${t.k}">${ic(t.icon)}${t.n}</b><small>${t.rule}</small>${ticks}${l.length ? `<span class="sm" data-key="sm-${t.k}">${nb(`${l.length} 筆・`)}${money(sum)}</span>` : ''}${t.k === 'out' ? batchBtn(l) : ''}</div></div>`;
+  }).join('');
+  const well = sus.length ? (() => {
+    const s = shopOf(sus[0].shop), owe = visBills().filter(b => b.shop === s.id && stage(b) === 'sus').sort((a, b) => a.mon - b.mon);
+    return `<div class="well" data-key="well"><div class="tks">${sus.map(token).join('')}</div>
+      <div class="wt"><b>${ic('ban')}停權中・不出新帳單</b><small>${esc(s.n)} ${s.sus.at} 停權（${s.sus.why}）・還欠 ${owe.map(b => `${b.mon} 月`).join('、')} 共 ${nt(owe.reduce((a, b) => a + dueOf(b), 0))}・停權期間 11/1 不扣款。補款後，恢復營業仍要${isSuper() ? '' : '由最高管理者冠宇'}在商家管理按。</small></div>
+      ${tenantGo(s, 'well-go', 'textbtn ln', '到商家管理')}</div>`;
+  })() : '';
+  const months = [11, 10, 9, 8].filter(m => monBills(m).length);
+  return `<section class="sheet lad" aria-labelledby="lad-h" data-key="lad">
+    <div class="h"><h2 id="lad-h">${ic('receipt')}收款階梯</h2><span class="aside">每月 1 日 03:00 自動扣款・失敗後第 ${RETRY.join('、')} 天重試・連結過期仍未付才建議停權（示範值）</span>
+      <div class="seg" role="group" aria-label="月份">${months.map(m => `<button aria-pressed="${state.mon === m}" data-do="pickMon" data-m="${m}" data-key="mon-${m}">${m} 月</button>`).join('')}</div></div>
+    <div class="stairs" data-key="stairs">${treads}</div>${well}
+    <ul class="legend" aria-label="圖例"><li><span class="lg" aria-hidden="true">${ic('pay')}</span>自動扣款</li><li><span class="lg" aria-hidden="true">${ic('link')}</span>補款連結</li><li><span class="lg" aria-hidden="true">${ic('pen')}</span>人工標記（匯款）</li><li><span class="lg t" aria-hidden="true">補</span>升級補差額帳單</li><li>點一下代號看帳單</li></ul></section>`;
+}
+function logSheet() {
+  const l = state.log.filter(e => seen(e.at)).slice(0, 8);
+  return `<section class="sheet" aria-labelledby="lg-h" data-key="log"><div class="h"><h2 id="lg-h">${ic('trail')}付款紀錄</h2><span class="aside">最近 ${l.length} 筆・全部紀錄在稽核中心</span></div>
+    <ul class="trl">${l.map(e => `<li class="${e.fresh ? 'fresh' : ''}"><span class="t">${e.at} ${e.t}</span><span>${esc(e.a)}</span></li>`).join('')}</ul></section>`;
+}
+
+/* ---------- 帳單 ---------- */
+const BF = [['all', '全部'], ['ok', '已收到'], ['chase', '追款中'], ['sus', '停權中'], ['ref', '有退款']];
+const bfHit = (b, f) => f === 'all' || (f === 'ok' && stage(b) === 'ok') || (f === 'chase' && ['retry', 'out', 'link', 's14'].includes(stage(b))) || (f === 'sus' && stage(b) === 'sus') || (f === 'ref' && refundedOf(b) > 0);
+const rowShop = (b, key) => { const s = shopOf(b.shop); return `<button class="rowb" data-do="openBill" data-id="${b.id}" data-key="${key}" aria-expanded="${state.panel?.bill === b.id}"><span class="ini" aria-hidden="true">${s.a}</span><span>${esc(s.n)}</span></button>`; };
+function payWay(b) {
+  if (isPaid(b)) { const h = b.paid.how; return `${HOW[h][0]}<small>${h === 'manual' ? esc(b.paid.ref) : `${b.paid.at} ${b.paid.t}${h === 'auto' ? `・${b.card}` : ''}`}</small>`; }
+  return `<span class="nil">還沒付</span><small>${esc(b.card)}</small>`;
+}
+function invCell(b) {
+  if (b.inv?.fail) return `<span class="w">開立失敗</span><small>${b.inv.at} ${b.inv.t}</small>`;
+  if (b.inv?.no) return `${b.inv.no}<small>${b.inv.at}${b.inv.voided?.length ? '・重開' : ''}${b.allow?.length ? '・有折讓' : ''}</small>`;
+  return '<span class="nil">付款後開立</span>';
+}
+const shopHit = b => { const q = (state.q || '').trim(); return !q || shopOf(b.shop).n.includes(q); };
+const srch = key => `<label class="srch fsr" data-key="${key}-w"><span class="sr">找店家</span>${ic('search')}<input type="search" data-q="1" data-key="${key}" value="${esc(state.q || '')}" placeholder="找店家（店名）" autocomplete="off"></label>`;
+function billsTab() {
+  const ms = state.bmon ?? state.mon;
+  const base = visBills().filter(b => (ms === 'all' || b.mon === ms) && shopHit(b));
+  const reasons = REASONS.map(r => r[0]).map(r => [r, base.filter(b => bfHit(b, state.bf) && reasonOf(b) === r).length]).filter(x => x[1] || state.br === x[0]);
+  const list = base.filter(b => bfHit(b, state.bf) && (!state.br || reasonOf(b) === state.br)).sort((a, b) => D(b.at) - D(a.at) || stageRank(a) - stageRank(b) || a.shop.localeCompare(b.shop));
+  return `<section class="sheet" aria-labelledby="bl-h" data-key="bills"><div class="h"><h2 id="bl-h">${ic('list')}帳單</h2><span class="aside">金額含 5% 營業稅・寵派不經手卡號</span></div>
+    <div class="filt"><div class="seg" role="group" aria-label="月份">${[['all', '全部'], [11, '11 月'], [10, '10 月'], [9, '9 月'], [8, '8 月']].filter(([v]) => v === 'all' || monBills(v).length).map(([v, l]) => `<button aria-pressed="${ms === v}" data-do="pickBmon" data-m="${v}" data-key="bm-${v}">${l}</button>`).join('')}</div>${srch('b-q')}
+      <div class="pills" role="group" aria-label="狀態">${BF.map(([k, l]) => `<button class="pill" aria-pressed="${state.bf === k}" data-do="pickBf" data-f="${k}" data-key="bf-${k}">${l}<span class="cnt">${base.filter(b => bfHit(b, k)).length}</span></button>`).join('')}</div>
+      ${reasons.length ? `<div class="pills" role="group" aria-label="失敗原因" data-key="br"><span class="plbl">失敗原因</span><button class="pill" aria-pressed="${!state.br}" data-do="pickBr" data-f="" data-key="br-all">不限</button>${reasons.map(([r, n]) => `<button class="pill" aria-pressed="${state.br === r}" data-do="pickBr" data-f="${r}" data-key="br-${r}">${r}<span class="cnt">${n}</span></button>`).join('')}</div>` : ''}</div>
+    ${list.length ? `<table class="tbl dense" data-key="btbl"><thead><tr><th>店家</th><th>帳單</th><th class="r">金額</th><th>狀態</th><th>失敗原因</th><th>付款</th><th>發票</th></tr></thead><tbody>
+      ${list.map(b => `<tr class="${state.panel?.bill === b.id ? 'sel' : ''}"><td>${rowShop(b, `br-${b.id}`)}</td><td data-l="帳單">${billName(b)}<small>${b.at} 開立</small></td><td class="r" data-l="金額">${money(dueOf(b))}${refundedOf(b) ? `<small>原 ${fmt(totOf(b))}</small>` : b.part && !isPaid(b) ? `<small>已匯 ${fmt(b.part.amt)}</small>` : ''}</td><td>${stChip(b)}</td><td data-l="失敗原因">${reasonOf(b) ? `<span class="${isPaid(b) ? 'nil' : 'w'}">${reasonOf(b)}</span>` : '<span class="nil">—</span>'}</td><td data-l="付款">${payWay(b)}</td><td data-l="發票">${invCell(b)}</td></tr>`).join('')}</tbody></table>`
+      : `<div class="empty" data-key="b-empty"><b>沒有符合的帳單</b><p>${state.q ? `沒有店名含「${esc(state.q)}」的帳單；換個字或清掉搜尋。` : '換個月份或狀態看看。'}</p></div>`}</section>`;
+}
+const stageRank = b => ['s14', 'out', 'link', 'retry', 'sus', 'lapse', 'ok'].indexOf(stage(b));
+
+/* ---------- 對帳: 應收 × 金流回呼 × 入帳 × 電子發票; by default only what does not match ---------- */
+const recBad = b => isPaid(b) && !!b.inv?.fail;
+function recTab() {
+  const ms = state.mon, all = monBills(ms), mine = all.filter(shopHit);
+  const bad = all.filter(recBad), only = state.rf !== 'all';
+  const list = (only ? mine.filter(b => recBad(b) || state.recKeep?.includes(b.id)) : mine).sort((a, b) => stageRank(a) - stageRank(b) || a.shop.localeCompare(b.shop));
+  const cbCell = b => {
+    const c = (b.cb || []).filter(x => seen(x.at) && !x.dup), last = c[c.length - 1];
+    if (!last) return isPaid(b) && b.paid.how === 'manual' ? '<span class="nil">沒有（匯款）</span>' : '<span class="nil">還沒有</span>';
+    const okc = last.ev === 'charge.succeeded';
+    return `<span class="${okc ? 'ok' : 'w'}">${okc ? '扣款成功' : '扣款失敗'}</span><small>${last.at} ${last.t}・代碼 ${last.code}</small>`;
+  };
+  const inCell = b => isPaid(b) ? `<span class="ok">已入帳</span><small>${b.paid.how === 'manual' ? esc(b.paid.ref) : `${b.paid.at} ${b.paid.t}`}</small>` : '<span class="nil">未入帳</span>';
+  const match = b => {
+    if (!isPaid(b)) return stage(b) === 'sus' ? '<span class="nil">停權中</span>' : '<span class="nil">未收</span>';
+    if (b.inv?.fail) return `<span class="w">有入帳、沒發票</span>`;
+    return `<span class="ok">${ic('check', 'spm')} 對得上</span>`;
+  };
+  const fix = b => b.inv?.fail && isPaid(b) ? (writable() ? busyBtn('quiet fix', 'invFix', `fix-${b.id}`, 'receipt', '重新開立', '開立中…', `data-id="${b.id}"`) : '') : '';
+  const due = all.reduce((a, b) => a + leftOf(b), 0), got = all.filter(isPaid).reduce((a, b) => a + leftOf(b), 0);
+  const invd = all.filter(b => isPaid(b) && b.inv?.no).length, paidN = all.filter(isPaid).length;
+  const dups = all.flatMap(b => (b.cb || []).filter(x => x.dup && seen(x.at)).map(x => ({b, x})));
+  const months = [11, 10, 9, 8].filter(m => monBills(m).length);
+  const table = list.length ? `<table class="tbl dense" data-key="rtbl"><thead><tr><th>店家</th><th class="r">應收</th><th>金流回呼</th><th>入帳</th><th>電子發票</th><th>對帳</th></tr></thead><tbody>
+    ${list.map(b => `<tr class="${recBad(b) ? 'hot' : ''}${state.panel?.bill === b.id ? ' sel' : ''}" data-key="rr-${b.id}"><td>${rowShop(b, `rb-${b.id}`)}<small>${billName(b)}</small></td><td class="r" data-l="應收">${money(leftOf(b))}</td><td data-l="金流">${cbCell(b)}</td><td data-l="入帳">${inCell(b)}</td><td data-l="發票">${invCell(b)}</td><td data-l="對帳">${match(b)} ${fix(b)}</td></tr>`).join('')}</tbody></table>`
+    : `<div class="empty" data-key="r-empty"><b>${state.q && mine.length === 0 ? `沒有店名含「${esc(state.q)}」的帳單` : `${ms} 月都對得上`}</b><p>${state.q && mine.length === 0 ? '換個字或清掉搜尋。' : `應收、金流回呼、入帳與發票逐筆都對過了；要逐筆看，按「全部 ${all.length} 筆」。`}</p></div>`;
+  return `<section class="sheet" aria-labelledby="rc-h" data-key="rec"><div class="h"><h2 id="rc-h">${ic('scale')}對帳</h2><span class="aside">應收、金流回呼、入帳、電子發票逐筆對照</span>
+      <div class="seg" role="group" aria-label="月份">${months.map(m => `<button aria-pressed="${ms === m}" data-do="pickMon" data-m="${m}" data-key="rm-${m}">${m} 月</button>`).join('')}</div></div>
+    <div class="filt"><div class="seg" role="group" aria-label="顯示"><button aria-pressed="${only}" data-do="pickRf" data-f="bad" data-key="rf-bad">只看對不上<span class="cnt${bad.length ? ' hot' : ''}">${bad.length}</span></button><button aria-pressed="${!only}" data-do="pickRf" data-f="all" data-key="rf-all">${nb(`全部 ${all.length} 筆`)}</button></div>${srch('r-q')}</div>
+    ${table}
+    ${dups.map(({b, x}) => `<p class="tnote" data-key="dup-${b.id}">${ic('info')}<span>${esc(shopOf(b.shop).n)} ${x.at} ${x.t} 又收到一次同一筆交易（${x.txn}）的扣款成功通知：已忽略，沒有重複入帳。</span></p>`).join('')}
+    <div class="tfoot"><span>應收 <b>${nt(due)}</b></span><span>已入帳 <b>${nt(got)}</b></span><span>未收 <b>${nt(due - got)}</b></span><span>發票 已開 <b>${invd}</b>／${paidN} 筆入帳</span></div></section>`;
+}
+
+/* ---------- 退款 ---------- */
+function refundsTab() {
+  const rq = state.reqs.filter(r => !r.done && seen(r.at));
+  const hist = state.bills.flatMap(b => refsOf(b).map(r => ({b, r}))).sort((a, b) => D(b.r.at) - D(a.r.at) || (b.r.t || '').localeCompare(a.r.t || ''));
+  return `<div class="stack">${rq.length ? `<section class="sheet" aria-labelledby="rq-h" data-key="reqs"><div class="h"><h2 id="rq-h">${ic('inbox')}等寵派處理的退款申請</h2></div>
+      ${rq.map(r => { const b = billOf(r.bill), s = shopOf(b.shop); return `<div class="req" data-key="req-${r.id}"><span class="c" aria-hidden="true">${s.a}</span><div><b>${esc(s.n)}・${billName(b)}・申請退 ${nt(r.amt)}</b><small>客服工單 ${r.tk}・${r.at} ${r.t}・${esc(r.who)}：${esc(r.note)}</small></div>
+        ${canAct() ? `<button class="textbtn" data-do="openRefund" data-id="${b.id}" data-req="${r.id}" data-key="rq-go-${r.id}">處理${ic('fwd', 'spm')}</button>` : ''}</div>`; }).join('')}</section>` : ''}
+    <section class="sheet" aria-labelledby="rh-h" data-key="rhist"><div class="h"><h2 id="rh-h">${ic('undo')}退款紀錄</h2><span class="aside">退款是反向紀錄，原收款不刪除</span></div>
+      ${hist.length ? `<ul class="rlist">${hist.map(({b, r}) => `<li class="${r.fresh ? 'fresh' : ''}"><span class="t">${r.at} ${r.t}</span><span class="w"><b>${esc(shopOf(b.shop).n)}・${billName(b)}・退 ${nt(r.amt)}</b><small>${esc(r.why)}${r.note ? `：${esc(r.note)}` : ''}・${esc(r.by)}</small><small>發票：${esc(r.inv)}</small></span><button class="textbtn ln" data-do="openBill" data-id="${b.id}" data-key="rh-${b.id}-${r.at}">帳單</button></li>`).join('')}</ul>`
+        : `<div class="empty"><b>還沒有退款</b><p>從已收到的帳單按「退款」開始。</p></div>`}</section></div>`;
+}
+
+/* 商家管理 is super-only: finance hands a 建議停權 to 冠宇 instead of being linked in under someone else's role */
+function tenantGo(s, key, cls, label, b) {
+  if (isSuper()) return `<a class="${cls}" href="../tenant-admin/index.html?role=super&shop=${s.id}" data-key="${key}">${cls.includes('btn') ? ic('store', 'sm') : ''}${label}${cls.includes('btn') ? '' : ic('fwd', 'spm')}</a>`;
+  if (!b) return '';
+  const done = state.handed[b.id];
+  return done ? `<button class="btn quiet" aria-disabled="true" data-key="${key}">${ic('check', 'sm')}已通知冠宇 ${done}</button>`
+    : `<button class="btn primary" data-do="handOff" data-id="${b.id}" data-key="${key}">${ic('send', 'sm')}請冠宇處理停權</button>`;
+}
+
+/* ---------- panels ---------- */
+const closeBtn = () => `<div class="dp-top"><button class="ibtn x" data-do="closePanel" data-key="dp-x" aria-label="關閉">${ic('x')}</button></div>`;
+const backBtn = (id, label) => `<div class="dp-top"><button class="back" data-do="backBill" data-id="${id}" data-key="dp-back">${ic('back', 'sm')}${label}</button><button class="ibtn x" data-do="closePanel" data-key="dp-x" aria-label="關閉">${ic('x')}</button></div>`;
+const panelErr = () => state.err ? `<div class="ferr" role="alert" data-key="dp-err">${ic('warn')}<span>${state.err}</span></div>` : '';
+function busyBtn(cls, act, key, icon, label, busyLabel, extra = '') {
+  if (state.offline) return `<button class="btn ${cls.includes('fix') ? 'fix' : ''}" aria-disabled="true" data-key="${key}">${ic(icon, 'sm')}${label}</button><span class="reason" data-key="${key}-why">需連線</span>`;
+  const b = state.busy === key;
+  return `<button class="btn ${cls}${b ? ' busy' : ''}" data-do="${act}" data-key="${key}" ${extra}>${b ? '<span class="spin" aria-hidden="true"></span>' : ic(icon, 'sm')}${b ? busyLabel : label}</button>`;
+}
+const TONE = {ok:'', retry:' warn', out:' warn', link:'', s14:' warn', sus:'', lapse:''};
+const head2 = (b, sub) => { const s = shopOf(b.shop); return `<div class="dph"><span class="ttile${TONE[stage(b)]}" aria-hidden="true">${s.a}</span><div><h2 id="dp-h" tabindex="-1">${esc(s.n)}</h2><p>${sub}</p></div></div>`; };
+function sumBox(b, extra = '') {
+  const r = refsOf(b);
+  return `<div class="sum2" data-key="sum">${b.items.map(i => `<span>${esc(i[0])}</span><span>${money(i[1])}</span>`).join('')}<span>營業稅 5%</span><span>${money(taxOf(b))}</span>
+    ${r.length ? `<span>帳單合計</span><span>${money(totOf(b))}</span>${r.map(x => `<span>${x.at} 退款</span><span class="neg">−${money(x.amt)}</span>`).join('')}<span class="tot">實收</span><span class="tot">${money(totOf(b) - refundedOf(b))}</span>`
+      : !isPaid(b) && b.part ? `<span>帳單合計</span><span>${money(totOf(b))}</span><span>${b.part.at} 已匯（末五碼 ${b.part.l5}）</span><span class="neg">−${money(b.part.amt)}</span><span class="tot">還差</span><span class="tot">${money(dueOf(b))}</span>`
+      : `<span class="tot">${isPaid(b) ? '實收' : '應付'}</span><span class="tot">${money(totOf(b))}</span>`}${extra}</div>`;
+}
+function traceItems(b) {
+  const s = shopOf(b.shop), out = [];
+  let n = 0;
+  evs(b).forEach(e => {
+    if (e.k === 'charge') {
+      out.push(e.ok ? {at:e.at, t:e.t, c:'good', i:'check', h:'自動扣款成功', s:b.card} : {at:e.at, t:e.t, c:'bad', i:'x', h:'自動扣款失敗', s:`${e.why}・${b.card}`});
+      if (!e.ok) out.push({at:e.at, t:e.t, c:'info', i:'bell', h:'轉為逾期，通知店家', s:`寄給${s.who}（Email・LINE）：扣款沒成功，請更新付款方式`});
+    }
+    if (e.k === 'retry') { n++; out.push({at:e.at, t:e.t, c:'bad', i:'refresh', h:`第 ${n} 次重試失敗`, s:e.why}); }
+    if (e.k === 'link') {
+      const exp = !e.void && D(e.until) < D(today()) && !isPaid(b);
+      out.push({at:e.at, t:e.t, c:'info', i:'link', h:e.from ? `${e.from}寄出付款連結` : e.amt ? `寄出差額連結 ${nt(e.amt)}` : '寄出補款連結', s:`${e.by}・${e.via}・${e.until} 前有效${e.void ? '・已作廢（寄了新連結）' : exp ? '・已過期，店家沒有付' : ''}`});
+    }
+  });
+  if (isPaid(b) && b.paid.how !== 'auto') out.push({at:b.paid.at, t:b.paid.t, c:'good', i:'check', h:b.paid.how === 'manual' ? '人工標記已付款' : '店家用連結付款成功', s:b.paid.how === 'manual' ? `${b.paid.ref}・${b.paid.by}${b.paid.att ? '・附匯款單' : ''}` : b.card});
+  if (isPaid(b) && b.inv?.no) out.push({at:b.inv.first || b.inv.at, t:b.inv.ft || b.paid.t, c:'good', i:'receipt', h:'開立電子發票', s:b.inv.voided?.length ? `${b.inv.voided[0]}（之後作廢重開）` : b.inv.no});
+  if (isPaid(b) && b.inv?.fail) out.push({at:b.inv.at, t:b.inv.t, c:'bad', i:'receipt', h:'發票開立失敗', s:b.inv.fail});
+  if (b.part && seen(b.part.at)) out.push({at:b.part.at, t:b.part.t, c:'info', i:'pen', h:`收到部分匯款 ${nt(b.part.amt)}`, s:`末五碼 ${b.part.l5}・${b.part.by}・比應收少 ${nt(leftOf(b) - b.part.amt)}`});
+  refsOf(b).forEach(r => out.push({at:r.at, t:r.t, c:'info', i:'undo', h:`退款 ${nt(r.amt)}`, s:`${r.why}・${r.by}`}));
+  const st = stage(b), f = firstFail(b);
+  if (st === 'sus') out.push({at:s.sus.at, t:s.sus.t, c:'stop', i:'ban', h:'停權', s:`${s.sus.why}・${s.sus.by}（商家管理）`});
+  if (st === 's14') out.push({at:expiredLink(b).until, t:'23:59', c:'stop', i:'ban', h:'連結到期仍未付：建議停權', s:'重試與補款連結都用完，店家已經沒有能付款的方式'});
+  out.sort((a, c) => D(a.at) - D(c.at) || a.t.localeCompare(c.t));
+  if (st === 'retry') out.push({pend:true, at:nextRetry(b), t:'03:00', i:'refresh', h:`第 ${tries(b).length} 次自動重試`, s:'排程中'});
+  if (st === 'link') out.push({pend:true, at:openLink(b).until, t:'23:59', i:'hourglass', h:'連結到期', s:openLink(b).until === today() ? '今天到期；到期前店家都還能付' : `還有 ${diff(today(), openLink(b).until)} 天；到期前店家都還能付`});
+  if (st === 'retry') out.push({pend:true, at:'', t:'', i:'ban', h:'重試用完、補款連結也過期仍未付：建議停權', s:'停權仍要在商家管理按'});
+  if (st === 'out') out.push({pend:true, at:'', t:'', i:'ban', h:`補款連結 ${LINK_DAYS} 天內沒付：建議停權`, s:'停權仍要在商家管理按'});
+  if (st === 'link' && b.kind !== 'top') out.push({pend:true, at:'', t:'', i:'ban', h:'連結到期仍未付：建議停權', s:'停權仍要在商家管理按'});
+  return out;
+}
+function traceHtml(b) {
+  const it = traceItems(b);
+  return `<ol class="trc" data-key="trace">${it.map((x, i) => `<li class="${x.pend ? 'pend' : ''}${it[i + 1]?.pend ? ' dsh' : ''}"><span class="nd ${x.pend ? 'pend' : x.c}" aria-hidden="true">${ic(x.i)}</span><span class="tx"><b>${x.at ? `<span class="tm">${x.at}${x.t ? ` ${x.t}` : ''}</span>` : ''}${x.h}</b><small>${esc(x.s)}</small></span></li>`).join('')}</ol>`;
+}
+function rawJson(b, c) {
+  const s = shopOf(b.shop);
+  return JSON.stringify({event:c.ev, merchant_order_no:`PAY-26${p2(b.mon)}-${s.id}${b.kind === 'top' ? '-up' : ''}`, txn_id:c.txn, amount:totOf(b), currency:'TWD', card:b.card.includes('••••') ? `${b.card.split(' ')[0]} ************${b.card.slice(-4)}` : null, result_code:c.code, received_at:`2026-${p2(+c.at.split('/')[0])}-${p2(+c.at.split('/')[1])}T${c.t}:11+08:00`, signature:'••••••••（已驗證）'}, null, 2);
+}
+function cbHtml(b) {
+  const c = (b.cb || []).filter(x => seen(x.at));
+  if (!c.length) return `<p class="hint">${isPaid(b) && b.paid.how === 'manual' ? '匯款不經過金流，沒有回呼；對帳看銀行入帳。' : '還沒有收到金流回呼。'}</p>`;
+  const open = state.raw[b.id];
+  return `<ul class="cbl" data-key="cbl">${c.map(x => `<li><span class="t">${x.at} ${x.t}</span><span><code>${x.ev}</code> 代碼 ${x.code}${x.dup ? '<br><span class="dup">同一筆交易又通知一次：已忽略，沒有重複入帳</span>' : ''}</span></li>`).join('')}</ul>
+    ${open ? `<pre class="raw" data-key="raw" aria-label="金流回呼原文（已遮罩）">${esc(rawJson(b, c[c.length - 1]))}</pre><p class="aud">${ic('eye')}<span>卡號與簽章已遮罩；這次查看已留下紀錄。</span></p>`
+      : `<button class="textbtn ln" data-do="showRaw" data-id="${b.id}" data-key="raw-go">${ic('code', 'spm')}看最新一筆原文（會留紀錄）</button>`}`;
+}
+function invHtml(b) {
+  const s = shopOf(b.shop);
+  if (!isPaid(b)) return `<p class="hint">付款成功後自動開立，寄到 ${pill(mask(s.em))}。沒收到款不開發票。</p>`;
+  if (b.inv?.fail) return `<p class="ferr" role="note">${ic('warn')}<span>${b.inv.at} ${b.inv.t} 開立失敗：${b.inv.fail}。款項已入帳，發票還沒開。</span></p>`;
+  return `<dl class="kv"><dt>號碼</dt><dd>${b.inv.no}</dd><dt>開立</dt><dd>${b.inv.at}</dd><dt>寄到</dt><dd>${pill(mask(s.em))}</dd>
+    ${b.inv.voided?.length ? `<dt>作廢</dt><dd>${b.inv.voided.map(v => `<s>${v}</s>`).join('、')}（退款後重開）</dd>` : ''}
+    ${b.allow?.length ? `<dt>折讓</dt><dd>${b.allow.map(a => `${a.no} ${nt(a.amt)}`).join('、')}</dd>` : ''}</dl>`;
+}
+function goHtml(b) {
+  const s = shopOf(b.shop), st = stage(b);
+  if (!canAct()) return '';
+  if (state.phone) return `<p class="aud">${ic('lock')}<span>手機只能看；寄補款連結、標記付款與退款請用電腦。</span></p>`;
+  const q = (act, key, icon, label) => `<button class="btn quiet" data-do="${act}" data-id="${b.id}" data-key="${key}" ${state.offline ? 'aria-disabled="true"' : ''}>${ic(icon, 'sm')}${label}</button>`;
+  const manual = q('goManual', 'go-manual', 'pen', '人工標記付款（匯款）');
+  const off = state.offline ? '<span class="reason">需連線</span>' : '';
+  if (st === 'out') {
+    return `<p class="lede">${b.noRetry ? `${b.noRetry}。` : `${RETRY.length} 次重試都失敗（${firstFail(b).why}）。`}下一步是寄補款連結給${esc(s.who)}，讓店家換張卡付款；連結 ${LINK_DAYS} 天內沒付才建議停權。</p>
+      <div class="go">${busyBtn('primary', 'goLink', 'go-link', 'send', '寄補款連結', '', `data-id="${b.id}"`)}${manual}${off}</div>`;
+  }
+  if (st === 'link') {
+    /* while a link is open the shop can still pay, so the panel says that first and offers no 停權 */
+    const l = openLink(b), last = l.until === today();
+    const relink = `${last ? busyBtn('primary', 'goLink', 'go-link', 'send', '重寄新連結', '', `data-id="${b.id}"`) : q('goLink', 'go-relink', 'send', '重寄新連結')}<span class="reason" data-key="relink-why">寄新連結，${l.until} 的舊連結會立刻作廢</span>`;
+    return `<div class="pw" data-key="paywait"><span class="r1">${ic('clock')}店家還能用${last ? '今天 ' : ` ${l.until} `}23:59 前的連結付款</span><span>連結 ${l.at} 寄給${esc(s.who)}（${l.via}）${l.amt ? `，只收差額 ${nt(l.amt)}` : ''}。付款成功就入帳、開發票。${b.note ? esc(b.note) + '。' : ''}${b.kind === 'top' ? '' : '連結到期還沒付，才建議停權。'}</span></div>
+      <div class="go">${last ? relink : ''}
+        <button class="btn quiet" data-do="copyLink" data-id="${b.id}" data-key="go-copy">${ic('copy', 'sm')}複製連結</button>
+        ${last ? '' : relink}${manual}${off}</div>`;
+  }
+  if (st === 'retry') return `<p class="notice warning" data-key="retry-n">${ic('refresh')}<span>下次自動重試 ${dw(nextRetry(b))} 03:00（第 ${tries(b).length}／${RETRY.length} 次）。不用等，也可以先寄補款連結；寄了就不再重試。</span></p>
+    <div class="go">${q('goLink', 'go-link', 'send', '寄補款連結')}${manual}${off}</div>`;
+  if (st === 's14') { const l = expiredLink(b); return `<p class="notice" style="background:var(--danger-tint);color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)" data-key="s14-n">${ic('ban')}<span>補款連結 ${l.until} 23:59 到期，店家沒有付；重試也用完了，已經沒有能付款的方式，建議停權。付款管理不能停權：${isSuper() ? '到商家管理預覽影響，打店名確認' : '停權只有最高管理者能在商家管理按'}。</span></p>
+    <div class="go">${tenantGo(s, 'go-tenant', 'btn primary', '到商家管理處理停權', b)}${q('goLink', 'go-relink', 'send', '再寄一次補款連結')}${manual}${off}</div>`; }
+  if (st === 'lapse') return `<p class="hint" data-key="lapse-n">付款連結 ${expiredLink(b).until} 到期沒付，所以維持原方案；這不算欠款，不會建議停權。</p>`;
+  if (st === 'sus') return `<p class="notice warning" data-key="sus-n">${ic('ban')}<span>${s.sus.at} 停權（${s.sus.why}）。停權期間不出新帳單，11/1 不扣款。補款後，恢復營業仍要${isSuper() ? '' : '由最高管理者冠宇'}在商家管理按。</span></p>
+    <div class="go">${q('goLink', 'go-link', 'send', '寄補款連結')}${manual}${tenantGo(s, 'go-tenant', 'textbtn ln', '到商家管理')}${off}</div>`;
+  /* paid */
+  if (b.inv?.fail) return `<div class="go">${busyBtn('primary', 'invFix', 'go-inv', 'receipt', '重新開立發票', '開立中…', `data-id="${b.id}"`)}</div>`;
+  const req = state.reqs.find(r => r.bill === b.id && !r.done && seen(r.at)), left = totOf(b) - refundedOf(b);
+  const pdf = `<button class="textbtn ln" data-do="dlInv" data-id="${b.id}" data-key="go-pdf">${ic('dl', 'spm')}下載發票 PDF</button>`;
+  if (req) return `<div class="qbox" data-key="req">客服工單 ${req.tk}・${req.at} ${req.t}・${esc(req.who)}<small>${esc(req.note)}</small></div>
+    <div class="go">${busyBtn('primary', 'goRefund', 'go-refund', 'undo', `處理退款申請（${nt(req.amt)}）`, '', `data-id="${b.id}" data-req="${req.id}"`)}${pdf}</div>`;
+  return `<div class="go">${left > 0 ? q('goRefund', 'go-refund', 'undo', '退款…') : '<p class="hint">這筆已全額退款。</p>'}${pdf}${off}</div>`;
+}
+function panelBill() {
+  const b = billOf(state.panel.bill), hist = state.log.filter(e => e.bill === b.id && seen(e.at));
+  return `${closeBtn()}${head2(b, `${billName(b)}帳單・${b.at} 開立 ${stChip(b)}`)}
+    <div class="dsec">${goHtml(b)}${panelErr()}</div>
+    <div class="dsec"><h3>${ic('receipt', 'spm')}金額</h3>${sumBox(b)}<p class="hint">付款方式：${esc(b.card)}・寵派不經手卡號</p></div>
+    <div class="dsec"><h3>${ic('trail', 'spm')}收款經過</h3>${traceHtml(b)}</div>
+    <div class="dsec"><h3>${ic('file', 'spm')}電子發票</h3>${invHtml(b)}</div>
+    <div class="dsec"><h3>${ic('code', 'spm')}金流回呼</h3>${cbHtml(b)}</div>
+    ${hist.length ? `<div class="dsec"><h3>${ic('shield', 'spm')}這筆帳單的紀錄</h3><ul class="hist">${hist.map(e => `<li class="${e.fresh ? 'fresh' : ''}"><span>${e.at} ${e.t}</span><span>${esc(e.a)}</span></li>`).join('')}</ul></div>` : ''}`;
+}
+const chk = (f, k, label, extra = '') => `<button role="checkbox" class="opt" aria-checked="${!!f[k]}" data-do="ftog" data-f="${k}" data-key="ch-${k}"><span class="cbx" aria-hidden="true">${ic('check')}</span>${label}${extra}</button>`;
+function panelLink() {
+  const b = billOf(state.panel.bill), s = shopOf(b.shop), f = state.panel.f, old = openLink(b), until = addDays(today(), LINK_DAYS), dx = state.panel.diff;
+  const amt = dx ? dx.gap : dueOf(b);
+  return `${backBtn(b.id, '帳單')}${head2(b, `${billName(b)}帳單・${nt(totOf(b))}`)}
+    <h3 style="font-size:1.0625rem">${dx ? '寄差額連結' : old ? '重寄新的補款連結' : '寄補款連結'}</h3>
+    <p class="lede">${dx ? `店家已匯 ${nt(dx.amt)}（${dx.dt}・末五碼 ${dx.l5}），比應收少 ${nt(dx.gap)}。這筆匯款會先記下，連結只收差額；付清才入帳、開整張發票。` : '店家打開連結，在金流服務商的頁面刷卡付款。付款成功就入帳、開發票，訂閱回到正常。'}</p>
+    <div class="sum2"><span>${dx ? '差額' : '應付'}</span><span class="tot" style="border:0;padding:0">${money(amt)}</span><span>有效到</span><span>${dw(until)} 23:59</span></div>
+    <fieldset class="fs"><legend>寄給 ${esc(s.who)}（店家管理者）</legend><div class="rg col" data-key="chs">${chk(f, 'mail', `Email ${pill(mask(s.em))}`)}${chk(f, 'line', 'LINE・寵派官方帳號')}</div>
+      ${state.panel.errs?.ch ? `<span class="ferr2" data-key="ch-err">至少選一個</span>` : ''}</fieldset>
+    ${old ? `<p class="notice warning" data-key="old-n">${ic('warn')}<span>寄出後，${old.until} 前有效的舊連結會立刻作廢，店家只能用新連結付；同一筆帳單同時只有一條能付，不會重複扣款。</span></p>` : ''}
+    ${panelErr()}
+    <div class="go">${busyBtn('primary', 'doLink', 'link-ok', 'send', dx ? `寄出差額連結 ${nt(amt)}` : old ? '寄出新連結，舊的作廢' : '寄出補款連結', '寄出中…')}<button class="btn secondary" data-do="backBill" data-id="${b.id}" data-key="link-cancel">取消</button></div>
+    <p class="aud">${ic('shield')}<span>寄出會留下紀錄。卡號只在金流服務商的頁面輸入，寵派看不到。</span></p>`;
+}
+const fld = (id, label, f, errs, extra = '', unit = '', help = '') => {
+  const e = errs?.[id];
+  const inp = `<input id="${id}" data-mf="${id}" data-key="${id}" value="${esc(f[id] ?? '')}" ${e ? `aria-invalid="true" aria-describedby="${id}-e"` : help ? `aria-describedby="${id}-h"` : ''} ${extra}>`;
+  return `<div class="field"><label for="${id}">${label}</label>${unit ? `<span class="unit${unit === 'NT$' ? ' pre' : ''}">${inp}<span class="u">${unit}</span></span>` : inp}${e ? `<span class="err" id="${id}-e">${e}</span>` : help ? `<span class="help" id="${id}-h">${help}</span>` : ''}</div>`;
+};
+/* what marking paid will do, said before it is done */
+const markEffect = b => b.kind === 'top' ? '將開立發票、改為專業方案' : shopOf(b.shop).st === 'sus' ? '將開立發票；恢復營業仍要在商家管理按' : '將開立發票、恢復訂閱';
+function panelManual() {
+  const b = billOf(state.panel.bill), f = state.panel.f, e = state.panel.errs, due = dueOf(b), cf = state.panel.confirm, short = state.panel.short;
+  const head = `${backBtn(b.id, '帳單')}${head2(b, `${billName(b)}帳單・應收 ${nt(due)}`)}<h3 style="font-size:1.0625rem">人工標記付款</h3>`;
+  if (cf) return `${head}
+    <div class="qbox" data-key="man-sum" role="group" aria-label="確認標記內容">${nt(due)}・${esc(cf.dt)} 匯款・末五碼 ${esc(cf.l5)}・${markEffect(b)}<small>${cf.att ? '附匯款單・' : ''}記為${me()}；標記後要更正只能退款，不能改這筆。</small></div>
+    ${panelErr()}
+    <div class="go">${busyBtn('primary', 'doManual', 'man-ok2', 'check', '確認標記為已付款', '標記中…')}<button class="btn secondary" data-do="manEdit" data-key="man-edit">返回修改</button></div>`;
+  return `${head}
+    <p class="lede">店家用匯款付款時，先對過寵派的銀行入帳再標記。標記後入帳、開發票，訂閱回到正常。</p>
+    <div class="frow">${fld('m-date', '匯款日', f, e, 'inputmode="numeric" placeholder="例：10/9" autocomplete="off"', '', `${b.at} 到今天`)}${fld('m-last5', '匯款帳號末五碼', f, e, 'inputmode="numeric" maxlength="5" placeholder="5 位數字" autocomplete="off"')}</div>
+    ${fld('m-amt', '入帳金額', f, e, 'inputmode="numeric" autocomplete="off"', 'NT$', `要等於應收 ${nt(due)}；不能多收`)}
+    ${short && writable() ? `<div class="go" data-key="short-go">${busyBtn('quiet', 'goDiff', 'go-diff', 'link', `寄差額連結 ${nt(short.gap)}`, '')}<span class="reason">先記下這筆 ${nt(short.amt)} 匯款，連結只收差額</span></div>` : ''}
+    <div class="field"><span class="lbl">匯款單<span class="opt-l">選填</span></span>${f.att ? `<span class="att" data-key="att">${ic('clip', 'spm')}匯款單-${today().replace('/', '')}.jpg<button class="ibtn" data-do="attDel" data-key="att-x" aria-label="移除匯款單">${ic('x')}</button></span>` : `<button class="dashadd" data-do="attAdd" data-key="att-add">${ic('clip', 'sm')}附上匯款單照片</button>`}</div>
+    <div class="field"><label for="m-note">備註<span class="opt-l">選填</span></label><textarea id="m-note" data-mf="m-note" data-key="m-note" maxlength="80" placeholder="例：店家 LINE 傳來匯款截圖">${esc(f['m-note'] || '')}</textarea></div>
+    ${panelErr()}
+    <div class="go">${busyBtn('primary', 'askManual', 'man-ok', 'check', '標記為已付款…', '')}<button class="btn secondary" data-do="backBill" data-id="${b.id}" data-key="man-cancel">取消</button></div>
+    <p class="aud">${ic('shield')}<span>標記會記下你的名字、匯款日與末五碼；之後要更正只能退款，不能改這筆。</span></p>`;
+}
+/* every option names the untaxed part it takes off (u); its refund is what was paid minus the re-priced total (cutOf) */
+function refundOpts(b) {
+  const left = leftOf(b), req = state.reqs.find(r => r.id === state.panel.req), ov = ovOf(b), seat = b.items.find(i => i[2] === 'seat');
+  const curMon = b.mon === 10 && b.kind === 'month', dl = MON_DAYS - state.day, fee = b.items[0][1];
+  const o = [];
+  if (req) o.push({k:'req', l:`工單所提：重送的 ${req.n} 則簡訊`, s:`${req.n} 則 × NT$1，扣掉後重算 5% 稅`, u:req.n});
+  if (ov) o.push({k:'ov', l:'超量費全部', s:`${b.items.find(i => i[2] === 'ov')[0].replace(/ × .*/, '')}，扣掉後重算 5% 稅`, u:ov});
+  if (seat) o.push({k:'seat', l:`超額席次 ${seat[3]} 席`, s:`${seat[3]} 席 × NT$${SEAT}，扣掉後重算 5% 稅`, u:seat[1]});
+  const un = curMon ? Math.round(fee * dl / MON_DAYS) : 0;
+  o.push({k:'unused', l:'月費未使用部分', s:curMon ? `${addDays(today(), 1)}–10/31 共 ${dl} 天按日，扣掉後重算 5% 稅` : '這期已經用完，不能按日退', u:un, off:!curMon, pend:true});
+  o.push({k:'full', l:'全額', s:'整張帳單，含稅', u:uxLeft(b)});
+  o.push({k:'custom', l:'自訂金額', s:`最多 ${nt(left)}，含稅`, u:null});
+  return o.map(x => { const amt = x.u === null ? null : Math.min(cutOf(b, x.u), left); return {...x, amt, off:x.off || (amt !== null && amt <= 0)}; });
+}
+const bimon = m => Math.ceil(m / 2);
+/* after a refund of amt: the untaxed part left and the new invoice total */
+function afterRefund(b, amt, opt) {
+  const left = leftOf(b), rest = left - amt, o = opt && opt !== 'custom' ? refundOpts(b).find(x => x.k === opt) : null;
+  const ux = o ? Math.max(0, uxLeft(b) - o.u) : Math.round(rest / (1 + TAXR));
+  return {rest, ux, tax:rest - ux, cutUx:uxLeft(b) - ux};
+}
+function invPlan(b, amt, opt) {
+  const a = afterRefund(b, amt, opt), im = +b.inv.at.split('/')[0];
+  if (bimon(im) === bimon(10)) return a.rest > 0 ? {k:'reissue', t:`作廢 ${b.inv.no}，重開一張 ${nt(a.rest)}（未稅 ${fmt(a.ux)}＋稅 ${fmt(a.tax)}）`, why:`同一期（${bimon(im) * 2 - 1}–${bimon(im) * 2} 月）可以作廢重開；新發票先算未稅再加 5% 稅，退款是原收款減新發票`, a} : {k:'void', t:`作廢 ${b.inv.no}，不重開`, why:'同一期全額退款', a};
+  return {k:'allow', t:`開立折讓單 ${nt(amt)}（未稅 ${fmt(a.cutUx)}＋稅 ${fmt(amt - a.cutUx)}）；原發票 ${b.inv.no} 不動`, why:`原發票在 ${bimon(im) * 2 - 1}–${bimon(im) * 2} 月那一期，跨期不能作廢；折讓的稅一樣是原收款減重算後的金額`, a};
+}
+const RWHY = [['sys', '系統問題補償'], ['dup', '重複扣款'], ['ask', '店家要求'], ['other', '其他']];
+function refundAmt(b) { const f = state.panel.f, o = refundOpts(b).find(x => x.k === f.opt); if (!o) return 0; return o.k === 'custom' ? Number(f['r-amt'] || 0) : o.amt; }
+const ipOf = b => { const f = state.panel.f, amt = refundAmt(b); return amt > 0 && amt <= leftOf(b) && b.inv?.no ? invPlan(b, amt, f.opt) : null; };
+function panelRefund() {
+  const b = billOf(state.panel.bill), f = state.panel.f, e = state.panel.errs || {}, left = totOf(b) - refundedOf(b), req = state.reqs.find(r => r.id === state.panel.req);
+  const amt = refundAmt(b), opts = refundOpts(b);
+  const ip = ipOf(b);
+  return `${backBtn(b.id, '帳單')}${head2(b, `${billName(b)}帳單・實收 ${nt(left)}`)}
+    <h3 style="font-size:1.0625rem">退款</h3>
+    ${req ? `<div class="qbox" data-key="req">客服工單 ${req.tk}・${req.at} ${req.t}・${esc(req.who)}<small>${esc(req.note)}</small></div>` : ''}
+    <fieldset class="fs"><legend id="ro-l">退多少</legend><div class="rg col" role="radiogroup" aria-labelledby="ro-l" data-key="ropts">
+      ${opts.map(o => `<button role="radio" class="opt" aria-checked="${f.opt === o.k}" tabindex="${f.opt === o.k || (!f.opt && o === opts[0]) ? 0 : -1}" data-do="fpick" data-f="opt" data-v="${o.k}" data-key="ro-${o.k}" ${o.off ? 'aria-disabled="true"' : ''}><span class="lb"><span>${o.l}${o.pend ? '<span class="ptag">政策待定</span>' : ''}</span><span class="sub">${o.s}</span></span>${o.amt !== null && !o.off ? `<span class="ov">${nt(o.amt)}</span>` : ''}</button>`).join('')}</div>
+      ${e.opt ? `<span class="ferr2">${e.opt}</span>` : ''}</fieldset>
+    ${f.opt === 'custom' ? fld('r-amt', '退款金額（含稅）', f, e, 'inputmode="numeric" autocomplete="off"', 'NT$', `最多 ${nt(left)}`) : ''}
+    <p class="hint" data-key="pol"><span class="ptag">政策待定</span> 能不能退「月費未使用部分」還沒定案；原型先兩種都開放。</p>
+    <fieldset class="fs"><legend id="rw-l">原因</legend><div class="rg" role="radiogroup" aria-labelledby="rw-l" data-key="rwhy">
+      ${RWHY.map(([k, l], i) => `<button role="radio" class="opt" aria-checked="${f.why === k}" tabindex="${f.why === k || (!f.why && i === 0) ? 0 : -1}" data-do="fpick" data-f="why" data-v="${k}" data-key="rw-${k}">${l}</button>`).join('')}</div>
+      ${e.why ? `<span class="ferr2" data-key="why-err">${e.why}</span>` : ''}</fieldset>
+    <div class="field"><label for="r-note">說明${f.why === 'other' ? '' : '<span class="opt-l">選填</span>'}</label><textarea id="r-note" data-mf="r-note" data-key="r-note" maxlength="80" ${e.note ? 'aria-invalid="true" aria-describedby="r-note-e"' : ''}>${esc(f['r-note'] || '')}</textarea>${e.note ? `<span class="err" id="r-note-e">${e.note}</span>` : ''}</div>
+    <div class="invt" data-key="invt">${ic('file')}<span>${b.inv?.fail ? '<b>發票還沒開</b>：先重新開立發票，才能退款。' : ip ? `<b>發票：${ip.t}</b><br>${ip.why}。` : '選好金額後，這裡會說發票怎麼處理。'}</span></div>
+    ${panelErr()}
+    <div class="go">${b.inv?.fail ? `<button class="btn" aria-disabled="true" data-key="ref-ok">${ic('undo', 'sm')}退款</button><span class="reason">先重新開立發票</span>` : busyBtn('primary', 'askRefund', 'ref-ok', 'undo', amt > 0 && amt <= left ? `退款 ${nt(amt)}…` : '退款…', '')}<button class="btn secondary" data-do="backBill" data-id="${b.id}" data-key="ref-cancel">取消</button></div>
+    <p class="aud">${ic('shield')}<span>退款會建一筆反向紀錄，原收款不刪除；退回原付款方式，到帳時間依發卡行或銀行。</span></p>`;
+}
+function panelBody() { return {bill:panelBill, link:panelLink, manual:panelManual, refund:panelRefund}[state.panel.mode](); }
+
+/* ---------- page ---------- */
+function noacc(h, p) { return `<div class="noacc" data-key="noacc"><h2>${ic('lock')}${h}</h2><p>${p}</p><a class="textbtn ln" href="../support-console/index.html?role=support" data-key="noacc-go">到客服支援${ic('fwd', 'spm')}</a></div>`; }
+const TABS = [['stairs', '收款階梯', 'receipt'], ['bills', '帳單', 'list'], ['rec', '對帳', 'scale'], ['refunds', '退款', 'undo']];
+function head() {
+  return `<header class="head"><h1 id="page-title" tabindex="-1">付款管理</h1><div class="tools">${whoami()}</div>
+    <p class="sub">寵派向店家收的月費：誰付了、誰還在追、退款與發票</p></header>
+    ${state.phone && canAct() ? `<div class="banner neutral" data-key="banner-ph">${ic('lock')}<span>手機只能看；寄補款連結、標記付款與退款請用電腦。</span></div>` : ''}`;
+}
+function tabsHtml() {
+  const n = {refunds:state.reqs.filter(r => !r.done && seen(r.at)).length, rec:visBills().filter(b => isPaid(b) && b.inv?.fail).length};
+  return `<div class="tabrow2"><div class="tabs" role="tablist" aria-label="付款管理">${TABS.map(([k, l, i]) => `<button role="tab" id="tab-${k}" aria-selected="${state.tab === k}" aria-controls="tp" tabindex="${state.tab === k ? 0 : -1}" data-do="tab" data-t="${k}" data-key="tab-${k}">${ic(i, 'spm')}${l}${n[k] ? `<span class="cnt hot" aria-label="${n[k]} 件待處理">${n[k]}</span>` : ''}</button>`).join('')}</div></div>`;
+}
+function mainBody() {
+  if (state.role === 'support') return noacc('付款管理只開放給財務與最高管理者', '客服看不到店家的付款、卡片與發票，也不能補款或退款。店家問到付款，請在客服支援開案後轉給財務。');
+  if (state.loadFail) return `<div class="fail" data-key="fail"><h2>${ic('warn')}付款管理沒有載入</h2><p>網路或伺服器沒有回應。資料沒有變動，重新載入就好；自動扣款與重試照常在跑。</p><button class="btn quiet" data-do="retry" data-key="retry">${ic('refresh', 'sm')}重新載入</button></div>`;
+  const wide = state.wide && state.panel;
+  const body = {stairs:() => stairs() + logSheet(), bills:billsTab, rec:recTab, refunds:refundsTab}[state.tab]();
+  return `<div class="lay${wide ? ' withp' : ''}"><div class="colmain">${qStrip()}${tabsHtml()}<div id="tp" role="tabpanel" aria-labelledby="tab-${state.tab}" class="stack">${body}</div></div>${wide ? `<aside class="dp" aria-labelledby="dp-h" data-key="dp">${panelBody()}</aside>` : ''}</div>`;
+}
+function fitStairs() {
+  const st = document.querySelector('#app .stairs'); if (!st) return;
+  st.style.removeProperty('--sh');
+  if (getComputedStyle(st).gridTemplateColumns.split(' ').length < 2) return;
+  /* a deeper tread already sits lower, so its tokens get that drop for free; only the tallest need sets the landing */
+  let h = 0; st.querySelectorAll('.tr').forEach((t, i) => { h = Math.max(h, t.querySelector('.tks').offsetHeight - i * 34); });
+  st.style.setProperty('--sh', `${Math.max(64, h + 12)}px`);
+}
+/* 資料 (data_admin) works only in 產業數據; every other module is closed to it */
+const dataOnly = () => `<header class="head"><h1 id="page-title" tabindex="-1">付款管理</h1><div class="tools">${whoami()}</div></header><div class="wrap"><div class="noacc" data-key="noacc"><h2>${ic('lock')}付款管理不開放給資料</h2><p>資料只負責去識別化的產業統計；商家、方案、付款、客服、合規與系統的資料都看不到。</p><a class="textbtn ln" href="../industry-data/index.html?role=data" data-key="noacc-go">到產業數據${ic('fwd', 'spm')}</a></div></div>`;
+/* the prototype strip's scenario, failure and simulate controls act on a page 資料 cannot see; only 身分 and 主題 stay live */
+function protoForData() {
+  const off = state.role === 'data';
+  document.querySelectorAll('.proto select, .proto input, .proto button').forEach(el => {
+    if (el.id === 'p-role' || el.id === 'p-theme') return;
+    if (off && !el.disabled) { el.disabled = true; el.dataset.dataOff = '1'; el.title = '資料看不到這一頁，模擬操作先停用'; }
+    else if (!off && el.dataset.dataOff) { el.disabled = false; delete el.dataset.dataOff; el.removeAttribute('title'); }
+  });
+}
+function render(focusKey) {
+  const app = $('app');
+  const keep = focusKey || document.activeElement?.dataset?.key;
+  const dpS = document.querySelector('#app .dp')?.scrollTop || 0;
+  app.className = state.compact ? 'compact' : state.rail ? 'rail' : '';
+  const top = state.compact ? `<div class="topbar"><button class="ibtn" data-key="menu" data-do="openNav" aria-label="開啟選單">${ic('menu')}</button><span class="mark" aria-hidden="true">${ic('mark')}</span><b>付款管理</b></div>` : '';
+  app.innerHTML = `${ibar()}${state.compact ? '' : sideNav()}<main id="main">${top}${state.role === 'data' ? dataOnly() : `${head()}<div class="wrap">${mainBody()}</div>`}</main>`;
+  protoForData();
+  const dp = document.querySelector('#app .dp'); if (dp) { dp.scrollTop = dpS; if (state.noAnim) dp.style.animation = 'none'; }
+  state.noAnim = false;
+  fitStairs();
+  renderOverlayPanel();
+  document.title = '付款管理・寵派管理後台';
+  if (keep) { const el = document.querySelector(`#app [data-key="${keep}"], #layer [data-key="${keep}"]`); if (el && el !== document.activeElement) el.focus({preventScroll:true}); }
+  syncUrl(); syncProto();
+  if (state.openBatch) { state.openBatch = false; act.batchAsk(); }
+}
+function renderOverlayPanel() {
+  const l = $('layer'), ex = l.querySelector('.pnl-s');
+  const body = state.wide || !state.panel || state.loadFail || state.role === 'support' ? '' : panelBody();
+  if (!body) { ex?.remove(); return; }
+  const html = `<div class="dp sheet" role="dialog" aria-modal="true" aria-labelledby="dp-h">${body}</div>`;
+  if (ex) { const sc = ex.firstChild.scrollTop; ex.innerHTML = html; ex.firstChild.style.animation = 'none'; ex.firstChild.scrollTop = sc; return; }
+  l.insertAdjacentHTML('afterbegin', `<div class="scrim side-r pnl-s" data-do="scrimPanel">${html}</div>`);
+}
+function announce(t) { const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+function say(text, btn) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status"><span>${esc(text)}</span>${btn ? `<button class="textbtn" data-do="${btn[1]}" data-id="${btn[2] || ''}" data-key="toast-btn">${btn[0]}</button>` : ''}</div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 6000);
+}
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function log(a, ref = {}) { state.log.forEach(e => delete e.fresh); state.log.unshift({at:today(), t:clk(state.m), a, fresh:true, ...ref}); state.m += 1; announce(`已留痕：${a}`); }
+function failOnce() { if (state.nextSend !== 'fail') return false; state.nextSend = 'ok'; $('p-send').value = 'ok'; return true; }
+function dupOnce() { if (state.nextSend !== 'dup') return false; state.nextSend = 'ok'; $('p-send').value = 'ok'; return true; }
+const later = f => setTimeout(f, FAST ? 60 : 650);
+function focusPanel(k) {
+  const el = document.querySelector(`#app .dp [data-key="${k}"], #layer .dp [data-key="${k}"]`) || document.querySelector('#app .dp h2, #layer .dp h2');
+  if (el) { if (!el.matches('button,input,textarea,a,[tabindex]')) el.tabIndex = -1; el.focus({preventScroll:true}); }
+  const dp = document.querySelector('#app .dp'); if (dp && !k) dp.scrollTop = 0;
+}
+const newInv = () => `YQ-${state.inv++}`;
+
+/* ---------- the signature: a token walks to its new tread; a paid one climbs back to 已收到 ---------- */
+function walk(id, change) {
+  const ids = [].concat(id), r0 = ids.map(i => document.querySelector(`#app [data-tk="${i}"] .c`)?.getBoundingClientRect());
+  change();
+  ids.forEach((i, k) => {
+    const t = document.querySelector(`#app [data-tk="${i}"]`), c = t?.querySelector('.c');
+    if (t && reduced() && state.tab === 'stairs') { t.classList.add('land-r'); setTimeout(() => t.classList.remove('land-r'), 1500); return; }
+    if (!t || !r0[k] || reduced() || state.tab !== 'stairs') return;
+    const r1 = c.getBoundingClientRect(), dx = r0[k].left - r1.left, dy = r0[k].top - r1.top;
+    if (Math.abs(dx) < 2 && Math.abs(dy) < 2) return;
+    const peak = Math.min(0, dy) - (dy > 0 ? 56 : 28), delay = FAST ? 0 : k * 90;
+    c.animate([{transform:`translate(${dx}px,${dy}px)`}, {transform:`translate(${dx * .4}px,${peak}px)`, offset:.55}, {transform:'translate(0,0)'}], {duration:FAST ? 120 : 780, delay, fill:'backwards', easing:'cubic-bezier(.16,1,.3,1)'});
+    setTimeout(() => { const n = document.querySelector(`#app [data-tk="${i}"]`); if (n) { n.classList.add('land'); setTimeout(() => n.classList.remove('land'), 600); } }, (FAST ? 120 : 760) + delay);
+  });
+}
+
+/* ---------- dialogs ---------- */
+/* 下載發票: a 電子發票證明聯 preview; 「列印／存成 PDF」 hands it to the browser's print dialog, where the print CSS keeps only this sheet */
+const BUYER = {mhr:['毛孩日和寵物美容有限公司', '24536806']};
+function invDlgHtml(b) {
+  const s = shopOf(b.shop), [title, tax] = BUYER[s.id] || [s.n, ''], re = b.inv.voided?.length ? refundedOf(b) : 0;
+  return `<div class="dialog inv" role="dialog" aria-modal="true" aria-labelledby="dl-h" data-key="dlg-inv"><h2 id="dl-h">電子發票證明聯・${esc(b.inv.no)}</h2>
+    <p class="lede">按「列印／存成 PDF」，在列印視窗的目的地選「另存為 PDF」就能存檔。</p>
+    <article class="invp" data-key="inv-sheet"><h3>電子發票證明聯</h3><p class="ino">${esc(b.inv.no)}</p>
+      <dl class="cdl"><dt>開立日期</dt><dd>2026/${esc(b.inv.at)}</dd><dt>賣方</dt><dd>寵派小管家（示範）</dd><dt>買受人</dt><dd>${esc(title)}</dd>${tax ? `<dt>統一編號</dt><dd>${tax}</dd>` : ''}</dl>
+      <div class="sum2">${b.items.map(i => `<span>${esc(i[0])}</span><span>${money(i[1])}</span>`).join('')}${re ? `<span>退款扣除（未稅；已作廢 ${b.inv.voided.join('、')}）</span><span class="neg">−${money(subOf(b) - uxLeft(b))}</span>` : ''}<span>營業稅 5%</span><span>${money(re ? leftOf(b) - uxLeft(b) : taxOf(b))}</span><span><b>總計</b></span><span><b>${money(totOf(b) - re)}</b></span></div>
+      ${b.allow?.length ? `<p class="hint">另開折讓單：${b.allow.map(a => `${esc(a.no)} ${nt(a.amt)}`).join('、')}</p>` : ''}<p class="hint">原型示範，不是真的發票。</p></article>
+    <div class="dbtns"><button class="btn secondary" data-do="closeDlg" data-key="dlg-cancel">關閉</button><button class="btn primary" data-do="printInv" data-key="inv-print">${ic('dl', 'sm')}列印／存成 PDF</button></div></div>`;
+}
+/* 一次寄出: who gets a link, for how much, until when; nothing goes out before 寄出 */
+function batchHtml(d) {
+  const until = addDays(today(), LINK_DAYS), bs = d.ids.map(billOf), busy = d.busy;
+  const box = (k, l) => `<button role="checkbox" class="opt" aria-checked="${!!d[k]}" data-do="btTog" data-f="${k}" data-key="bt-${k}"><span class="cbx" aria-hidden="true">${ic('check')}</span>${l}</button>`;
+  return `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dl-h" data-key="dlg-batch"><h2 id="dl-h">${nb(`一次寄出 ${bs.length} 家補款連結？`)}</h2>
+    <p class="lede">每家寄給店家管理者，${dw(until)} 23:59 前有效。店家付款成功就入帳、開發票；${LINK_DAYS} 天內沒付才建議停權。</p>
+    <ul class="blist" data-key="bt-list">${bs.map(b => { const s = shopOf(b.shop); return `<li><span class="ini" aria-hidden="true">${s.a}</span><span class="w"><b>${esc(s.n)}</b><small>${esc(s.who)}・${billName(b)}・${reasonOf(b) || '—'}</small></span><span class="money-c">${money(dueOf(b))}</span></li>`; }).join('')}
+      <li class="sumr"><span></span><span class="w"><b>合計</b></span><span class="money-c">${money(bs.reduce((a, b) => a + dueOf(b), 0))}</span></li></ul>
+    <fieldset class="fs"><legend>寄送方式（每家都一樣）</legend><div class="rg col">${box('mail', 'Email')}${box('line', 'LINE・寵派官方帳號')}</div>${d.err ? `<span class="ferr2" data-key="bt-err">${d.err}</span>` : ''}</fieldset>
+    ${d.fail ? `<p class="ferr" role="alert" data-key="dlg-err">${ic('warn')}<span>${d.fail}</span></p>` : ''}
+    <div class="dbtns"><button class="btn secondary" data-do="closeDlg" data-key="dlg-cancel" ${busy ? 'aria-disabled="true"' : ''}>返回</button><button class="btn primary${busy ? ' busy' : ''}" data-do="doBatch" data-key="bt-ok">${busy ? '<span class="spin" aria-hidden="true"></span>寄出中…' : `${ic('send', 'sm')}${nb(`寄出 ${bs.length} 家`)}`}</button></div></div>`;
+}
+function dlgHtml() {
+  const d = state.dlg; if (!d) return '';
+  if (d.kind === 'inv') return invDlgHtml(billOf(d.bill));
+  if (d.kind === 'batch') return batchHtml(d);
+  const b = billOf(d.bill), s = shopOf(b.shop), amt = d.amt, ip = invPlan(b, amt, d.opt);
+  const busy = d.busy ? ' busy' : '', spin = d.busy ? '<span class="spin" aria-hidden="true"></span>' : '';
+  return `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dl-h" data-key="dlg-ref"><h2 id="dl-h">退款 ${nt(amt)} 給${esc(s.n)}？</h2>
+    <p class="lede">此操作會影響對帳，請確認金額與原因。</p>
+    <dl class="cdl"><dt>原收款</dt><dd>${nt(totOf(b) - refundedOf(b))}・${billName(b)}・${esc(b.card)}</dd><dt>退款</dt><dd>${nt(amt)}・退回原付款方式</dd><dt>原因</dt><dd>${RWHY.find(w => w[0] === d.why)[1]}${d.note ? `：${esc(d.note)}` : ''}</dd><dt>發票</dt><dd data-key="dl-inv">${ip.t}</dd></dl>
+    <div class="field"><label for="dl-typed">輸入退款金額 ${fmt(amt)} 確認</label><input id="dl-typed" class="typed" data-key="dl-typed" inputmode="numeric" autocomplete="off" value="${esc(d.typed || '')}" ${d.err ? 'aria-invalid="true" aria-describedby="dl-typed-e"' : ''}>${d.err ? `<span class="err" id="dl-typed-e">${d.err}</span>` : ''}</div>
+    ${d.fail ? `<p class="ferr" role="alert" data-key="dlg-err">${ic('warn')}<span>${d.fail}</span></p>` : ''}
+    <div class="dbtns"><button class="btn secondary" data-do="closeDlg" data-key="dlg-cancel" ${d.busy ? 'aria-disabled="true"' : ''}>返回</button><button class="btn danger${busy}" data-do="doRefund" data-key="dlg-ok">${spin || ic('undo', 'sm')}${d.busy ? '退款中…' : '確認退款'}</button></div></div>`;
+}
+function renderDlg(focus) {
+  const l = $('layer'); l.querySelector('.dlg-s')?.remove();
+  if (!state.dlg) return;
+  l.insertAdjacentHTML('beforeend', `<div class="scrim dlg-s" data-do="scrimDlg">${dlgHtml()}</div>`);
+  const f = focus && l.querySelector(`.dlg-s [data-key="${focus}"]`);
+  (f || l.querySelector('.dialog input, .dialog .btn.danger, .dialog .btn.primary'))?.focus();
+}
+function openDlg(d, focus) { d.ret = document.activeElement?.dataset?.key; state.dlg = d; renderDlg(focus); }
+function closeDlg(focus) { const ret = focus || state.dlg?.ret; state.dlg = null; renderDlg(); if (ret) document.querySelector(`[data-key="${ret}"]`)?.focus(); }
+
+/* ---------- actions ---------- */
+function openPanel(p, focus) { state.panel = p; state.err = null; state.busy = null; state.noAnim = false; render(); focusPanel(focus); }
+const MAN0 = () => ({'m-date':'', 'm-last5':'', 'm-amt':'', 'm-note':'', att:false});
+function markPaid(b, paid, words) {
+  b.paid = paid;
+  b.inv = {no:b.invNo || newInv(), at:today()};
+  if (paid.how === 'link' && b.paidCard) b.card = b.paidCard;
+  if (paid.how !== 'auto') { const l = openLink(b); if (l && paid.how === 'manual') l.void = true; }
+  log(words, {bill:b.id});
+  if (b.kind === 'top') log(`${shopOf(b.shop).n}補差額已付，立即改為專業方案 v1`, {bill:b.id});
+}
+const act = {
+  nav(el) {
+    const p = el.dataset.page; closeNavDrawer();
+    if (p === 'sys') { location.href = `../system-settings/index.html?role=${state.role}`; return; }
+    if (p === 'pay') return;
+    const to = {tenants:'tenant-admin', plans:'plan-admin', support:'support-console', notif:'line-notify-admin', tpl:'contract-library', audit:'audit-center', gw:'gateway-settings', usage:'usage-monitor', data:'industry-data'}[p];
+    if (to) { location.href = `../${to}/index.html?role=${state.role}`; return; }
+    say(`「${el.textContent.trim()}」的原型還沒做；目前有商家管理、方案管理、付款管理、客服支援、LINE／通知管理、契約模板庫、稽核中心、金流設定、用量監控與產業數據`);
+  },
+  tab(el) { state.tab = el.dataset.t; render(el.dataset.key); },
+  pickMon(el) { state.mon = +el.dataset.m; render(el.dataset.key); },
+  pickBmon(el) { const v = el.dataset.m; state.bmon = v === 'all' ? 'all' : +v; render(el.dataset.key); },
+  pickBf(el) { state.bf = el.dataset.f; render(el.dataset.key); },
+  pickBr(el) { state.br = el.dataset.f; render(el.dataset.key); },
+  pickRf(el) { state.rf = el.dataset.f; state.recKeep = []; render(el.dataset.key); },
+  seeOk() { state.tab = 'bills'; state.bmon = state.mon; state.bf = 'ok'; state.br = ''; render('tab-bills'); announce(`帳單：${state.mon} 月已收到`); },
+  batchAsk() { const l = monBills(state.mon).filter(b => stage(b) === 'out'); if (l.length < 2) return; openDlg({kind:'batch', ids:l.map(b => b.id), mail:true, line:true}, 'bt-ok'); },
+  btTog(el) { const d = state.dlg; d[el.dataset.f] = !d[el.dataset.f]; d.err = null; renderDlg(el.dataset.key); },
+  doBatch() {
+    const d = state.dlg; if (d.busy) return;
+    if (!d.mail && !d.line) { d.err = '至少選一個'; renderDlg('bt-mail'); return; }
+    d.busy = true; d.fail = null; renderDlg('bt-ok');
+    later(() => {
+      if (failOnce()) { d.busy = false; d.fail = `沒有寄出：連線中斷。${d.ids.length} 家都還沒寄，可以再試一次。`; renderDlg('bt-ok'); return; }
+      const via = [d.mail && 'Email', d.line && 'LINE'].filter(Boolean).join('・'), until = addDays(today(), LINK_DAYS), ids = d.ids;
+      state.dlg = null; renderDlg();
+      walk(ids, () => {
+        ids.forEach(id => { const b = billOf(id); b.ev.push({at:today(), t:clk(state.m), k:'link', by:me(), via, until}); });
+        log(`${me()}一次寄補款連結給 ${ids.length} 家（${ids.map(id => shopOf(billOf(id).shop).n).join('、')}）・${via}・${until} 前有效`);
+        render(`tk-${ids[0]}`);
+      });
+      document.querySelector('[data-key="tr-link"]')?.scrollIntoView?.({block:'nearest'});
+      say(`已寄出 ${ids.length} 家補款連結（${via}），${until} 前有效`);
+    });
+  },
+  manEdit() { state.panel.confirm = null; state.err = null; render('man-ok'); },
+  goDiff() { const P = state.panel, sh = P.short; openPanel({mode:'link', bill:P.bill, f:{mail:true, line:true}, errs:{}, diff:sh}); },
+  retry() { state.loadFail = false; $('p-fail').checked = false; render('page-title'); say('已重新載入'); },
+  openQ(el) {
+    const r = queue().find(x => x.id === el.dataset.id); if (!r) return;
+    const b = billOf(r.bill); if (b.mon !== state.mon && state.tab === 'stairs') state.mon = b.mon;
+    if (r.k === 'ref') { act.openRefund({dataset:{id:r.bill, req:r.req}}); return; }
+    openPanel({mode:'bill', bill:r.bill});
+  },
+  openBill(el) { openPanel({mode:'bill', bill:el.dataset.id}); if (el.dataset.id === 'mhrUp' && state.tab === 'rec') lifeSay('matched'); },
+  backBill(el) { openPanel({mode:'bill', bill:el.dataset.id}, 'dp-back'); },
+  closePanel() { const id = state.panel?.bill; state.panel = null; state.err = null; render(); const t = document.querySelector(`[data-key="tk-${id}"]`) || document.querySelector(`[data-key="br-${id}"]`) || document.querySelector(`[data-key="rb-${id}"]`); t?.focus({preventScroll:true}); },
+  scrimPanel(el, ev) { if (ev.target === el) act.closePanel(); },
+  goLink(el) { const b = billOf(state.panel.bill); openPanel({mode:'link', bill:b.id, f:{mail:true, line:true}, errs:{}}); },
+  goManual() { const b = billOf(state.panel.bill); openPanel({mode:'manual', bill:b.id, f:MAN0(), errs:{}}, 'm-date'); },
+  goRefund(el) { act.openRefund({dataset:{id:state.panel.bill, req:el.dataset.req}}); },
+  openRefund(el) {
+    const id = el.dataset.id, req = el.dataset.req || state.reqs.find(r => r.bill === id && !r.done && seen(r.at))?.id;
+    openPanel({mode:'refund', bill:id, req, f:{opt:req ? 'req' : null, why:req ? 'sys' : null, 'r-note':req ? `客服工單 ${state.reqs.find(r => r.id === req).tk}：9/14 簡訊重送故障` : ''}, errs:{}});
+  },
+  ftog(el) { const f = state.panel.f; f[el.dataset.f] = !f[el.dataset.f]; if (state.panel.errs) delete state.panel.errs.ch; render(el.dataset.key); },
+  fpick(el) { const f = state.panel.f; f[el.dataset.f] = el.dataset.v; if (state.panel.errs) { delete state.panel.errs[el.dataset.f]; if (el.dataset.f === 'why') delete state.panel.errs.note; } state.noAnim = true; render(el.dataset.key); },
+  attAdd() { state.panel.f.att = true; render('att-x'); },
+  attDel() { state.panel.f.att = false; render('att-add'); },
+  handOff(el) {
+    const b = billOf(el.dataset.id), s = shopOf(b.shop);
+    state.handed[b.id] = clk(state.m);
+    log(`${me()}通知冠宇：${s.n}補款連結 ${expiredLink(b).until} 到期仍未付，建議停權（請在商家管理處理）`, {bill:b.id});
+    render('go-tenant'); say(`已通知冠宇；停權要他在商家管理預覽影響後按`);
+    if (b.id === 'mhr11') lifeSay('handed');
+  },
+  copyLink(el) { const url = `https://pay.petpai.example/r/${el.dataset.id}`; try { navigator.clipboard?.writeText(url).catch(() => {}); } catch (e) {} say('已複製補款連結'); },
+  dlInv(el) { openDlg({kind:'inv', bill:el.dataset.id}, 'inv-print'); },
+  printInv() { window.print(); },
+  showRaw(el) { const b = billOf(el.dataset.id); state.raw[b.id] = true; log(`${me()}查看${shopOf(b.shop).n} ${billName(b)}的金流回呼原文`, {bill:b.id}); state.noAnim = true; render('raw'); },
+  doLink() {
+    const P = state.panel, b = billOf(P.bill), s = shopOf(b.shop), f = P.f;
+    if (state.busy) return;
+    if (!f.mail && !f.line) { P.errs = {ch:true}; render('ch-mail'); return; }
+    state.busy = 'link-ok'; state.err = null; render('link-ok');
+    later(() => {
+      state.busy = null;
+      if (failOnce()) { state.err = '沒有寄出：連線中斷。舊連結（如果有）仍然有效，可以再試一次。'; render('link-ok'); return; }
+      const via = [f.mail && 'Email', f.line && 'LINE'].filter(Boolean).join('・'), until = addDays(today(), LINK_DAYS), old = openLink(b), dx = P.diff;
+      walk(b.id, () => {
+        if (old) old.void = true;
+        if (dx) b.part = {amt:dx.amt, at:dx.dt, t:clk(state.m), l5:dx.l5, by:me()};
+        b.ev.push({at:today(), t:clk(state.m), k:'link', by:me(), via, until, ...(dx ? {amt:dx.gap} : {})});
+        log(dx ? `${me()}記下${s.n}匯款 ${nt(dx.amt)}（${dx.dt}・末五碼 ${dx.l5}），寄差額連結 ${nt(dx.gap)}（${via}）・${until} 前有效${old ? '・舊連結作廢' : ''}`
+          : `${me()}${old ? '重寄' : '寄'}補款連結給${s.n}（${via}）・${nt(dueOf(b))}・${until} 前有效${old ? '・舊連結作廢' : ''}`, {bill:b.id});
+        state.panel = {mode:'bill', bill:b.id}; render();
+      });
+      focusPanel('paywait');
+      say(`已寄出${dx ? `差額連結 ${nt(dx.gap)} ` : '補款連結'}給${s.who}（${via}），${until} 前有效${old ? '；舊連結已作廢' : ''}`, ['複製連結', 'copyLink', b.id]);
+    });
+  },
+  askManual() {
+    const P = state.panel, b = billOf(P.bill), f = P.f, e = {}, due = dueOf(b);
+    if (state.busy) return;
+    const dt = (f['m-date'] || '').trim(), l5 = (f['m-last5'] || '').trim(), am = (f['m-amt'] || '').toString().replace(/[,\s]/g, '');
+    if (!dt) e['m-date'] = '請填匯款日';
+    else if (!/^\d{1,2}\/\d{1,2}$/.test(dt)) e['m-date'] = '請用 月/日，例：10/9';
+    else if (D(dt) > D(today())) e['m-date'] = '匯款日不能晚於今天';
+    else if (D(dt) < D(b.at)) e['m-date'] = `匯款日不能早於帳單開立日 ${b.at}`;
+    if (!l5) e['m-last5'] = '請填末五碼'; else if (!/^\d{5}$/.test(l5)) e['m-last5'] = '要 5 位數字';
+    const n = Number(am);
+    P.short = null;
+    if (!am) e['m-amt'] = '請填入帳金額';
+    else if (Number.isNaN(n)) e['m-amt'] = '請填數字';
+    else if (n > due) e['m-amt'] = `比應收 ${nt(due)} 多 ${nt(n - due)}：不能超收。請先和店家確認，多匯的部分走退款。`;
+    else if (n < due && n > 0) { e['m-amt'] = `比應收少 ${nt(due - n)}：不能標記為已付。可以先記下這筆匯款，寄差額連結給店家補足。`; if (!e['m-date'] && !e['m-last5']) P.short = {amt:n, gap:due - n, dt, l5}; }
+    else if (n <= 0) e['m-amt'] = '要大於 0';
+    P.errs = e;
+    const first = ['m-date', 'm-last5', 'm-amt'].find(k => e[k]);
+    if (first) { render(P.short ? 'go-diff' : first); return; }
+    P.confirm = {dt, l5, att:f.att}; state.err = null; render('man-ok2');
+  },
+  doManual() {
+    const P = state.panel, b = billOf(P.bill), f = P.f, due = dueOf(b), s = shopOf(b.shop), {dt, l5} = P.confirm || {};
+    if (state.busy || !P.confirm) return;
+    state.busy = 'man-ok2'; state.err = null; render('man-ok2');
+    later(() => {
+      state.busy = null;
+      if (failOnce()) { state.err = '沒有標記：連線中斷。填好的資料都還在，可以再試一次。'; render('man-ok2'); return; }
+      if (dupOnce()) {
+        walk(b.id, () => {
+          markPaid(b, {at:today(), t:clk(state.m - 3), how:'manual', ref:`${dt} 匯款・末五碼 ${l5}`, by:'冠宇'}, `冠宇人工標記${s.n} ${billName(b)}已付款・${dt} 匯款・末五碼 ${l5}`);
+          state.panel = {mode:'bill', bill:b.id}; state.err = '此筆付款已處理，請勿重複操作。冠宇 3 分鐘前已經標記過，這是最新狀態。'; render();
+        });
+        focusPanel('dp-err'); return;
+      }
+      walk(b.id, () => {
+        markPaid(b, {at:today(), t:clk(state.m), how:'manual', ref:`${dt} 匯款・末五碼 ${l5}`, by:me(), att:f.att}, `${me()}人工標記${s.n} ${billName(b)}已付款 ${nt(due)}・${dt} 匯款・末五碼 ${l5}${f.att ? '・附匯款單' : ''}`);
+        state.panel = {mode:'bill', bill:b.id}; render();
+      });
+      focusPanel('dp-h');
+      say(`${s.n}已入帳 ${nt(due)}，發票 ${b.inv.no} 已開立`);
+    });
+  },
+  askRefund() {
+    const P = state.panel, b = billOf(P.bill), f = P.f, e = {}, left = totOf(b) - refundedOf(b);
+    if (!f.opt) e.opt = '請選退多少';
+    const amt = refundAmt(b);
+    if (f.opt === 'custom') { const r = (f['r-amt'] || '').toString().trim(); if (!r) e['r-amt'] = '請填退款金額'; else if (!(amt > 0)) e['r-amt'] = '要大於 0'; else if (amt > left) e['r-amt'] = `最多 ${nt(left)}`; else if (!Number.isInteger(amt)) e['r-amt'] = '請填整數'; }
+    if (!f.why) e.why = '請選原因';
+    if (f.why === 'other' && !(f['r-note'] || '').trim()) e.note = '選「其他」要寫說明';
+    P.errs = e;
+    const first = ['opt', 'r-amt', 'why', 'note'].find(k => e[k]);
+    if (first) { render({opt:`ro-${refundOpts(b).find(o => !o.off).k}`, 'r-amt':'r-amt', why:'rw-sys', note:'r-note'}[first]); return; }
+    openDlg({bill:b.id, amt, opt:f.opt, why:f.why, note:(f['r-note'] || '').trim(), typed:''});
+  },
+  doRefund() {
+    const d = state.dlg; if (d.busy) return;
+    const typed = (document.querySelector('#dl-typed')?.value || '').replace(/[,\s]/g, '');
+    d.typed = typed;
+    if (typed !== String(d.amt)) { d.err = typed ? `金額不一致：要退的是 ${fmt(d.amt)}` : '請輸入退款金額'; renderDlg('dl-typed'); return; }
+    d.err = null; d.busy = true; renderDlg('dlg-ok');
+    later(() => {
+      if (failOnce()) { d.busy = false; d.fail = '沒有退款：連線中斷。沒有任何款項退出，可以再試一次。'; renderDlg('dlg-ok'); return; }
+      const b = billOf(d.bill), s = shopOf(b.shop), ip = invPlan(b, d.amt, d.opt), why = RWHY.find(w => w[0] === d.why)[1], a = ip.a;
+      let invT = ip.t;
+      if (ip.k === 'reissue') { const old = b.inv.no, nw = newInv(); b.inv = {no:nw, at:today(), first:b.inv.first || b.inv.at, ft:b.inv.ft || b.paid.t, voided:[...(b.inv.voided || []), old]}; invT = `作廢 ${old}，重開 ${nw} ${nt(a.rest)}（未稅 ${fmt(a.ux)}＋稅 ${fmt(a.tax)}）`; }
+      if (ip.k === 'void') { b.inv.voided = [...(b.inv.voided || []), b.inv.no]; invT = `作廢 ${b.inv.no}`; }
+      if (ip.k === 'allow') { const no = `ZR-2610-${p2(state.zr++)}`; b.allow = [...(b.allow || []), {no, amt:d.amt}]; invT = `開立折讓單 ${no} ${nt(d.amt)}（未稅 ${fmt(a.cutUx)}＋稅 ${fmt(d.amt - a.cutUx)}）；原發票 ${b.inv.no} 不動`; }
+      b.refunds = [...(b.refunds || []), {at:today(), t:clk(state.m), amt:d.amt, ux:a.cutUx, why, note:d.note, by:me(), inv:invT, fresh:true}];
+      const req = state.reqs.find(r => r.id === state.panel?.req); if (req) req.done = true;
+      log(`${me()}退款 ${nt(d.amt)} 給${s.n}（${billName(b)}）・${why}・${invT}`, {bill:b.id});
+      if (b.id === 'mhr10') lifeSay('refunded');
+      state.dlg = null; renderDlg();
+      state.panel = {mode:'bill', bill:b.id}; render(); focusPanel('sum');
+      say(`已退款 ${nt(d.amt)} 給${s.n}；發票：${invT}`);
+    });
+  },
+  invFix(el) {
+    const b = billOf(el.dataset.id || state.panel.bill), key = el.dataset.key;
+    if (state.busy) return;
+    state.busy = key; state.err = null; render(key);
+    later(() => {
+      state.busy = null;
+      if (failOnce()) { state.err = '沒有開立：電子發票平台還是沒有回應。款項不受影響，稍後再試。'; if (!state.panel) say(state.err); render(key); return; }
+      b.inv = {no:newInv(), at:today()};
+      if (!state.recKeep.includes(b.id)) state.recKeep.push(b.id);
+      log(`${me()}重新開立${shopOf(b.shop).n} ${billName(b)}的發票 ${b.inv.no}・寄到店家信箱`, {bill:b.id});
+      render(); say(`已開立發票 ${b.inv.no}，寄到${shopOf(b.shop).n}的信箱`);
+      document.querySelector(`[data-key="rb-${b.id}"]`)?.focus({preventScroll:true});
+    });
+  },
+  closeDlg() { if (!state.dlg?.busy) closeDlg(); },
+  scrimDlg(el, ev) { if (ev.target === el && !state.dlg?.busy) closeDlg(); },
+  openNav() { openNavDrawer(); },
+  navScrim(el, ev) { if (ev.target === el) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); } }
+};
+function openNavDrawer() {
+  const l = $('layer'); l.querySelector('.nav-scrim')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="scrim nav-scrim" data-do="navScrim" style="padding:0;justify-content:flex-start;align-items:stretch"><div class="drawer-nav" role="dialog" aria-modal="true" aria-label="寵派後台選單">${sideNav()}</div></div>`);
+  l.querySelector('.drawer-nav .sitem[aria-current]')?.focus();
+}
+function closeNavDrawer() { $('layer').querySelector('.nav-scrim')?.remove(); }
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-do]');
+  if (el && el.getAttribute('aria-disabled') !== 'true') act[el.dataset.do]?.(el, ev);
+});
+document.addEventListener('input', ev => {
+  const t = ev.target;
+  if (t.id === 'dl-typed' && state.dlg) { state.dlg.typed = t.value; if (state.dlg.err) { state.dlg.err = null; t.removeAttribute('aria-invalid'); t.closest('.field').querySelector('.err')?.remove(); } return; }
+  if (t.dataset.q) { state.q = t.value; state.recKeep = []; const k = t.dataset.key, pos = t.selectionStart; render(k); const n = document.querySelector(`[data-key="${k}"]`); try { n?.setSelectionRange(pos, pos); } catch (e) {} return; }
+  if (t.dataset.mf && state.panel?.f) {
+    const P = state.panel; P.f[t.dataset.mf] = t.value;
+    if (t.dataset.mf === 'm-amt' && P.short) { P.short = null; document.querySelector('.dp [data-key="short-go"]')?.remove(); }
+    const ek = t.dataset.mf === 'r-note' ? 'note' : t.dataset.mf;
+    if (P.errs?.[ek]) { delete P.errs[ek]; t.removeAttribute('aria-invalid'); t.closest('.field').querySelector('.err')?.remove(); }
+    if (t.dataset.mf === 'r-amt') { const b = billOf(P.bill), amt = refundAmt(b), left = leftOf(b), ip = ipOf(b);
+      const box = document.querySelector('.dp [data-key="invt"] span'); if (box) box.innerHTML = ip ? `<b>發票：${ip.t}</b><br>${ip.why}。` : '選好金額後，這裡會說發票怎麼處理。';
+      const okb = document.querySelector('.dp [data-key="ref-ok"]'); if (okb && !okb.classList.contains('busy')) okb.lastChild.textContent = amt > 0 && amt <= left ? `退款 ${nt(amt)}…` : '退款…'; }
+  }
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Enter' && state.dlg && ev.target.id === 'dl-typed') { ev.preventDefault(); act.doRefund(); return; }
+  const overlay = $('layer').querySelector('.pnl-s');
+  const modal = state.dlg ? '.dialog' : $('layer').querySelector('.drawer-nav') ? '.drawer-nav' : overlay ? '.pnl-s .dp' : null;
+  if (ev.key === 'Escape') {
+    if (state.dlg) { if (!state.dlg.busy) closeDlg(); return; }
+    if ($('layer').querySelector('.drawer-nav')) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); return; }
+    if (state.panel) { act.closePanel(); return; }
+  }
+  if (modal && ev.key === 'Tab') {
+    const f = [...document.querySelectorAll(`${modal} button, ${modal} a[href], ${modal} input, ${modal} select, ${modal} textarea`)].filter(x => x.getAttribute('aria-disabled') !== 'true' && x.offsetParent && x.tabIndex !== -1);
+    if (!f.length) return;
+    if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); }
+    else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); }
+  }
+  const tb = ev.target.closest?.('[role="tablist"] [role="tab"]');
+  if (tb && ['ArrowLeft', 'ArrowRight'].includes(ev.key)) {
+    ev.preventDefault(); const all = [...tb.parentElement.children], i = all.indexOf(tb);
+    all[(i + (ev.key === 'ArrowRight' ? 1 : all.length - 1)) % all.length].click(); return;
+  }
+  const r = ev.target.closest?.('[role="radiogroup"] [role="radio"]');
+  if (r && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(ev.key)) {
+    ev.preventDefault();
+    const all = [...r.closest('[role="radiogroup"]').querySelectorAll('[role="radio"]')].filter(x => x.getAttribute('aria-disabled') !== 'true'), i = all.indexOf(r), fw = ev.key === 'ArrowRight' || ev.key === 'ArrowDown';
+    all[(i + (fw ? 1 : all.length - 1)) % all.length].click();
+  }
+});
+addEventListener('resize', () => fitStairs());
+
+/* ---------- prototype controls ---------- */
+function syncUrl() { const u = new URL(location); u.searchParams.set('role', state.role); u.searchParams.delete('go'); history.replaceState(null, '', u); }
+function payable() { const p = state.panel?.bill && billOf(state.panel.bill); if (p && !isPaid(p) && openLink(p)) return p; return visBills().find(b => !isPaid(b) && openLink(b)); }
+function syncProto() { const b = $('p-paid'); if (b) b.disabled = !payable() || state.role === 'support' || state.role === 'data'; }
+function seed(v) {
+  const keep = {role:state.role, compact:state.compact, rail:state.rail, phone:state.phone, wide:state.wide, nextSend:state.nextSend, offline:state.offline};
+  state = Object.assign(fresh(), keep);
+  if (v !== 'support' && state.role === 'support') { state.role = 'finance'; $('p-role').value = 'finance'; }
+  const B = id => billOf(id);
+  const settle = () => {
+    B('yy10').ev.push({at:'10/9', t:'11:32', k:'link', by:'美玲', via:'Email・LINE', until:'10/16'});
+    const r = B('rq10'); r.ev[1].void = true; r.ev.push({at:'10/9', t:'11:40', k:'link', by:'美玲', via:'Email・LINE', until:'10/16'});
+    B('ww10').inv = {no:'YQ-48231142', at:'10/9'};
+    const m = B('mhr10'); m.refunds = [{at:'10/9', t:'11:50', amt:32, ux:31, why:'系統問題補償', note:'客服工單 C-1027：9/14 簡訊重送故障', by:'美玲', inv:'作廢 YQ-48213075，重開 YQ-48231141 NT$2,095（未稅 1,995＋稅 100）'}]; m.inv = {no:'YQ-48231141', at:'10/9', first:'10/1', ft:'03:00', voided:['YQ-48213075']};
+    state.reqs[0].done = true; state.inv = 48231143;
+    state.log.unshift({at:'10/9', t:'11:50', a:'美玲退款 NT$32 給毛孩日和（10 月月費）・系統問題補償', bill:'mhr10'}, {at:'10/9', t:'11:40', a:'美玲重寄補款連結給肉球小舖・10/16 前有效・舊連結作廢', bill:'rq10'}, {at:'10/9', t:'11:32', a:'美玲寄補款連結給悠悠寵物旅館・10/16 前有效', bill:'yy10'});
+  };
+  if (v === 'out') state.panel = {mode:'bill', bill:'yy10'};
+  if (v === 'link') state.panel = {mode:'link', bill:'yy10', f:{mail:true, line:true}, errs:{}};
+  if (v === 'expire') state.panel = {mode:'bill', bill:'rq10'};
+  if (v === 'manual') state.panel = {mode:'manual', bill:'rq10', f:{...MAN0(), 'm-date':'10/9', 'm-last5':'80231', 'm-amt':'2079', att:true, 'm-note':'店家 LINE 傳來匯款截圖'}, errs:{}};
+  if (v === 'manualbad') state.panel = {mode:'manual', bill:'rq10', f:{...MAN0(), 'm-date':'10/9', 'm-last5':'80231', 'm-amt':'2097'}, errs:{'m-amt':'比應收 NT$2,079 多 NT$18：不能超收。請先和店家確認，多匯的部分走退款。'}};
+  if (v === 'topup') state.panel = {mode:'bill', bill:'mhrUp'};
+  if (v === 'refund') state.panel = {mode:'refund', bill:'mhr10', req:'c1027', f:{opt:'req', why:'sys', 'r-note':'客服工單 C-1027：9/14 簡訊重送故障'}, errs:{}};
+  if (v === 'refundold') { state.mon = 8; state.panel = {mode:'refund', bill:'mhr8', f:{opt:'ov', why:'sys', 'r-note':'7 月簡訊重送故障'}, errs:{}}; }
+  if (v === 'inv') { state.tab = 'rec'; state.panel = {mode:'bill', bill:'ww10'}; }
+  if (v === 'cb') { state.raw.ww10 = true; state.panel = {mode:'bill', bill:'ww10'}; }
+  if (v === 'sus') state.panel = {mode:'bill', bill:'xs10'};
+  if (v === 's14') state.panel = {mode:'bill', bill:'qq10'};
+  if (v === 'seat') state.panel = {mode:'refund', bill:'mf10', f:{opt:'seat', why:'ask', 'r-note':'店家說 10/3 就把兩位離職員工移除了'}, errs:{}};
+  if (v === 'd2') { state.day = 2; state.m = 9 * 60 + 10; }
+  /* 10/15 and 10/17: everyone else paid after 10/9; 悠悠's link of 10/9 runs to 10/16, so on day 14 it still waits and on 10/17 it is 建議停權 */
+  if (v === 'd15' || v === 'd17') {
+    settle(); B('rq10').paid = {at:'10/10', t:'20:14', how:'link'}; B('rq10').inv = {no:'YQ-48231143', at:'10/10'}; state.inv = 48231144;
+    const u = B('mhrUp'); u.paid = {at:'10/9', t:'16:45', how:'link'}; u.inv = {no:u.invNo, at:'10/9'}; u.card = u.paidCard; u.cb = [TOPUP_CB];
+    settleX(state, '10/11', '09:00');
+    state.day = v === 'd15' ? 15 : 17; state.m = 9 * 60 + 30; state.panel = {mode:'bill', bill:'yy10'};
+  }
+  if (v === 'clear') {
+    settle();
+    B('yy10').paid = {at:'10/9', t:'14:02', how:'link'}; B('yy10').inv = {no:'YQ-48231143', at:'10/9'};
+    B('rq10').paid = {at:'10/9', t:'15:20', how:'manual', ref:'10/9 匯款・末五碼 80231', by:'美玲'}; B('rq10').inv = {no:'YQ-48231144', at:'10/9'};
+    const u = B('mhrUp'); u.paid = {at:'10/9', t:'16:45', how:'link'}; u.inv = {no:u.invNo, at:'10/9'}; u.card = u.paidCard; u.cb = [TOPUP_CB]; state.inv = 48231145;
+    settleX(state, '10/9', '15:00');
+    state.m = 17 * 60;
+  }
+  if (v === 'sep') state.mon = 9;
+  if (v === 'batch') state.openBatch = true;
+  if (v === 'bills') state.tab = 'bills';
+  if (v === 'refunds') state.tab = 'refunds';
+  if (v === 'support') { state.role = 'support'; $('p-role').value = 'support'; }
+}
+const ROLES = Object.keys(ME);
+if (ROLES.includes(qs.get('role'))) state.role = qs.get('role');
+const go0 = qs.get('go');
+$('p-role').value = state.role;
+$('p-role').onchange = e => { state.role = e.target.value; state.dlg = null; renderDlg(); if (!canAct()) state.panel = null; render(); };
+$('p-send').onchange = e => { state.nextSend = e.target.value; };
+$('p-off').onchange = e => { state.offline = e.target.checked; render(); };
+$('p-fail').onchange = e => { state.loadFail = e.target.checked; render(); };
+$('p-theme').onchange = e => { if (e.target.value) document.documentElement.dataset.theme = e.target.value; else delete document.documentElement.dataset.theme; };
+$('p-go').onchange = e => { const v = e.target.value; e.target.value = ''; if (!v) return; state.dlg = null; renderDlg(); seed(v); render(); if (state.panel) focusPanel(); else $('page-title')?.focus({preventScroll:true}); scrollTo(0, 0); };
+$('p-paid').onclick = () => {
+  const b = payable(); if (!b) return;
+  if (b.mon !== state.mon && state.tab === 'stairs') { state.mon = b.mon; render(); }
+  const s = shopOf(b.shop), amt = dueOf(b);
+  walk(b.id, () => {
+    markPaid(b, {at:today(), t:clk(state.m), how:'link'}, `${s.n}用${openLink(b)?.amt ? '差額' : '補款'}連結付款成功 ${nt(amt)}・發票自動開立`);
+    if (state.panel?.bill === b.id) state.panel = {mode:'bill', bill:b.id};
+    render();
+  });
+  say(`${s.n}已付款 ${nt(amt)}，發票 ${b.inv.no} 已開立`);
+};
+const mq = matchMedia('(max-width: 1023px)'), mqR = matchMedia('(min-width: 1024px) and (max-width: 1279px)'), mqP = matchMedia('(max-width: 719px)'), mqW = matchMedia('(min-width: 1280px)');
+const setCompact = () => { state.compact = mq.matches; state.rail = mqR.matches; state.phone = mqP.matches; state.wide = mqW.matches; if (!state.compact) closeNavDrawer(); render(); };
+[mq, mqR, mqP, mqW].forEach(m => m.addEventListener('change', setCompact));
+state.compact = mq.matches; state.rail = mqR.matches; state.phone = mqP.matches; state.wide = mqW.matches;
+if (go0) seed(go0);
+if (LIFE) document.querySelector('.proto .muted').textContent = `商家、人名、卡片與金額全為虛構示範・今天 ${SUSF ? '11/16（一）' : '10/9（五）'}${clk(T0)}`;
+render();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,1608 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>商家管理原型</title>
+<script src="../test-kit/kit.js" data-proto="tenant-admin"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens copied from the today board via 客服支援 and LINE／通知管理. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+:root{--sidew:15rem;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:24px;scroll-padding-bottom:120px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.spm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+.nw{white-space:nowrap}
+.muted{color:var(--ink-muted)}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .pbtn{border:1px solid var(--proto-line);border-radius:8px;padding:4px 10px;min-height:32px;color:var(--proto-ink);font-weight:700}
+.proto .pbtn:hover{border-color:var(--proto-ink)}
+.proto .pbtn:disabled{color:var(--proto-muted);border-style:dashed;cursor:not-allowed}
+.proto .tagp{border:1.5px dashed var(--proto-muted);border-radius:999px;padding:1px 8px;font-weight:800;color:var(--proto-muted)}
+
+/* ---------- shell: labeled cocoa sidebar (管理 Web) ---------- */
+#app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+#app.compact{display:block}
+.side{position:sticky;top:0;height:calc(100vh - 44px);height:calc(100dvh - 44px);overflow:hidden;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;gap:2px;padding:18px 12px 16px;color:var(--rail-ink)}
+/* only the items scroll; the brand and the signed-in card stay put and never sit on top of the last items (as 方案與用量) */
+.snav{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin:0 -6px;padding:0 6px 8px;scrollbar-color:var(--rail-hover) transparent}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+.mark{width:40px;height:40px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;flex:none}
+.mark .ico{width:24px;height:24px;stroke-width:0;fill:currentColor}
+.brand small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+.brand b{display:block;color:var(--rail-cur);font-size:1rem;font-weight:900;line-height:1.3}
+.sgrp{font-size:.75rem;font-weight:800;letter-spacing:.04em;padding:10px 12px 4px;color:var(--rail-ink);opacity:.82}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 12px;border-radius:12px;font-size:.9375rem;font-weight:700;line-height:1.3;color:var(--rail-ink);transition:background-color .2s var(--out),color .2s var(--out)}
+.sitem:hover{background:var(--rail-hover);color:var(--rail-cur)}
+.sitem[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.sitem .n{margin-left:auto;min-width:24px;padding:0 8px;border-radius:999px;background:var(--rail-hover);color:var(--rail-cur);font-size:.75rem;font-weight:900;text-align:center;line-height:1.6}
+.sitem .n.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.sitem[aria-current="page"] .n:not(.hot){background:var(--sunk);color:var(--ink)}
+.side :focus-visible{outline-color:var(--rail-cur)}
+.me{flex:none;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid var(--rail-hover)}
+.me .av{width:36px;height:36px;border-radius:50%;background:var(--rail-hover);color:var(--rail-cur);display:grid;place-items:center;font-weight:900;flex:none}
+.me b{display:block;color:var(--rail-cur);font-weight:800;line-height:1.3}
+.me small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+/* compact: the sidebar becomes a top bar and a drawer */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--rail);color:var(--rail-cur)}
+.topbar .mark{width:36px;height:36px;border-radius:12px}
+.topbar b{font-weight:900}
+.topbar .ibtn{color:var(--rail-cur)}
+.topbar .ibtn:hover{background:var(--rail-hover)}
+.topbar :focus-visible{outline-color:var(--rail-cur)}
+.ibtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;transition:background-color .2s var(--out)}
+.ibtn:hover{background:var(--sunk)}
+.drawer-nav{position:fixed;inset:0 auto 0 0;z-index:80;width:min(18rem,86vw);box-shadow:var(--lift-hi);animation:slidein .32s var(--out)}
+.drawer-nav .side{height:100%}
+@keyframes slidein{from{transform:translateX(-100%)}}
+main{min-width:0;container:main / inline-size}
+/* 1024–1279: the labeled sidebar folds into the world's icon rail so the detail keeps its width */
+#app.rail{--sidew:5.25rem}
+#app.rail .side{padding:16px 6px;align-items:center;gap:4px}
+#app.rail .snav{align-items:center;gap:4px;width:calc(100% + 12px)}
+#app.rail .brand{padding:0 0 10px}
+#app.rail .brand>span:not(.mark),#app.rail .sgrp,#app.rail .me>span:not(.av){display:none}
+#app.rail .sitem{flex-direction:column;justify-content:center;gap:4px;width:4.25rem;min-height:3.75rem;padding:6px 2px;border-radius:16px;font-size:.75rem;font-weight:700;text-align:center;line-height:1.25;position:relative}
+#app.rail .sitem[aria-current="page"]{font-weight:900}
+#app.rail .sitem .n{position:absolute;top:2px;right:2px;margin:0;padding:0 6px;font-size:.75rem}
+#app.rail .me{padding:12px 0 0;justify-content:center}
+/* the narrow rail shows a short name (商家, 通知…) instead of breaking the full one; the full name stays in title and the accessible name */
+.sitem>span:not(.n){min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sitem .ls{display:none}
+#app.rail .sitem:has(.ls) .lf{display:none}
+#app.rail .sitem .ls{display:block}
+#app.rail .sitem{width:100%;max-width:4.25rem}
+/* 200% text: the rail widens with the type so the short names and badges keep fitting */
+#app.rail.big{--sidew:4.75rem}
+#app.rail.big .sitem{max-width:none;font-size:.6875rem;min-height:3.5rem}
+#app.rail.big .brand .mark{width:2.25rem;height:2.25rem}
+
+
+/* ---------- page head ---------- */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 16px;padding:22px 28px 0}
+.compact .head{padding:16px 16px 0}
+.head h1{font-size:1.75rem;font-weight:900;line-height:1.25;display:flex;align-items:center;gap:10px}
+.compact .head h1{font-size:1.375rem}
+.compact .head .tools{margin-left:0;order:4;flex-basis:100%}
+.head .sub{flex-basis:100%;order:3;font-size:.875rem;font-weight:600;color:var(--ink-muted);margin-top:-6px}
+.head .tools{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.scope{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--control-border);font-weight:800;font-size:.875rem}
+select.scope{appearance:none;padding-right:36px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;cursor:pointer}
+select.scope:hover{border-color:var(--ink)}
+.scope.fixed{border-style:dashed;color:var(--ink-muted)}
+.updated{font-size:.8125rem;font-weight:700;color:var(--ink-muted);display:inline-flex;align-items:center;gap:6px}
+.updated.off{color:var(--warning)}
+.banner{display:flex;gap:10px;align-items:flex-start;margin:14px 28px 0;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:700;line-height:1.5}
+.compact .banner{margin:12px 16px 0}
+.banner.warning{background:var(--warning-bg);color:var(--warning)}
+.banner.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.banner .ico{margin-top:1px}
+
+/* ---------- buttons, chips, tags ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:var(--r-md);font-size:.9375rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out),border-color .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.quiet{background:var(--surface);color:var(--ink);border-color:var(--control-border)}
+.btn.quiet:hover{border-color:var(--ink)}
+.btn.danger{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.btn.danger:hover{filter:brightness(1.08)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none;filter:none}
+.btn.busy{pointer-events:none}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(1turn)}}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+a.textbtn{text-decoration:none}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.textbtn[aria-disabled="true"]{color:var(--ink-muted);background:transparent;border:1.5px dashed var(--control-border);cursor:not-allowed}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4;text-wrap:pretty}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.warning{color:var(--warning);background:var(--warning-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.chip.plain{background:var(--sunk);color:var(--ink)}
+.chip.plain::before{display:none}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 9px;border-radius:999px;font-size:.875rem;line-height:1.4;white-space:nowrap}
+.tag.safety{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.tag.care{background:var(--warning-bg);color:var(--warning);font-weight:700}
+.cnt{min-width:26px;padding:1px 9px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;text-align:center;line-height:1.5}
+.cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.masked{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--sunk);color:var(--ink-muted);font-size:.8125rem;font-weight:800;border:1.5px dashed var(--control-border)}
+.masked .ico{width:14px;height:14px;stroke-width:2.2}
+
+/* filter pills and segmented control */
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--border);font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out),border-color .2s var(--out),transform .35s var(--spring)}
+.pill:hover{border-color:var(--control-border);color:var(--ink)}
+.pill:active{transform:scale(.96);transition-duration:.08s}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface);font-weight:900}
+.pill[aria-pressed="true"] .cnt{background:var(--surface);color:var(--ink)}
+.pill[aria-pressed="true"] .cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.pill .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);flex-wrap:wrap}
+.seg button{min-height:40px;padding:0 16px;border-radius:999px;font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out)}
+.seg button:hover{color:var(--ink)}
+.seg button:is([aria-pressed="true"],[aria-checked="true"]){background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+:root[data-theme="dark"] .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+/* ---------- 臉環 ---------- */
+.face{--s:56px;position:relative;flex:none;width:var(--s);height:var(--s);display:inline-grid;place-items:center;border-radius:50%}
+.face>svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.face circle{fill:none;stroke:var(--track);stroke-width:7;stroke-linecap:round}
+.face circle.done{stroke:var(--ink)}
+.face circle.cur{stroke:var(--ink);stroke-width:9;stroke-dasharray:0 600;animation:seg .7s var(--out) .15s forwards}
+@keyframes seg{to{stroke-dasharray:var(--dash) 600}}
+.face img,.face .ini{width:calc(var(--s) * .74);height:calc(var(--s) * .74);border-radius:50%;object-fit:cover;background:var(--sunk);display:grid;place-items:center;font-weight:900;color:var(--ink-muted);font-size:calc(var(--s) * .3)}
+.face.plain img,.face.plain .ini{width:calc(var(--s) * .9);height:calc(var(--s) * .9)}
+.face.person .ini{background:var(--sunk);color:var(--ink)}
+.face .badge{position:absolute;right:-2px;bottom:-2px;width:calc(var(--s) * .32);height:calc(var(--s) * .32);min-width:20px;min-height:20px;border-radius:50%;display:grid;place-items:center;background:var(--danger-solid);color:var(--on-danger-solid);border:2.5px solid var(--surface)}
+.face .badge .ico{width:62%;height:62%;stroke-width:2.4}
+.face .step{position:absolute;left:-2px;bottom:-2px;padding:1px 7px;border-radius:999px;background:var(--surface);color:var(--ink);border:2px solid var(--ink);font-size:.75rem;font-weight:900;line-height:1.25}
+button.face{cursor:pointer;transition:transform .35s var(--spring)}
+button.face:hover{transform:scale(1.04)}
+button.face:active{transform:scale(.95);transition-duration:.08s}
+
+/* ---------- money ---------- */
+.money{font-weight:900;white-space:nowrap;font-feature-settings:"tnum"}
+.money .cur{font-size:.78em;font-weight:700;color:var(--ink-muted);margin-right:1px}
+.money.neg{color:var(--ink)}
+
+/* ---------- panels ---------- */
+.panel{background:var(--surface);border-radius:var(--r-lg);padding:22px;box-shadow:var(--lift)}
+.panel-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.panel-h h2,.panel-h h3{font-size:1.0625rem;font-weight:900;line-height:1.3;display:inline-flex;align-items:center;gap:8px}
+.panel-h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+/* ---------- dialog ---------- */
+.dialog{--dpb:24px;width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:24px 24px var(--dpb);display:flex;flex-direction:column;gap:16px;animation:pop .35s var(--spring)}
+/* the body scrolls, the actions stay: a long dialog on a 900px-tall screen still shows 取消 and the confirm button */
+.dialog>.dbtns{position:sticky;bottom:calc(-1 * var(--dpb));z-index:2;margin:0 -24px calc(-1 * var(--dpb));padding:12px 24px var(--dpb);background:var(--surface);box-shadow:0 -1px 0 var(--border)}
+@keyframes pop{from{transform:translateY(16px) scale(.98);opacity:0}}
+.dialog h2{font-size:1.25rem;font-weight:900;line-height:1.35;text-wrap:balance}
+.dialog .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.cdl{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px 14px;padding:14px 16px;border-radius:var(--r-md);background:var(--sunk);font-size:.9375rem;font-weight:700}
+.cdl dt{color:var(--ink-muted);font-size:.875rem}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:.875rem;font-weight:800}
+.field input,.field textarea{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:.9375rem;font-weight:600}
+.field textarea{min-height:84px;resize:vertical;line-height:1.5}
+.field input:hover,.field textarea:hover{border-color:var(--ink)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink-muted)}
+.field [aria-invalid="true"]{border-color:var(--danger)}
+.field .err{font-size:.8125rem;font-weight:800;color:var(--danger)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.dbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:flex-start}
+.dbtns .cell{display:flex;flex-direction:column;align-items:flex-end}
+@media (max-width: 600px){
+  .dlg-s{align-items:flex-end;padding:0}
+  .dialog{--dpb:calc(20px + env(safe-area-inset-bottom));border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:92dvh;padding:20px 18px var(--dpb)}
+  .dialog>.dbtns{margin:0 -18px calc(-1 * var(--dpb));padding:12px 18px var(--dpb)}
+  .dbtns{flex-direction:column-reverse;align-items:stretch}
+  .dbtns .cell{align-items:stretch}
+}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(560px,calc(100vw - 32px));padding:10px 18px;border-radius:18px;background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .4s var(--spring)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+#app:not(.compact) ~ #layer .toast{left:calc(50% + var(--sidew) / 2)}
+#app.rail ~ #layer .toast{left:calc(50% + 2.625rem)}
+
+.whoami{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 6px;border-radius:999px;background:var(--sunk);font-weight:800;font-size:.875rem}
+.whoami .av{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900}
+:root{--boarding:#5B3BA6;--boarding-bg:#EDE7FA}
+:root[data-theme="dark"]{--boarding:#C6B3F5;--boarding-bg:#2D2347}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--boarding:#C6B3F5;--boarding-bg:#2D2347}}
+.chip.boarding{color:var(--boarding);background:var(--boarding-bg)}
+.btn.wide{width:100%}
+.btn .ico{flex:none}
+
+/* ---------- overlays ---------- */
+.scrim{position:fixed;inset:0;z-index:70;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s var(--out)}
+@keyframes fade{from{opacity:0}}
+.scrim.side-r{justify-content:flex-end;align-items:stretch;padding:0}
+@keyframes slidein-r{from{transform:translateX(40px);opacity:0}}
+
+/* ---------- page frame ---------- */
+.wrap{padding:14px 28px 56px}
+.compact .wrap{padding:12px 16px 48px}
+.head .pre-act{display:flex;flex-direction:column;align-items:flex-end}
+.compact .head .pre-act{align-items:stretch;flex-basis:100%}
+.head .pre-act .reason{margin-top:4px}
+.btn.primary.calm{background:var(--surface);color:var(--ink);border-color:var(--control-border);box-shadow:none;font-weight:700}
+.btn.primary.calm:hover{border-color:var(--ink);background:var(--surface)}
+
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:800;line-height:1.5}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.info{background:var(--info-bg);color:var(--info)}
+.notice .ico{margin-top:1px}
+.notice:focus{outline:2.5px solid var(--focus);outline-offset:2px}
+
+/* pickers: radiogroups of options */
+.fs{border:0;display:flex;flex-direction:column;gap:8px}
+.fs legend,.fs .lgd{font-size:.875rem;font-weight:900;margin-bottom:8px;padding:0}
+.rg{display:flex;flex-wrap:wrap;gap:6px}
+.opt{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:6px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:800;line-height:1.3;color:var(--ink);text-align:center;transition:box-shadow .2s var(--out),background-color .2s var(--out),transform .35s var(--spring)}
+.opt:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.opt:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.opt small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.opt[aria-checked="true"]{background:var(--ink);color:var(--surface);box-shadow:none}
+.opt[aria-checked="true"] small{color:var(--surface)}
+.opt[aria-disabled="true"]{background:transparent;box-shadow:none;border:1.5px dashed var(--control-border);color:var(--ink-muted);cursor:not-allowed}
+.ferr{display:flex;gap:8px;align-items:flex-start;font-size:.875rem;font-weight:800;color:var(--danger);line-height:1.45}
+.ferr .ico{margin-top:1px;width:18px;height:18px}
+.srch{position:relative}
+.srch .ico{position:absolute;left:14px;top:14px;color:var(--ink-muted)}
+.srch input{width:100%;min-height:48px;padding:10px 14px 10px 44px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);font-size:.9375rem;font-weight:600}
+.srch input:hover{border-color:var(--ink)}
+.srch input::placeholder{color:var(--ink-muted)}
+.hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+/* ---------- shared bits carried from M-07 ---------- */
+.fail{padding:32px 24px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.fail h2{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:900;color:var(--danger)}
+.fail p{font-size:.9375rem;font-weight:600;color:var(--ink-muted)}
+.noacc{max-width:36rem;margin:40px auto 0;padding:32px 28px;border-radius:var(--r-xl);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.noacc h2{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:900}
+.noacc p{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.banner.danger{background:var(--danger-tint);color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.dialog select{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:0 14px;font-weight:700}
+.pre-x{display:inline-flex;flex-direction:column;align-items:flex-end}
+:root{--hair:#F3EBE2}
+:root[data-theme="dark"]{--hair:#2B221C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hair:#2B221C}}
+
+/* ---------- 寵派後台 shell: the cocoa internal banner joins the sidebar into one frame ---------- */
+#app{grid-template-rows:auto minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+.ibar{grid-column:1 / -1;position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;min-height:40px;padding:0 20px;background:var(--rail);color:var(--rail-cur);font-size:.8125rem;font-weight:800;box-shadow:inset 0 -1px 0 var(--rail-hover)}
+.ibar .in{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:999px;background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.ibar .in .ico{width:15px;height:15px;stroke-width:2.2}
+.ibar .ws{color:var(--rail-ink);font-weight:700}
+.ibar .r{margin-left:auto;color:var(--rail-ink);font-weight:700}
+.ibar :focus-visible{outline-color:var(--rail-cur)}
+/* the strip and the banner grow with large text, so the sidebar's height is measured, not assumed (else 冠宇 falls below the screen) */
+#app>.side{grid-row:2;top:var(--ibh,40px);height:calc(100vh - var(--ibh,40px) - var(--ph,44px));height:calc(100dvh - var(--ibh,40px) - var(--ph,44px))}
+#app>main{grid-row:2}
+#app.compact .ibar{position:static}
+.compact .topbar{top:0}
+
+
+/* ---------- carried from 客服支援 ---------- */
+.sheet{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:20px 22px 18px;container:sheet / inline-size}
+.sheet h2{font-size:1.0625rem;font-weight:900;line-height:1.3;display:flex;align-items:center;gap:8px}
+.sheet .h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.sheet .h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.empty{padding:28px 8px 18px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.empty b{font-size:1rem;font-weight:900}
+.empty p{font-size:.875rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.tkt{display:flex;align-items:stretch}
+.tkt span{display:grid;place-items:center;padding:0 12px;border:1.5px solid var(--control-border);border-right:0;border-radius:var(--r-md) 0 0 var(--r-md);background:var(--sunk);font-weight:900}
+.tkt input{border-radius:0 var(--r-md) var(--r-md) 0 !important;font-feature-settings:"tnum";letter-spacing:.04em}
+.rg.col{flex-direction:column;align-items:stretch}
+.rg.col .opt{flex-direction:row;justify-content:flex-start;gap:10px;text-align:left;padding:10px 14px}
+.rg.col .opt::before{content:"";width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--control-border);flex:none}
+.rg.col .opt[aria-checked="true"]::before{box-shadow:inset 0 0 0 5px var(--surface)}
+.aud{display:flex;gap:8px;align-items:flex-start;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.45}
+.aud .ico{width:16px;height:16px;margin-top:1px}
+.bubble{padding:14px 16px;border-radius:20px 20px 20px 8px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.9375rem;font-weight:600;line-height:1.6;white-space:pre-line;overflow-wrap:anywhere}
+.bubble .from{display:block;font-size:.75rem;font-weight:800;color:var(--ink-muted);margin-bottom:4px;white-space:normal}
+.bubble b{font-weight:900}
+.bubble .nt{display:block;margin-top:8px;padding-top:8px;border-top:1px dashed var(--control-border);white-space:normal;color:var(--ink-muted)}
+.bubble .bb{display:flex;align-items:center;justify-content:center;margin-top:10px;min-height:40px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--border);font-weight:900;font-size:.875rem;white-space:normal}
+.smsb{padding:12px 14px;border-radius:16px 16px 16px 6px;background:var(--neutral-bg);color:var(--ink);font-size:.875rem;font-weight:600;line-height:1.55;word-break:break-all}
+.pvm{display:flex;justify-content:space-between;gap:8px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.pvm.over{color:var(--warning)}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);overflow-x:auto;max-width:100%;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;font-size:.9375rem;font-weight:800;color:var(--ink-muted);white-space:nowrap;transition:background-color .2s var(--out),color .2s var(--out)}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+.tabs .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+:root[data-theme="dark"] .tabs button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tabs button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+.tabrow{padding:16px 28px 0;display:flex}
+.compact .tabrow{padding:12px 16px 0}
+
+/* ---------- the OA status strip ---------- */
+.oas{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:10px 12px 10px 18px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);font-size:.875rem;font-weight:700;line-height:1.4}
+.oas .it{display:inline-flex;align-items:center;gap:8px;color:var(--ink)}
+.oas .it .ico{color:var(--ink-muted)}
+.oas .it b{font-weight:900;font-feature-settings:"tnum"}
+.oas .it.warn{color:var(--warning)}
+.oas .it.warn .ico{color:var(--warning)}
+.oas .sep{width:1px;align-self:stretch;background:var(--control-border)}
+.oas .textbtn{margin-left:auto}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;background:currentColor}
+.dot.success{color:var(--success)}.dot.warning{color:var(--warning)}.dot.danger{color:var(--danger)}
+
+
+/* ---------- carried from 客服支援: the trace vocabulary (solid reached, dashed pending, status-coloured end node) ---------- */
+.c{position:relative;display:flex;flex-direction:column;gap:2px;padding:28px 8px 0 0;min-width:0;font-size:.8125rem;font-weight:800;line-height:1.35}
+.c::before{content:"";position:absolute;left:0;top:4px;width:14px;height:14px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 3px var(--surface);z-index:1}
+.c::after{content:"";position:absolute;left:14px;right:0;top:10px;height:3px;border-radius:2px;background:var(--ink)}
+.c.to-p::after{height:0;border-top:2.5px dashed var(--control-border);background:none;top:9.5px}
+.c.last::after{display:none}
+.c.p{color:var(--ink-muted);font-weight:700}
+.c.p::before{background:var(--surface);box-shadow:inset 0 0 0 2px var(--control-border),0 0 0 3px var(--surface)}
+.c .t{font-weight:700;color:var(--ink-muted);font-size:.75rem;font-feature-settings:"tnum"}
+.c .s{font-weight:700;color:var(--ink-muted);font-size:.75rem;text-wrap:pretty}
+.c.x{padding-top:28px}
+.c.x::before{display:none}
+.c.x .k{position:absolute;left:-4px;top:-1px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 0 3px var(--surface);z-index:1}
+.c.x .k .ico{width:15px;height:15px;stroke-width:2.6}
+.c.x b{font-weight:900}
+.c.x.danger b{color:var(--danger)} .c.x.danger .k{background:var(--danger-solid);color:var(--on-danger-solid)}
+.c.x.warning b{color:var(--warning)} .c.x.warning .k{background:var(--warning);color:var(--surface)}
+.c.x.info b{color:var(--info)} .c.x.info .k{background:var(--info);color:var(--surface)}
+.c.x::after{height:0;border-top:2.5px dashed var(--control-border);background:none;top:9.5px;left:20px}
+.c.x.to-d::after{height:3px;border-top:0;background:var(--ink);top:10px}
+
+/* ---------- carried from M-01: the 13-item setup ring ---------- */
+.sring{--s:44px;position:relative;flex:none;width:var(--s);height:var(--s);display:grid;place-items:center}
+.sring>svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.sring circle{fill:none;stroke:var(--track);stroke-width:7;stroke-linecap:round}
+.sring.sm circle{stroke-width:9;stroke-linecap:butt}
+.sring circle.done{stroke:var(--ink)}
+.sring circle.cur{stroke:var(--ink);stroke-width:10;stroke-dasharray:0 1000;animation:sseg .7s var(--out) .15s forwards}
+.sring.sm circle.cur{stroke-width:12}
+.sring circle.stuck{stroke:var(--warning);stroke-width:11}
+.sring.sm circle.stuck{stroke-width:13}
+@keyframes sseg{to{stroke-dasharray:var(--dash) 1000}}
+.sring .ini{width:calc(var(--s) * .64);height:calc(var(--s) * .64);border-radius:50%;background:var(--sunk);display:grid;place-items:center;font-weight:900;font-size:calc(var(--s) * .3);color:var(--ink);line-height:1}
+.sring.lg .ini{background:transparent;font-size:1.75rem;display:flex;align-items:baseline;justify-content:center;gap:1px}
+.sring.lg .ini small{font-size:.9375rem;font-weight:800;color:var(--ink-muted)}
+.sring.full circle{stroke:var(--ink)}
+
+/* ---------- the summary strip and search ---------- */
+.sum{gap:6px 14px}
+.sum .it.warn b{color:var(--warning)}
+.sum .who{display:inline-flex;flex-wrap:wrap;gap:4px}
+.lnk{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border-radius:999px;background:var(--warning-bg);color:var(--warning);font-weight:800;font-size:.8125rem;transition:background-color .2s var(--out)}
+.lnk:hover{background:var(--sunk-hover);color:var(--ink)}
+.sum .srch{margin-left:auto;width:min(16rem,100%)}
+.sum .srch input{min-height:40px;padding:6px 14px 6px 40px;font-size:.875rem}
+.sum .srch .ico{left:13px;top:10px}
+
+/* ---------- the onboarding board: four lanes read as one road ---------- */
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px;align-items:start}
+.stage{position:relative;background:var(--sunk);border-radius:var(--r-xl);padding:12px 10px 10px;display:flex;flex-direction:column;gap:10px;min-height:16rem}
+.stage>header{display:flex;flex-direction:column;gap:2px;padding:4px 8px 2px}
+.stage h2{font-size:1rem;font-weight:900;line-height:1.3;display:flex;align-items:center;gap:8px}
+.stage h2 .ico{color:var(--ink-muted)}
+.stage h2 .cnt{background:var(--surface);margin-left:auto}
+.stage header p{font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.4}
+.stage .list{list-style:none;display:flex;flex-direction:column;gap:8px}
+/* the road: a chevron between lanes says these are steps, not categories */
+.stage:nth-child(-n+2)::after{content:"";position:absolute;right:-11px;top:22px;width:10px;height:10px;border-top:2.5px solid var(--control-border);border-right:2.5px solid var(--control-border);transform:rotate(45deg)}
+.stage.sus{background:transparent;box-shadow:inset 0 0 0 1.5px var(--border)}
+.stage.sus::before{content:"";position:absolute;left:-7px;top:16px;bottom:16px;width:0;border-left:1.5px dashed var(--control-border)}
+.none{padding:22px 10px;font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-align:center;border:1.5px dashed var(--control-border);border-radius:var(--r-lg);text-wrap:pretty}
+
+.scard{position:relative;width:100%;display:flex;flex-direction:column;gap:8px;padding:13px 14px 12px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);text-align:left;transition:box-shadow .25s var(--out),transform .35s var(--spring)}
+.scard:hover{box-shadow:var(--lift-hi);transform:translateY(-2px)}
+.scard:active{transform:scale(.98);transition-duration:.08s}
+.scard .top{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;min-width:0}
+.scard .top>.nmb{min-width:0;flex:1 1 auto;display:flex;flex-direction:column}
+.scard .nm{font-size:1rem;font-weight:900;line-height:1.3;word-break:keep-all;overflow-wrap:anywhere}
+.scard .meta,.scard .ln{word-break:keep-all;overflow-wrap:anywhere}
+.scard .meta{font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.35}
+.scard .ln{display:flex;align-items:flex-start;gap:6px;font-size:.8125rem;font-weight:800;line-height:1.4;color:var(--ink)}
+.scard .ln .ico{width:16px;height:16px;margin-top:1px;color:var(--ink-muted)}
+.scard .ln.m{color:var(--ink-muted);font-weight:700}
+.scard .ln.warn,.scard .ln.warn .ico{color:var(--warning)}
+.scard .ln.dgr,.scard .ln.dgr .ico{color:var(--danger)}
+.scard .chips{display:flex;flex-wrap:wrap;gap:6px}
+.scard.stuck{box-shadow:inset 0 0 0 2px var(--warning),var(--lift)}
+.scard.stuck:hover{box-shadow:inset 0 0 0 2px var(--warning),var(--lift-hi)}
+.scard .flag{margin-left:auto;flex:none;margin-top:-2px}
+.scard.slim{padding:11px 14px}
+.slimrow{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
+.slimrow .chip{margin-left:auto}
+.slimrow .brk{flex-basis:100%;height:0}
+.scard.flying{z-index:5}
+.scard.arrived::after{content:"";position:absolute;inset:-6px;border-radius:24px;border:2px dashed var(--ink);pointer-events:none;animation:settle 2.2s var(--out) forwards}
+@keyframes settle{0%,30%{border-style:dashed;opacity:1}31%,60%{border-style:solid;opacity:1}100%{border-style:solid;opacity:0}}
+.scard[hidden]{display:none}
+
+/* ---------- a shop page ---------- */
+.det{display:grid;grid-template-columns:minmax(0,1fr) 21.5rem;gap:16px;align-items:start}
+.det .mc,.det .ac{display:flex;flex-direction:column;gap:16px;min-width:0}
+.det .ac{position:sticky;top:56px}
+@container main (max-width: 61.25rem){
+  .det{display:flex;flex-direction:column;align-items:stretch}
+  .det .mc,.det .ac{display:contents}
+  .det .o1{order:1}.det .o2{order:2}.det .o3{order:3}.det .o4{order:4}.det .o5{order:5}
+}
+.head .backrow{flex-basis:100%;order:-1;margin:-8px 0 -6px -8px}
+.head h1 .chip{font-size:.875rem}
+.head .sub .sep{margin:0 6px;color:var(--ink-muted)}
+
+.track{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));margin-top:6px}
+@container sheet (max-width: 37.5rem){
+  .track{grid-template-columns:minmax(0,1fr)}
+  .c{padding:0 0 18px 30px}
+  .c::before{top:2px}
+  .c::after{left:5.5px;right:auto;top:18px;bottom:0;width:3px;height:auto}
+  .c.to-p::after,.c.x::after{width:0;height:auto;border-top:0;border-left:2.5px dashed var(--control-border);left:6px;top:18px;bottom:0}
+  .c.x.to-d::after{width:3px;border-left:0;background:var(--ink)}
+  .c.x{padding-top:2px}
+  .c.x .k{left:-5px;top:-2px}
+  .c.x::after{top:24px}
+}
+
+.items{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px 22px;align-items:start}
+.igrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 22px}
+@container sheet (max-width: 40rem){.items{grid-template-columns:minmax(0,1fr)}.igrid{grid-template-columns:minmax(0,1fr)}}
+.igrp h3{font-size:.8125rem;font-weight:900;color:var(--ink-muted);margin-bottom:4px}
+.igrp ul{list-style:none;display:flex;flex-direction:column}
+.igrp li{display:flex;align-items:center;gap:10px;min-height:40px;padding:6px 8px;border-radius:12px;font-size:.9375rem;font-weight:800;border-bottom:1px solid var(--hair)}
+.igrp li:last-child{border-bottom:0}
+.igrp li>.ico{color:var(--ink-muted)}
+.igrp li .r{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:.8125rem;font-weight:700;color:var(--ink-muted);white-space:nowrap;font-feature-settings:"tnum"}
+.igrp li .r .ico{width:15px;height:15px;color:var(--success);stroke-width:2.4}
+.igrp li.todo{color:var(--ink-muted);font-weight:700}
+.igrp li.stuck{background:var(--warning-bg);color:var(--warning);border-bottom-color:transparent;flex-wrap:wrap}
+.igrp li.stuck>.ico{color:var(--warning)}
+.igrp li.stuck .r{color:var(--warning);font-weight:900}
+.igrp li.stuck .why{flex-basis:100%;padding-left:30px;font-size:.8125rem;font-weight:700;line-height:1.45}
+.items .note{grid-column:1 / -1}
+
+.facts{display:grid;grid-template-columns:6.5rem minmax(0,1fr);gap:10px 14px;font-size:.9375rem;font-weight:700;align-items:baseline}
+.facts dt{font-size:.875rem;color:var(--ink-muted);font-weight:700}
+.facts dd{min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+@container sheet (max-width: 32.5rem){.facts{grid-template-columns:minmax(0,1fr);gap:2px}.facts dd{margin-bottom:10px}}
+.ops{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-radius:var(--r-md);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border)}
+.ops>div{padding:12px 14px;display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--border)}
+.ops>div:first-child{border-left:0}
+.ops b{font-size:1.25rem;font-weight:900;font-feature-settings:"tnum";line-height:1.2}
+.ops b small{font-size:.8125rem;font-weight:800;color:var(--ink-muted);margin-left:2px}
+.ops span{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+@container sheet (max-width: 35rem){.ops{grid-template-columns:repeat(2,minmax(0,1fr))}.ops>div:nth-child(3){border-left:0}.ops>div:nth-child(n+3){border-top:1px solid var(--border)}}
+.plan{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:var(--r-md);background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border)}
+.plan .pl{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-weight:800}
+.plan .pl .textbtn{margin-left:auto}
+.meters{display:flex;flex-wrap:wrap;gap:8px 20px}
+.um{display:inline-flex;align-items:center;gap:8px;font-size:.8125rem;font-weight:700;color:var(--ink-muted);font-feature-settings:"tnum"}
+.um b{color:var(--ink);font-weight:900}
+.um i{display:block;width:56px;height:4px;border-radius:2px;background:var(--track);overflow:hidden}
+.um i span{display:block;height:100%;border-radius:2px;background:var(--ink)}
+.um.full i span{background:var(--warning)}
+.sends{list-style:none;display:flex;flex-direction:column}
+.sends li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:10px 0;border-bottom:1px solid var(--hair);font-size:.875rem;font-weight:800;font-feature-settings:"tnum"}
+.sends li:last-child{border-bottom:0}
+.sends li .m{color:var(--ink-muted);font-weight:700}
+.sends li.old{color:var(--ink-muted)}
+.sends li .chip{margin-left:auto}
+.sends li.fresh{animation:fresh 1.6s var(--out)}
+@keyframes fresh{0%,40%{background:var(--act-tint)}}
+
+.nextc{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:20px 20px 18px;display:flex;flex-direction:column;gap:12px}
+.nextc h2{font-size:1.125rem;font-weight:900;line-height:1.35;text-wrap:balance}
+.nextc .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.nextc .btn{width:100%}
+.nextc .reason{margin-top:-4px}
+.nextc .done{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:var(--r-md);background:var(--success-bg);color:var(--success);font-weight:800;font-size:.9375rem}
+.nextc .done .r1{display:flex;align-items:center;gap:8px}
+.nextc .done .textbtn{align-self:flex-start;background:var(--surface);color:var(--ink)}
+.nextc .dz{display:flex;flex-direction:column;gap:6px;padding-top:12px;margin-top:2px;border-top:1px solid var(--hair)}
+.nextc .dz .hint{font-size:.8125rem}
+.textbtn.dgr{background:transparent;color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.textbtn.dgr:hover{background:var(--danger-tint)}
+.textbtn.quiet2{background:transparent;box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.textbtn.quiet2:hover{background:var(--sunk)}
+.nextc .ok{display:inline-flex;align-items:center;gap:6px;font-weight:800;color:var(--success)}
+.nextc .noneed{display:flex;align-items:center;gap:8px;font-size:.875rem;font-weight:800;color:var(--success)}
+/* 恢復營業 reads the shop's bill from 付款管理 first */
+.paid{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:800;line-height:1.5}
+.paid .r1{display:flex;gap:8px;align-items:flex-start}
+.paid .r1 .ico{margin-top:1px}
+.paid.ok{background:var(--success-bg);color:var(--success)}
+.paid.due{background:var(--warning-bg);color:var(--warning)}
+.paid.none{background:var(--neutral-bg);color:var(--neutral)}
+.paid .textbtn{align-self:flex-start;background:var(--surface);color:var(--ink)}
+.paid .textbtn:hover{background:var(--sunk)}
+.nextc .alt{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+
+.trl{list-style:none;display:flex;flex-direction:column}
+.trl li{display:grid;grid-template-columns:5.25rem minmax(0,1fr);gap:10px;padding:9px 0;border-bottom:1px solid var(--hair);font-size:.8125rem;font-weight:700;line-height:1.45}
+.trl li:last-child{border-bottom:0}
+.trl .t{color:var(--ink-muted);font-feature-settings:"tnum"}
+.trl li.fresh{animation:fresh 1.6s var(--out);border-radius:8px}
+
+/* ---------- dialogs ---------- */
+.dialog.wide{width:min(640px,100%)}
+.frow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width: 600px){.frow{grid-template-columns:minmax(0,1fr)}}
+.field .opt-l{font-weight:700;color:var(--ink-muted);font-size:.8125rem;margin-left:4px}
+.field .req{font-weight:800;color:var(--ink);font-size:.8125rem;margin-left:4px}
+.plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.plans .opt{align-items:flex-start;text-align:left;padding:12px 14px;gap:2px}
+.imp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width: 600px){.imp{grid-template-columns:minmax(0,1fr)}}
+.imp>div{padding:12px 14px;border-radius:var(--r-md);display:flex;flex-direction:column;gap:6px}
+.imp h3{font-size:.875rem;font-weight:900;display:flex;align-items:center;gap:6px}
+.imp ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.imp li{font-size:.8125rem;font-weight:700;line-height:1.45;color:var(--ink);padding-left:12px;position:relative}
+.imp li::before{content:"";position:absolute;left:0;top:.6em;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.6}
+.imp .keep{background:var(--success-bg)}
+.imp .keep h3{color:var(--success)}
+.imp .block{background:var(--danger-bg)}
+.imp .block h3{color:var(--danger)}
+.typed input{letter-spacing:.02em}
+.typed .ok{display:inline-flex;align-items:center;gap:4px;font-size:.8125rem;font-weight:800;color:var(--success)}
+
+/* lanes stay at least ~15rem wide: four lanes need about 66rem, two need about 34rem (rem, so 200% text folds the board too) */
+@container main (max-width: 66rem){.board{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px}.stage:nth-child(2)::after{display:none}.stage.sus::before{display:none}}
+@container main (max-width: 34rem){.board{grid-template-columns:minmax(0,1fr)}.stage::after{display:none}.stage{min-height:0}.sum .srch{margin-left:0;width:100%}}
+.sitem .n.warn{background:var(--warning-bg);color:var(--warning)}
+.sitem[aria-current="page"] .n.warn{background:var(--warning-bg);color:var(--warning)}
+#app.rail .sitem .n.warn{background:var(--warning-bg);color:var(--warning)}
+@media (max-width: 719px){.ibar{padding:0 16px}.ibar .ws{display:none}.ibar .r{white-space:nowrap}}
+.toast .textbtn{background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor;min-height:36px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}.scard.arrived::after{animation-duration:2.2s !important}.sends li.fresh,.trl li.fresh{animation-duration:1.6s !important}}
+/* touch: DESIGN.md touch-target is 44px; mouse density stays as drawn */
+@media (pointer: coarse){.who .lnk,.srch input{min-height:44px !important}}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>商家管理・原型</b><span class="muted">商家、人名與數字全為虛構示範・今天 10/9（五）11:20</span>
+  <label>身分 <select id="p-role"><option value="super">冠宇・最高管理者</option><option value="support">小雯・客服</option><option value="finance">美玲・財務</option><option value="data">思妤・資料</option></select></label>
+  <label>跳到 <select id="p-go"><option value="">選擇情境</option><option value="board">看板</option><option value="mm">喵喵・邀請過期</option><option value="hg">好狗運・邀請中</option><option value="wx">汪星人旅館・設定卡關</option><option value="cc">柴柴・設定中</option><option value="af">阿福・試用快到期</option><option value="sl">毛孩森林・試用已延長</option><option value="mhr">毛孩日和・付費</option><option value="sched">毛孩日和・排定停權</option><option value="tp">咕嚕貓・試用結束暫停新預約</option><option value="xs">小森・停權中（未補繳）</option><option value="xspaid">小森・已補繳</option><option value="new">新增商家</option><option value="newdup">新增・統編與 Email 重複</option></select></label>
+  <label>下一次送出 <select id="p-send"><option value="ok">正常</option><option value="fail">連線中斷</option></select></label>
+  <label><input type="checkbox" id="p-fail"> 看板載入失敗</label>
+  <button class="pbtn" id="p-paym" data-key="p-paym">模擬：店家補上付款方式</button>
+  <label>字級 <select id="p-scale"><option value="1">100%</option><option value="2">200%</option></select></label>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <span class="tagp">原型</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+const I = {
+  inbox:'<path d="M4 13h4l1.5 2.5h5L16 13h4"/><path d="M5.5 5h13L20 13v6H4v-6l1.5-8Z"/>',
+  coins:'<ellipse cx="9" cy="7" rx="5" ry="2.5"/><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7"/><path d="M10 15.4c.9 1.3 3 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  dash:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 19c1-3.5 3.4-5 6-5s5 1.5 6 5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.3c1.7.7 2.9 2.2 3.5 4.7"/>',
+  scis:'<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17M8.6 15.6 20 7"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  doc:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  team:'<circle cx="10" cy="8" r="4"/><path d="M3 20c1.4-3.5 4-5 7-5 1.5 0 2.9.4 4 1.1M18 14v6M15 17h6"/>',
+  plan:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  fwd:'<path d="m10 6 6 6-6 6"/>',
+  up:'<path d="m6 14 6-6 6 6"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  paw:'<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  unlock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',
+  ban:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4V5Z"/>',
+  receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  stamp:'<path d="M9 4h6l-1 7h-4L9 4Z"/><path d="M5 15h14v3H5zM7 21h10"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  erase:'<path d="M8 20h12M4.5 15.5 14 6l5 5-7.5 7.5H8.5l-4-3Z"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/>',
+  swap:'<path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/>',
+  otp:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  layers:'<path d="m12 4 9 5-9 5-9-5 9-5Z"/><path d="m3 14 9 5 9-5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>'
+};
+Object.assign(I, {
+  store:'<path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8h13v-8M10 20v-5h4v5"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  tag:'<path d="M3.5 12.5V4h8.5l8.5 8.5-8.5 8.5-8.5-8.5Z"/><circle cx="8" cy="8.5" r="1.5"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  qr:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
+  play:'<circle cx="12" cy="12" r="8.5"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'
+});
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+Object.assign(I, {
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  dots:'<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+  board:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16M9 9v11"/>',
+  release:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M9 15h6" stroke-dasharray="2 2"/>'
+});
+Object.assign(I, {
+  print:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/>',
+  trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  tablet:'<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M11 18h2"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8M16 7l3 3M14 9l2 2"/>',
+  scale:'<path d="M12 4v16M7 20h10M5 8h14"/><path d="m5 8-3 6a3 3 0 0 0 6 0L5 8ZM19 8l-3 6a3 3 0 0 0 6 0l-3-6Z"/>',
+  home:'<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>'
+});
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  cage:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M8.5 5v15M12 5v15M15.5 5v15M4 12.5h16"/>',
+  pause:'<circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/>',
+  wrench:'<path d="M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5 2.5-2.5Z"/>',
+  move:'<path d="M4 12h16M15 7l5 5-5 5"/><path d="M4 6v12" stroke-dasharray="2 2"/>'
+});
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* a person's initial: skip the 阿 / 小 prefix so 阿凱 and 阿楷 stay apart (user decision 2026-10-11); pets keep their first character */
+const initialOf = n => /^[阿小]./.test(n) ? n[1] : n[0];
+const $ = id => document.getElementById(id);
+const qs = new URLSearchParams(location.search);
+/* 毛孩日和開張 (prototypes/open-day): ?life=open-new is the morning 冠宇 adds 毛孩日和, so the board does not have it yet; creating a
+   shop posts the act's key action to the director page */
+/* 毛孩日和被停權到恢復 (prototypes/suspend): 毛孩日和 is on 專業方案 since 10/9; its 11 月月費 NT$4,179 failed on 11/1, and 美玲 (付款管理)
+   handed it over at 09:30 on day 15. ?life=sus-stop is 11/16（一）10:12: suspending it (立即) posts 'suspended'. ?life=sus-restore is
+   11/17（二）14:05: suspended since 11/16 10:12, 陳老闆 paid at 12:14, and restoring it posts 'restored'. The other shops are the 10/9 demo
+   data, so only 毛孩日和's page moves to November. Without ?life= nothing changes. */
+const LIFE = (v => ['open-new', 'sus-stop', 'sus-restore'].includes(v) ? v : null)(qs.get('life'));
+const SUSA = LIFE === 'sus-stop' || LIFE === 'sus-restore';
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+const clone = o => JSON.parse(JSON.stringify(o));
+const chip = (tone, t) => `<span class="chip ${tone}">${t}</span>`;
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  logout:'<path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4M18 12H9"/>',
+  line:'<path d="M12 4.5c-5 0-9 3.2-9 7.2 0 3.6 3.2 6.5 7.5 7.1l-.4 2.2 3.3-2.2c4.4-.6 7.6-3.5 7.6-7.1 0-4-4-7.2-9-7.2Z"/>',
+  mail:'<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/>',
+  send:'<path d="M20 4 3 11l7 2.5L12.5 20 20 4Z"/><path d="m10 13.5 4.5-4.5"/>',
+  revoke:'<path d="M5 5h9l5 5v9H5z" stroke-dasharray="3 2.5"/><path d="m9 11 6 6M15 11l-6 6"/>',
+  seat:'<path d="M7 11V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v5"/><path d="M5 11h14v4H5zM7 15v5M17 15v5"/>'
+});
+Object.assign(I, {
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  sms:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 8h4M10 11h4M11 18h2"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  wall:'<path d="M5 4v16M19 4v16M5 9h14M5 15h14M12 4v5M9 9v6M15 9v6M12 15v5"/>',
+  hq:'<path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-5h6v5M9 11h.01M15 11h.01"/>'
+});
+Object.assign(I, {calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/>'});
+Object.assign(I, {
+  headset:'<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="13" width="4" height="6" rx="1.5"/><rect x="16.5" y="13" width="4" height="6" rx="1.5"/><path d="M18.5 19c0 1.4-1.6 2-4 2h-2"/>',
+  chart:'<path d="M4 20h16"/><path d="M7 16v-4M12 16V7M17 16v-6"/>',
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  hourglass:'<path d="M7 4h10M7 20h10M8 4c0 4 8 4 8 8s-8 4-8 8M16 4c0 4-8 4-8 8"/>',
+  out:'<path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4M18 12H9"/>',
+  trail:'<path d="M6 5h12M6 10h12M6 15h7"/><circle cx="17.5" cy="17.5" r="2.5"/>'
+});
+
+
+
+/* ---------- the demo day ---------- */
+const FAST = qs.get('fast') === '1';
+const T0 = LIFE === 'sus-stop' ? 10 * 60 + 12 : LIFE === 'sus-restore' ? 14 * 60 + 5 : 11 * 60 + 20;            /* 10/9（五）11:20 */
+const p2 = n => String(n).padStart(2, '0');
+const clk = m => `${p2(Math.floor(m / 60))}:${p2(m % 60)}`;
+const fmt = n => n.toLocaleString('en-US');
+const TODAY = LIFE === 'sus-stop' ? '11/16（一）' : LIFE === 'sus-restore' ? '11/17（二）' : '10/9（五）';
+const LOGD = TODAY.replace(/（.）/, '');
+const NEXT_CHARGE = SUSA ? '12/1' : '11/1';
+const DAY0 = new Date(2026, 9, 9);
+const WK = '日一二三四五六';
+const D = s => { const [m, d] = s.split('/').map(Number); return new Date(2026, m - 1, d); };
+const md = x => `${x.getMonth() + 1}/${x.getDate()}`;
+const addDays = (s, n) => { const x = D(s); x.setDate(x.getDate() + n); return md(x); };
+const since = s => Math.round((DAY0 - D(s)) / 864e5);
+const until = s => Math.round((D(s) - DAY0) / 864e5);
+const dw = s => `${s}（${WK[D(s).getDay()]}）`;
+const mask = e => e.replace(/^(.)[^@]*/, '$1•••');
+const maskPh = p => p.replace(/^(\d{4})-\d{3}-/, '$1-•••-');
+const pill = t => `<span class="masked">${ic('lock')}${esc(t)}</span>`;
+
+/* ---------- people and modules ---------- */
+const ME = {super:['冠宇', '最高管理者'], support:['小雯', '客服'], finance:['美玲', '財務'], data:['思妤', '資料']};
+const CAN = r => r === 'super';
+const MODS = [
+  ['商家', [['tenants', '商家管理', 'store', ['super']], ['plans', '方案管理', 'plan', ['super', 'finance', 'support']], ['pay', '付款管理', 'card', ['super', 'finance']]]],
+  ['支援', [['support', '客服支援', 'headset', ['support', 'super']], ['notif', 'LINE／通知管理', 'bell', ['support', 'super']]]],
+  ['合規', [['tpl', '契約模板庫', 'doc', ['super', 'compliance', 'support']], ['audit', '稽核中心', 'shield', ['super', 'compliance']]]],
+  ['營運', [['gw', '金流設定', 'coins', ['super', 'finance']], ['usage', '用量監控', 'gauge', ['super', 'finance', 'support']], ['data', '產業數據', 'chart', ['super', 'data']]]],
+  ['系統', [['sys', '系統設定', 'wrench', ['super']]]]
+];
+/* the icon rail's short names */
+const SHORT = {tenants:'商家', plans:'方案', pay:'付款', support:'客服', notif:'通知', tpl:'契約', audit:'稽核', gw:'金流', usage:'用量', data:'數據', sys:'系統'};
+
+/* ---------- the shop's own setup: the 13 items of M-01's wizard ---------- */
+const GROUPS = [['shop', '店家資料'], ['svc', '服務與價格'], ['rule', '契約與規則'], ['open', '開放預約']];
+const ITEMS = [
+  {k:'branch', g:'shop', n:'分店', icon:'store'}, {k:'hours', g:'shop', n:'營業時間', icon:'clock'}, {k:'closed', g:'shop', n:'公休', icon:'calx'},
+  {k:'service', g:'svc', n:'服務', icon:'list'}, {k:'price', g:'svc', n:'價格', icon:'tag'}, {k:'res', g:'svc', n:'資源', icon:'layers'}, {k:'stay', g:'svc', n:'住宿計價', icon:'moon', boarding:true},
+  {k:'consent', g:'rule', n:'同意書', icon:'doc'}, {k:'tpl', g:'rule', n:'契約模板', icon:'stamp'}, {k:'policy', g:'rule', n:'取消政策', icon:'cxl'},
+  {k:'staff', g:'open', n:'邀請員工', icon:'team'}, {k:'qr', g:'open', n:'預約入口 QR', icon:'qr'}, {k:'trial', g:'open', n:'試約', icon:'play'}
+];
+const itemN = k => ITEMS.find(i => i.k === k).n;
+
+/* ---------- plans (方案與用量 values, read-only here) ---------- */
+const PLANS = {basic:{n:'基本方案', fee:1980, line:5000, sms:500, seat:10, br:2}, pro:{n:'專業方案', fee:3980, line:15000, sms:1500, seat:20, br:3}};
+const TRIAL = 14, VALID = 7, STUCK = {inv:3, setup:7, trial:3};
+
+/* ---------- the four stages: one road, left to right ---------- */
+const STAGES = [
+  ['inv', '邀請中', '等首位管理者接受邀請', 'mail'],
+  ['setup', '設定中', '店家自己走完開店設定', 'list'],
+  ['live', '營業中', '已正式啟用，接受預約', 'store'],
+  ['sus', '停權', '只擋新交易，收尾照常', 'ban']
+];
+const STAGE_CHIP = {inv:['neutral', '邀請中'], setup:['info', '設定中'], live:['success', '營業中'], sus:['danger', '已停權']};
+
+/* ---------- shops (fictional; the five of 客服支援 keep their facts) ---------- */
+const SHOPS0 = [
+  {id:'mm', n:'喵喵寵物沙龍', city:'台南', tax:'52280299', who:'鄭小姐', ph:'0921-553-321', em:'zheng@meowsalon.tw', boarding:false, plan:'basic', br:[], stage:'inv',
+    created:'10/1', sends:[{at:'10/1', t:'10:12'}]},
+  {id:'hg', n:'好狗運寵物美容', city:'宜蘭', tax:'52391165', who:'江先生', ph:'0935-118-604', em:'chiang@luckydog.tw', boarding:false, plan:'basic', br:[], stage:'inv',
+    created:'10/8', sends:[{at:'10/8', t:'15:30'}]},
+  {id:'wx', n:'汪星人旅館', city:'桃園', tax:'52430760', who:'何店長', ph:'0918-402-775', em:'ho@woofstar.tw', boarding:true, plan:'basic', br:['中壢店'], stage:'setup',
+    created:'9/12', sends:[{at:'9/12', t:'14:05'}], accepted:'9/13',
+    done:{branch:'9/13', hours:'9/14', closed:'9/14', service:'9/16', price:'9/18', res:'9/20', stay:'9/22', consent:'9/25'}, cur:'tpl', curSince:'9/30', last:'9/30'},
+  {id:'cc', n:'柴柴美容室', city:'嘉義', tax:'52446598', who:'蔡小姐', ph:'0952-670-118', em:'tsai@shibaroom.tw', boarding:false, plan:'basic', br:['嘉義店'], stage:'setup',
+    created:'10/5', sends:[{at:'10/5', t:'11:40'}], accepted:'10/6',
+    done:{branch:'10/6', hours:'10/6', closed:'10/7', service:'10/7', price:'10/8'}, cur:'res', curSince:'10/8', last:'10/8'},
+  {id:'xq', n:'小確幸寵物', city:'台北', tax:'52454517', who:'許小姐', ph:'0910-284-336', em:'hsu@xqpet.tw', boarding:true, plan:'pro', br:['士林店', '內湖店'], stage:'setup',
+    created:'9/27', sends:[{at:'9/27', t:'16:20'}], accepted:'9/28',
+    done:{branch:'9/28', hours:'9/29', closed:'9/29', service:'9/30', price:'10/1', res:'10/1', stay:'10/2', consent:'10/3', tpl:'10/4', policy:'10/5', staff:'10/6'}, cur:'qr', curSince:'10/6', last:'10/6'},
+  {id:'af', n:'阿福寵物美容', city:'台北', tax:'52462436', who:'周先生', ph:'0987-221-590', em:'chou@afupet.tw', boarding:false, plan:'basic', br:['大安店'], stage:'live',
+    created:'9/24', sends:[{at:'9/24', t:'10:30'}], accepted:'9/25', activated:'9/27', pay:'trial', trialEnd:'10/11', payMethod:false,
+    ops:{today:2, inShop:1, stay:0, future:6}, use:{line:64, sms:9, seat:2, br:1}},
+  {id:'sl', n:'毛孩森林', city:'高雄', tax:'71290035', who:'黃小姐', ph:'0930-772-145', em:'huang@furforest.tw', boarding:true, plan:'basic', br:['高雄店'], stage:'live',
+    created:'9/15', sends:[{at:'9/15', t:'09:50'}], accepted:'9/16', activated:'9/26', pay:'trial', trialEnd:'10/24', ext:{from:'10/10', by:'美玲', at:'10/6'}, payMethod:false,
+    ops:{today:3, inShop:1, stay:0, future:9}, use:{line:95, sms:22, seat:3, br:1}},
+  {id:'mhr', n:'毛孩日和', city:'台北', tax:'24536806', who:'陳老闆', ph:'0912-000-100', em:'chen@mohairi.tw', boarding:true, plan:'basic', br:['中山店', '信義店'], stage:'live',
+    created:'6/15', sends:[{at:'6/15', t:'13:00'}], accepted:'6/16', activated:'7/1', pay:'paid', paid:'7/1', payMethod:true,
+    ops:{today:12, inShop:4, stay:2, future:38}, use:{line:1180, sms:186, seat:9, br:2}},
+  {id:'ww', n:'汪汪俱樂部', city:'台中', tax:'66107752', who:'張店長', ph:'0928-660-412', em:'chang@wangwang.tw', boarding:true, plan:'pro', br:['台中店', '逢甲店', '南屯店'], stage:'live',
+    created:'6/2', sends:[{at:'6/2', t:'10:00'}], accepted:'6/3', activated:'6/20', pay:'paid', paid:'7/4', payMethod:true,
+    ops:{today:20, inShop:7, stay:5, future:66}, use:{line:2460, sms:612, seat:14, br:3}},
+  {id:'yy', n:'悠悠寵物旅館', city:'新竹', tax:'30518846', who:'吳先生', ph:'0919-835-207', em:'wu@yoyohotel.tw', boarding:true, plan:'basic', br:['新竹店'], stage:'live',
+    created:'8/20', sends:[{at:'8/20', t:'15:15'}], accepted:'8/21', activated:'9/1', pay:'paid', paid:'9/15', payMethod:true,
+    ops:{today:4, inShop:2, stay:11, future:25}, use:{line:640, sms:58, seat:6, br:1}},
+  {id:'rq', n:'肉球小舖', city:'屏東', tax:'52486193', who:'李小姐', ph:'0966-104-883', em:'lee@pawshop.tw', boarding:false, plan:'basic', br:['屏東店'], stage:'live',
+    created:'8/30', sends:[{at:'8/30', t:'11:05'}], accepted:'8/31', activated:'9/8', pay:'paid', paid:'9/22', payMethod:true,
+    ops:{today:5, inShop:2, stay:0, future:14}, use:{line:210, sms:31, seat:4, br:1}},
+  {id:'xs', n:'小森寵物美容', city:'新北', tax:'88412093', who:'林小姐', ph:'0975-390-226', em:'lin@komori.tw', boarding:true, plan:'basic', br:['板橋店'], stage:'sus',
+    created:'7/1', sends:[{at:'7/1', t:'10:20'}], accepted:'7/2', activated:'7/20', pay:'paid', paid:'8/3', payMethod:true,
+    sus:{at:'10/3', t:'09:00', why:'月費連續兩期未付', by:'冠宇'}, due:{what:'9 月、10 月月費', amt:4158},
+    ops:{today:0, inShop:0, stay:1, future:3, stayOut:'10/11'}, use:{line:310, sms:41, seat:5, br:1}}
+];
+/* the 跳到「試用結束暫停新預約」 scenario only: a 13th shop whose trial ended on 10/7 without a payment method. Decision 2026-10-18: new
+   bookings pause on their own, with the same boundary as a suspension, and come back by themselves once the shop adds a payment method,
+   so it stays in 營業中 (stuck, on top) rather than in 停權, which only 寵派 can lift */
+const TP_SHOP = {id:'tp', n:'咕嚕貓寵物美容', city:'台中', tax:'52610014', who:'方小姐', ph:'0958-317-260', em:'fang@purrcat.tw', boarding:false, plan:'basic', br:['西屯店'], stage:'live',
+  created:'9/18', sends:[{at:'9/18', t:'14:40'}], accepted:'9/19', activated:'9/23', pay:'trial', trialEnd:'10/7', payMethod:false,
+  ops:{today:1, inShop:1, stay:0, future:4}, use:{line:72, sms:11, seat:2, br:1}};
+function trail0(s) {
+  const t = [], last = s.sends[s.sends.length - 1];
+  t.push({t:`${s.created} ${s.sends[0].t}`, a:`冠宇建立商家，寄出邀請給${s.who}`});
+  if (s.stage === 'inv' && since(last.at) >= VALID) t.push({t:`${addDays(last.at, VALID)} ${last.t}`, a:'系統：邀請連結過期'});
+  if (s.accepted) t.push({t:`${s.accepted} 09:41`, a:`${s.who}接受邀請，成為店家管理者`});
+  if (s.stage === 'setup') {
+    const ds = Object.entries(s.done), [k, at] = ds[ds.length - 1];
+    t.push({t:`${at} 18:12`, a:`店家完成「${itemN(k)}」（${ds.length}／${ITEMS.filter(i => !i.boarding || s.boarding).length} 項）`});
+    if (s.curSince !== at) t.push({t:`${s.curSince} 16:30`, a:`店家開始填「${itemN(s.cur)}」，還沒有發布`});
+    if (since(s.last) >= STUCK.setup) t.push({t:`${addDays(s.last, STUCK.setup)} 09:00`, a:`系統：開店設定 ${STUCK.setup} 天沒有進度，標為卡關`});
+  }
+  if (s.activated) t.push({t:`${s.activated} 10:05`, a:`店家按下正式啟用，試用 ${TRIAL} 天到 ${addDays(s.activated, TRIAL)}`});
+  if (s.ext) t.push({t:`${s.ext.at} 14:20`, a:`${s.ext.by}在方案管理延長試用：${s.ext.from} → ${s.trialEnd}`});
+  if (s.pay === 'trial' && !s.payMethod && until(s.trialEnd) <= STUCK.trial) t.push({t:`${addDays(s.trialEnd, -STUCK.trial)} 09:00`, a:'系統：試用剩 3 天且沒有付款方式，標為卡關'});
+  if (paused(s)) t.push({t:`${addDays(s.trialEnd, 1)} 00:00`, a:`系統：試用 ${s.trialEnd} 結束，沒有付款方式，暫停新預約・在店的寵物、住宿退房和查詢照常；店家補上付款方式就自動恢復`});
+  if (s.paid) t.push({t:`${s.paid} 00:00`, a:`試用結束，轉為付費・${PLANS[s.plan0 || s.plan].n}`});
+  if (s.plan0) t.push({t:'10/9 16:45', a:`方案管理：${PLANS[s.plan0].n} → ${PLANS[s.plan].n}（補差額付款成功，立即生效）`});
+  if (s.trailTail) t.push(s.trailTail);
+  if (s.sus) t.push({t:`${s.sus.at} ${s.sus.t}`, a:`${s.sus.by}停權・${s.sus.why}・立即生效`});
+  return t.reverse();
+}
+
+/* ---------- state ---------- */
+const INIT = {role:'super', page:'board', shop:null, q:'', dlg:null, m:T0, nextSend:'ok', loadFail:false, busy:null, err:null, caseN:1052};
+const fresh = () => { const s = clone(INIT); s.shops = clone(SHOPS0).filter(x => !(LIFE === 'open-new' && x.id === 'mhr'));
+  if (SUSA) susSeed(s.shops.find(x => x.id === 'mhr'));
+  s.shops.forEach(x => { x.trail = trail0(x); if (x.trailAdd) { x.trail.unshift(...x.trailAdd); delete x.trailAdd; } }); return s; };
+/* 毛孩日和 on the two days of prototypes/suspend */
+function susSeed(m) {
+  Object.assign(m, {plan:'pro', plan0:'basic'});
+  const flag = {t:'11/16 09:30', a:'美玲（付款管理）通知：11 月月費 NT$4,179 第 15 天仍未付，建議停權'};
+  m.due = {what:'11 月月費', amt:4179};
+  if (LIFE === 'sus-stop') { m.flag = '11 月月費 NT$4,179 在 11/1 扣款失敗，三次重試和 11/8 的補款連結都沒有付，今天第 15 天。停權只擋新增服務；在店的寵物、住宿退房和既有預約照常。'; m.trailAdd = [flag]; return; }
+  m.due.paid = {at:'11/17', t:'12:14', card:'MASTERCARD •••• 8810'};
+  Object.assign(m, {stage:'sus', sus:{at:'11/16', t:'10:12', why:'月費未付：11 月月費扣款失敗，補款連結到期未付', by:'冠宇'}, ops:{today:11, inShop:3, stay:2, future:37}});
+  m.trailAdd = [{t:'11/17 12:15', a:'付款管理：毛孩日和補繳 11 月月費 NT$4,179 入帳（MASTERCARD •••• 8810），恢復營業要在商家管理按'}];
+  m.trailTail = flag;
+}
+let state = fresh();
+const shopOf = id => state.shops.find(s => s.id === id);
+const can = () => CAN(state.role);
+const me = () => ME[state.role][0];
+
+/* ---------- derived ---------- */
+const itemsOf = s => ITEMS.filter(i => !i.boarding || s.boarding);
+const doneN = s => s.stage === 'live' || s.stage === 'sus' ? itemsOf(s).length : s.stage === 'inv' ? 0 : Object.keys(s.done).length;
+const lastSend = s => s.sends[s.sends.length - 1];
+const expOf = s => addDays(lastSend(s).at, VALID);
+const expired = s => s.stage === 'inv' && since(lastSend(s).at) >= VALID;
+/* d is what the card says (days waiting, or days of trial left); u is how urgent: higher first. A trial is more urgent the fewer days are
+   left, and a trial that already ended (new bookings paused) comes before one still running */
+function stuckOf(s) {
+  if (s.stage === 'inv') { const d = since(lastSend(s).at); if (d > STUCK.inv) return {d, u:d, w:expired(s) ? `邀請已過期・${d} 天沒有接受` : `${d} 天沒有接受邀請`}; }
+  if (s.stage === 'setup') { const d = since(s.last); if (d >= STUCK.setup) return {d, u:d, w:`停在「${itemN(s.cur)}」${d} 天`}; }
+  if (s.stage === 'live' && s.pay === 'trial' && !s.payMethod) { const l = until(s.trialEnd); if (l <= STUCK.trial) return {d:l, u:-l, w:l < 0 ? '試用結束・暫停新預約' : `試用剩 ${l} 天・沒有付款方式`}; }
+  return null;
+}
+/* the trial ended without a payment method: new bookings pause by themselves (decision 2026-10-18), same boundary as a suspension */
+function paused(s) { return s.stage === 'live' && s.pay === 'trial' && !s.payMethod && until(s.trialEnd) < 0; }
+const pauseFrom = s => addDays(s.trialEnd, 1);
+const stuckList = () => state.shops.filter(stuckOf);
+const inStage = k => state.shops.filter(s => s.stage === k).sort((a, b) => (!!stuckOf(b) - !!stuckOf(a)) || ((stuckOf(b)?.u || 0) - (stuckOf(a)?.u || 0)));
+const matches = s => { const q = state.q.trim(); return !q || s.n.includes(q) || s.tax.includes(q) || (s.city || '').includes(q); };
+
+/* ---------- shell ---------- */
+function sideNav() {
+  const [w, r] = ME[state.role], n = can() ? stuckList().length : 0;
+  const groups = MODS.map(([g, list]) => {
+    const vis = list.filter(m => m[3].includes(state.role));
+    if (!vis.length) return '';
+    return `<div class="sgrp" aria-hidden="true">${g}</div>${vis.map(([k, l, icon]) =>
+      `<button class="sitem" data-key="nav-${k}" data-do="nav" data-page="${k}" title="${l}" ${k === 'tenants' ? 'aria-current="page"' : ''}>${ic(icon)}<span class="lf">${l}</span>${SHORT[k] ? `<span class="ls" aria-hidden="true">${SHORT[k]}</span>` : ''}${k === 'tenants' && n ? `<span class="n warn" aria-label="${n} 家卡關">${n}</span>` : ''}</button>`).join('')}`;
+  }).join('');
+  return `<nav class="side" aria-label="寵派後台選單"><div class="brand"><span class="mark" aria-hidden="true">${ic('mark')}</span><span><b>寵派管理後台</b></span></div><div class="snav">${groups}</div>
+    <div class="me"><span class="av" aria-hidden="true">${initialOf(w)}</span><span><b>${w}</b><small>${r}</small></span></div></nav>`;
+}
+const ibar = () => `<section class="ibar" aria-label="寵派內部提示"><span class="in">${ic('shield', 'sm')}寵派內部</span><span class="ws">只給寵派員工使用・建立、重發邀請、停權與恢復營業都會留下紀錄</span><span class="r">${TODAY} ${clk(state.m)}</span></section>`;
+const whoami = () => { const [w, r] = ME[state.role]; return `<span class="whoami"><span class="av" aria-hidden="true">${initialOf(w)}</span>${w}・${r}</span>`; };
+
+/* ---------- the setup ring (M-01's, read-only) ---------- */
+function ring(s, size) {
+  const its = itemsOf(s), N = its.length, G = new Set(its.map(i => i.g)).size, dn = doneN(s), st = stuckOf(s), big = size >= 80;
+  const gi = big ? 30 : 22, gg = big ? 70 : 70, seg = (1000 - (N - G) * gi - G * gg) / N;
+  let pos = gg / 2;
+  const segs = its.map((it, i) => {
+    if (i > 0) pos += it.g === its[i - 1].g ? gi : gg;
+    const cls = s.stage !== 'setup' ? (s.stage === 'inv' ? '' : 'done') : s.done[it.k] ? 'done' : it.k === s.cur ? (st ? 'stuck' : 'cur') : '';
+    const c = `<circle cx="50" cy="50" r="46" pathLength="1000" class="${cls}" stroke-dasharray="${seg.toFixed(2)} 1000" stroke-dashoffset="${(-pos).toFixed(2)}" style="--dash:${seg.toFixed(2)}"/>`;
+    pos += seg; return c;
+  }).join('');
+  /* progress is always "N 項" so 8/13 never reads as a date; on a card the ring is decoration (the card's own text says the count),
+     so the button's name starts with the shop's name */
+  const lab = `開店設定 ${N} 項完成 ${dn} 項${s.stage === 'setup' ? `，${st ? '停在' : '下一項'}「${itemN(s.cur)}」` : ''}`;
+  const role = big ? `role="img" aria-label="${lab}"` : 'aria-hidden="true"';
+  return `<span class="sring${big ? ' lg' : ' sm'}" style="--s:${size}px" ${role}><svg viewBox="0 0 100 100" aria-hidden="true">${segs}</svg><span class="ini" aria-hidden="true">${big ? `${dn}<small>／${N} 項</small>` : esc(s.n[0])}</span></span>`;
+}
+
+/* ---------- the board ---------- */
+function sumStrip() {
+  const st = stuckList(), tot = state.shops.length;
+  return `<div class="oas sum" data-key="sum" role="group" aria-label="商家總覽">
+    <span class="it">${ic('store', 'spm')}<b>${tot}</b> 家商家</span><span class="sep" aria-hidden="true"></span>
+    ${st.length ? `<span class="it warn">${ic('hourglass', 'spm')}今天卡關 <b>${st.length}</b> 家</span><span class="who">${st.map(s => `<button class="lnk" data-do="open" data-id="${s.id}" data-key="sum-${s.id}">${esc(s.n)}</button>`).join('')}</span>`
+      : `<span class="it">${ic('check', 'spm')}今天沒有卡關的店</span>`}
+    <label class="srch"><span class="sr">找商家</span>${ic('search', 'spm')}<input id="q" data-key="q" type="search" placeholder="找商家：店名、統編或城市" value="${esc(state.q)}" autocomplete="off"></label></div>`;
+}
+function cardBody(s) {
+  const st = stuckOf(s);
+  const flag = st ? `<span class="flag chip warning">卡關</span>` : '';
+  const warn = st ? `<span class="ln warn">${ic('hourglass')}<span>${st.w}</span>${flag}</span>` : '';
+  /* a stuck shop someone already opened a case for says so, so the Monday scan sees it is handled */
+  const cs = s.cs ? `<span class="ln m" data-key="cs-${s.id}">${ic('headset')}<span>已開案 ${s.cs.id}・${s.cs.d}</span></span>` : '';
+  if (s.stage === 'inv') {
+    return `<span class="top"><span class="nmb"><span class="nm">${esc(s.n)}</span></span></span><span class="meta">${esc(s.city || '剛建立')}・管理者 ${esc(s.who)}</span>
+      ${st ? warn : `<span class="ln m">${ic('mail')}${since(lastSend(s).at) === 0 ? '今天' : `${since(lastSend(s).at)} 天前`}寄出・${expOf(s)} 前有效</span>`}${cs}`;
+  }
+  if (s.stage === 'setup') {
+    return `<span class="top">${ring(s, 44)}<span class="nmb"><span class="nm">${esc(s.n)}</span><span class="meta">${esc(s.city)}・${doneN(s)}／${itemsOf(s).length} 項</span></span></span>
+      ${st ? warn : `<span class="ln m">${ic('fwd')}下一項「${itemN(s.cur)}」・最近進度 ${s.last}</span>`}${cs}`;
+  }
+  if (s.stage === 'live') {
+    const l = s.pay === 'trial' ? until(s.trialEnd) : null;
+    if (s.pay === 'paid' && !st && !s.sched) return `<span class="slimrow"><span class="nm">${esc(s.n)}</span><span class="meta">${esc(s.city)}</span><span class="brk" aria-hidden="true"></span>${chip('success', `付費・${PLANS[s.plan].n}`)}</span>`;
+    const pz = paused(s);
+    const payLn = !st ? '' : pz ? `等店家補上付款方式・${pauseFrom(s)} 起` : `沒有付款方式・${pauseFrom(s)} 起會暫停新預約`;
+    return `<span class="top"><span class="nmb"><span class="nm">${esc(s.n)}</span></span></span><span class="meta">${esc(s.city)}・${s.br.length} 家分店</span>
+      <span class="chips">${pz ? chip('warning', '試用結束・暫停新預約') : s.pay === 'trial' ? chip('info', `試用・剩 ${l} 天${s.ext ? '・已延長' : ''}`) : chip('success', `付費・${PLANS[s.plan].n}`)}${s.sched ? chip('warning', `${s.sched.d} 起停權`) : ''}</span>${st ? `<span class="ln warn">${ic('hourglass')}<span>${payLn}</span>${flag}</span>` : ''}${cs}`;
+  }
+  return `<span class="top"><span class="nmb"><span class="nm">${esc(s.n)}</span></span></span><span class="meta">${esc(s.city)}・${s.br.join('・')}</span>
+    <span class="ln dgr">${ic('ban')}${s.sus.at} 起停權・${esc(s.sus.why)}</span>
+    ${s.ops.stay || s.ops.future ? `<span class="ln m">${ic('check')}${[s.ops.stay ? `住宿中 ${s.ops.stay} 隻` : '', s.ops.future ? `既有預約 ${s.ops.future} 筆` : ''].filter(Boolean).join('・')}，收尾照常</span>` : ''}`;
+}
+function card(s) {
+  const st = stuckOf(s);
+  const slim = s.stage === 'live' && s.pay === 'paid' && !st && !s.sched;
+  const nb = h => h.replace(/(\d) (?=[隻筆天家])/g, '$1\u00a0');
+  return `<li><button class="scard${st ? ' stuck' : ''}${slim ? ' slim' : ''}" data-do="open" data-id="${s.id}" data-key="card-${s.id}" ${matches(s) ? '' : 'hidden'}>${nb(cardBody(s))}</button></li>`;
+}
+function board() {
+  if (state.loadFail) return `<div class="fail" data-key="fail"><h2>${ic('warn')}商家清單沒有載入</h2><p>網路或伺服器沒有回應。資料沒有變動，重新載入就好。</p><button class="btn quiet" data-do="retry" data-key="retry">${ic('refresh', 'sm')}重新載入</button></div>`;
+  return `${sumStrip()}<div class="board" data-key="board">${STAGES.map(([k, n, d, icon]) => {
+    const list = inStage(k), vis = list.filter(matches);
+    return `<section class="stage ${k}" data-key="lane-${k}" aria-labelledby="lh-${k}"><header><h2 id="lh-${k}">${ic(icon, 'spm')}${n}<span class="cnt">${list.length}</span></h2><p>${d}</p></header>
+      <ul class="list">${list.map(card).join('')}</ul>
+      ${!list.length ? `<p class="none">目前沒有${n === '停權' ? '停權的店' : `${n}的店`}</p>` : !vis.length ? `<p class="none" data-key="nomatch-${k}">沒有符合「${esc(state.q)}」的店</p>` : ''}</section>`;
+  }).join('')}</div>`;
+}
+
+/* ---------- a shop page ---------- */
+function stops(s) {
+  const N = itemsOf(s).length, dn = doneN(s), st = stuckOf(s), ls = lastSend(s), out = [];
+  const resent = s.sends.length - 1;
+  out.push({st:'d', n:'建立・寄邀請', t:resent ? `${ls.at} ${ls.t}` : s.created, s:resent ? `重發 ${resent} 次・寄給${s.who}` : `寄給${s.who}`});
+  if (s.stage === 'inv') out.push(expired(s) ? {st:'x', tone:'warning', icon:'hourglass', n:'接受邀請', b:'邀請已過期', s:`${expOf(s)} 過期・${s.who}沒有接受`}
+    : {st:st ? 'x' : 'w', tone:'warning', icon:'hourglass', n:'接受邀請', b:st ? `${st.d} 天沒有接受` : `等${s.who}接受`, s:`${expOf(s)} 前有效`});
+  else out.push({st:'d', n:'接受邀請', t:s.accepted, s:`${s.who}成為管理者`});
+  if (s.stage === 'inv') out.push({st:'p', n:'開店設定', s:`${N} 項，還沒開始`});
+  else if (s.stage === 'setup') out.push(st ? {st:'x', tone:'warning', icon:'hourglass', n:'開店設定', b:`停在「${itemN(s.cur)}」`, s:`${dn}／${N} 項・${st.d} 天沒有進度`}
+    : {st:'w', n:'開店設定', b:`${dn}／${N} 項`, s:`下一項「${itemN(s.cur)}」`});
+  else out.push({st:'d', n:'開店設定', t:s.activated, s:`已完成 ${N} 項`});
+  if (s.stage === 'inv' || s.stage === 'setup') out.push({st:'p', n:'正式啟用', s:'由店家自己按'});
+  else out.push({st:'d', n:'正式啟用', t:s.activated, s:`試用 ${TRIAL} 天`});
+  if (s.stage === 'inv' || s.stage === 'setup') out.push({st:'p', n:'轉付費', s:`${PLANS[s.plan].n}`});
+  else if (paused(s)) out.push({st:'x', tone:'warning', icon:'pause', n:'轉付費', b:'試用結束・暫停新預約', s:`${pauseFrom(s)} 起・等店家補上付款方式`});
+  else if (s.pay === 'trial') { const l = until(s.trialEnd); out.push(st ? {st:'x', tone:'warning', icon:'hourglass', n:'轉付費', b:`試用剩 ${l} 天`, s:`還沒有付款方式・${pauseFrom(s)} 起會暫停新預約`} : {st:'w', n:'轉付費', b:`試用到 ${s.trialEnd}`, s:s.payMethod ? '已綁付款方式' : '還沒有付款方式'}); }
+  else out.push({st:'d', n:'轉付費', t:s.paid, s:PLANS[s.plan0 || s.plan].n});
+  if (s.stage === 'sus') out.push({st:'x', tone:'danger', icon:'ban', n:'停權', b:`${s.sus.at} 起停權`, s:s.sus.why});
+  return out;
+}
+function trackHtml(s) {
+  const ss = stops(s);
+  return `<section class="sheet o1" data-key="track" aria-labelledby="tk-h"><div class="h"><h2 id="tk-h">${ic('trail', 'spm')}開通進度</h2><span class="aside">從收到邀請到開始收月費</span></div>
+    <ol class="track" style="--n:${ss.length}" data-key="stops">${ss.map((x, i) => {
+      const nx = ss[i + 1], last = i === ss.length - 1;
+      const to = !last && nx.st !== 'd' && nx.tone !== 'danger' ? ' to-p' : '';
+      if (x.st === 'x') return `<li class="c x ${x.tone}${last ? ' last' : ''}" data-key="stop-${i}"><span class="k" aria-hidden="true">${ic(x.icon)}</span><span class="t">${x.n}</span><b>${esc(x.b)}</b><span class="s">${esc(x.s)}</span></li>`;
+      if (x.st === 'w') return `<li class="c p${to}${last ? ' last' : ''}" data-key="stop-${i}" aria-current="step"><span class="t">${x.n}</span><span style="color:var(--ink);font-weight:900">${esc(x.b)}</span><span class="s">${esc(x.s)}</span></li>`;
+      if (x.st === 'p') return `<li class="c p${to}${last ? ' last' : ''}" data-key="stop-${i}"><span>${x.n}</span><span class="s">${esc(x.s)}</span></li>`;
+      return `<li class="c${to}${last ? ' last' : ''}" data-key="stop-${i}"><span>${x.n}</span><span class="t">${x.t}</span><span class="s">${esc(x.s)}</span></li>`;
+    }).join('')}</ol></section>`;
+}
+function itemsSheet(s) {
+  const st = stuckOf(s), its = itemsOf(s);
+  return `<section class="sheet o3" data-key="items" aria-labelledby="it-h"><div class="h"><h2 id="it-h">${ic('list', 'spm')}開店設定</h2><span class="aside">店家在商家中心自己填・這裡只能看</span></div>
+    <div class="items">${ring(s, 112)}<div class="igrid">${GROUPS.map(([g, gn]) => {
+      const list = its.filter(i => i.g === g);
+      return `<div class="igrp"><h3>${gn}</h3><ul>${list.map(it => {
+        const d = s.done[it.k], cur = it.k === s.cur;
+        if (d) return `<li data-key="item-${it.k}">${ic(it.icon)}${it.n}<span class="r">${ic('check')}${d}</span></li>`;
+        if (cur && st) return `<li class="stuck" data-key="item-${it.k}">${ic(it.icon)}${it.n}<span class="r">${st.d} 天沒有進度</span><span class="why">店家 ${s.curSince} 開始填，還沒有發布。這一項沒發布，後面的預約入口與試約都不能做。</span></li>`;
+        if (cur) return `<li data-key="item-${it.k}">${ic(it.icon)}${it.n}<span class="r">${chip('info', '下一項')}</span></li>`;
+        return `<li class="todo" data-key="item-${it.k}">${ic(it.icon)}${it.n}<span class="r">未開始</span></li>`;
+      }).join('')}</ul></div>`;
+    }).join('')}</div>
+    <p class="aud note">${ic('lock')}<span>設定只能由店家自己完成。寵派後台看得到進度，不能代填；需要幫忙請開案，由客服引導店家。</span></p></div></section>`;
+}
+function inviteSheet(s) {
+  return `<section class="sheet o3" data-key="invite" aria-labelledby="iv-h"><div class="h"><h2 id="iv-h">${ic('mail', 'spm')}邀請</h2><span class="aside">連結 ${VALID} 天有效・重發會讓舊連結失效</span></div>
+    <ul class="sends" data-key="sends">${s.sends.map((x, i) => {
+      const lastOne = i === s.sends.length - 1, exp = addDays(x.at, VALID);
+      const tag = !lastOne ? chip('neutral', '已失效・重發取代') : since(x.at) >= VALID ? chip('warning', `${exp} 過期`) : chip('success', `有效到 ${exp}`);
+      return `<li class="${lastOne ? '' : 'old'}${x.fresh ? ' fresh' : ''}">${ic('send', 'spm')}${dw(x.at)} ${x.t}<span class="m">${x.fix ? `更正${x.fix}後重發` : i ? '重發' : '寄出'}・Email 與簡訊</span>${tag}</li>`;
+    }).reverse().join('')}</ul></section>`;
+}
+function opsSheet(s) {
+  const o = s.ops, N = itemsOf(s).length;
+  return `<section class="sheet o3" data-key="ops" aria-labelledby="op-h"><div class="h"><h2 id="op-h">${ic('cal', 'spm')}營業概況</h2><span class="aside">${TODAY}・不顯示飼主</span></div>
+    <p class="aud">${ic('check')}<span>開店設定 ${N} 項全部完成，${s.activated} 正式啟用。今天 ${o.today} 筆預約・現在在店 ${o.inShop} 隻・住宿中 ${o.stay} 隻${o.stayOut ? `（${o.stayOut} 退房）` : ''}・之後 ${o.future} 筆預約。</span></p></section>`;
+}
+function planBlock(s) {
+  const P = PLANS[s.plan];
+  let line;
+  if (s.stage === 'inv' || s.stage === 'setup') line = `${P.n}・試用 ${TRIAL} 天，從店家正式啟用那天開始算`;
+  else if (paused(s)) line = `${P.n}・試用到 ${dw(s.trialEnd)} 已結束・還沒有付款方式，${pauseFrom(s)} 起暫停新預約`;
+  else if (s.pay === 'trial') line = `${P.n}・試用到 ${dw(s.trialEnd)}，剩 ${until(s.trialEnd)} 天${s.ext ? `（已延長，原本到 ${s.ext.from}）` : ''}・${s.payMethod ? '已綁付款方式' : '還沒有付款方式'}`;
+  else line = `${P.n}・NT$${fmt(P.fee)}／月${s.stage === 'sus' ? '' : `・下次扣款 ${NEXT_CHARGE}`}`;
+  const u = s.use ? `本月 LINE ${fmt(s.use.line)}／${fmt(P.line)}・簡訊 ${fmt(s.use.sms)}／${fmt(P.sms)}・席次 ${s.use.seat}／${P.seat}・分店 ${s.use.br}／${P.br}` : '';
+  return `<div class="plan" data-key="plan"><div class="pl">${ic('plan', 'spm')}<span>${line}${u ? `<span class="muted" style="display:block;font-weight:700;font-size:.875rem">${u}</span>` : ''}</span><button class="textbtn" data-do="nav" data-page="plans" data-key="to-plans">方案管理${ic('fwd', 'spm')}</button></div></div>`;
+}
+function factsSheet(s) {
+  return `<section class="sheet o4" data-key="facts" aria-labelledby="fa-h"><div class="h"><h2 id="fa-h">${ic('store', 'spm')}商家資料</h2></div>
+    <dl class="facts">
+      <dt>統編</dt><dd class="nw">${s.tax.slice(0, 4)} ${s.tax.slice(4)}</dd>
+      <dt>首位管理者</dt><dd>${esc(s.who)}${s.stage === 'inv' ? chip('neutral', '還沒接受') : chip('success', '已啟用帳號')}</dd>
+      <dt>Email</dt><dd>${pill(mask(s.em))}</dd>
+      <dt>電話</dt><dd>${pill(maskPh(s.ph))}</dd>
+      <dt>分店</dt><dd>${s.br.length ? s.br.map(esc).join('・') : '<span class="muted">店家在開店設定第一項建立</span>'}</dd>
+      <dt>方案</dt><dd style="display:block">${planBlock(s)}</dd>
+    </dl></section>`;
+}
+function trailSheet(s) {
+  return `<section class="sheet o5" data-key="trail" aria-labelledby="tl-h"><div class="h"><h2 id="tl-h">${ic('trail', 'spm')}本店留痕</h2><span class="aside">${s.trail.length} 筆</span></div>
+    <ol class="trl">${s.trail.map(e => `<li class="${e.fresh ? 'fresh' : ''}"><span class="t">${e.t}</span><span>${esc(e.a)}</span></li>`).join('')}</ol></section>`;
+}
+function busyBtn(cls, act, key, icon, label, busyLabel) {
+  const b = state.busy === key;
+  return `<button class="btn ${cls}${b ? ' busy' : ''}" data-do="${act}" data-key="${key}">${b ? '<span class="spin" aria-hidden="true"></span>' : ic(icon, 'sm')}${b ? busyLabel : label}</button>`;
+}
+function caseDone(s) {
+  return `<div class="done" data-key="case-done"><span class="r1">${ic('check')}已開案 ${s.cs.id}・${s.cs.d} ${s.cs.at}</span><span style="font-weight:700;font-size:.875rem">目的：${esc(s.cs.why)}</span>
+    <a class="textbtn" href="../support-console/index.html?role=${state.role}" data-key="to-support">到客服支援${ic('fwd', 'spm')}</a></div>`;
+}
+function caseWhy(s) {
+  if (s.stage === 'inv') return '協助接受邀請';
+  if (s.stage === 'setup') return `協助開店設定：${itemN(s.cur)}`;
+  if (s.pay === 'trial' && !s.payMethod) return '提醒綁定付款方式';
+  return '商家支援';
+}
+function nextCard(s) {
+  const st = stuckOf(s), err = state.err ? `<p class="ferr" role="alert" data-key="act-err">${ic('warn')}<span>${state.err}</span></p>` : '';
+  let h, lede, main = '', dz = '';
+  if (s.stage === 'inv') {
+    const ls = lastSend(s), mins = ls.at === '10/9' ? state.m - (+ls.t.slice(0, 2) * 60 + +ls.t.slice(3)) : 999;
+    h = expired(s) ? '邀請已過期，重發一次' : st ? `${st.d} 天沒有接受，提醒一次` : '等待接受邀請';
+    lede = expired(s) ? `${s.who}沒有在 ${expOf(s)} 前接受。重發會寄一條新連結到原本的 Email 與手機，${VALID} 天有效；舊連結同時失效。`
+      : `邀請 ${expOf(s)} 前有效。${s.who}接受後會進到商家中心的開店設定。`;
+    main = mins < 60
+      ? `<button class="btn" aria-disabled="true" data-key="resend">${ic('send', 'sm')}重發邀請</button><span class="reason" data-key="resend-why">剛在 ${ls.t} 重發過・1 小時內只能重發一次，${clk(+ls.t.slice(0, 2) * 60 + +ls.t.slice(3) + 60)} 後可再發</span>`
+      : busyBtn(expired(s) || st ? 'primary' : 'quiet', 'resend', 'resend', 'send', '重發邀請', '寄出中…');
+    dz = `<div class="dz"><button class="textbtn quiet2" data-do="reinv" data-key="reinv">${ic('pen', 'spm')}更正 Email 或手機再寄</button><span class="hint">地址打錯或${s.who}換了手機時用。要寫原因，舊連結同時失效，會留下紀錄。</span></div>`;
+  } else if (s.stage === 'setup') {
+    h = st ? '開案，請客服聯絡店家' : '進度正常';
+    lede = st ? `停在「${itemN(s.cur)}」${st.d} 天。設定只能由店家自己完成；開案後由客服聯絡${s.who}，目的會先填好。`
+      : `最近進度 ${s.last}・下一項「${itemN(s.cur)}」。設定只能由店家自己完成，現在不需要處理。`;
+    main = s.cs ? caseDone(s) : busyBtn(st ? 'primary' : 'quiet', 'openCase', 'case', 'headset', '開案到客服支援', '開案中…');
+  } else if (s.stage === 'live') {
+    const trialStuck = st && s.pay === 'trial', pz = paused(s);
+    h = s.flag ? '付款管理建議停權' : pz ? '試用結束，新預約暫停中' : trialStuck ? '試用快到期，還沒有付款方式' : s.pay === 'trial' ? '試用中' : '營業中';
+    lede = pz ? `${dw(s.trialEnd)} 試用結束時還沒有付款方式，${pauseFrom(s)} 起先暫停新預約，範圍和停權一樣：在店的寵物、住宿退房和查詢照常。店家在「方案與用量」補上付款方式就自動恢復，寵派不用按恢復。可以開案請客服提醒店家。`
+      : trialStuck ? `${dw(s.trialEnd)} 試用結束。還沒設定付款方式的話，${pauseFrom(s)} 起會先暫停新預約；店家補上付款方式就自動恢復。付款方式由店家在「方案與用量」綁定，延長試用在方案管理。可以開案請客服提醒店家。`
+      : s.pay === 'trial' ? `試用到 ${dw(s.trialEnd)}・${s.payMethod ? '已綁付款方式，到期自動轉付費' : '還沒有付款方式，剩 3 天時會標為卡關；到期還沒設定會先暫停新預約，店家補上就自動恢復'}。`
+      : `${PLANS[s.plan].n}付費中，現在不需要處理。`;
+    main = s.cs ? caseDone(s) : busyBtn(trialStuck ? 'primary' : 'quiet', 'openCase', 'case', 'headset', '開案到客服支援', '開案中…');
+    if (s.flag) { lede = s.flag; main = ''; }
+    dz = s.sched
+      ? `<div class="dz"><p class="notice warning" data-key="sched">${ic('calx')}<span>排定 ${s.sched.at} 起停權・${esc(s.sched.why)}。在那之前照常營業。</span></p><button class="textbtn quiet2" data-do="unsched" data-key="unsched">取消排定停權</button></div>`
+      : `<div class="dz"><button class="textbtn dgr" data-do="suspend" data-key="suspend">${ic('ban', 'spm')}停權商家</button><span class="hint">只擋新增服務：新預約、改期與新增收費功能；在店的寵物、住宿退房與查詢照常。</span></div>`;
+  } else {
+    h = '停權中';
+    lede = `${s.sus.at} 起停權・${s.sus.why}。新預約與改期已擋下，公開預約入口顯示「店家目前暫停新增服務」；${s.ops.stay ? `住宿中 ${s.ops.stay} 隻、` : ''}既有 ${s.ops.future} 筆預約照常收尾。`;
+    /* 付款管理 first: a shop suspended for its fee is restored once the bill is paid, so an unpaid bill makes 恢復營業 quiet */
+    const due = s.due, unpaid = due && !due.paid;
+    const pay = !due ? `<div class="paid none" data-key="paid"><span class="r1">${ic('receipt')}<span>付款管理：沒有未付的月費</span></span></div>`
+      : due.paid ? `<div class="paid ok" data-key="paid"><span class="r1">${ic('check')}<span>付款管理：${due.paid.at} ${due.paid.t} 已補繳${due.what} NT$${fmt(due.amt)}（${due.paid.card}）</span></span></div>`
+      : `<div class="paid due" data-key="paid"><span class="r1">${ic('receipt')}<span>付款管理：${due.what} NT$${fmt(due.amt)} 尚未補繳</span></span><button class="textbtn" data-do="nav" data-page="pay" data-key="to-pay">付款管理${ic('fwd', 'spm')}</button></div>`;
+    main = `${pay}<button class="btn ${unpaid ? 'quiet' : 'primary'}" data-do="restore" data-key="restore">${ic('unlock', 'sm')}恢復營業</button>${unpaid ? '<span class="reason" data-key="restore-why">月費還沒補繳。申訴成立或商家要求時仍可恢復，原因會留下紀錄。</span>' : ''}`;
+  }
+  return `<section class="nextc o2" data-key="next" aria-labelledby="nx-h"><h2 id="nx-h">${h}</h2><p class="lede">${lede}</p>${main}${err}${dz}</section>`;
+}
+function shopPage(s) {
+  const [tone, label] = paused(s) ? ['warning', '試用結束・暫停新預約'] : STAGE_CHIP[s.stage], st = stuckOf(s);
+  const body = s.stage === 'inv' ? inviteSheet(s) : s.stage === 'setup' ? itemsSheet(s) : opsSheet(s);
+  return `<header class="head"><div class="backrow"><button class="back" data-do="board" data-key="back">${ic('back', 'sm')}商家管理</button></div>
+    <h1 id="page-title" tabindex="-1">${esc(s.n)}${chip(tone, label)}${st ? chip('warning', '卡關') : ''}</h1><div class="tools">${whoami()}</div>
+    <p class="sub">${esc(s.city || '剛建立')}<span class="sep">・</span>統編 ${s.tax.slice(0, 4)} ${s.tax.slice(4)}<span class="sep">・</span>${s.created} 建立</p></header>
+    <div class="wrap"><div class="det" data-key="det"><div class="mc">${trackHtml(s)}${body}${factsSheet(s)}</div><div class="ac">${nextCard(s)}${trailSheet(s)}</div></div></div>`;
+}
+
+function noacc(h, p) { return `<div class="noacc" data-key="noacc"><h2>${ic('lock')}${h}</h2><p>${p}</p></div>`; }
+function mainHtml() {
+  if (!can()) return `<header class="head"><h1 id="page-title" tabindex="-1">商家管理</h1><div class="tools">${whoami()}</div></header><div class="wrap">${noacc('商家管理只給最高管理者使用',
+    state.role === 'support' ? '你的角色是客服。要看某家店的狀態或預約，請用客服支援的「找商家」；它會先問你這次查詢的目的。' : '你的角色是財務。方案、試用與月費請看方案管理與付款管理。')}</div>`;
+  const s = state.page === 'shop' && shopOf(state.shop);
+  if (s) return shopPage(s);
+  return `<header class="head"><h1 id="page-title" tabindex="-1">商家管理</h1><div class="tools">${whoami()}<button class="btn primary" data-do="newShop" data-key="new">${ic('plus', 'sm')}新增商家</button></div>
+    <p class="sub">每家店從收到邀請到開始營業的路上：停在哪一步、停了多久</p></header><div class="wrap" data-key="panel">${board()}</div>`;
+}
+/* 資料 (data_admin) works only in 產業數據; every other module is closed to it */
+const dataOnly = () => `<header class="head"><h1 id="page-title" tabindex="-1">商家管理</h1><div class="tools">${whoami()}</div></header><div class="wrap"><div class="noacc" data-key="noacc"><h2>${ic('lock')}商家管理不開放給資料</h2><p>資料只負責去識別化的產業統計；商家、方案、付款、客服、合規與系統的資料都看不到。</p><a class="textbtn ln" href="../industry-data/index.html?role=data" data-key="noacc-go">到產業數據${ic('fwd', 'spm')}</a></div></div>`;
+/* the prototype strip's scenario, failure and simulate controls act on a page 資料 cannot see; only 身分 and 主題 stay live */
+function protoForData() {
+  const off = state.role === 'data';
+  document.querySelectorAll('.proto select, .proto input, .proto button').forEach(el => {
+    if (el.id === 'p-role' || el.id === 'p-theme') return;
+    if (off && !el.disabled) { el.disabled = true; el.dataset.dataOff = '1'; el.title = '資料看不到這一頁，模擬操作先停用'; }
+    else if (!off && el.dataset.dataOff) { el.disabled = false; delete el.dataset.dataOff; el.removeAttribute('title'); }
+  });
+}
+function render(focusKey) {
+  const app = $('app');
+  const keep = focusKey || document.activeElement?.dataset?.key;
+  app.className = state.compact ? 'compact' : state.rail ? `rail${state.big ? ' big' : ''}` : '';
+  const s = state.page === 'shop' && can() && shopOf(state.shop);
+  const top = state.compact ? `<div class="topbar"><button class="ibtn" data-key="menu" data-do="openNav" aria-label="開啟選單">${ic('menu')}</button><span class="mark" aria-hidden="true">${ic('mark')}</span><b>商家管理</b></div>` : '';
+  app.innerHTML = `${ibar()}${state.compact ? '' : sideNav()}<main id="main">${top}${state.role === 'data' ? dataOnly() : `${mainHtml()}`}</main>`;
+  const ibh = app.querySelector('.ibar')?.offsetHeight || 40; app.style.setProperty('--ibh', `${ibh}px`); app.style.setProperty('--ph', `${document.querySelector('.proto').offsetHeight}px`);
+  protoForData();
+  const pm = $('p-paym'); if (!pm.dataset.dataOff) { pm.disabled = state.role !== 'super' || !payable(); pm.title = pm.disabled ? '打開一家試用中、還沒有付款方式的店才能模擬' : ''; }
+  document.title = `${s ? `${s.n}・` : ''}商家管理・寵派管理後台`;
+  if (keep) { const el = document.querySelector(`#app [data-key="${keep}"], #layer [data-key="${keep}"]`); if (el && el !== document.activeElement) el.focus({preventScroll:true}); }
+  playMoves();
+  syncUrl();
+}
+function announce(t) { const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+function say(text, btn) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status"><span>${esc(text)}</span>${btn ? `<button class="textbtn" data-do="${btn[1]}" data-id="${btn[2] || ''}" data-key="toast-btn">${btn[0]}</button>` : ''}</div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 6000);
+}
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function log(s, a) { s.trail.forEach(e => delete e.fresh); s.trail.unshift({t:`${LOGD} ${clk(state.m)}`, a, fresh:true}); state.m += 1; announce(`已留痕：${a}`); }
+
+/* ---------- the signature: a card travels from its old lane to its new one ---------- */
+function playMoves() {
+  if (state.page !== 'board' || !can()) return;
+  state.shops.filter(s => s.moved).forEach(s => {
+    const from = s.moved.from; delete s.moved;
+    const el = document.querySelector(`[data-key="card-${s.id}"]`);
+    if (!el || el.hidden) return;
+    const r0 = el.getBoundingClientRect();
+    if (r0.top < 0 || r0.bottom > innerHeight - 120) el.scrollIntoView({block:'center'});
+    el.classList.add('arrived'); setTimeout(() => el.classList.remove('arrived'), 2300);
+    if (reduced()) return;
+    const r = el.getBoundingClientRect();
+    el.classList.add('flying');
+    let anim;
+    if (from) {
+      const lane = document.querySelector(`[data-key="lane-${from}"] .list`), lr = lane.getBoundingClientRect();
+      const dx = lr.left - r.left, dy = lr.top - r.top;
+      anim = el.animate([
+        {transform:`translate(${dx}px,${dy}px) scale(.97)`, offset:0},
+        {transform:`translate(${dx}px,${dy - 14}px) scale(1.02) rotate(-1.5deg)`, offset:.18},
+        {transform:`translate(${dx * .5}px,${dy * .5 - 22}px) scale(1.03) rotate(-1deg)`, offset:.55},
+        {transform:'translate(0,-6px) scale(1.01) rotate(.4deg)', offset:.86},
+        {transform:'none', offset:1}
+      ], {duration:FAST ? 120 : 1150, easing:'cubic-bezier(.45,.05,.25,1)'});
+      el.style.boxShadow = 'var(--lift-hi)'; anim.addEventListener('finish', () => { el.style.boxShadow = ''; });
+    } else {
+      anim = el.animate([{transform:'translateY(-36px) scale(.94)', opacity:0}, {transform:'none', opacity:1}], {duration:FAST ? 120 : 640, easing:'cubic-bezier(.34,1.56,.64,1)'});
+    }
+    anim.onfinish = () => el.classList.remove('flying');
+  });
+}
+
+/* ---------- 統編 ---------- */
+function taxOk(t) {
+  const w = [1, 2, 1, 2, 1, 2, 4, 1]; let sum = 0;
+  for (let i = 0; i < 8; i++) { const p = +t[i] * w[i]; sum += Math.floor(p / 10) + p % 10; }
+  return sum % 5 === 0 || (t[6] === '7' && (sum + 1) % 5 === 0);
+}
+
+/* ---------- dialogs ---------- */
+const radios = (name, opts, cur) => `<div class="rg col" role="radiogroup" aria-labelledby="${name}-l">${opts.map(([k, n], i) => `<button role="radio" class="opt" aria-checked="${cur === k}" tabindex="${(cur ? cur === k : i === 0) ? 0 : -1}" data-do="dpick" data-f="${name}" data-v="${k}" data-key="${name}-${k}">${n}</button>`).join('')}</div>`;
+const SUS_WHY = [['fee', '月費未付'], ['tos', '違反服務條款'], ['ask', '商家要求暫停'], ['other', '其他']];
+const RES_WHY = [['paid', '已補繳月費'], ['appeal', '申訴成立'], ['ask', '商家要求恢復'], ['other', '其他']];
+const WHEN = [['now', '立即'], ['tonight', '今天 24:00'], ['mon', SUSA ? '11/23（一）00:00' : '10/12（一）00:00']];
+const fld = (id, label, d, extra = '') => {
+  const e = d.errs?.[id];
+  return `<div class="field"><label for="${id}">${label}</label><input id="${id}" data-key="${id}" value="${esc(d[id] || '')}" ${e ? `aria-invalid="true" aria-describedby="${id}-e"` : ''} ${extra}>${e ? `<span class="err" id="${id}-e">${e}</span>` : ''}</div>`;
+};
+function dlgHtml() {
+  const d = state.dlg; if (!d) return '';
+  const busy = d.busy ? ' busy' : '', spin = d.busy ? '<span class="spin"></span>' : '';
+  const cancel = `<button class="btn secondary" data-do="closeDlg" data-key="dlg-cancel" ${d.busy ? 'aria-disabled="true"' : ''}>取消</button>`;
+  const fail = d.fail ? `<p class="ferr" role="alert" data-key="dlg-err">${ic('warn')}<span>${d.fail}</span></p>` : '';
+  if (d.k === 'new') {
+    return `<div class="dialog wide" role="dialog" aria-modal="true" aria-labelledby="dl-h" data-key="dlg-new"><h2 id="dl-h">新增商家</h2>
+      <p class="lede">建立後會寄邀請給首位管理者。開店設定由店家自己完成，正式啟用那天開始試用 ${TRIAL} 天。</p>
+      ${fld('n-name', '店名', d, 'autocomplete="organization" maxlength="20"')}
+      <div class="frow">${fld('n-tax', '統一編號', d, 'inputmode="numeric" maxlength="8" placeholder="8 位數字"')}${fld('n-who', '首位管理者姓名', d, 'maxlength="12"')}</div>
+      <div class="frow">${fld('n-ph', '手機', d, 'inputmode="tel" placeholder="0912-345-678"')}${fld('n-em', 'Email', d, 'type="email" inputmode="email" placeholder="name@shop.tw"')}</div>
+      <fieldset class="fs"><legend id="plan-l">預設方案</legend><div class="plans rg" role="radiogroup" aria-labelledby="plan-l">${Object.entries(PLANS).map(([k, p]) =>
+        `<button role="radio" class="opt" aria-checked="${d.plan === k}" tabindex="${d.plan === k ? 0 : -1}" data-do="dpick" data-f="plan" data-v="${k}" data-key="plan-${k}">${p.n}<small>NT$${fmt(p.fee)}／月・${p.br} 家分店・${p.seat} 席</small></button>`).join('')}</div>
+        <span class="hint">試用期間不收費；方案之後可在方案管理調整。</span></fieldset>
+      <p class="aud">${ic('send')}<span>邀請連結寄到這個 Email 與手機，${VALID} 天有效。同一個 Email 只能管理一家店。</span></p>
+      ${fail}<div class="dbtns">${cancel}<button class="btn primary${busy}" data-do="doNew" data-key="dlg-ok">${spin || ic('send', 'sm')}${d.busy ? '建立中…' : '建立並寄出邀請'}</button></div></div>`;
+  }
+  if (d.k === 'sus') {
+    const s = shopOf(d.id), o = s.ops, typedOk = (d.typed || '').trim() === s.n;
+    return `<div class="dialog wide" role="dialog" aria-modal="true" aria-labelledby="dl-h" data-key="dlg-sus"><h2 id="dl-h">停權「${esc(s.n)}」？</h2>
+      <p class="lede">停權後商家不能接新預約；在店的寵物、住宿退房和查詢照常。</p>
+      <div class="imp" data-key="impact">
+        <div class="keep"><h3>${ic('check', 'spm')}照常進行</h3><ul>
+          <li>在店的 ${o.inShop} 隻寵物：服務、收款、離店</li><li>住宿中 ${o.stay} 隻：照常退房</li><li>之後的 ${o.future} 筆預約：保留，不會自動取消</li><li>查詢、收款與退款紀錄</li><li>必要通知：預約提醒、可接回、退房完成</li></ul></div>
+        <div class="block"><h3>${ic('ban', 'spm')}會擋下</h3><ul>
+          <li>新預約：LINE、公開網頁、櫃台現場預約</li><li>既有預約改期（飼主仍可取消）</li><li>公開預約入口改顯示「店家目前暫停新增服務」</li><li>新增收費功能</li></ul></div>
+      </div>
+      <fieldset class="fs"><legend id="why-l">原因</legend>${radios('why', SUS_WHY, d.why)}${d.errs?.why ? `<span class="err ferr" data-key="why-err">${ic('warn')}<span>${d.errs.why}</span></span>` : ''}</fieldset>
+      <div class="field"><label for="snote">說明${d.why === 'other' ? '<span class="req" data-key="snote-req">必填</span>' : '<span class="opt-l">選填</span>'}</label><textarea id="snote" data-key="snote" maxlength="120" ${d.why === 'other' ? 'aria-required="true"' : ''} ${d.errs?.note ? 'aria-invalid="true" aria-describedby="snote-e"' : ''} placeholder="例：9 月、10 月月費未付，已電話通知兩次">${esc(d.note || '')}</textarea>${d.errs?.note ? `<span class="err" id="snote-e">${d.errs.note}</span>` : ''}</div>
+      <fieldset class="fs"><legend id="when-l">生效時間</legend><div class="rg" role="radiogroup" aria-labelledby="when-l" aria-required="true">${WHEN.map(([k, n], i) => `<button role="radio" class="opt" aria-checked="${d.when === k}" tabindex="${(d.when ? d.when === k : i === 0) ? 0 : -1}" data-do="dpick" data-f="when" data-v="${k}" data-key="when-${k}">${n}</button>`).join('')}</div>${d.errs?.when ? `<span class="err ferr" data-key="when-err">${ic('warn')}<span>${d.errs.when}</span></span>` : ''}</fieldset>
+      <div class="field typed"><label for="tname">輸入店名「${esc(s.n)}」確認</label><input id="tname" data-key="tname" value="${esc(d.typed || '')}" autocomplete="off" ${d.errs?.typed ? 'aria-invalid="true" aria-describedby="tname-e"' : ''}>${d.errs?.typed ? `<span class="err" id="tname-e">${d.errs.typed}</span>` : typedOk ? `<span class="ok" data-key="typed-ok">${ic('check', 'spm')}店名相符</span>` : ''}</div>
+      ${fail}<div class="dbtns">${cancel}<button class="btn danger${busy}" data-do="doSus" data-key="dlg-ok">${spin || ic('ban', 'sm')}${d.busy ? '停權中…' : d.when && d.when !== 'now' ? '確認排定停權' : '確認停權'}</button></div></div>`;
+  }
+  if (d.k === 'res') {
+    const s = shopOf(d.id);
+    return `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dl-h" data-key="dlg-res"><h2 id="dl-h">恢復「${esc(s.n)}」營業？</h2>
+      <dl class="cdl"><dt>停權</dt><dd>${s.sus.at} 起・${esc(s.sus.why)}</dd><dt>付款</dt><dd data-key="res-paid">${!s.due ? '沒有未付的月費' : s.due.paid ? `${s.due.paid.at} 已補繳${s.due.what} NT$${fmt(s.due.amt)}` : `${s.due.what} NT$${fmt(s.due.amt)} 尚未補繳`}</dd><dt>恢復後</dt><dd>新預約、改期與公開預約入口立刻重新開放</dd><dt>方案</dt><dd>${PLANS[s.plan].n}，照原本的扣款日計算</dd></dl>
+      <fieldset class="fs"><legend id="rwhy-l">原因</legend>${radios('rwhy', RES_WHY, d.rwhy)}${d.errs?.rwhy ? `<span class="err ferr" data-key="rwhy-err">${ic('warn')}<span>${d.errs.rwhy}</span></span>` : ''}</fieldset>
+      <div class="field"><label for="rnote">說明${d.rwhy === 'other' ? '<span class="req">必填</span>' : '<span class="opt-l">選填</span>'}</label><textarea id="rnote" data-key="rnote" maxlength="120" ${d.rwhy === 'other' ? 'aria-required="true"' : ''} ${d.errs?.note ? 'aria-invalid="true" aria-describedby="rnote-e"' : ''} placeholder="例：10/9 已補繳 9 月、10 月月費">${esc(d.note || '')}</textarea>${d.errs?.note ? `<span class="err" id="rnote-e">${d.errs.note}</span>` : ''}</div>
+      ${fail}<div class="dbtns">${cancel}<button class="btn primary${busy}" data-do="doRes" data-key="dlg-ok">${spin || ic('unlock', 'sm')}${d.busy ? '恢復中…' : '確認恢復營業'}</button></div></div>`;
+  }
+  if (d.k === 'reinv') {
+    /* correcting the first admin's address: 寵派 never sees the full old one, so the fields start empty and a blank one stays as it was */
+    const s = shopOf(d.id), e = d.errs || {};
+    return `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dl-h" data-key="dlg-reinv"><h2 id="dl-h">更正${esc(s.who)}的聯絡方式再寄</h2>
+      <p class="lede">寄一條新連結到更正後的地址，${VALID} 天有效；舊連結同時失效。只填要改的那一項，另一項留空就照舊。</p>
+      ${fld('r-em', `新的 Email<span class="opt-l">現在 ${esc(mask(s.em))}</span>`, d, 'type="email" inputmode="email" autocomplete="off" placeholder="name@shop.tw"')}
+      ${fld('r-ph', `新的手機<span class="opt-l">現在 ${esc(maskPh(s.ph))}</span>`, d, 'inputmode="tel" autocomplete="off" placeholder="0912-345-678"')}
+      <div class="field"><label for="r-why">原因<span class="req">必填</span></label><textarea id="r-why" data-key="r-why" maxlength="80" aria-required="true" ${e['r-why'] ? 'aria-invalid="true" aria-describedby="r-why-e"' : ''} placeholder="例：${esc(s.who)}來電說 Email 少打一個字">${esc(d['r-why'] || '')}</textarea>${e['r-why'] ? `<span class="err" id="r-why-e">${e['r-why']}</span>` : ''}</div>
+      <p class="aud">${ic('trail')}<span>更正的項目、原因和你的名字會記在本店留痕；完整地址不寫進留痕。</span></p>
+      ${fail}<div class="dbtns">${cancel}<button class="btn primary${busy}" data-do="doReinv" data-key="dlg-ok">${spin || ic('send', 'sm')}${d.busy ? '寄出中…' : '更正並重發邀請'}</button></div></div>`;
+  }
+  return '';
+}
+function renderDlg(focus) {
+  const l = $('layer'); l.querySelector('.dlg-s')?.remove();
+  if (!state.dlg) return;
+  l.insertAdjacentHTML('beforeend', `<div class="scrim dlg-s" data-do="scrimDlg">${dlgHtml()}</div>`);
+  const f = focus && l.querySelector(`[data-key="${focus}"]`);
+  (f || l.querySelector('.dialog input, .dialog [role="radio"][tabindex="0"], .dialog .btn.primary'))?.focus();
+}
+function openDlg(d, focus) { d.ret = document.activeElement?.dataset?.key; state.dlg = d; renderDlg(focus); }
+function closeDlg(focus) { const ret = focus || state.dlg?.ret; state.dlg = null; renderDlg(); if (ret) document.querySelector(`[data-key="${ret}"]`)?.focus(); }
+function failOnce() { if (state.nextSend !== 'fail') return false; state.nextSend = 'ok'; $('p-send').value = 'ok'; return true; }
+const later = f => setTimeout(f, FAST ? 60 : 650);
+
+const act = {
+  nav(el) {
+    const p = el.dataset.page; closeNavDrawer();
+    if (p === 'sys') { location.href = `../system-settings/index.html?role=${state.role}`; return; }
+    if (p === 'tenants') { if (state.page !== 'board') act.board(); return; }
+    if (p === 'support') { location.href = `../support-console/index.html?role=${state.role}`; return; }
+    if (p === 'usage') { location.href = `../usage-monitor/index.html?role=${state.role}`; return; }
+    if (p === 'data') { location.href = `../industry-data/index.html?role=${state.role}`; return; }
+    if (p === 'gw') { location.href = `../gateway-settings/index.html?role=${state.role}`; return; }
+    if (p === 'audit') { location.href = `../audit-center/index.html?role=${state.role}`; return; } if (p === 'tpl') { location.href = `../contract-library/index.html?role=${state.role}`; return; } if (p === 'pay') { location.href = `../payment-admin/index.html?role=${state.role}`; return; } if (p === 'notif') { location.href = `../line-notify-admin/index.html?role=${state.role}`; return; }
+    if (p === 'plans') { location.href = `../plan-admin/index.html?role=${state.role}`; return; }
+    say(`「${el.title || el.textContent.trim()}」的原型還沒做；目前有商家管理、方案管理、付款管理、客服支援、LINE／通知管理、契約模板庫、稽核中心、金流設定、用量監控與產業數據`);
+  },
+  open(el) { state.page = 'shop'; state.shop = el.dataset.id; state.err = null; state.busy = null; render(); $('page-title')?.focus({preventScroll:true}); scrollTo(0, 0); },
+  board() { const id = state.shop; clearTimeout(say.t); $('layer').querySelector('.toast')?.remove(); state.page = 'board'; state.err = null; state.busy = null; render(); document.querySelector(`[data-key="card-${id}"]`)?.focus({preventScroll:true}); },
+  retry() { state.loadFail = false; $('p-fail').checked = false; render('sum'); say('已重新載入'); },
+  resend() {
+    const s = shopOf(state.shop); if (state.busy) return;
+    state.busy = 'resend'; state.err = null; render('resend');
+    later(() => {
+      state.busy = null;
+      if (failOnce()) { state.err = '沒有寄出：連線中斷。舊邀請不變，可以再試一次。'; render('resend'); return; }
+      s.sends.forEach(x => delete x.fresh); s.sends.push({at:'10/9', t:clk(state.m), fresh:true});
+      log(s, `${me()}重發邀請給${s.who}・新連結 ${VALID} 天有效到 ${addDays('10/9', VALID)}，舊連結失效`);
+      render('resend'); say(`已重發邀請給${s.who}，${addDays('10/9', VALID)} 前有效`);
+    });
+  },
+  openCase() {
+    const s = shopOf(state.shop); if (state.busy) return;
+    state.busy = 'case'; state.err = null; render('case');
+    later(() => {
+      state.busy = null;
+      if (failOnce()) { state.err = '沒有開案：連線中斷。可以再試一次。'; render('case'); return; }
+      s.cs = {id:`CS-${state.caseN++}`, d:LOGD, at:clk(state.m), why:caseWhy(s)};
+      log(s, `${me()}開案 ${s.cs.id} 到客服支援・目的：${s.cs.why}`);
+      render('to-support'); say(`已開案 ${s.cs.id}，客服支援會看到這家店與目的`);
+    });
+  },
+  newShop() { openDlg({k:'new', plan:'basic', errs:{}}); },
+  doNew() {
+    const d = state.dlg; if (d.busy) return;
+    const v = id => (d[id] || '').trim(), e = {};
+    if (!v('n-name')) e['n-name'] = '請填店名';
+    const tax = v('n-tax'), dupT = state.shops.find(s => s.tax === tax);
+    if (!tax) e['n-tax'] = '請填統一編號';
+    else if (!/^\d{8}$/.test(tax)) e['n-tax'] = '統一編號是 8 位數字';
+    else if (dupT) e['n-tax'] = `這個統編已經是「${dupT.n}」`;
+    else if (!taxOk(tax)) e['n-tax'] = '統編檢查碼不對，請再核對一次';
+    if (!v('n-who')) e['n-who'] = '請填首位管理者姓名';
+    const ph = v('n-ph').replace(/[-\s]/g, '');
+    if (!ph) e['n-ph'] = '請填手機';
+    else if (!/^09\d{8}$/.test(ph)) e['n-ph'] = '手機是 09 開頭的 10 位數字，例：0912-345-678';
+    const em = v('n-em').toLowerCase(), dupE = state.shops.find(s => s.em === em);
+    if (!em) e['n-em'] = '請填 Email';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) e['n-em'] = 'Email 格式不對，例：name@shop.tw';
+    else if (dupE) e['n-em'] = `這個 Email 已經是「${dupE.n}」的管理者；同一個 Email 只能管理一家店`;
+    d.errs = e; d.fail = null;
+    const first = ['n-name', 'n-tax', 'n-who', 'n-ph', 'n-em'].find(k => e[k]);
+    if (first) { renderDlg(first); return; }
+    d.busy = true; renderDlg('dlg-ok');
+    later(() => {
+      if (failOnce()) { d.busy = false; d.fail = '沒有建立：連線中斷。填好的資料都還在，可以再試一次。'; renderDlg('dlg-ok'); return; }
+      const t = clk(state.m), s = {id:`n${state.caseN}`, n:v('n-name'), city:'', tax, who:v('n-who'), ph:`${ph.slice(0, 4)}-${ph.slice(4, 7)}-${ph.slice(7)}`, em, boarding:false, plan:d.plan, br:[], stage:'inv', created:'10/9', sends:[{at:'10/9', t}], trail:[], moved:{from:null}};
+      state.caseN++;
+      state.shops.push(s); log(s, `${me()}建立商家，寄出邀請給${s.who}・${PLANS[s.plan].n}`);
+      state.dlg = null; renderDlg(); state.page = 'board'; render(`card-${s.id}`);
+      say(`已建立「${s.n}」，邀請已寄給${s.who}`, ['查看', 'open', s.id]); lifeSay('created');
+    });
+  },
+  suspend() { openDlg({k:'sus', id:state.shop, errs:{}}); },
+  doSus() {
+    const d = state.dlg, s = shopOf(d.id); if (d.busy) return;
+    const e = {};
+    if (!d.why) e.why = '請選一個原因';
+    if (d.why === 'other' && !(d.note || '').trim()) e.note = '選「其他」時請寫說明';
+    if (!d.when) e.when = '請選生效時間';
+    if ((d.typed || '').trim() !== s.n) e.typed = (d.typed || '').trim() ? `店名不相符，請輸入「${s.n}」` : `請輸入店名「${s.n}」`;
+    d.errs = e; d.fail = null;
+    const first = e.why ? `why-${SUS_WHY[0][0]}` : e.note ? 'snote' : e.when ? `when-${WHEN[0][0]}` : e.typed ? 'tname' : null;
+    if (first) { renderDlg(first); return; }
+    d.busy = true; renderDlg('dlg-ok');
+    later(() => {
+      if (failOnce()) { d.busy = false; d.fail = '沒有停權：連線中斷。商家照常營業，可以再試一次。'; renderDlg('dlg-ok'); return; }
+      const why = SUS_WHY.find(x => x[0] === d.why)[1] + ((d.note || '').trim() ? `：${d.note.trim()}` : '');
+      if (d.when === 'now') {
+        s.stage = 'sus'; s.sus = {at:LOGD, t:clk(state.m), why, by:me()}; s.moved = {from:'live'}; s.cs = null; s.flag = null;
+        log(s, `${me()}停權・${why}・立即生效`);
+        state.dlg = null; renderDlg(); render('restore'); say(`已停權「${s.n}」：新增服務已擋下，收尾照常`, ['回看板', 'board']);
+        if (LIFE === 'sus-stop' && s.id === 'mhr') lifeSay('suspended');
+      } else {
+        const w = WHEN.find(x => x[0] === d.when);
+        s.sched = {at:w[1] === '今天 24:00' ? `${TODAY}24:00` : w[1], d:w[0] === 'tonight' ? addDays(LOGD, 1) : w[1].slice(0, w[1].indexOf('（')), why};
+        log(s, `${me()}排定停權・${s.sched.at} 起・${why}`);
+        state.dlg = null; renderDlg(); render('unsched'); say(`已排定 ${s.sched.at} 起停權「${s.n}」`);
+      }
+    });
+  },
+  unsched() { const s = shopOf(state.shop); log(s, `${me()}取消排定停權（原定 ${s.sched.at}）`); s.sched = null; render('suspend'); say('已取消排定停權，照常營業'); },
+  reinv() { openDlg({k:'reinv', id:state.shop, errs:{}}); },
+  doReinv() {
+    const d = state.dlg, s = shopOf(d.id); if (d.busy) return;
+    const v = id => (d[id] || '').trim(), e = {};
+    const em = v('r-em').toLowerCase(), ph = v('r-ph').replace(/[-\s]/g, '');
+    const dupE = em && state.shops.find(x => x.em === em && x.id !== s.id);
+    if (!em && !ph) e['r-em'] = '至少要填新的 Email 或新的手機其中一項';
+    else if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) e['r-em'] = 'Email 格式不對，例：name@shop.tw';
+    else if (em === s.em) e['r-em'] = '和現在的 Email 一樣；不用改就留空';
+    else if (dupE) e['r-em'] = `這個 Email 已經是「${dupE.n}」的管理者；同一個 Email 只能管理一家店`;
+    if (ph && !/^09\d{8}$/.test(ph)) e['r-ph'] = '手機是 09 開頭的 10 位數字，例：0912-345-678';
+    if (!v('r-why')) e['r-why'] = '請寫更正原因';
+    d.errs = e; d.fail = null;
+    const first = ['r-em', 'r-ph', 'r-why'].find(k => e[k]);
+    if (first) { renderDlg(first); return; }
+    d.busy = true; renderDlg('dlg-ok');
+    later(() => {
+      if (failOnce()) { d.busy = false; d.fail = '沒有寄出：連線中斷。地址沒有改，舊邀請不變，可以再試一次。'; renderDlg('dlg-ok'); return; }
+      const what = [em ? 'Email' : '', ph ? '手機' : ''].filter(Boolean).join('與');
+      if (em) s.em = em;
+      if (ph) s.ph = `${ph.slice(0, 4)}-${ph.slice(4, 7)}-${ph.slice(7)}`;
+      s.sends.forEach(x => delete x.fresh); s.sends.push({at:'10/9', t:clk(state.m), fresh:true, fix:what});
+      log(s, `${me()}更正首位管理者${what}並重發邀請・原因：${v('r-why')}・新連結 ${VALID} 天有效到 ${addDays('10/9', VALID)}，舊連結失效`);
+      state.dlg = null; renderDlg(); render('reinv'); say(`已更正${what}，新邀請寄給${s.who}，${addDays('10/9', VALID)} 前有效`);
+    });
+  },
+  restore() { openDlg({k:'res', id:state.shop, errs:{}}); },
+  doRes() {
+    const d = state.dlg, s = shopOf(d.id); if (d.busy) return;
+    const e = {};
+    if (!d.rwhy) e.rwhy = '請選一個原因';
+    if (d.rwhy === 'other' && !(d.note || '').trim()) e.note = '選「其他」時請寫說明';
+    d.errs = e; d.fail = null;
+    if (e.rwhy || e.note) { renderDlg(e.rwhy ? `rwhy-${RES_WHY[0][0]}` : 'rnote'); return; }
+    d.busy = true; renderDlg('dlg-ok');
+    later(() => {
+      if (failOnce()) { d.busy = false; d.fail = '沒有恢復：連線中斷。商家仍是停權，可以再試一次。'; renderDlg('dlg-ok'); return; }
+      const why = RES_WHY.find(x => x[0] === d.rwhy)[1] + ((d.note || '').trim() ? `：${d.note.trim()}` : '');
+      s.stage = 'live'; s.pay = 'paid'; s.sus = null; s.due = null; s.moved = {from:'sus'};
+      log(s, `${me()}恢復營業・${why}・新預約、改期與公開預約入口重新開放`);
+      state.dlg = null; renderDlg(); render('suspend'); say(`「${s.n}」已恢復營業`, ['回看板', 'board']);
+      if (LIFE === 'sus-restore' && s.id === 'mhr') lifeSay('restored');
+    });
+  },
+  dpick(el) {
+    const d = state.dlg; d[el.dataset.f] = el.dataset.v;
+    if (d.errs) { delete d.errs[el.dataset.f]; if (el.dataset.f === 'why' || el.dataset.f === 'rwhy') delete d.errs.note; }
+    renderDlg(el.dataset.key);
+  },
+  closeDlg() { if (!state.dlg?.busy) closeDlg(); },
+  scrimDlg(el, ev) { if (ev.target === el && !state.dlg?.busy) closeDlg(); },
+  openNav() { openNavDrawer(); },
+  navScrim(el, ev) { if (ev.target === el) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); } }
+};
+function openNavDrawer() {
+  const l = $('layer'); l.querySelector('.nav-scrim')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="scrim nav-scrim" data-do="navScrim" style="padding:0;justify-content:flex-start;align-items:stretch"><div class="drawer-nav" role="dialog" aria-modal="true" aria-label="寵派後台選單">${sideNav()}</div></div>`);
+  l.querySelector('.drawer-nav .sitem[aria-current]')?.focus();
+}
+function closeNavDrawer() { $('layer').querySelector('.nav-scrim')?.remove(); }
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-do]');
+  if (el && el.getAttribute('aria-disabled') !== 'true') act[el.dataset.do]?.(el, ev);
+});
+document.addEventListener('input', ev => {
+  const t = ev.target, d = state.dlg;
+  if (d) {
+    if (/^[nr]-/.test(t.id)) { d[t.id] = t.value; if (d.errs?.[t.id]) { delete d.errs[t.id]; t.removeAttribute('aria-invalid'); t.parentNode.querySelector('.err')?.remove(); } }
+    if (t.id === 'snote' || t.id === 'rnote') d.note = t.value;
+    if (t.id === 'tname') { d.typed = t.value; if (d.errs) delete d.errs.typed; const pos = t.selectionStart; renderDlg('tname'); const n = $('tname'); n.setSelectionRange(pos, pos); }
+    return;
+  }
+  if (t.id === 'q') { state.q = t.value; const pos = t.selectionStart; render('q'); const n = $('q'); n.setSelectionRange(pos, pos); }
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Enter' && state.dlg && ev.target.tagName === 'INPUT') { ev.preventDefault(); $('layer').querySelector('[data-key="dlg-ok"]')?.click(); return; }
+  const modal = state.dlg ? '.dialog' : $('layer').querySelector('.drawer-nav') ? '.drawer-nav' : null;
+  if (ev.key === 'Escape') {
+    if (state.dlg) { if (!state.dlg.busy) closeDlg(); return; }
+    if ($('layer').querySelector('.drawer-nav')) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); return; }
+  }
+  if (modal && ev.key === 'Tab') {
+    const f = [...document.querySelectorAll(`${modal} button, ${modal} a[href], ${modal} input, ${modal} select, ${modal} textarea`)].filter(x => x.getAttribute('aria-disabled') !== 'true' && x.offsetParent && x.tabIndex !== -1);
+    if (!f.length) return;
+    if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); }
+    else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); }
+  }
+  const r = ev.target.closest?.('[role="radiogroup"] [role="radio"]');
+  if (r && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(ev.key)) {
+    ev.preventDefault();
+    const all = [...r.closest('[role="radiogroup"]').querySelectorAll('[role="radio"]')], i = all.indexOf(r), fw = ev.key === 'ArrowRight' || ev.key === 'ArrowDown';
+    all[(i + (fw ? 1 : all.length - 1)) % all.length].click();
+  }
+});
+
+/* ---------- prototype controls ---------- */
+function syncUrl() { const u = new URL(location); u.searchParams.set('role', state.role); if (state.page === 'shop') u.searchParams.set('shop', state.shop); else u.searchParams.delete('shop'); u.searchParams.delete('go'); history.replaceState(null, '', u); }
+function seed(v) {
+  const keep = {role:state.role, compact:state.compact, rail:state.rail, big:state.big, phone:state.phone, nextSend:state.nextSend};
+  state = Object.assign(fresh(), keep);
+  if (state.role !== 'super') { state.role = 'super'; $('p-role').value = 'super'; }
+  const shopIds = ['mm', 'wx', 'af', 'sl', 'mhr', 'xs', 'cc', 'hg'];
+  if (shopIds.includes(v)) { state.page = 'shop'; state.shop = v; }
+  if (v === 'tp') { const s = clone(TP_SHOP); s.trail = trail0(s); state.shops.push(s); state.page = 'shop'; state.shop = 'tp'; }
+  /* 小森 paid both months at 11:05 (付款管理 confirmed); the restore tour starts here, on the board */
+  if (v === 'xspaid') { const s = shopOf('xs'); s.due.paid = {at:'10/9', t:'11:05', card:'VISA •••• 7720'}; s.trail.unshift({t:'10/9 11:06', a:'付款管理：小森寵物美容補繳 9 月、10 月月費 NT$4,158 入帳（VISA •••• 7720），恢復營業要在商家管理按'}); }
+  if (v === 'sched') { state.page = 'shop'; state.shop = 'mhr'; const s = shopOf('mhr'); s.sched = {at:'10/12（一）00:00', d:'10/12', why:'月費未付：10 月月費扣款失敗兩次'}; s.trail.unshift({t:'10/9 11:12', a:'冠宇排定停權・10/12（一）00:00 起・月費未付：10 月月費扣款失敗兩次'}); }
+  if (v === 'new' || v === 'newdup') {
+    state.page = 'board';
+    setTimeout(() => { openDlg(v === 'new' ? {k:'new', plan:'basic', errs:{}} : {k:'new', plan:'basic', errs:{}, 'n-name':'毛孩日和 2', 'n-tax':'24536806', 'n-who':'陳老闆', 'n-ph':'0912-000-100', 'n-em':'chen@mohairi.tw'}); if (v === 'newdup') act.doNew(); }, 0);
+  }
+}
+const ROLES = Object.keys(ME);
+if (ROLES.includes(qs.get('role'))) state.role = qs.get('role');
+if (qs.get('shop') && shopOf(qs.get('shop'))) { state.page = 'shop'; state.shop = qs.get('shop'); }
+const go0 = qs.get('go');
+$('p-role').value = state.role;
+$('p-role').onchange = e => { state.role = e.target.value; state.dlg = null; renderDlg(); render(); };
+$('p-send').onchange = e => { state.nextSend = e.target.value; };
+$('p-fail').onchange = e => { state.loadFail = e.target.checked; if (state.page === 'board') render(); };
+$('p-theme').onchange = e => { if (e.target.value) document.documentElement.dataset.theme = e.target.value; else delete document.documentElement.dataset.theme; };
+$('p-go').onchange = e => { const v = e.target.value; e.target.value = ''; if (!v) return; state.dlg = null; renderDlg(); seed(v); render(); $('page-title')?.focus({preventScroll:true}); scrollTo(0, 0); };
+/* the shop adds a payment method in 方案與用量: a running trial just stops being stuck; a trial that already ended resumes new bookings on
+   its own and turns paid, with no 寵派 action */
+const payable = () => { const s = state.page === 'shop' && shopOf(state.shop); return !!s && s.stage === 'live' && s.pay === 'trial' && !s.payMethod; };
+$('p-paym').onclick = () => {
+  if (!payable()) return;
+  const s = shopOf(state.shop), wasPaused = paused(s);
+  s.payMethod = true;
+  if (wasPaused) { s.pay = 'paid'; s.paid = LOGD; log(s, '系統：店家在方案與用量補上付款方式（VISA •••• 4402），新預約自動恢復・轉付費'); }
+  else log(s, `系統：店家在方案與用量補上付款方式（VISA •••• 4402），試用到 ${s.trialEnd} 後自動轉付費`);
+  render(); say(wasPaused ? `「${s.n}」補上付款方式，新預約已自動恢復` : `「${s.n}」補上付款方式，不再卡關`);
+};
+/* 200% text: the root grows, so rem-based container queries fold the board and the shop page, and the sidebar folds into the rail */
+const big = () => parseFloat(getComputedStyle(document.documentElement).fontSize) > 20;
+const applyScale = v => { document.documentElement.style.fontSize = v > 1 ? `${v * 100}%` : ''; $('p-scale').value = String(v); };
+if (qs.get('scale') === '2') applyScale(2);
+const mq = matchMedia('(max-width: 1023px)'), mqR = matchMedia('(min-width: 1024px) and (max-width: 1279px)'), mqP = matchMedia('(max-width: 719px)');
+const layout = () => { state.compact = mq.matches; state.rail = mqR.matches || (!mq.matches && big()); state.big = big(); state.phone = mqP.matches; };
+const setCompact = () => { layout(); if (!state.compact) closeNavDrawer(); render(); };
+[mq, mqR, mqP].forEach(m => m.addEventListener('change', setCompact));
+$('p-scale').onchange = e => { applyScale(+e.target.value); setCompact(); };
+layout();
+if (go0) seed(go0);
+render();
+</script>
+</body>
+</html>

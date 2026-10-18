@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title id="pt">毛孩日和 中山店｜線上預約</title>
+<script src="../test-kit/kit.js" data-proto="public-web"></script>
+<meta name="description" id="md" content="">
+<link rel="canonical" id="mc" href="https://chongpai-demo.example/s/hiyori-zhongshan">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:site_name" id="ogs" content="">
+<meta property="og:title" id="ogt" content="">
+<meta property="og:description" id="ogd" content="">
+<meta property="og:url" id="ogu" content="">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" id="tc" content="#F6EFE7">
+<script type="application/ld+json" id="ld">{}</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cellipse cx=%2212%22 cy=%2215%22 rx=%223.6%22 ry=%223%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, owner side (公開網頁 W-01). Status colors are the fixed set shared by every surface and shop; the shop brand slot replaces persimmon. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;--track:#E6D9CC;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --owner-surface:#FFFFFF;--owner-ink:#2B211C;--owner-ink-muted:#6E6058;--owner-border:#EADFD3;--owner-control-border:#9A8878;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --protoh:52px;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--sunk:#30261F;--sunk-hover:#3B2F27;--track:#46382F;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --owner-surface:#211915;--owner-ink:#F6EDE6;--owner-ink-muted:#BCAEA3;--owner-border:#3A2E27;--owner-control-border:#8D7C6F;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--sunk:#30261F;--sunk-hover:#3B2F27;--track:#46382F;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --owner-surface:#211915;--owner-ink:#F6EDE6;--owner-ink-muted:#BCAEA3;--owner-border:#3A2E27;--owner-control-border:#8D7C6F;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+html{--fs:1}
+html.fs13{font-size:130%;--fs:1.2}
+html.fs20{font-size:200%;--fs:1.5}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--protoh) + 16px)}
+html:not(.wide){scroll-padding-bottom:calc(120px + 40px * var(--fs))}
+body{font-family:var(--font);background:var(--bg);color:var(--owner-ink);font-size:1rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+a{color:inherit}
+ul,ol{list-style:none}
+::selection{background:var(--brand-tint);color:var(--owner-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--owner-control-border) transparent}
+:focus-visible{outline:3px solid var(--owner-ink);outline-offset:3px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.muted{color:var(--owner-ink-muted)}
+.nw{white-space:nowrap}
+p,.desc,.sub{text-wrap:pretty}
+.yen{font-size:.72em;font-weight:800;margin-right:.08em}
+
+/* ---------- prototype chrome: inverted against the theme so it never reads as product UI ---------- */
+.proto{position:fixed;inset:0 0 auto 0;z-index:50;min-height:var(--protoh);background:var(--proto-bg);color:var(--proto-ink);display:flex;align-items:center;gap:6px 14px;padding:6px 14px;overflow-x:auto;white-space:nowrap;font-size:13px;font-weight:700;border-bottom:1.5px dashed var(--proto-muted);scrollbar-width:none}
+.proto::-webkit-scrollbar{display:none}
+@media (min-width:1200px){.proto{flex-wrap:wrap;white-space:normal;overflow:visible}.proto label,.proto .note{white-space:nowrap}}
+.proto .tag{flex:none;border:1.5px dashed var(--proto-muted);border-radius:999px;padding:2px 9px;color:var(--proto-muted);font-weight:800}
+.proto label{display:inline-flex;align-items:center;gap:6px;flex:none;color:var(--proto-muted)}
+.proto select,.proto .pbtn{height:36px;border-radius:10px;border:1.5px solid var(--proto-line);background:transparent;color:var(--proto-ink);padding:0 8px;font-weight:700;font-size:13px}
+.proto select option{background:var(--proto-bg);color:var(--proto-ink)}
+.proto .pbtn{display:inline-flex;align-items:center;gap:4px;flex:none;text-decoration:none}
+.proto input[type="checkbox"]{width:18px;height:18px;accent-color:var(--proto-ink)}
+.proto .sep{flex:none;width:1px;height:24px;background:var(--proto-line)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .ico{width:16px;height:16px}
+
+/* ---------- page frame ---------- */
+.site{padding-top:var(--protoh);min-height:100dvh}
+html.pframe .site,html.pframe .dock{max-width:390px;margin-inline:auto}
+html.pframe .site{box-shadow:0 0 0 1px var(--owner-border);background:var(--bg)}
+html.pframe body{background:var(--sunk)}
+.wrap{padding:20px 16px 24px;display:grid;grid-template-columns:minmax(0,1fr);gap:28px}
+.wrap.enter{animation:rise .32s var(--out) both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+html.wide .wrap{max-width:1180px;margin:0 auto;padding:40px 40px 56px;grid-template-columns:minmax(0,1fr) minmax(360px,404px);grid-template-areas:"hdr slip" "svcs slip" "info slip" "pw slip";column-gap:clamp(32px,4vw,56px);row-gap:36px;align-items:start}
+html.wide .a-hdr{grid-area:hdr}
+html.wide .a-svcs{grid-area:svcs}
+html.wide .a-info{grid-area:info}
+html.wide .a-pw{grid-area:pw}
+html.wide .a-quick{display:none}
+html.wide .slip{grid-area:slip}
+
+/* ---------- store header ---------- */
+.hdr{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center}
+.logo{width:4rem;height:4rem;border-radius:16px;flex:none;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font-size:1.75rem;font-weight:900;box-shadow:var(--lift);line-height:1}
+.hdr .nm{min-width:0}
+.hdr h1{font-size:1.5rem;font-weight:900;line-height:1.25;text-wrap:balance;overflow-wrap:anywhere}
+.hdr .br{font-size:1rem;font-weight:800;color:var(--owner-ink-muted);margin-top:2px}
+.state{grid-column:1/-1;display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;font-size:.9375rem;font-weight:800;margin-top:8px}
+.state .dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex:none}
+.state .on{display:inline-flex;align-items:center;gap:8px;color:var(--success)}
+.state .off{display:inline-flex;align-items:center;gap:8px;color:var(--neutral)}
+.state .sus{display:inline-flex;align-items:center;gap:6px;color:var(--warning);background:var(--warning-bg);border-radius:999px;padding:3px 12px 3px 10px;font-size:.875rem}
+.state .sus .ico{width:16px;height:16px}
+.state .then{color:var(--owner-ink-muted);font-weight:700}
+.acts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+html.wide .hdr{grid-template-columns:auto 1fr;column-gap:22px}
+html.wide .logo{width:5.5rem;height:5.5rem;border-radius:20px;font-size:2.5rem;grid-row:span 2}
+html.wide .hdr h1{font-size:2rem;line-height:1.2}
+html.wide .hdr .br{font-size:1.0625rem}
+html.wide .state,html.wide .acts{grid-column:2}
+html.wide .state{margin-top:2px}
+
+/* ---------- buttons, links ---------- */
+.btn{min-height:48px;padding:11px 18px;border-radius:14px;font-weight:800;font-size:.9375rem;line-height:1.3;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid transparent;text-align:center;text-decoration:none;transition:transform .35s var(--spring),background .2s,border-color .2s,filter .2s}
+.btn:active{transform:scale(.97);transition-duration:.08s}
+.btn.pri{width:100%;min-height:56px;border-radius:16px;font-size:1.0625rem;background:var(--brand);color:var(--on-brand);box-shadow:var(--lift)}
+.btn.pri:hover{filter:brightness(1.06)}
+.btn.sec{background:var(--sunk);color:var(--owner-ink)}
+.btn.sec:hover{background:var(--sunk-hover)}
+.btn.quiet{background:var(--owner-surface);border-color:var(--owner-control-border);color:var(--owner-ink);min-height:44px;padding:8px 14px}
+.btn.quiet:hover{border-color:var(--owner-ink)}
+.btn .ico{width:18px;height:18px}
+.btn[aria-disabled="true"]{background:transparent;border:1.5px dashed var(--owner-control-border);color:var(--owner-ink-muted);box-shadow:none;cursor:not-allowed;filter:none}
+.btn[aria-disabled="true"]:active{transform:none}
+.btn.busy{pointer-events:none}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* LINE Login button: LINE's own spec, fixed colors in both themes, official icon (vendor/line/SOURCES.md) */
+.linebtn{position:relative;width:100%;min-height:56px;display:grid;grid-template-columns:56px 1px 1fr;align-items:center;background:#06C755;color:#FFFFFF;border-radius:12px;overflow:hidden;font-weight:800;font-size:1.0625rem;text-align:center;animation:linein .45s var(--out) both}
+.linebtn img{width:56px;height:56px;display:block}
+.linebtn .sep{align-self:stretch;background:rgb(0 0 0 / .08)}
+.linebtn .lbl{padding:0 12px 0 8px;line-height:1.3}
+.linebtn::after{content:"";position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+.linebtn:hover::after{opacity:.1}
+.linebtn:active::after{opacity:.3}
+.linebtn.busy{pointer-events:none}
+.linebtn.busy::after{opacity:.1}
+.linebtn.busy .lbl{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+@keyframes linein{from{clip-path:inset(0 100% 0 0 round 12px)}to{clip-path:inset(0 0 0 0 round 12px)}}
+.tlink{min-height:44px;padding:0 4px;display:inline-flex;align-items:center;gap:4px;color:var(--brand-ink);font-weight:800;font-size:.9375rem;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1.5px;border-radius:10px}
+
+/* ---------- sections ---------- */
+.sechd{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:12px}
+h2.sec{font-size:1.25rem;font-weight:900;line-height:1.3;display:flex;align-items:center;gap:8px}
+.cnt-pill{min-width:26px;height:26px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;display:inline-grid;place-items:center;padding:0 9px}
+.sechd .sub{font-size:.875rem;font-weight:700;color:var(--owner-ink-muted)}
+h3.grp{font-size:.9375rem;font-weight:900;color:var(--owner-ink-muted);margin:20px 0 10px}
+h3.grp:first-of-type{margin-top:0}
+.card{background:var(--owner-surface);border-radius:16px;box-shadow:var(--lift);padding:16px}
+
+/* ---------- 最近空檔 (phone, before services; inside the slip on desktop) ---------- */
+.quick{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,6.5rem),1fr));gap:8px}
+.qd{min-height:72px;border-radius:16px;background:var(--owner-surface);box-shadow:var(--lift);padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:1px;line-height:1.25;transition:transform .35s var(--spring),background .2s}
+.qd b{font-size:1rem;font-weight:900}
+.qd span{font-size:.8125rem;font-weight:700;color:var(--success)}
+.qd:active{transform:scale(.96);transition-duration:.08s}
+.qd[aria-pressed="true"]{background:var(--brand);color:var(--on-brand)}
+.qd[aria-pressed="true"] span{color:var(--on-brand)}
+.qempty{font-size:.9375rem;font-weight:700;color:var(--owner-ink-muted)}
+html.fs20 .quick{grid-template-columns:1fr}
+.slip .quick{grid-template-columns:repeat(3,minmax(0,1fr))}
+.slip .qd{min-height:60px;box-shadow:inset 0 0 0 1.5px var(--owner-border);padding:8px 10px}
+.slip .qd:hover:not([aria-pressed="true"]){box-shadow:inset 0 0 0 1.5px var(--owner-control-border)}
+.slip .qd[aria-pressed="true"]{box-shadow:none}
+.qlbl{font-size:.8125rem;font-weight:800;color:var(--owner-ink-muted);margin:2px 0 8px}
+
+/* ---------- service options ---------- */
+.svcs{display:flex;flex-direction:column;gap:10px}
+.opt{position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:2px 14px;align-items:start;background:var(--owner-surface);border-radius:16px;padding:16px;box-shadow:inset 0 0 0 1.5px var(--owner-border);cursor:pointer;transition:background .2s,box-shadow .2s}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt .mk{grid-row:1/3;width:26px;height:26px;margin-top:1px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--owner-control-border);display:grid;place-items:center;color:transparent;transition:background .2s,box-shadow .2s}
+.opt .mk .ico{width:16px;height:16px;stroke-width:3}
+.opt .t{font-weight:900;font-size:1.0625rem;line-height:1.35;min-width:0}
+.opt .p{font-weight:900;font-size:1.1875rem;line-height:1.3;text-align:right;white-space:nowrap}
+.opt .meta{grid-column:2/-1;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:.875rem;font-weight:700;color:var(--owner-ink-muted)}
+.opt .meta .m{display:inline-flex;align-items:center;gap:5px}
+.opt .meta .ico{width:16px;height:16px}
+.opt .d{grid-column:2/-1;font-size:.875rem;font-weight:600;color:var(--owner-ink-muted)}
+.opt .ct{grid-column:2/-1;display:none;margin-top:8px;gap:8px;align-items:flex-start;background:var(--brand-tint);color:var(--brand-ink);border-radius:14px;padding:9px 12px;font-size:.875rem;font-weight:800;line-height:1.45}
+.opt .ct .ico{width:18px;height:18px;margin-top:1px}
+.opt:hover{box-shadow:inset 0 0 0 1.5px var(--owner-control-border)}
+.opt:has(input:checked){background:var(--brand-tint);box-shadow:inset 0 0 0 2px var(--brand)}
+.opt:has(input:checked) .mk{background:var(--brand);box-shadow:none;color:var(--on-brand)}
+.opt:has(input:checked) .ct{display:flex;background:var(--owner-surface)}
+.opt:has(input:focus-visible){outline:3px solid var(--owner-ink);outline-offset:3px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:.8125rem;font-weight:800;line-height:1.4;white-space:nowrap;border:1.5px solid var(--owner-control-border);color:var(--owner-ink-muted)}
+.chip .ico{width:14px;height:14px}
+html.fs20 .opt{grid-template-columns:auto 1fr}
+html.fs20 .opt .p{grid-column:2;text-align:left}
+
+/* ---------- 店家資訊 ---------- */
+.shopinfo{display:grid;gap:18px}
+html.wide .shopinfo{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px}
+.irow{display:grid;grid-template-columns:22px 1fr;gap:2px 12px;align-items:start}
+.irow .ico{margin-top:2px;color:var(--owner-ink-muted)}
+.irow .k{font-size:.8125rem;font-weight:800;color:var(--owner-ink-muted)}
+.irow .v{grid-column:2;font-weight:700;overflow-wrap:anywhere}
+.irow .v .tlink{margin-left:-4px}
+html.wide .irow.hrs{grid-column:2;grid-row:1/3}
+.hours{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;font-weight:700;font-size:.9375rem}
+.hours .tdy{font-weight:900;color:var(--owner-ink)}
+.hours dt.tdy::after{content:"今天";margin-left:8px;font-size:.75rem;font-weight:800;background:var(--sunk);border-radius:999px;padding:1px 7px;vertical-align:1px}
+.hours .cl{color:var(--owner-ink-muted)}
+.pw{text-align:center;font-size:.75rem;font-weight:700;color:var(--owner-ink-muted);padding-top:4px}
+html.wide .pw{text-align:left}
+
+/* ---------- 預約單 (the slip): sticky right column on desktop, sections in the flow on phone ---------- */
+.slip{display:flex;flex-direction:column;gap:28px}
+.slip .sl-top,.slip .sl-svc,.slip .sl-foot{display:none}
+.sl-body{display:flex;flex-direction:column;gap:28px}
+.srow{display:grid;grid-template-columns:28px 1fr;gap:0 12px;align-items:start}
+.srow>.bd{grid-column:1/-1;margin-top:12px;min-width:0}
+.ck{width:28px;height:28px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--track);display:grid;place-items:center;color:transparent;margin-top:1px;transition:background .25s,box-shadow .25s}
+.ck .ico{width:16px;height:16px;stroke-width:3}
+.srow.done .ck{background:var(--brand);box-shadow:none;color:var(--on-brand)}
+.srow.took .ck{animation:pop .5s var(--spring)}
+.srow.took .val{animation:take .7s var(--out)}
+@keyframes pop{0%{transform:scale(.5)}100%{transform:scale(1)}}
+@keyframes take{0%{background:var(--brand-tint);box-shadow:0 0 0 6px var(--brand-tint)}100%{background:transparent;box-shadow:0 0 0 6px transparent}}
+.srow .hd{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 10px;min-width:0}
+.srow h2{font-size:1.25rem;font-weight:900;line-height:1.35}
+.srow .val{font-size:.9375rem;font-weight:800;border-radius:8px;min-width:0}
+.srow .val.no{color:var(--owner-ink-muted);font-weight:700}
+.why{font-size:.875rem;font-weight:700;min-height:1.3em;margin-top:8px;display:flex;gap:6px;align-items:flex-start}
+.why .ico{width:16px;height:16px;margin-top:2px}
+.why.err{color:var(--danger);font-weight:800}
+.dates{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding-inline:16px;padding:4px 16px 10px;margin:0 -16px;scrollbar-width:none}
+.dates::-webkit-scrollbar{display:none}
+.dcell{flex:none;scroll-snap-align:start;width:4.25rem;min-height:5.5rem;border-radius:16px;background:var(--owner-surface);box-shadow:var(--lift);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:8px 4px;line-height:1.2;text-align:center;transition:background .2s,transform .35s var(--spring)}
+.dcell .w{font-size:.8125rem;font-weight:700;color:var(--owner-ink-muted)}
+.dcell .d{font-size:1.25rem;font-weight:900}
+.dcell .s{font-size:.75rem;font-weight:800;color:var(--success)}
+.dcell[aria-checked="true"]{background:var(--brand);color:var(--on-brand)}
+.dcell[aria-checked="true"] .w,.dcell[aria-checked="true"] .s{color:var(--on-brand)}
+.dcell[aria-disabled="true"]{background:transparent;box-shadow:none;border:1.5px dashed var(--owner-control-border);color:var(--owner-ink-muted);cursor:not-allowed}
+.dcell[aria-disabled="true"] .s{color:var(--owner-ink)}
+.dcell:active:not([aria-disabled]){transform:scale(.95)}
+.dend{flex:none;align-self:center;width:6.5rem;font-size:.75rem;font-weight:700;color:var(--owner-ink-muted);line-height:1.35;padding-left:4px}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(5.25rem,1fr));gap:8px}
+.tm{min-height:48px;border-radius:14px;background:var(--owner-surface);box-shadow:inset 0 0 0 1.5px var(--owner-border);font-weight:900;font-size:1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;padding:4px;text-align:center;transition:background .2s,box-shadow .2s}
+.tm:hover:not([aria-disabled]){box-shadow:inset 0 0 0 1.5px var(--owner-control-border)}
+.tm small{font-size:.75rem;font-weight:800}
+.tm[aria-checked="true"]{background:var(--brand);color:var(--on-brand);box-shadow:none}
+.tm[aria-disabled="true"]{background:transparent;box-shadow:none;border:1.5px dashed var(--owner-control-border);color:var(--owner-ink-muted);cursor:not-allowed;font-weight:700}
+.tm[aria-disabled="true"] small{color:var(--owner-ink)}
+.tm.lost{border-color:var(--danger);color:var(--danger)}
+.tm.lost small{color:var(--danger)}
+.wait{font-size:.9375rem;font-weight:700;color:var(--owner-ink-muted);background:var(--sunk);border-radius:14px;padding:14px 16px;display:flex;gap:10px;align-items:center}
+.wait .ico{color:var(--owner-ink-muted)}
+.fail{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:var(--owner-surface);border-radius:16px;padding:16px;box-shadow:inset 0 0 0 1.5px var(--owner-border)}
+.fail b{font-size:1.0625rem;font-weight:900;display:flex;gap:8px;align-items:center}
+.fail b .ico{color:var(--warning)}
+.fail p{font-size:.9375rem;font-weight:600;color:var(--owner-ink-muted)}
+.fail .btn{margin-top:6px}
+.ntc{text-align:left;display:grid;grid-template-columns:22px 1fr;gap:2px 10px;border-radius:14px;padding:12px 14px;font-size:.9375rem;font-weight:800;line-height:1.45;animation:rise .3s var(--out) both}
+.ntc .ico{margin-top:1px}
+.ntc>span{grid-column:2;text-align:start}
+.ntc p{grid-column:2;font-weight:600}
+.ntc .tlink{color:inherit;padding:0;min-height:32px;font-size:.9375rem}
+.ntc.info{background:var(--info-bg);color:var(--info)}
+.ntc.danger{background:var(--danger-bg);color:var(--danger)}
+.ntc.warning{background:var(--warning-bg);color:var(--warning)}
+.ntc.success{background:var(--success-bg);color:var(--success)}
+
+html.wide .slip{position:sticky;top:calc(var(--protoh) + 24px);max-height:calc(100dvh - var(--protoh) - 48px);background:var(--owner-surface);border-radius:20px;box-shadow:var(--lift-hi);gap:0;overflow:hidden}
+html.wide .slip .sl-top{display:flex;align-items:center;gap:12px;background:var(--brand-tint);padding:18px 22px}
+html.wide .sl-top .logo{width:44px;height:44px;border-radius:14px;font-size:1.25rem;box-shadow:none}
+html.wide .sl-top h2{font-size:1.25rem;font-weight:900;line-height:1.25;color:var(--owner-ink)}
+html.wide .sl-top p{font-size:.8125rem;font-weight:700;color:var(--brand-ink)}
+html.wide .sl-body{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:6px 22px 20px;gap:0;
+  /* scroll cue: a soft shade at the bottom edge that the local cover hides once the end is reached */
+  background:linear-gradient(var(--owner-surface),var(--owner-surface)) bottom/100% 18px no-repeat local,radial-gradient(farthest-side at 50% 100%,rgb(74 44 26 / .18),transparent) bottom/100% 14px no-repeat scroll,var(--owner-surface)}
+html.wide .sl-body .srow{padding:16px 0;border-top:1px solid var(--owner-border)}
+html.wide .sl-body .srow:first-child{border-top:0}
+html.wide .slip .sl-svc{display:grid}
+html.wide .srow h2{font-size:1rem}
+html.wide .srow .hd{padding-top:3px}
+html.wide .srow .val{font-size:1rem;font-weight:900;text-align:right}
+html.wide .srow .val.no{font-weight:700;font-size:.9375rem}
+html.wide .dates{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;overflow:visible;margin:0;padding:2px 0 4px}
+html.wide .dcell{width:auto;min-height:4.5rem;padding:6px 2px}
+html.wide .dcell .d{font-size:1.125rem}
+html.wide .dend{grid-column:1/-1;width:auto;padding:4px 0 0}
+html.wide .times{grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+html.wide .tm{min-height:42px;font-size:.9375rem}
+html.wide .srow.done .val{color:var(--brand-ink)}
+html.wide .srow.done .svcv span{color:var(--owner-ink-muted)}
+.val.dv{display:inline-flex;align-items:center;gap:6px}
+.val.dv .tlink{min-height:32px;font-size:.875rem;padding:0 2px}
+html.wide .dcell{box-shadow:inset 0 0 0 1.5px var(--owner-border)}
+html.wide .dcell:hover:not([aria-disabled]):not([aria-checked="true"]){box-shadow:inset 0 0 0 1.5px var(--owner-control-border)}
+html.wide .dcell[aria-checked="true"]{box-shadow:var(--lift)}
+html.wide .slip .sl-foot{display:flex;flex-direction:column;gap:10px;padding:16px 22px 18px;border-top:1px solid var(--owner-border);background:var(--owner-surface)}
+.svcv{display:flex;flex-direction:column;align-items:flex-end;gap:0}
+.svcv b{font-weight:900}
+.svcv span{font-size:.8125rem;font-weight:700;color:var(--owner-ink-muted)}
+.svcv .tlink{min-height:32px;font-size:.8125rem;padding:0}
+.tot{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.tot .l{font-size:.875rem;font-weight:700;color:var(--owner-ink-muted)}
+.tot .n{font-size:1.5rem;font-weight:900;line-height:1.1}
+.after{font-size:.8125rem;font-weight:700;color:var(--owner-ink-muted);text-align:center;text-wrap:balance}
+.sus-box{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;font-size:.9375rem;font-weight:800;padding:4px 0}
+.sus-box p{font-weight:600;color:var(--owner-ink-muted);font-size:.875rem}
+
+/* ---------- phone dock ---------- */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--owner-surface);box-shadow:var(--lift-up);border-top:1px solid var(--owner-border);padding:10px 16px calc(12px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px}
+html.wide .dock,.dock:empty{display:none}
+.dock .sum{display:flex;align-items:baseline;justify-content:space-between;gap:10px;font-size:.875rem;font-weight:800;min-height:1.3em}
+.dock .sum .what{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dock .sum .what.no{color:var(--owner-ink-muted);font-weight:700}
+.dock .sum .n{font-weight:900;font-size:1rem;flex:none}
+html.fs20 .dock .sum{flex-direction:column;gap:0}
+html.fs20 .dock .sum .what{white-space:normal}
+html:not(.wide) .wrap{padding-bottom:calc(120px + 40px * var(--fs))}
+
+/* ---------- skeleton ---------- */
+.sk{background:var(--sunk);border-radius:12px;animation:shim 1.4s ease-in-out infinite}
+@keyframes shim{50%{opacity:.55}}
+.skl{display:flex;flex-direction:column;gap:10px}
+
+/* ---------- handoff ---------- */
+.ho{max-width:34rem;margin:0 auto;padding:28px 16px calc(40px + 40px * var(--fs));display:flex;flex-direction:column;gap:20px}
+.ho.enter{animation:rise .32s var(--out) both}
+.ho .who{display:flex;align-items:center;gap:12px}
+.ho .who .logo{width:48px;height:48px;border-radius:14px;font-size:1.375rem}
+.ho .who b{font-weight:900;font-size:1.0625rem;display:block;line-height:1.3}
+.ho .who span{font-size:.875rem;font-weight:700;color:var(--owner-ink-muted)}
+.ho h1{font-size:1.75rem;font-weight:900;line-height:1.25;text-wrap:balance}
+.ho .desc{font-size:1rem;font-weight:700;color:var(--owner-ink-muted);margin-top:6px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:10px 0;font-size:.9375rem}
+.kv dd{padding-left:16px}
+.kv dt{color:var(--owner-ink-muted);font-weight:700}
+.kv dd{font-weight:800;text-align:right;min-width:0;overflow-wrap:anywhere}
+.kv .tt{border-top:1px solid var(--owner-border);padding-top:10px;font-weight:900;font-size:1.0625rem}
+html.fs20 .kv{grid-template-columns:1fr;gap:0}
+html.fs20 .kv dd{text-align:left;margin-bottom:10px}
+.steps3{display:flex;flex-direction:column}
+.steps3 li{display:grid;grid-template-columns:32px 1fr;gap:2px 14px;position:relative;padding-bottom:18px}
+.steps3 li:last-child{padding-bottom:0}
+.steps3 li::before{content:"";position:absolute;left:15px;top:34px;bottom:2px;border-left:2px dashed var(--owner-control-border)}
+.steps3 li:last-child::before{display:none}
+.steps3 .n{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:.9375rem;box-shadow:inset 0 0 0 2px var(--owner-control-border);color:var(--owner-ink-muted)}
+.steps3 li.cur .n{background:var(--brand);color:var(--on-brand);box-shadow:0 0 0 3px var(--owner-surface),0 0 0 5px var(--brand)}
+.steps3 b{font-weight:900;font-size:1.0625rem;padding-top:3px;display:block}
+.steps3 li.cur b{color:var(--owner-ink)}
+.steps3 p{grid-column:2;font-size:.875rem;font-weight:600;color:var(--owner-ink-muted)}
+.ho .done-l{display:inline-flex;align-items:center;gap:8px;font-size:.9375rem;font-weight:800;color:var(--success);background:var(--success-bg);border-radius:999px;padding:4px 14px 4px 10px;align-self:flex-start}
+.ho .done-l .ico{width:18px;height:18px;stroke-width:2.6}
+.ho .row{display:flex;flex-direction:column;align-items:center;gap:2px}
+
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}.srow.took .val{animation:take .7s var(--out) !important}}
+</style>
+<style id="brandvars"></style>
+</head>
+<body>
+<nav class="proto" aria-label="原型控制">
+  <span class="tag">原型</span>
+  <label>店家 <select data-key="p-shop" id="p-shop"><option value="hiyori">毛孩日和（示範・sage）</option><option value="wangmiao">汪喵小棧（示範・harbor blue）</option><option value="plain">長店名・未設品牌色（示範）</option></select></label>
+  <label>服務數 <select data-key="p-svcs" id="p-svcs"><option value="std">5 項</option><option value="one">只有 1 項</option><option value="many">12 項</option></select></label>
+  <label>今天 <select data-key="p-today" id="p-today"><option value="open">營業中</option><option value="closed">已打烊</option><option value="holiday">公休</option></select></label>
+  <label><input type="checkbox" data-key="p-sus" id="p-sus">店家停權</label>
+  <span class="sep"></span>
+  <label>時段查詢 <select data-key="p-q" id="p-q"><option value="ok">正常</option><option value="fail">失敗</option></select></label>
+  <label>LINE 登入 <select data-key="p-login" id="p-login"><option value="ok">成功</option><option value="cancel">使用者取消</option><option value="fail">失敗</option><option value="conflict">回來時時段被搶</option></select></label>
+  <button class="pbtn" data-key="p-reload" id="p-reload"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.1-5"/><path d="M19 4v4h-4"/></svg>重新載入</button>
+  <span class="sep"></span>
+  <label>主題 <select data-key="p-theme" id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <label>字級 <select data-key="p-fs" id="p-fs"><option value="1">100%</option><option value="1.3">130%</option><option value="2">200%</option></select></label>
+  <label>檢視 <select data-key="p-view" id="p-view"><option value="auto">依視窗</option><option value="m">手機</option><option value="d">桌機</option></select></label>
+  <a class="pbtn" href="../liff-booking/index.html" data-key="p-liff">LIFF 原型<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></a>
+  <span class="note" id="p-now"></span>
+</nav>
+<div class="site"><main id="main"></main></div>
+<section class="dock" id="dock" aria-label="預約"></section>
+<div class="sr" aria-live="polite" id="live"></div>
+<script>
+'use strict';
+const I = {
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/>',
+  phone:'<path d="M5 4h4l1.5 4.5-2.3 1.5a11 11 0 0 0 5.8 5.8l1.5-2.3L20 15v4a1.5 1.5 0 0 1-1.6 1.5C10.5 20 4 13.5 3.5 5.6A1.5 1.5 0 0 1 5 4Z"/>',
+  doc:'<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  paw:'<circle cx="7" cy="10" r="1.8"/><circle cx="10.5" cy="6.5" r="1.8"/><circle cx="14.5" cy="6.5" r="1.8"/><circle cx="18" cy="10" r="1.8"/><path d="M12 12c-3 0-5.5 3.2-5.5 5.4 0 1.4 1 2.1 2.3 2.1 1.4 0 2-.7 3.2-.7s1.8.7 3.2.7c1.3 0 2.3-.7 2.3-2.1C17.5 15.2 15 12 12 12Z"/>',
+  map:'<path d="M12 21s6-5.6 6-11a6 6 0 0 0-12 0c0 5.4 6 11 6 11Z"/><circle cx="12" cy="10" r="2.2"/>',
+  refresh:'<path d="M19 12a7 7 0 1 1-2.1-5"/><path d="M19 4v4h-4"/>',
+  pause:'<circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/>',
+  wifioff:'<path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.5a10 10 0 0 1 4.2-2.4M14.8 10.1A10 10 0 0 1 19 12.5"/><path d="M12 20h.01"/>',
+  up:'<path d="m6 15 6-6 6 6"/>'
+};
+const ic = n => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const WD = ['日', '一', '二', '三', '四', '五', '六'];
+const dOf = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
+const isoOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const addDays = (iso, n) => { const d = dOf(iso); d.setDate(d.getDate() + n); return isoOf(d); };
+const dl = iso => { const d = dOf(iso); return `${d.getMonth() + 1}/${d.getDate()}（${WD[d.getDay()]}）`; };
+const tmin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const tstr = m => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+const money = n => `<span class="yen">NT$</span>${n.toLocaleString('en-US')}`;
+const moneyT = n => `NT$${n.toLocaleString('en-US')}`;
+
+/* ---------- the prototype clock: Friday 10/9 ---------- */
+/* 毛孩日和開張 (prototypes/open-day): ?life=open-book is 10/14（三）15:10, the closed day the shop went live at 10:05. Nobody has booked
+   yet, so no slot is taken and no day is full; signing in with LINE posts the act's key action to the director page. */
+const LIFE = new URLSearchParams(location.search).get('life') === 'open-book' ? 'open-book' : null;
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+const TODAY = LIFE ? '2026-10-14' : '2026-10-09';
+const NOW = {open:'15:10', closed:'20:30', holiday:LIFE ? '15:10' : '11:20'};
+const DAYS = 14;   /* the shop opens bookings 14 days ahead */
+
+/* ---------- demo shops (fictional): only data the system stores ---------- */
+const SHOPS = {
+  hiyori:  {slug:'hiyori-zhongshan', name:'毛孩日和', branch:'中山店', logo:'毛', tel:'02-2345-6789', addr:'台北市中山區民權東路一段 00 號（示範地址）', city:'台北市', open:'08:30', close:'19:00', off:3, lunch:null, fullDay:'2026-10-11',
+            light:{b:'#3D6B57', on:'#FFFFFF', t:'#E6EFE6', ink:'#2F5A47'}, dark:{b:'#93CBB0', on:'#0E2A1F', t:'#20302A', ink:'#93CBB0'}},
+  wangmiao:{slug:'wangmiao-banqiao', name:'汪喵小棧', branch:'板橋店', logo:'汪', tel:'02-2960-1234', addr:'新北市板橋區文化路一段 00 號（示範地址）', city:'新北市', open:'10:00', close:'20:00', off:3, lunch:null, fullDay:'2026-10-10',
+            light:{b:'#2D5C8C', on:'#FFFFFF', t:'#E4EDF7', ink:'#24507C'}, dark:{b:'#9CC3EC', on:'#0D2238', t:'#1A2836', ink:'#9CC3EC'}},
+  /* no brand color set: the neutral dark grey default (EXPERIENCE.md brand-default) */
+  plain:   {slug:'second-home-qizhang', name:'毛小孩的第二個家寵物美容沙龍', branch:'新店七張旗艦店', logo:'毛', tel:'02-8911-0000', addr:'新北市新店區北新路二段 00 號 1 樓（示範地址）', city:'新北市', open:'09:00', close:'18:00', off:2, lunch:'12:00', fullDay:'2026-10-12',
+            light:{b:'#45484E', on:'#FFFFFF', t:'#EFEAE5', ink:'#3A3D42'}, dark:{b:'#C3C7CE', on:'#1A1C20', t:'#2B2622', ink:'#C3C7CE'}}
+};
+const shop = () => SHOPS[state.shop];
+
+/* ---------- services (示範價格). sp = applicable species; ct = needs a signed contract ---------- */
+const SVC_ALL = [
+  /* the catalog follows M-04 服務與價格 (prototypes/m04-services): same names, prices and lengths; drafts and stopped services left out, 住宿 booked in LIFF */
+  {id:'g1', grp:'洗澡與美容', name:'基礎洗澡・小型犬', price:600, mins:60, sp:'小型犬', ct:true, desc:'洗澡・吹整・清耳朵・剪指甲'},
+  {id:'g2', grp:'洗澡與美容', name:'洗澡＋剪毛・小型犬', price:1200, mins:120, sp:'小型犬', ct:true, desc:'洗澡加全身造型修剪'},
+  {id:'g3', grp:'洗澡與美容', name:'基礎洗澡・中型犬', price:800, mins:60, sp:'中型犬', ct:true, desc:'洗澡・吹整・清耳朵・剪指甲'},
+  {id:'f1', grp:'洗澡與美容', name:'精緻美容・小型犬', price:1500, mins:120, sp:'小型犬', ct:true, desc:'洗澡、全身造型修剪、護毛與香氛'},
+  {id:'f2', grp:'洗澡與美容', name:'精緻美容・中型犬', price:1800, mins:120, sp:'中型犬', ct:true, desc:'洗澡、全身造型修剪、護毛與香氛', more:true},
+  {id:'f3', grp:'洗澡與美容', name:'精緻美容・大型犬', price:2200, mins:150, sp:'大型犬', ct:true, desc:'洗澡、全身造型修剪、護毛與香氛', more:true},
+  {id:'g4', grp:'洗澡與美容', name:'基礎洗澡・大型犬', price:1200, mins:90, sp:'大型犬', ct:true, desc:'洗澡・吹整・清耳朵・剪指甲', more:true},
+  {id:'g5', grp:'洗澡與美容', name:'洗澡＋剪毛・中型犬', price:1500, mins:120, sp:'中型犬', ct:true, desc:'洗澡加全身造型修剪', more:true},
+  {id:'g6', grp:'洗澡與美容', name:'洗澡＋剪毛・大型犬', price:2000, mins:150, sp:'大型犬', ct:true, desc:'洗澡加全身造型修剪', more:true},
+  {id:'p1', grp:'洗澡與美容', name:'洗澡＋修腳底毛・小型犬', price:900, mins:60, sp:'小型犬', ct:true, desc:'基礎洗澡加修短腳底毛', more:true},
+  {id:'p2', grp:'洗澡與美容', name:'洗澡＋修腳底毛・中型犬', price:1100, mins:75, sp:'中型犬', ct:true, desc:'基礎洗澡加修短腳底毛', more:true},
+  {id:'p3', grp:'洗澡與美容', name:'洗澡＋修腳底毛・大型犬', price:1500, mins:90, sp:'大型犬', ct:true, desc:'基礎洗澡加修短腳底毛', more:true},
+  {id:'c1', grp:'洗澡與美容', name:'基礎洗澡・貓', price:1000, mins:60, sp:'貓', ct:true, desc:'洗澡・吹整・清耳朵・剪指甲'},
+  {id:'c2', grp:'洗澡與美容', name:'洗澡＋剪毛・貓', price:1600, mins:120, sp:'貓', ct:true, desc:'洗澡加全身造型修剪', more:true},
+  {id:'q1', grp:'快速整理', name:'修指甲', price:300, mins:30, sp:'狗・貓', ct:false, desc:'剪指甲、磨圓'},
+  {id:'q2', grp:'快速整理', name:'腳底毛修剪', price:200, mins:15, sp:'狗・貓', ct:false, desc:'修短腳底毛，防滑', more:true}
+];
+const svcs = () => state.svcs === 'one' ? SVC_ALL.slice(0, 1) : state.svcs === 'many' ? SVC_ALL : SVC_ALL.filter(s => !s.more);
+const svc = id => SVC_ALL.find(s => s.id === id);
+const dur = m => m < 60 ? `約 ${m} 分鐘` : m % 30 ? `約 ${Math.floor(m / 60)} 小時 ${m % 60} 分` : `約 ${m % 60 ? (m / 60).toFixed(1) : m / 60} 小時`;
+const CT_LINE = '契約會傳到你的 LINE，到店後在櫃台平板簽名即可';
+
+/* ---------- availability (deterministic demo data) ---------- */
+const hash = s => { let h = 7; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+const nowMin = () => tmin(NOW[state.today]);
+function slotsFor(iso, mins) {
+  const s = shop(), out = [];
+  for (let m = tmin(s.open); m < tmin(s.close); m += 30) {
+    if (iso === TODAY && m < nowMin() + 60) continue;      /* earliest same-day slot: an hour from now */
+    const t = tstr(m); let st = 'ok';
+    if (s.lunch && m >= tmin(s.lunch) && m < tmin(s.lunch) + 60) st = 'closed';
+    else if (m + mins > tmin(s.close)) st = 'late';
+    else if (state.taken.has(iso + ' ' + t) || (!LIFE && hash(state.shop + iso + t) % 100 < 26)) st = 'full';
+    out.push({t, st});
+  }
+  return out;
+}
+function dayInfo(iso, mins) {
+  const s = shop(), d = dOf(iso);
+  if (iso === TODAY && state.today === 'holiday') return {st:'holiday', word:'公休'};
+  if (d.getDay() === s.off) return {st:'holiday', word:'公休'};
+  if (iso === TODAY && state.today === 'closed') return {st:'closed', word:'已打烊'};
+  if (iso === s.fullDay && !LIFE) return {st:'full', word:'已滿', slots:slotsFor(iso, mins).map(x => ({t:x.t, st:x.st === 'ok' ? 'full' : x.st}))};
+  const slots = slotsFor(iso, mins), free = slots.filter(x => x.st === 'ok');
+  if (!free.length) return {st:'full', word:'已滿', slots};
+  return {st:'ok', word: state.sel.svc ? `${free.length} 個` : '有空檔', slots, free};
+}
+const curMins = () => state.sel.svc ? svc(state.sel.svc).mins : Math.min(...svcs().map(x => x.mins));
+const dateList = () => Array.from({length:DAYS}, (_, i) => addDays(TODAY, i));
+const quickDays = () => dateList().map(iso => ({iso, ...dayInfo(iso, curMins())})).filter(x => x.st === 'ok').slice(0, 3);
+const SLOT_WORD = {full:'已滿', closed:'不開放', late:'超過打烊'};
+const ERR = {
+  HOLIDAY_NOT_BOOKABLE:'店家該日未開放預約。',
+  OUTSIDE_BUSINESS_HOURS:'此時段不在店家營業時間內。',
+  RESOURCE_CONFLICT:'您選擇的時段剛被預約，請重新選擇。',
+  TENANT_SUSPENDED:'店家目前暫停新增服務。'
+};
+
+/* ---------- state ---------- */
+const state = {shop:'hiyori', svcs:'std', today:'open', sus:false, q:'ok', login:'ok', theme:'', fs:'1', view:'auto',
+  route:'load', sel:{svc:null, date:null, time:null}, taken:new Set(), lost:null,
+  dwhy:null, twhy:null, notice:null, busy:null, qbusy:false, authed:false, took:null, live:''};
+
+function resetSel() {
+  state.sel = {svc: svcs().length === 1 ? svcs()[0].id : null, date:null, time:null};
+  state.taken = new Set(); state.lost = null; state.dwhy = state.twhy = state.notice = null; state.authed = false;
+}
+
+/* ---------- head: title, description, OG, LocalBusiness JSON-LD ---------- */
+function applyHead() {
+  const s = shop(), url = `https://chongpai-demo.example/s/${s.slug}`;
+  const list = svcs().slice(0, 3).map(x => x.name.replace(/（.*）/, '')).filter((v, i, a) => a.indexOf(v) === i).join('、');
+  const t = state.route === 'handoff' ? `還差三步完成預約・${s.name}` : `${s.name} ${s.branch}｜線上預約`;
+  const desc = `${s.name} ${s.branch}：${list}等服務的價格與可預約時段，用 LINE 登入就能預約。`;
+  document.title = t;
+  document.getElementById('md').content = desc;
+  document.getElementById('mc').href = url;
+  document.getElementById('ogs').content = s.name;
+  document.getElementById('ogt').content = `${s.name} ${s.branch}｜線上預約`;
+  document.getElementById('ogd').content = desc;
+  document.getElementById('ogu').content = url;
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].filter((_, i) => i !== s.off);
+  document.getElementById('ld').textContent = JSON.stringify({
+    '@context':'https://schema.org', '@type':'LocalBusiness', name:`${s.name} ${s.branch}`, url, telephone:s.tel,
+    address:{'@type':'PostalAddress', streetAddress:s.addr, addressRegion:s.city, addressCountry:'TW'},
+    openingHoursSpecification:[{'@type':'OpeningHoursSpecification', dayOfWeek:days, opens:s.open, closes:s.close}],
+    makesOffer:svcs().map(x => ({'@type':'Offer', price:x.price, priceCurrency:'TWD', itemOffered:{'@type':'Service', name:x.name}}))
+  });
+}
+function applyBrand() {
+  const s = shop(), v = p => `--brand:${p.b};--on-brand:${p.on};--brand-tint:${p.t};--brand-ink:${p.ink};`;
+  document.getElementById('brandvars').textContent = `:root{${v(s.light)}}:root[data-theme="dark"]{${v(s.dark)}}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){${v(s.dark)}}}`;
+}
+function applyLayout() {
+  const h = document.documentElement, fs = Number(state.fs);
+  h.classList.toggle('fs13', fs === 1.3); h.classList.toggle('fs20', fs === 2);
+  if (state.theme) h.dataset.theme = state.theme; else delete h.dataset.theme;
+  const dark = state.theme === 'dark' || (!state.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.getElementById('tc').content = dark ? '#15100D' : '#F6EFE7';
+  const need = fs === 1.3 ? 1280 : 1024;
+  const wide = fs !== 2 && (state.view === 'd' || (state.view === 'auto' && innerWidth >= need));
+  h.classList.toggle('wide', wide); h.classList.toggle('pframe', state.view === 'm');
+  return wide;
+}
+const isWide = () => document.documentElement.classList.contains('wide');
+
+/* ---------- views ---------- */
+function vHeader() {
+  const s = shop(), t = nowMin(), open = tmin(s.open), close = tmin(s.close);
+  let st;
+  if (state.sus) st = `<span class="sus">${ic('pause')}暫停新增服務</span>`;
+  else if (state.today === 'holiday') st = `<span class="off"><i class="dot"></i>今天公休</span><span class="then">明天 ${s.open} 營業</span>`;
+  else if (t >= close) st = `<span class="off"><i class="dot"></i>已打烊</span><span class="then">明天 ${s.open} 營業</span>`;
+  else if (t < open) st = `<span class="off"><i class="dot"></i>還沒營業</span><span class="then">今天 ${s.open} 營業</span>`;
+  else st = `<span class="on"><i class="dot"></i>營業中</span><span class="then">營業至 ${s.close}</span>`;
+  const map = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' ' + s.branch)}`;
+  return `<header class="hdr a-hdr">
+    <div class="logo" aria-hidden="true">${esc(s.logo)}</div>
+    <div class="nm"><h1>${esc(s.name)}</h1><div class="br">${esc(s.branch)}</div></div>
+    <div class="state">${st}</div>
+    <div class="acts">
+      <a class="btn quiet" href="tel:${s.tel.replace(/-/g, '')}" data-key="tel">${ic('phone')}<span class="nw">${s.tel}</span></a>
+      <a class="btn quiet" href="${map}" target="_blank" rel="noopener" data-key="map">${ic('map')}地圖<span class="sr">（另開視窗）</span></a>
+    </div>
+  </header>`;
+}
+function vQuick(inSlip) {
+  if (state.q === 'fail') return '';
+  const q = quickDays();
+  if (!q.length) return `<p class="qempty">接下來 ${DAYS} 天都約滿了，可以打電話問店家。</p>`;
+  const cells = q.map(x => `<button class="qd" data-key="${inSlip ? 'qs' : 'qm'}-${x.iso}" data-act="date" data-iso="${x.iso}" aria-pressed="${state.sel.date === x.iso}"><b>${x.iso === TODAY ? '今天' : x.iso === addDays(TODAY, 1) ? '明天' : dl(x.iso).replace(/（.）/, '')}・${WD[dOf(x.iso).getDay()]}</b><span>${x.free[0].t} 起</span></button>`).join('');
+  return inSlip ? `<p class="qlbl">最近空檔</p><div class="quick">${cells}</div>` : `<div class="quick">${cells}</div>`;
+}
+function vServices() {
+  const list = svcs(), groups = [...new Set(list.map(x => x.grp))];
+  const opt = x => `<label class="opt" data-key="svc-${x.id}">
+      <input type="radio" name="svc" value="${x.id}" ${state.sel.svc === x.id ? 'checked' : ''} data-act="svc">
+      <span class="mk">${ic('check')}</span>
+      <span class="t">${esc(x.name)}</span>
+      <span class="p">${money(x.price)}</span>
+      <span class="meta"><span class="m">${ic('clock')}${dur(x.mins)}</span><span class="m">${ic('paw')}適用：${x.sp}</span>${x.ct ? `<span class="chip">${ic('doc')}需簽約</span>` : ''}</span>
+      <span class="d">${esc(x.desc)}</span>
+      ${x.ct ? `<span class="ct">${ic('doc')}${CT_LINE}</span>` : ''}
+    </label>`;
+  const body = groups.length > 1 && list.length > 6
+    ? groups.map(g => `<h3 class="grp">${g}</h3><div class="svcs">${list.filter(x => x.grp === g).map(opt).join('')}</div>`).join('')
+    : `<div class="svcs">${list.map(opt).join('')}</div>`;
+  return `<section class="a-svcs" aria-labelledby="h-svcs" id="sec-svcs">
+    <div class="sechd"><h2 class="sec" id="h-svcs" tabindex="-1">服務與價格 <span class="cnt-pill">${list.length}</span></h2><span class="sub">價格為示範</span></div>
+    <div role="radiogroup" aria-labelledby="h-svcs">${body}</div>
+  </section>`;
+}
+function vInfo() {
+  const s = shop(), td = dOf(TODAY).getDay();
+  const rows = [1, 2, 3, 4, 5, 6, 0].map(d => {
+    const off = d === s.off || (d === td && state.today === 'holiday');
+    return `<dt class="${d === td ? 'tdy' : ''}">星期${WD[d]}</dt><dd class="${off ? 'cl' : ''}${d === td ? ' tdy' : ''}">${off ? (d === s.off ? '公休' : '今天公休') : `${s.open}–${s.close}`}</dd>`;
+  }).join('');
+  return `<section class="a-info" aria-labelledby="h-info">
+    <div class="sechd"><h2 class="sec" id="h-info">店家資訊</h2></div>
+    <div class="card shopinfo">
+      <div class="irow">${ic('map')}<span class="k">地址</span><span class="v">${esc(s.addr)}</span></div>
+      <div class="irow">${ic('phone')}<span class="k">電話</span><span class="v"><a class="tlink" href="tel:${s.tel.replace(/-/g, '')}">${s.tel}</a></span></div>
+      <div class="irow hrs">${ic('clock')}<span class="k" id="h-hours">營業時間</span><dl class="v hours" aria-labelledby="h-hours">${rows}</dl></div>
+    </div>
+  </section>`;
+}
+function vDates() {
+  if (state.q === 'fail') return '';
+  const mins = curMins();
+  const cells = dateList().map(iso => {
+    const di = dayInfo(iso, mins), d = dOf(iso), sel = state.sel.date === iso, off = di.st !== 'ok';
+    const w = iso === TODAY ? '今天' : `週${WD[d.getDay()]}`;
+    return `<button class="dcell" role="radio" aria-checked="${sel}" ${off ? 'aria-disabled="true"' : ''} data-key="d-${iso}" data-act="date" data-iso="${iso}" aria-label="${dl(iso)}，${off ? di.word : state.sel.svc ? `還有 ${di.free.length} 個時段` : '有空檔'}"><span class="w">${w}</span><span class="d">${d.getMonth() + 1}/${d.getDate()}</span><span class="s">${di.word}</span></button>`;
+  }).join('');
+  return `<div class="dates" role="radiogroup" aria-label="日期" id="dstrip">${cells}<span class="dend">只開放 ${DAYS} 天內的預約</span></div>`;
+}
+function vTimes() {
+  if (state.q === 'fail') return '';
+  if (!state.sel.svc) return `<p class="wait">${ic('clock')}先選一項服務，才排得出放得下的時段。</p>`;
+  if (!state.sel.date) return `<p class="wait">${ic('cal')}選好日期，就會列出這天的時段。</p>`;
+  const di = dayInfo(state.sel.date, curMins());
+  if (!di.slots || !di.slots.length) return `<p class="wait">${ic('cal')}這天沒有時段，請換一天。</p>`;
+  return `<div class="times" role="radiogroup" aria-label="${dl(state.sel.date)} 的時段">${di.slots.map(x => {
+    const sel = state.sel.time === x.t, off = x.st !== 'ok', lost = state.lost === state.sel.date + ' ' + x.t;
+    return `<button class="tm${lost ? ' lost' : ''}" role="radio" aria-checked="${sel}" ${off ? 'aria-disabled="true"' : ''} data-key="t-${x.t}" data-act="time" data-t="${x.t}" data-st="${x.st}">${x.t}${off ? `<small>${lost ? '剛被約走' : SLOT_WORD[x.st]}</small>` : ''}</button>`;
+  }).join('')}</div>`;
+}
+function vFail() {
+  const busy = state.qbusy;
+  return `<div class="fail" role="alert">
+    <b>${ic('wifioff')}時段暫時查不到</b>
+    <p>可能是網路不穩。服務和價格還是可以先看。</p>
+    <button class="btn sec${busy ? ' busy' : ''}" data-act="retry" data-key="retry">${busy ? '<span class="spin" aria-hidden="true"></span>查詢中' : `${ic('refresh')}重新整理`}</button>
+  </div>`;
+}
+const why = (w, err) => w ? `<p class="why${err ? ' err' : ''}" ${err ? 'role="alert"' : 'aria-live="polite"'}>${err ? ic('warn') : ''}<span>${w}</span></p>` : '';
+function selSummary() {
+  const s = state.sel, x = s.svc && svc(s.svc);
+  return {x, done:{svc:!!s.svc, date:!!s.date, time:!!s.time}, complete:!!(s.svc && s.date && s.time)};
+}
+function vSlip() {
+  const s = shop(), sel = state.sel, {x, done} = selSummary(), took = state.took;
+  const row = (k, h, val, body, cls) => `<section class="srow${done[k] ? ' done' : ''}${took === k ? ' took' : ''} ${cls || ''}" id="sec-${k}" aria-labelledby="h-${k}">
+      <span class="ck" aria-hidden="true">${ic('check')}</span>
+      <div class="hd"><h2 id="h-${k}" tabindex="-1">${h}</h2>${val}</div>
+      ${body ? `<div class="bd">${body}</div>` : ''}
+    </section>`;
+  const svcVal = x ? `<span class="val svcv"><b>${esc(x.name)}</b><span>${dur(x.mins)}・${moneyT(x.price)}</span></span>` : `<span class="val no">從左邊選一項服務</span>`;
+  const dateShut = isWide() && sel.date && !state.dateOpen;
+  const dateVal = sel.date ? `<span class="val dv">${dl(sel.date)}${dateShut ? `<button class="tlink" data-act="reopen" data-key="reopen" aria-label="改日期（目前 ${dl(sel.date)}）">改</button>` : ''}</span>` : `<span class="val no">還沒選</span>`;
+  const timeShut = isWide() && sel.time && !state.timeOpen;
+  const timeVal = sel.time ? `<span class="val dv">${sel.time}–${tstr(tmin(sel.time) + x.mins)}${timeShut ? `<button class="tlink" data-act="reopen-t" data-key="reopen-t" aria-label="改時段（目前 ${sel.time}）">改</button>` : ''}</span>` : `<span class="val no">還沒選</span>`;
+  const avail = state.q === 'fail';
+  return `<aside class="slip" aria-label="預約單">
+    <div class="sl-top"><div class="logo" aria-hidden="true">${esc(s.logo)}</div><div><h2>線上預約</h2><p>不用先登入，選好再用 LINE 送出</p></div></div>
+    <div class="sl-body">
+      ${row('svc', '服務', svcVal, '', 'sl-svc')}
+      ${avail ? `<section class="srow" id="sec-date" aria-labelledby="h-date"><span class="ck" aria-hidden="true">${ic('check')}</span><div class="hd"><h2 id="h-date" tabindex="-1">日期和時段</h2></div><div class="bd">${vFail()}</div></section>`
+        : row('date', '日期', dateVal, dateShut ? why(state.dwhy?.t, state.dwhy?.err) : `${isWide() && !sel.date && !sel.svc ? vQuick(true) + '<div style="height:14px"></div>' : ''}${vDates()}${why(state.dwhy?.t, state.dwhy?.err)}`) +
+          row('time', '時段', timeVal, timeShut ? why(state.twhy?.t, state.twhy?.err) : `${vTimes()}${why(state.twhy?.t, state.twhy?.err)}`)}
+    </div>
+    <div class="sl-foot">${isWide() ? vAction() : ''}</div>
+  </aside>`;
+}
+function vNotice() {
+  const n = state.notice; if (!n) return '';
+  return `<div class="ntc ${n.kind}" role="${n.kind === 'danger' ? 'alert' : 'status'}" tabindex="-1" id="ntc">${ic(n.kind === 'danger' ? 'warn' : 'info')}<span>${n.t}</span>${n.p ? `<p>${n.p}</p>` : ''}</div>`;
+}
+/* the action area: shared by the slip foot (desktop) and the dock (phone) */
+function vAction() {
+  const s = shop(), {x, done, complete} = selSummary(), wide = isWide();
+  if (state.sus) return `<div class="sus-box" role="status">${ERR.TENANT_SUSPENDED}<p>還是可以先看服務和時段。要預約或詢問，請直接打給店家。</p><a class="tlink" href="tel:${s.tel.replace(/-/g, '')}" data-key="sus-tel">${ic('phone')}${s.tel}</a></div>`;
+  let btn;
+  if (state.authed && complete) btn = `<a class="btn pri" href="${liffUrl()}" data-key="go">下一步：選擇毛孩</a>`;
+  else if (complete) btn = state.busy === 'login'
+    ? `<button class="linebtn busy" data-key="login" aria-disabled="true"><img src="vendor/line/line-icon.png" alt=""><span class="sep"></span><span class="lbl"><span class="spin" aria-hidden="true"></span>前往 LINE 登入</span></button>`
+    : `<button class="linebtn" data-act="login" data-key="login"><img src="vendor/line/line-icon.png" alt=""><span class="sep"></span><span class="lbl">以 LINE 登入並送出</span></button>`;
+  else if (wide) btn = `<button class="btn pri" aria-disabled="true" data-act="need" data-key="need">${!done.svc ? '請先選擇服務' : !done.date ? '請選擇日期' : '請選擇時段'}</button>`;
+  else btn = `<button class="btn pri" data-act="need" data-key="need">立即預約</button>`;
+  if (wide) {
+    const tot = x ? `<div class="tot"><span class="l">費用・接回時在櫃台付款</span><span class="n">${money(x.price)}</span></div>` : '';
+    const after = state.authed ? '已用 LINE 登入。接著選毛孩、填服務前資料，最後確認送出。' : '登入後還有三步：選毛孩・服務前資料・確認送出';
+    return `${vNotice()}${tot}${btn}<p class="after">${after}</p>`;
+  }
+  const sum = complete ? `<span class="what">${esc(x.name)}・${dl(state.sel.date)} ${state.sel.time}</span><span class="n">${money(x.price)}</span>`
+    : x ? `<span class="what">${esc(x.name)}${state.sel.date ? `・${dl(state.sel.date)}` : ''}</span><span class="n muted">還沒選${!done.date ? '日期' : '時段'}</span>`
+    : `<span class="what no">還沒選服務、日期和時段</span>`;
+  return `${vNotice()}<div class="sum">${sum}</div>${btn}`;
+}
+function vSkeleton() {
+  return `<div class="wrap" aria-busy="true"><p class="sr" role="status">載入中</p>
+    <div class="a-hdr hdr"><div class="sk logo" style="box-shadow:none"></div><div class="skl"><div class="sk" style="height:1.6em;width:60%"></div><div class="sk" style="height:1em;width:30%"></div></div><div class="skl" style="grid-column:${isWide() ? 2 : '1/-1'}"><div class="sk" style="height:1em;width:45%"></div><div class="sk" style="height:44px;width:240px;border-radius:14px"></div></div></div>
+    <div class="a-svcs skl"><div class="sk" style="height:1.4em;width:9rem"></div>${'<div class="sk" style="height:96px;border-radius:16px"></div>'.repeat(3)}</div>
+    ${isWide() ? '<div class="slip" style="grid-row:1/4"><div class="sk" style="height:520px;border-radius:20px"></div></div>' : ''}
+  </div>`;
+}
+function vPage() {
+  return `<div class="wrap${state.enter ? ' enter' : ''}">
+    ${vHeader()}
+    ${isWide() || state.q === 'fail' ? '' : `<section class="a-quick" aria-labelledby="h-quick"><div class="sechd"><h2 class="sec" id="h-quick">最近空檔</h2><span class="sub">點一下就選好日期</span></div>${vQuick(false)}</section>`}
+    ${vServices()}
+    ${vSlip()}
+    ${vInfo()}
+    <p class="pw a-pw">寵派小管家 提供預約服務</p>
+  </div>`;
+}
+/* LIFF uses the same service ids, so the chosen service, date and time travel in the link */
+const liffUrl = () => `../liff-booking/index.html?at=pet&shop=${state.shop}&svc=${state.sel.svc}&date=${state.sel.date}&time=${state.sel.time}`;
+function vHandoff() {
+  const s = shop(), x = svc(state.sel.svc), end = tstr(tmin(state.sel.time) + x.mins);
+  return `<div class="ho${state.enter ? ' enter' : ''}">
+    <div class="who"><div class="logo" aria-hidden="true">${esc(s.logo)}</div><div><b>${esc(s.name)}</b><span>${esc(s.branch)}</span></div></div>
+    <div><h1 tabindex="-1" id="ho-h">還差三步就完成預約</h1><p class="desc">已用 LINE 登入，你選的服務和時段都帶過來了。</p></div>
+    <div class="card"><dl class="kv">
+      <dt>服務</dt><dd>${esc(x.name)}</dd>
+      <dt>日期</dt><dd>${dl(state.sel.date)}</dd>
+      <dt>時段</dt><dd>${state.sel.time}–${end}（${dur(x.mins)}）</dd>
+      <dt class="tt">費用</dt><dd class="tt">${money(x.price)}</dd>
+    </dl></div>
+    <ol class="steps3" aria-label="接下來">
+      <li class="cur"><span class="n" aria-hidden="true">1</span><b>選擇毛孩</b><p>從你的毛孩裡選，或新增一隻。</p></li>
+      <li><span class="n" aria-hidden="true">2</span><b>服務前資料</b><p>個性、過敏、緊急聯絡人，回訪可以沿用上次。</p></li>
+      <li><span class="n" aria-hidden="true">3</span><b>確認送出</b><p>時段在這一步送出時才算約好。${x.ct ? '契約會傳到你的 LINE，到店後在櫃台平板簽名即可。' : ''}</p></li>
+    </ol>
+    <div class="row">
+      <a class="btn pri" href="${liffUrl()}" data-key="go">下一步：選擇毛孩</a>
+      <button class="tlink" data-act="back" data-key="back">回到店家頁修改</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- render ---------- */
+let prevDone = {};
+function render() {
+  applyLayout(); applyBrand(); applyHead();
+  const main = document.getElementById('main'), dock = document.getElementById('dock');
+  const ae = document.activeElement, fk = ae && ae.closest('#main,#dock') ? ae.dataset.key : null;
+  const strip = document.getElementById('dstrip'), sl = strip ? strip.scrollLeft : null;
+  const body = document.querySelector('.sl-body'), bst = body ? body.scrollTop : null;
+  const {done} = state.route === 'page' ? selSummary() : {done:{}};
+  state.took = ['svc', 'date', 'time'].find(k => done[k] && !prevDone[k]) || null;
+  prevDone = done;
+  main.innerHTML = state.route === 'load' ? vSkeleton() : state.route === 'handoff' ? vHandoff() : vPage();
+  dock.innerHTML = state.route === 'page' && !isWide() ? vAction() : '';
+  state.enter = false;
+  const s2 = document.getElementById('dstrip');
+  if (s2) {
+    if (sl !== null) s2.scrollLeft = sl;
+    const c = s2.querySelector('[aria-checked="true"]');
+    if (c && (c.offsetLeft < s2.scrollLeft || c.offsetLeft + c.offsetWidth > s2.scrollLeft + s2.clientWidth)) s2.scrollLeft = c.offsetLeft - 16;
+  }
+  const b2 = document.querySelector('.sl-body'); if (b2 && bst !== null) b2.scrollTop = bst;
+  if (fk) { const el = document.querySelector(`#main [data-key="${fk}"] input, #main [data-key="${fk}"], #dock [data-key="${fk}"]`); if (el) el.focus({preventScroll:true}); }
+  document.getElementById('p-now').textContent = `原型時間 ${LIFE ? '10/14（三）' : '10/9（五）'}${NOW[state.today]}`;
+}
+function say(t) { const l = document.getElementById('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+function focusSec(id) {
+  const h = document.getElementById(id); if (!h) return;
+  const sec = h.closest('section') || h;
+  if (isWide() && sec.closest('.slip')) { h.focus({preventScroll:true}); const b = sec.closest('.sl-body'); if (b) b.scrollTop = 0; return; }
+  sec.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'});
+  h.focus({preventScroll:true});
+}
+
+/* ---------- actions ---------- */
+function pickSvc(id) {
+  const s = state.sel; s.svc = id; state.notice = null; state.twhy = null; state.dwhy = null;
+  const x = svc(id);
+  if (s.date) {
+    const di = dayInfo(s.date, x.mins);
+    if (di.st !== 'ok') { state.dwhy = {t:`${dl(s.date)} 放不下「${x.name}」，請換一天。`}; s.date = null; s.time = null; }
+    else if (s.time && di.slots.find(z => z.t === s.time)?.st !== 'ok') { state.twhy = {t:`原本的 ${s.time} 放不下「${x.name}」（${dur(x.mins)}），請重選時段。`}; s.time = null; }
+  }
+  say(`已選服務：${x.name}，${moneyT(x.price)}`);
+  render();
+}
+function pickDate(iso, fromQuick) {
+  const di = dayInfo(iso, curMins()); state.notice = null;
+  if (di.st === 'holiday') { state.dwhy = {t:ERR.HOLIDAY_NOT_BOOKABLE, err:true}; render(); return; }
+  if (di.st === 'closed') { state.dwhy = {t:ERR.OUTSIDE_BUSINESS_HOURS, err:true}; render(); return; }
+  if (di.st === 'full') { state.dwhy = {t:`${dl(iso)} 的時段都約滿了，請換一天。`}; render(); return; }
+  if (state.sel.date !== iso) state.sel.time = null;
+  state.sel.date = iso; state.dateOpen = false; state.dwhy = null; state.twhy = null; state.lost = null;
+  say(`已選日期：${dl(iso)}`);
+  render();
+  if (fromQuick && !isWide()) focusSec(state.sel.svc ? 'h-time' : 'h-svcs');
+}
+function pickTime(t, st) {
+  state.notice = null;
+  if (st && st !== 'ok') {
+    const x = svc(state.sel.svc);
+    state.twhy = {t: st === 'late' ? `這項服務${dur(x.mins)}，${t} 開始會超過 ${shop().close} 打烊。` : st === 'closed' ? '店家這段時間不開放預約。' : state.lost === state.sel.date + ' ' + t ? ERR.RESOURCE_CONFLICT : '這個時段已經約滿了，請選別的時段。'};
+    render(); return;
+  }
+  state.sel.time = t; state.timeOpen = false; state.twhy = null;
+  say(`已選時段：${t}。可以用 LINE 登入並送出了。`);
+  render();
+}
+function need() {
+  const d = selSummary().done;
+  focusSec(!d.svc ? 'h-svcs' : !d.date ? 'h-date' : 'h-time');
+}
+function login() {
+  state.busy = 'login'; state.notice = null; render();
+  setTimeout(() => {
+    state.busy = null;
+    const r = state.login, s = shop();
+    if (r === 'ok') { state.authed = true; state.route = 'handoff'; state.enter = true; render(); scrollTo(0, 0); document.getElementById('ho-h')?.focus(); lifeSay('login'); return; }
+    if (r === 'cancel') state.notice = {kind:'info', t:'你取消了 LINE 登入。', p:'選好的服務和時段都還在，準備好再按一次。'};
+    if (r === 'fail') state.notice = {kind:'danger', t:'LINE 登入沒有成功，請再試一次。', p:`一直不行的話，可以打 ${s.tel} 直接預約。`};
+    if (r === 'conflict') {
+      state.authed = true;
+      const k = state.sel.date + ' ' + state.sel.time; state.taken.add(k); state.lost = k; state.sel.time = null;
+      state.twhy = {t:ERR.RESOURCE_CONFLICT, err:true};
+      state.notice = {kind:'info', t:'已用 LINE 登入，服務和日期都還在。'};
+      state.login = 'ok'; document.getElementById('p-login').value = 'ok';
+    }
+    render();
+    if (r === 'conflict') focusSec('h-time'); else document.getElementById('ntc')?.focus();
+  }, 900);
+}
+function retry() {
+  state.qbusy = true; render();
+  setTimeout(() => { state.qbusy = false; render(); if (state.q === 'ok') say('時段已更新'); }, 700);
+}
+function load(ms) {
+  state.route = 'load'; render();
+  setTimeout(() => { state.route = 'page'; state.enter = true; render(); }, ms);
+}
+
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-act]'); if (!a || a.tagName === 'INPUT') return;
+  const act = a.dataset.act;
+  if (act === 'date') pickDate(a.dataset.iso, a.classList.contains('qd'));
+  else if (act === 'time') pickTime(a.dataset.t, a.dataset.st);
+  else if (act === 'need') need();
+  else if (act === 'login') login();
+  else if (act === 'retry') retry();
+  else if (act === 'reopen-t') { state.timeOpen = true; render(); document.querySelector('.tm[aria-checked="true"]')?.focus(); }
+  else if (act === 'reopen') { state.dateOpen = true; render(); document.querySelector('.dcell[aria-checked="true"]')?.focus(); }
+  else if (act === 'back') { state.route = 'page'; state.enter = true; render(); scrollTo(0, 0); }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.act === 'svc') { pickSvc(t.value); return; }
+  const k = t.dataset.key; if (!k || !k.startsWith('p-')) return;
+  if (k === 'p-shop') { state.shop = t.value; resetSel(); load(500); return; }
+  if (k === 'p-svcs') { state.svcs = t.value; resetSel(); }
+  if (k === 'p-today') { state.today = t.value; state.sel.date = state.sel.time = null; state.dwhy = state.twhy = null; }
+  if (k === 'p-sus') state.sus = t.checked;
+  if (k === 'p-q') state.q = t.value;
+  if (k === 'p-login') state.login = t.value;
+  if (k === 'p-theme') state.theme = t.value;
+  if (k === 'p-fs') state.fs = t.value;
+  if (k === 'p-view') state.view = t.value;
+  render();
+});
+document.getElementById('p-reload').addEventListener('click', () => load(1100));
+/* arrow keys move within the date and time radio groups */
+document.addEventListener('keydown', e => {
+  const g = e.target.closest('.dates,.times'); if (!g || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+  const items = [...g.querySelectorAll('[role="radio"]')], i = items.indexOf(e.target);
+  const n = e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : Math.max(0, Math.min(items.length - 1, i + (e.key === 'ArrowRight' ? 1 : -1)));
+  items[n].focus(); e.preventDefault();
+});
+const protoEl = document.querySelector('.proto');
+new ResizeObserver(() => document.documentElement.style.setProperty('--protoh', protoEl.offsetHeight + 'px')).observe(protoEl);
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { const w = isWide(); if (applyLayout() !== w) render(); }, 120); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
+
+/* ---------- deep links: ?at=page|load|picked|handoff|cancel|fail|conflict&shop=&svcs=&today=&sus=1&q=fail&theme=&fs=&view= ---------- */
+(function init() {
+  const q = new URLSearchParams(location.search);
+  if (q.get('shop') in SHOPS) state.shop = q.get('shop');
+  if (['one', 'many'].includes(q.get('svcs'))) state.svcs = q.get('svcs');
+  if (q.get('today') in NOW) state.today = q.get('today');
+  if (LIFE) state.today = 'holiday';
+  if (q.get('sus') === '1') state.sus = true;
+  if (q.get('q') === 'fail') state.q = 'fail';
+  if (['light', 'dark'].includes(q.get('theme'))) state.theme = q.get('theme');
+  if (['1.3', '2'].includes(q.get('fs'))) state.fs = q.get('fs');
+  if (['m', 'd'].includes(q.get('view'))) state.view = q.get('view');
+  for (const [id, v] of [['p-shop', state.shop], ['p-svcs', state.svcs], ['p-today', state.today], ['p-q', state.q], ['p-theme', state.theme], ['p-fs', state.fs], ['p-view', state.view]]) document.getElementById(id).value = v;
+  document.getElementById('p-sus').checked = state.sus;
+  resetSel();
+  const at = q.get('at') || '';
+  if (at === 'load') { render(); return; }
+  if (['picked', 'handoff', 'cancel', 'fail', 'conflict'].includes(at)) {
+    applyLayout();
+    const x = svcs().find(z => z.id === 'g2') || svcs()[0], d = quickDays()[0];
+    state.sel = {svc:x.id, date:d.iso, time:dayInfo(d.iso, x.mins).free[0].t};
+    state.route = 'page'; prevDone = {svc:true, date:true, time:true};
+    if (at === 'handoff') { state.authed = true; state.route = 'handoff'; }
+    if (at === 'cancel' || at === 'fail' || at === 'conflict') { state.login = at; document.getElementById('p-login').value = at; render(); login(); return; }
+    render(); return;
+  }
+  if (at === 'page') { state.route = 'page'; render(); return; }
+  load(650);
+})();
+</script>
+</body>
+</html>

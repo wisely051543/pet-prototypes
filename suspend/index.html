@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>毛孩日和被停權到恢復</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227%22 cy=%2210%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%226.5%22 r=%221.6%22/%3E%3Ccircle cx=%2214.5%22 cy=%226.5%22 r=%221.6%22/%3E%3Ccircle cx=%2218%22 cy=%2210%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world: 毛孩日和被停權到恢復, the eleventh director page for user testing. Frame, tokens and act machinery copied from
+   prototypes/erase (and stay, line-down, closure, allergy, sign-link, life, open-day, contract-life, monthly-fee); no new color tokens. Six
+   acts follow one suspension across all four ends: 美玲 hands 毛孩日和's unpaid 11 月月費 to 冠宇 on day 15, 冠宇 suspends the shop, that
+   evening 王太太 cannot book but keeps her booking, the next morning 阿凱's walk-in is blocked while 報到 goes on, 陳老闆 pays with another
+   card, and 冠宇 restores it. Each act loads a prototype with ?life=<act>&test=1&tour=<tour>, and ticks when the tour ends or the prototype
+   posts its key action. Rebuild the font subset after copy changes: python3 prototypes/tools/subset-font.py suspend */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;--hair:#F3EBE2;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-ink:#DCCDC0;--rail-cur:#F6EFE7;--rail-line:rgba(246,239,231,.16);
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--info:#1D5FA8;--info-bg:#E0EEFB;
+  --sh-1:0 1px 2px rgba(74,48,30,.06),0 4px 14px rgba(74,48,30,.07);
+  --sh-2:0 2px 4px rgba(74,48,30,.07),0 10px 28px rgba(74,48,30,.11);
+  --sh-dev:0 2px 6px rgba(74,48,30,.12),0 30px 60px -24px rgba(74,48,30,.45);
+  --bezel:#241A15;--bezel-edge:#3D2F27;
+  --r-md:12px;--r-lg:18px;--r-xl:24px;
+  --out:cubic-bezier(.16,1,.3,1);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;--hair:#2B221C;
+  --act:#FF8257;--act-hover:#FF956F;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-ink:#BCAEA3;--rail-cur:#F6EDE6;--rail-line:rgba(246,237,230,.14);--focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--info:#8CC2F5;--info-bg:#14304F;
+  --sh-1:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.28);--sh-2:0 2px 4px rgba(0,0,0,.32),0 10px 28px rgba(0,0,0,.36);
+  --sh-dev:0 2px 6px rgba(0,0,0,.4),0 30px 60px -24px rgba(0,0,0,.8);
+  --bezel:#060403;--bezel-edge:#4A3A31;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;--hair:#2B221C;
+  --act:#FF8257;--act-hover:#FF956F;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-ink:#BCAEA3;--rail-cur:#F6EDE6;--rail-line:rgba(246,237,230,.14);--focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--info:#8CC2F5;--info-bg:#14304F;
+  --sh-1:0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.28);--sh-2:0 2px 4px rgba(0,0,0,.32),0 10px 28px rgba(0,0,0,.36);
+  --sh-dev:0 2px 6px rgba(0,0,0,.4),0 30px 60px -24px rgba(0,0,0,.8);
+  --bezel:#060403;--bezel-edge:#4A3A31;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scrollbar-color:var(--control-border) transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 .9375rem/1.5 var(--font);font-feature-settings:"tnum";-webkit-font-smoothing:antialiased}
+::selection{background:var(--act-tint);color:var(--ink)}
+h1,h2,h3,p,ol,ul{margin:0}
+ol,ul{padding:0;list-style:none}
+a{color:inherit;text-underline-offset:3px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:3px;border-radius:8px}
+[hidden]{display:none!important}
+.ico{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:12px;top:-60px;z-index:10;padding:10px 16px;border-radius:999px;background:var(--surface);color:var(--ink);font-weight:800;text-decoration:none;box-shadow:var(--sh-2)}
+.skip:focus{top:12px}
+
+/* ---------- frame: the cocoa rail holds the suspension's hours, what it stops and the six acts; the stage holds the act ---------- */
+.app{display:grid;grid-template-columns:22rem minmax(0,1fr);height:100dvh}
+
+.rail{background:var(--rail);color:var(--rail-cur);display:flex;flex-direction:column;min-height:0;overflow:auto;scrollbar-color:var(--rail-line) transparent}
+.rail :focus-visible{outline-color:var(--rail-cur)}
+.rail-top{padding:18px 20px 0}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:40px;padding:0 14px 0 8px;border-radius:999px;border:1.5px solid var(--rail-line);color:var(--rail-ink);font-weight:800;font-size:.8125rem;text-decoration:none}
+.back:hover{border-color:var(--rail-cur);color:var(--rail-cur)}
+.me{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;margin-top:18px}
+.me h1{font-size:1.625rem;font-weight:900;line-height:1.2;letter-spacing:.01em}
+.me p{color:var(--rail-ink);font-weight:700;font-size:.875rem;line-height:1.45;margin-top:3px}
+.me p.pos{color:var(--rail-cur);font-weight:800}
+.me .ring .n{display:none}
+
+/* the suspension's ring: six arcs from 12 o'clock, one per act, gathered into its two days (11/16 停權, 11/17 恢復) with a wider gap
+   between them. Done arcs are rail-cur, the current arc is heavy and breathes a few times, arcs ahead are the faint rail line. An act that
+   ticks draws its arc in. The middle is a shop front on a rail-line disc: dashed with 逾期 / 停權中 under it until act 6 (恢復) is done,
+   then drawn solid with 營業中. */
+.ring{position:relative;display:grid;place-items:center;width:var(--s,104px);height:var(--s,104px);flex:none}
+.ring > svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.ring circle{fill:none;stroke:var(--rail-line);stroke-linecap:round;stroke-width:3.5;opacity:.6;transition:stroke .4s var(--out),stroke-width .4s var(--out),opacity .4s var(--out)}
+.ring circle.done,.ring circle.cur{opacity:1}
+.ring circle.fresh{animation:draw .9s var(--out)}
+@keyframes draw{from{stroke-dasharray:0 600}}
+.ring circle.done{stroke:var(--rail-cur)}
+.ring circle.cur{stroke:var(--rail-cur);stroke-width:9;animation:breathe 2.4s ease-in-out 3}
+@keyframes breathe{0%,100%{opacity:1}50%{opacity:.45}}
+.ring .cal{display:grid;place-items:center;align-content:center;gap:calc(var(--s,104px) * .04);width:calc(100% - 24px);height:calc(100% - 24px);border-radius:50%;background:var(--rail-line);color:var(--rail-cur);line-height:1}
+.ring .cal .ico{width:calc(var(--s,104px) * .32);height:calc(var(--s,104px) * .32);stroke-width:2;stroke-dasharray:3 2.4}
+.ring .cal.up .ico{stroke-width:2.4;stroke-dasharray:none}
+.ring .cal small{padding:2px calc(var(--s,104px) * .05);border-radius:999px;font-size:max(10px,calc(var(--s,104px) * .12));font-weight:800;color:var(--rail-ink)}
+.ring .cal.up small{background:var(--rail-cur);color:var(--rail)}
+.ring .n{position:absolute;left:-2px;bottom:-2px;min-width:38px;padding:1px 8px;border-radius:999px;background:var(--rail-cur);color:var(--rail);font-weight:900;font-size:.75rem;text-align:center;box-shadow:0 0 0 3px var(--rail)}
+.ring.closed circle{stroke:var(--rail-cur)}
+.ring.closed .n{background:var(--success-bg);color:var(--success)}
+
+.acts{padding:22px 12px 12px;flex:1}
+.grp{display:flex;align-items:center;gap:10px;padding:0 10px;margin:0 0 6px;color:var(--rail-ink);font-size:.75rem;font-weight:900;letter-spacing:.08em}
+.grp::after{content:"";flex:1;height:1px;background:var(--rail-line)}
+.grp:not(:first-child){margin-top:16px}
+.acts > .carry + .grp{margin-top:0}
+.act{position:relative;display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:2px 12px;align-items:center;width:100%;min-height:52px;padding:7px 12px 7px 10px;border:0;border-radius:14px;background:transparent;color:var(--rail-ink);text-align:left;cursor:pointer;transition:background-color .15s}
+.act:hover{background:rgba(246,239,231,.07)}
+/* the day's spine: a line runs from marker to marker, inked once the act above it is done */
+.acts li{position:relative}
+.acts > ol > li:not(:last-child)::after{content:"";position:absolute;left:23px;top:calc(50% + 15px);bottom:calc(-50% + 15px);width:2px;border-radius:2px;background:var(--rail-line);pointer-events:none}
+.acts > ol > li.ok:not(:last-child)::after{background:var(--rail-cur)}
+.act .mk{grid-row:1 / span 2;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--rail-line);font-weight:900;font-size:.75rem}
+.act b{font-weight:800;font-size:.9375rem;line-height:1.35;color:var(--rail-cur)}
+.act small{grid-column:2;font-weight:700;font-size:.75rem;line-height:1.35;color:var(--rail-ink)}
+.act .tm{grid-row:1;grid-column:3;font-weight:800;font-size:.75rem;color:var(--rail-ink)}
+.act .dv{grid-row:2;grid-column:3;justify-self:end;color:var(--rail-ink);opacity:.75}
+.act.done .mk{background:var(--rail-cur);border-color:var(--rail-cur);color:var(--rail)}
+.act.done .mk .ico{width:15px;height:15px;stroke-width:3}
+.act[aria-current="step"]{background:var(--rail-cur)}
+.act[aria-current="step"] b,.act[aria-current="step"] small,.act[aria-current="step"] .tm,.act[aria-current="step"] .dv{color:var(--rail)}
+.act[aria-current="step"] small{opacity:.8}
+.act[aria-current="step"] .mk{border-color:var(--rail);color:var(--rail)}
+.act[aria-current="step"].done .mk{background:var(--rail);color:var(--rail-cur)}
+.act[aria-current="step"]:focus-visible{outline-color:var(--rail-cur);outline-offset:2px}
+.rail .tl-toggle{display:none}
+
+/* the signature: the suspension's hours and what it stops. An hour axis 11/16 08:00 → 11/17 16:00; once act 2 is done a dashed capsule
+   runs from 停權 (10:12) to the edge, and once act 6 is done it settles into a solid filled capsule from 10:12 to 恢復 (11/17 14:05). A
+   10px stop sits at 停權, 補繳 (12:14) and 恢復, filled once its act is done. Under it the four things the suspension touches — 新預約,
+   改期, 在店・收款, 11 月月費 — each a 30px row with a state pill: quiet rail-line while nothing is settled (開放, 照常, 逾期), filled
+   rail-cur once decided (擋下, 照常 once 阿凱 has seen it, 已補繳, 重新開放). Whatever changed with the act that just ticked pops in. */
+.carry{margin:0 10px 18px;padding:12px 12px 10px;border-radius:14px;background:rgba(246,239,231,.05)}
+.carry .grp{padding:0;margin-bottom:8px}
+.hour{position:relative;height:44px;margin:2px 6px 0}
+.hour .ax{position:absolute;left:0;right:0;top:14px;height:2px;background:var(--rail-line)}
+.hour .out{position:absolute;top:7px;height:16px;border:1.5px dashed var(--rail-cur);border-radius:999px}
+.hour .out.ok{border-style:solid;background:var(--rail-line)}
+.hour .out.fresh{animation:pop .5s var(--out) both}
+.hour .stop{position:absolute;top:10px;width:10px;height:10px;margin-left:-5px;border-radius:50%;border:2px solid var(--rail-line);background:var(--rail)}
+.hour .stop.on{background:var(--rail-cur);border-color:var(--rail-cur)}
+.hour .stop.fresh{animation:pop .5s var(--out) both}
+.hour .t{position:absolute;top:28px;transform:translateX(-50%);font-size:.75rem;font-weight:800;color:var(--rail-ink);white-space:nowrap}
+.hour .t.l{transform:none}.hour .t.r{transform:translateX(-100%)}
+@keyframes pop{from{opacity:0;transform:scale(.6)}}
+.bks{display:grid;margin-top:6px}
+.bks li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;min-height:30px;border-top:1px solid var(--rail-line);font-size:.8125rem}
+.bks b{font-weight:800;color:var(--rail-cur);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bks b small{font-size:.75rem;font-weight:700;color:var(--rail-ink);margin-left:4px}
+.bks .st{justify-self:end;padding:1px 9px;border-radius:999px;border:1.5px solid var(--rail-line);font-size:.75rem;font-weight:800;color:var(--rail-ink);white-space:nowrap}
+.bks .st.ok{background:var(--rail-cur);border-color:var(--rail-cur);color:var(--rail)}
+.bks .st.fresh{animation:pop .5s var(--out) both}
+.carry .cap{margin-top:8px;font-size:.75rem;font-weight:700;line-height:1.45;color:var(--rail-ink);text-wrap:pretty}
+.rail-foot{padding:14px 20px 20px;border-top:1px solid var(--rail-line);display:grid;gap:8px}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:1.5px solid var(--rail-line);background:transparent;color:var(--rail-cur);font-weight:800;font-size:.875rem;cursor:pointer}
+.pill:hover{border-color:var(--rail-cur)}
+.pill[aria-disabled="true"]{color:var(--rail-ink);border-style:dashed;cursor:not-allowed}
+.pill .c{font-weight:700;color:var(--rail-ink);font-size:.8125rem}
+.rail-foot p{color:var(--rail-ink);font-size:.75rem;font-weight:700;line-height:1.45;text-wrap:pretty}
+
+/* ---------- stage ---------- */
+.stage{display:flex;flex-direction:column;min-width:0;min-height:0}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;padding:20px 28px 0}
+.head h2{font-size:1.5rem;font-weight:900;line-height:1.25;text-wrap:balance}
+.head .task{margin-top:4px;font-weight:700;color:var(--ink-muted);max-width:62ch;text-wrap:pretty}
+.where{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:0;max-width:100%}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 10px;border-radius:999px;background:var(--surface);box-shadow:var(--sh-1);font-size:.8125rem;font-weight:800;line-height:1.35;max-width:100%;text-wrap:pretty}
+.chip.when{background:var(--sunk);box-shadow:none;color:var(--ink)}
+.chip .ico{width:16px;height:16px}
+
+/* the well: the device, scaled to fit, centred on the apricot ground. Its frame changes shape between acts (laptop, tablet, phone). */
+.well{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:40px;padding:18px 24px}
+.sizer{position:relative;contain:size layout style;width:calc(var(--ow) * var(--s) * 1px);height:calc(var(--oh) * var(--s) * 1px);transition:width .55s var(--out),height .55s var(--out)}
+.device{position:absolute;left:0;top:0;width:calc(var(--ow) * 1px);height:calc(var(--oh) * 1px);transform:scale(var(--s));transform-origin:0 0;padding:var(--bz);border-radius:var(--ro);background:var(--bezel);box-shadow:var(--sh-dev),inset 0 0 0 1.5px var(--bezel-edge);display:flex;flex-direction:column;
+  transition:width .55s var(--out),height .55s var(--out),transform .55s var(--out),border-radius .55s var(--out)}
+.device .bar{display:none;align-items:center;gap:8px;height:34px;padding:0 12px;color:#BCAEA3;font-size:13px;font-weight:800}
+.device[data-dev="laptop"] .bar{display:flex}
+.device .bar i{width:11px;height:11px;border-radius:50%;background:#4A3A31}
+.device .bar span{margin:0 auto;padding:3px 16px;border-radius:999px;background:#3B2F27;color:#DCCDC0}
+.device .screen{position:relative;flex:1;border-radius:var(--ri);overflow:hidden;background:var(--bg)}
+.device iframe{display:block;width:calc(var(--iw) * 1px);height:calc(var(--ih) * 1px);border:0;background:var(--bg);opacity:0;transition:opacity .35s var(--out)}
+.device iframe.on{opacity:1}
+.device .load{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink-muted);font-weight:800;font-size:15px;transition:opacity .2s}
+.device iframe.on + .load{opacity:0;pointer-events:none}
+.narrow{display:none}
+
+/* ---------- the bar under the stage: status, then the act controls; 下一幕 turns persimmon once the act is done ---------- */
+.ctl{display:flex;align-items:center;gap:10px;padding:0 28px 20px;flex-wrap:wrap}
+.status{flex:1 1 12rem;min-width:0;display:flex;align-items:center;gap:10px;font-weight:700;font-size:.875rem;color:var(--ink-muted);line-height:1.45;text-wrap:pretty}
+.status .nw{white-space:nowrap}
+.status .dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--track)}
+.status.go{color:var(--ink)}
+.status.go .dot{background:var(--success)}
+.status.warn{color:var(--warning)}
+.status.warn .dot{background:var(--warning)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 18px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);font-weight:800;font-size:.875rem;cursor:pointer;text-decoration:none;white-space:nowrap;transition:background-color .15s,border-color .15s,transform .2s var(--out)}
+.btn:hover{background:var(--sunk);border-color:var(--ink)}
+.btn:active{transform:scale(.97);transition-duration:.08s}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--ink-muted)}
+.btn.quiet:hover{background:var(--sunk);color:var(--ink);border-color:transparent}
+.btn.sec{background:var(--sunk);border-color:transparent}
+.btn.sec:hover{background:var(--sunk-hover);border-color:transparent}
+.btn.main{background:var(--act);border-color:var(--act);color:var(--on-act)}
+.btn.main:hover{background:var(--act-hover);border-color:var(--act-hover)}
+.btn[aria-disabled="true"],.btn[aria-disabled="true"]:hover{background:transparent;border-style:dashed;border-color:var(--control-border);color:var(--ink-muted);cursor:not-allowed}
+#next{min-width:13rem}
+#next.lit{animation:lit .6s var(--out)}
+@keyframes lit{0%{transform:scale(.94)}60%{transform:scale(1.04)}100%{transform:none}}
+
+/* ---------- the end: the ring closes, the hours show how long the shop was suspended, every act listed, export ---------- */
+.end{flex:1;min-height:0;overflow:auto;padding:28px}
+.end-in{max-width:46rem;margin:0 auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--sh-2);padding:32px 32px 28px}
+.end-top{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:center}
+.end .ring{--rail-cur:var(--ink);--rail-line:var(--track);--rail:var(--surface)}
+.end .ring.closed .n{box-shadow:0 0 0 3px var(--surface)}
+.end .carry{--rail-cur:var(--ink);--rail-line:var(--control-border);--rail:var(--surface);--rail-ink:var(--ink-muted);margin:24px 0 0;padding:14px 16px 12px;background:var(--surface-2);border-radius:var(--r-md)}
+.end .carry h2.grp{font-size:.75rem;line-height:1.5}
+.end .carry .grp::after{background:var(--border)}
+.end .carry .bks,.end .carry .hour{max-width:30rem}
+.end .carry .bks li{border-color:var(--border)}
+.end h2[tabindex="-1"]:focus{outline:none}
+.end h2{font-size:1.75rem;font-weight:900;line-height:1.25;text-wrap:balance}
+.end .lede{margin-top:6px;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+.sum{margin-top:24px;display:grid;gap:2px}
+.sum li{display:grid;grid-template-columns:28px 8.5rem minmax(0,1fr) auto;gap:12px;align-items:center;padding:9px 0;border-top:1px solid var(--hair);font-size:.9375rem}
+.sum .mk{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--success-bg);color:var(--success)}
+.sum .mk .ico{width:15px;height:15px;stroke-width:3}
+.sum li.miss .mk{background:var(--sunk);color:var(--ink-muted)}
+.sum .t{font-weight:800;color:var(--ink-muted);font-size:.8125rem}
+.sum b{font-weight:800}
+.sum .s{font-size:.8125rem;font-weight:800;color:var(--ink-muted)}
+.sum li.miss .s{color:var(--warning)}
+.end-acts{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:24px}
+.end-acts p{font-size:.8125rem;font-weight:700;color:var(--ink-muted);max-width:30rem;text-wrap:pretty}
+.end-acts div{display:flex;gap:8px;flex-wrap:wrap}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:20;padding:12px 18px;border-radius:14px;background:var(--ink);color:var(--surface);font-weight:800;font-size:.875rem;box-shadow:var(--sh-2);animation:up .25s var(--out)}
+@keyframes up{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ---------- short screens (a 1280×800 laptop): rows tighten so the hours, the four rows and all six acts fit without scrolling the rail ---------- */
+@media (min-width: 961px) and (max-height: 820px){
+  .me p.shop{display:none}
+  .carry .cap{display:none}
+}
+@media (min-width: 961px) and (max-height: 920px){
+  .rail-top{padding-top:14px}
+  .me{margin-top:12px}
+  .me .ring{--s:72px}
+  .me h1{font-size:1.375rem}
+  .acts{padding-top:12px}
+  .act{min-height:44px;padding-top:3px;padding-bottom:3px;row-gap:0}
+  .act .dv{display:none}
+  .grp:not(:first-child){margin-top:10px}
+  .rail-foot{padding-top:10px;padding-bottom:14px}
+  .rail-foot p{display:none}
+  .carry{margin-bottom:10px;padding-top:10px}
+  .bks{margin-top:8px}
+}
+/* ---------- narrow: the rail folds into a strip over the stage; 六幕 opens the hours and the acts under it ---------- */
+@media (max-width: 960px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);height:auto;min-height:100dvh}
+  .rail{overflow:visible}
+  .rail-top{padding:12px 16px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px;align-items:center}
+  .back{justify-self:start}
+  .me{grid-column:1 / -1;margin-top:0;gap:12px}
+  .me .ring{--s:64px}
+  .me h1{font-size:1.25rem}
+  .me p{font-size:.8125rem;margin-top:1px}
+  .rail .tl-toggle{display:inline-flex;grid-row:1;grid-column:2}
+  .acts{padding:0 8px 12px;flex:none}
+  .carry{margin:0 8px 14px}
+  .acts.shut{display:none}
+  .rail-foot{padding:10px 16px 14px;justify-items:start}
+  .rail-foot p{display:none}
+  .stage{min-height:0}
+  .head{padding:16px 16px 0}
+  .head h2{font-size:1.25rem}
+  .where{align-items:flex-start;flex-direction:row;flex-wrap:wrap}
+  .well{padding:14px 16px;min-height:62vh}
+  .ctl{padding:0 16px 16px}
+  .status{flex-basis:100%;order:-1}
+  #next{min-width:0;flex:1 1 100%;white-space:normal;text-wrap:balance}
+  .end{padding:16px}
+  .end-in{padding:22px 18px}
+  .end-top{grid-template-columns:1fr;justify-items:start;gap:14px}
+  .sum li{grid-template-columns:28px minmax(0,1fr) auto;gap:4px 10px}
+  .sum .t{grid-column:2;grid-row:2}
+  .sum b{grid-column:2;grid-row:1}
+  .sum .s{grid-column:3;grid-row:1 / span 2}
+}
+@media (max-width: 720px){
+  .well.bare{padding:0 0 12px;place-items:start center}
+  .well.bare .device{box-shadow:none;background:transparent}
+  .narrow{display:flex;gap:8px;align-items:flex-start;margin:0 16px 4px;padding:10px 12px;border-radius:var(--r-md);background:var(--warning-bg);color:var(--warning);font-size:.8125rem;font-weight:800;line-height:1.45}
+  .narrow .ico{margin-top:1px}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+  .ring circle.cur{opacity:1}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#stage">跳到這一幕</a>
+<div class="app">
+  <aside class="rail" aria-label="毛孩日和被停權到恢復">
+    <div class="rail-top">
+      <a class="back" href="../test.html" data-key="back"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>測試任務清單</a>
+      <button class="pill tl-toggle" type="button" id="tl-toggle" aria-expanded="false" aria-controls="acts" data-key="tl-toggle">六幕</button>
+      <div class="me">
+        <span class="ring" id="ring" role="img"></span>
+        <div><h1>毛孩日和被停權到恢復</h1><p>從寵派、飼主、櫃台到老闆</p><p class="shop">11/16 停權・11/17 恢復</p><p class="pos" id="pos"></p></div>
+      </div>
+    </div>
+    <nav class="acts" id="acts" aria-label="六幕"></nav>
+    <div class="rail-foot">
+      <button class="pill" type="button" id="export" data-key="export"></button>
+      <p>意見和操作紀錄只存在這台裝置，做完按「匯出回饋」把檔案交給主持人。</p>
+    </div>
+  </aside>
+  <main class="stage" id="stage" tabindex="-1">
+    <div id="play">
+      <header class="head">
+        <div>
+          <h2 id="act-title"></h2>
+          <p class="task" id="act-task"></p>
+        </div>
+        <div class="where"><span class="chip" id="act-who"></span><span class="chip when" id="act-when"></span></div>
+      </header>
+    </div>
+    <p class="narrow" id="narrow"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/></svg>這段流程有寵派後台和商家中心的電腦畫面、店裡的平板，最好在電腦或橫放的平板上進行。</p>
+    <div class="well" id="well">
+      <div class="sizer" id="sizer">
+        <div class="device" id="device">
+          <div class="bar" aria-hidden="true"><i></i><i></i><i></i><span id="bar-t"></span></div>
+          <div class="screen"><iframe id="frame" title="這一幕的畫面"></iframe><div class="load" aria-hidden="true">畫面準備中…</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="ctl" id="ctl">
+      <p class="status" id="status" role="status"><span class="dot" aria-hidden="true"></span><span id="status-t"></span></p>
+      <button class="btn quiet" type="button" id="redo" data-key="redo"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.1-5"/><path d="M19 4v4h-4"/></svg>重來這一幕</button>
+      <button class="btn quiet" type="button" id="fb" data-key="fb"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v10H9l-4 4z"/></svg>給意見</button>
+      <button class="btn sec" type="button" id="prev" data-key="prev"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>上一幕</button>
+      <button class="btn sec" type="button" id="next" data-key="next"></button>
+    </div>
+    <section class="end" id="end" hidden aria-labelledby="end-h"></section>
+  </main>
+</div>
+
+<script>
+(() => {
+'use strict';
+/* the six acts, 11/16 to 11/17. dev: which device frame; path + q: the prototype and its seed; tour: the guided tour the act opens on
+   (test-kit/flows, life: true); key: the action the prototype posts when the act's job is done; day: which of the two days. Demo facts:
+   毛孩日和 is on 專業方案 since the 10/9 upgrade (prototypes/monthly-fee); its 11 月月費 NT$4,179 failed on 11/1 on VISA •••• 4242 (額度不足),
+   the retries of 11/2, 11/4 and 11/8 failed and 美玲's 補款連結 ran out on 11/15. 冠宇 suspends it on day 15, 11/16 10:12; 陳老闆 pays on
+   11/17 12:14 with the company's MASTERCARD •••• 8810, and 冠宇 restores it at 14:05. One wording for a suspended shop everywhere, 店家目前
+   暫停新增服務: new bookings, 改期 and new paid features stop, 取消 does not (user decision 2026-10-16). Prototypes that write their state
+   into the address carry it in q (payment-admin role; tenant-admin role and shop). */
+const ACTS = [
+  {id:'flag', day:0, dev:'laptop', path:'payment-admin/index.html', q:{role:'finance', life:'sus-flag'}, tour:'life-sus-flag', key:'handed', bar:'寵派管理後台・付款管理',
+    when:'11/16（一）09:30', who:'寵派財務美玲', end:'寵派管理後台', title:'第 15 天還沒付，建議停權', task:'毛孩日和 11 月的月費扣不到，重試和補款連結都沒有付。付款管理不能停權：把它交給冠宇。'},
+  {id:'stop', day:0, dev:'laptop', path:'tenant-admin/index.html', q:{role:'super', shop:'mhr', life:'sus-stop'}, tour:'life-sus-stop', key:'suspended', bar:'寵派管理後台・商家管理',
+    when:'11/16（一）10:12', who:'寵派最高管理者冠宇', end:'寵派管理後台', title:'看清楚影響，停權毛孩日和', task:'美玲建議停權毛孩日和。先看停權會擋什麼、什麼照常，再打店名確認。'},
+  {id:'owner', day:0, dev:'phone', path:'liff-booking/index.html', q:{life:'sus-liff'}, tour:'life-sus-liff', key:'seen',
+    when:'11/16（一）20:30', who:'飼主王太太', end:'王太太的手機', title:'想再約年糕，被擋下了', task:'毛毛週六約了洗澡剪毛，你想順便幫年糕也約一次。打開毛孩日和的預約頁。'},
+  {id:'board', day:1, dev:'tablet', path:'today-board/index.html', q:{role:'clerk', life:'sus-board'}, tour:'life-sus-board', key:'checkin',
+    when:'11/17（二）09:55', who:'櫃台阿凱', end:'店裡的平板', title:'現場預約擋下，報到照常', task:'店家停權中。看看板上什麼不能做，再幫 10:30 的阿福報到。'},
+  {id:'pay', day:1, dev:'laptop', path:'plan-usage/index.html', q:{role:'admin', life:'sus-pay'}, tour:'life-sus-pay', key:'paid', bar:'寵派商家中心・方案與用量',
+    when:'11/17（二）12:10', who:'陳老闆', end:'寵派商家中心', title:'換一張卡，補繳 11 月月費', task:'現場預約按不下去，飼主也約不了。到方案與用量看為什麼，用公司的卡補繳。'},
+  {id:'restore', day:1, dev:'laptop', path:'tenant-admin/index.html', q:{role:'super', shop:'mhr', life:'sus-restore'}, tour:'life-sus-restore', key:'restored', bar:'寵派管理後台・商家管理',
+    when:'11/17（二）14:05', who:'寵派最高管理者冠宇', end:'寵派管理後台', title:'補繳入帳了，恢復營業', task:'付款管理說毛孩日和 12:14 補繳入帳了。補繳不會自動恢復：確認後，由你恢復營業。'}
+];
+const NUM = '六';
+const GROUPS = ['11/16 停權', '11/17 恢復'];
+const DAYW = ['停權那天', '恢復那天'];
+
+/* ---------- the signature: the suspension's hours, and what it stops ---------- */
+/* hours from 11/16 08:00: 停權 10:12 (2.2), 補繳 11/17 12:14 (28.23), 恢復 14:05 (30.08); the axis ends 11/17 16:00 */
+const H0 = 0, H1 = 32, pos = h => ((h - H0) / (H1 - H0) * 100).toFixed(2);
+const HR = {stop:2.2, pay:28.23, restore:30.08};
+/* each row's state after act k is done (k = how many acts are done, in order): [label, settled] */
+const BKS = [
+  {s:'新預約', w:'LINE・網頁・現場', at:[['開放', 0], ['開放', 0], ['擋下', 1], ['擋下', 1], ['擋下', 1], ['擋下', 1], ['重新開放', 1]]},
+  {s:'改期', w:'取消照常', at:[['開放', 0], ['開放', 0], ['擋下', 1], ['擋下', 1], ['擋下', 1], ['擋下', 1], ['重新開放', 1]]},
+  {s:'在店・收款', w:'服務・住宿退房', at:[['照常', 0], ['照常', 0], ['照常', 0], ['照常', 0], ['照常', 1], ['照常', 1], ['照常', 1]]},
+  {s:'11 月月費', w:'NT$4,179', at:[['逾期 15 天', 0], ['建議停權', 0], ['未付', 0], ['未付', 0], ['未付', 0], ['已補繳', 1], ['已補繳', 1]]}
+];
+const CAPS = ['11/1 扣款失敗，第 15 天還沒付', '美玲建議停權，交給冠宇', '10:12 停權：新增服務擋下', '王太太約不了年糕，毛毛的預約還在', '現場預約擋下，阿福照常報到', '陳老闆換一張卡，補繳 NT$4,179', '14:05 恢復營業，停了 27 小時 53 分'];
+const reachNow = () => ACTS.map(a => !!S.done[a.id]);
+const stageOf = got => got.reduce((n, g, k) => g ? Math.max(n, k + 1) : n, 0);
+/* from: the acts done before the one that just ticked, so only what changed animates */
+function carryHtml(from) {
+  const got = reachNow(), k = stageOf(got), k0 = from ? stageOf(from) : k;
+  const stops = ACTS.map((a, i) => a.id in HR ? `<span class="stop${got[i] ? ' on' : ''}${from && got[i] && !from[i] ? ' fresh' : ''}" style="left:${pos(HR[a.id])}%"></span>` : '').join('');
+  const open = k >= 2 && k < 6 ? `<span class="out${from && k0 < 2 ? ' fresh' : ''}" style="left:${pos(HR.stop)}%;right:0"></span>` : '';
+  const res = k >= 6 ? `<span class="out ok${from && k0 < 6 ? ' fresh' : ''}" style="left:${pos(HR.stop)}%;width:${(pos(HR.restore) - pos(HR.stop)).toFixed(2)}%"></span>` : '';
+  const hour = `<div class="hour"><span class="ax"></span>${open}${res}${stops}
+    <span class="t l" style="left:${pos(HR.stop)}%">11/16 10:12 停權</span><span class="t r" style="left:100%">11/17 14:05 恢復</span></div>`;
+  const rows = BKS.map(b => {
+    const [l, ok] = b.at[k], ch = from && b.at[k0][0] !== l;
+    return `<li><b>${b.s}<small>${b.w}</small></b><span class="st${ok ? ' ok' : ''}${ch ? ' fresh' : ''}">${l}</span></li>`;
+  }).join('');
+  const say = `毛孩日和 11 月月費第 15 天未付${k >= 2 ? '，11/16 10:12 停權' : ''}${k >= 5 ? '，11/17 12:14 補繳' : ''}${k >= 6 ? '，14:05 恢復營業' : ''}。${BKS.map(b => `${b.s}：${b.at[k][0]}`).join('；')}。`;
+  return `<h2 class="grp">毛孩日和的新增服務</h2><div aria-hidden="true">${hour}<ol class="bks">${rows}</ol><p class="cap">${CAPS[k]}</p></div><p class="vh">${say}</p>`;
+}
+
+const DEV = {
+  phone:  {iw:390,  ih:844, bz:12, bar:0,  ro:56, ri:44, icon:'phone'},
+  laptop: {iw:1280, ih:800, bz:10, bar:34, ro:18, ri:8,  icon:'laptop'},
+  tablet: {iw:1180, ih:820, bz:20, bar:0,  ro:40, ri:22, icon:'tablet'}
+};
+const IC = {
+  phone:'<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/>',
+  laptop:'<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>',
+  tablet:'<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M18 12h.01"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  store:'<path d="M4 10v10h16V10"/><path d="M3 10 5 4h14l2 6"/><path d="M9 20v-5h6v5"/>',
+  next:'<path d="m10 6 6 6-6 6"/>',
+  down:'<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
+  again:'<path d="M19 12a7 7 0 1 1-2.1-5"/><path d="M19 4v4h-4"/>'
+};
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;'}[c]));
+
+/* ---------- state: the act we are on and which acts are done, kept for this tab ---------- */
+const store = {
+  get: (s, k) => { try { return window[s].getItem(k); } catch (e) { return null; } },
+  set: (s, k, v) => { try { window[s].setItem(k, v); } catch (e) { /* private mode: the page still works, it just forgets */ } },
+  /* nothing is handed between this story's acts; kept for the shared machinery */
+  remove: k => { try { sessionStorage.removeItem(k); } catch (e) { /* private mode */ } }
+};
+const readJ = k => { try { return JSON.parse(store.get('localStorage', k) || '[]'); } catch (e) { return []; } };
+const writeJ = (k, a) => store.set('localStorage', k, JSON.stringify(a));
+let S = {i:0, done:{}, ended:false};
+try { S = Object.assign(S, JSON.parse(store.get('sessionStorage', 'pp-suspend') || '{}')); } catch (e) { /* start fresh */ }
+const qa = +new URLSearchParams(location.search).get('act');
+if (qa >= 1 && qa <= ACTS.length) { S.i = qa - 1; S.ended = false; }
+S.i = Math.min(Math.max(S.i | 0, 0), ACTS.length - 1);
+const save = () => store.set('sessionStorage', 'pp-suspend', JSON.stringify(S));
+const log = (type, extra) => { const a = readJ('pp-events'); a.push({at:new Date().toISOString(), proto:'suspend', role:'', type, ...extra}); writeJ('pp-events', a); paintExport(); };
+let tourN = 0, tourAt = 0, stuck = false, skipped = false;
+
+/* ---------- the suspension's ring ---------- */
+/* ended: the summary's ring, which closes only when every act is done; fresh: the act that just ticked draws its arc in */
+const doneN = () => ACTS.filter(a => S.done[a.id]).length;
+function ringHtml(cur, ended, fresh) {
+  const N = ACTS.length, split = 26, gap = 14, days = GROUPS.length, slot = (600 - split * days) / N, n = doneN(), closed = ended && n === N;
+  const segs = ACTS.map((a, k) => {
+    const cls = [S.done[a.id] ? 'done' : '', !ended && k === cur ? 'cur' : '', a.id === fresh ? 'fresh' : ''].filter(Boolean).join(' ');
+    return `<circle cx="50" cy="50" r="46" pathLength="600" class="${cls}" stroke-dasharray="${slot - gap} 600" stroke-dashoffset="${-(k * slot + a.day * split + split / 2 + gap / 2)}"/>`;
+  }).join('');
+  const up = !!S.done.restore;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">${segs}</svg><span class="cal${up ? ' up' : ''}" aria-hidden="true">${ic('store')}<small>${moonWord()}</small></span><span class="n" aria-hidden="true">${closed ? '完成' : ended ? `${n}/${N}` : `${cur + 1}/${N}`}</span>`;
+}
+const moonWord = () => S.done.restore ? '營業中' : S.done.stop ? '停權中' : '逾期';
+const ringLabel = ended => `毛孩日和${moonWord()}，` + (ended ? (doneN() === ACTS.length ? `${NUM}幕都做完了` : `${NUM}幕做完 ${doneN()} 幕`) : `第 ${S.i + 1} 幕，${NUM}幕做完 ${doneN()} 幕`);
+function paintRing(fresh) {
+  const r = $('ring'); r.classList.toggle('closed', S.ended && doneN() === ACTS.length); r.innerHTML = ringHtml(S.i, S.ended, fresh);
+  r.setAttribute('aria-label', ringLabel(S.ended));
+  const n = doneN();
+  $('pos').textContent = S.ended ? (n === ACTS.length ? `${NUM}幕都做完了` : `${NUM}幕做完 ${n} 幕`) : `第 ${S.i + 1} 幕／共 ${ACTS.length} 幕・做完 ${n} 幕`;
+}
+
+/* ---------- the hours and the six acts on the rail ---------- */
+function paintActs(from) {
+  const row = (a, k) => `<li${S.done[a.id] ? ' class="ok"' : ''}><button class="act${S.done[a.id] ? ' done' : ''}" type="button" data-go="${k}" data-key="act-${a.id}"${!S.ended && k === S.i ? ' aria-current="step"' : ''}>
+    <span class="mk" aria-hidden="true">${S.done[a.id] ? ic('check') : k + 1}</span><b>${esc(a.title)}</b><small>${esc(a.who)}</small>
+    <span class="tm">${esc(a.when.slice(-5))}</span><span class="dv" title="${esc(a.end)}">${ic(DEV[a.dev].icon, 'sm')}<span class="vh">，${esc(a.end)}${S.done[a.id] ? '，做完了' : ''}</span></span></button></li>`;
+  $('acts').innerHTML = `<div class="carry" data-key="carry">${carryHtml(from)}</div>`
+    + GROUPS.map((g, d) => `<h2 class="grp" id="g${d}">${g}</h2><ol aria-labelledby="g${d}">${ACTS.map((a, k) => a.day === d ? row(a, k) : '').join('')}</ol>`).join('');
+}
+function paintExport() {
+  const nf = readJ('pp-feedback').length, ne = readJ('pp-events').length, b = $('export');
+  b.innerHTML = `${ic('down', 'sm')}匯出回饋<span class="c">${nf} 則意見${ne ? `・${ne} 筆紀錄` : ''}</span>`;
+  if (nf + ne) b.removeAttribute('aria-disabled'); else b.setAttribute('aria-disabled', 'true');
+}
+
+/* ---------- the act: head, device, frame, controls ---------- */
+const actUrl = a => {
+  const q = new URLSearchParams({...a.q, test:'1', tour:a.tour});
+  return `../${a.path}?${q}`;
+};
+function fit() {
+  const a = ACTS[S.i], w = $('well');
+  /* on a phone the phone acts drop the bezel and run at full size: a scaled phone inside a phone would make the guide unreadable */
+  const bare = a.dev === 'phone' && matchMedia('(max-width: 720px)').matches;
+  w.classList.toggle('bare', bare);
+  const d = bare ? {...DEV.phone, iw:Math.min(DEV.phone.iw, w.clientWidth), ih:Math.max(560, Math.round(innerHeight * .78)), bz:0, ro:0, ri:0} : DEV[a.dev];
+  const ow = d.iw + d.bz * 2, oh = d.ih + d.bz * 2 + d.bar, cs = getComputedStyle(w);
+  const aw = w.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), ah = w.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const s = bare ? 1 : Math.max(.2, Math.min(aw / ow, ah / oh, 1));
+  const st = $('sizer').style, dv = $('device');
+  st.setProperty('--ow', ow); st.setProperty('--oh', oh); st.setProperty('--s', s.toFixed(4));
+  dv.style.setProperty('--bz', d.bz + 'px'); dv.style.setProperty('--ro', d.ro + 'px'); dv.style.setProperty('--ri', d.ri + 'px');
+  dv.style.setProperty('--iw', d.iw); dv.style.setProperty('--ih', d.ih);
+}
+/* a quoted button name never breaks across lines */
+function setStatus(t, tone) { $('status').className = 'status' + (tone ? ' ' + tone : ''); $('status-t').innerHTML = esc(t).replace(/「[^」]{1,12}」/g, m => `<span class="nw">${m}</span>`); }
+function paintNext() {
+  const a = ACTS[S.i], last = S.i === ACTS.length - 1, done = !!S.done[a.id], b = $('next');
+  b.className = 'btn ' + (done ? 'main' : 'sec');
+  b.innerHTML = `${last ? '看總結' : `下一幕：${esc(ACTS[S.i + 1].title)}`}${ic('next', 'sm')}`;
+  $('prev').hidden = S.i === 0;
+}
+function paintAct() {
+  const a = ACTS[S.i];
+  $('act-title').textContent = a.title;
+  $('act-task').textContent = a.task;
+  $('act-who').innerHTML = `${ic(DEV[a.dev].icon, 'sm')}你是${esc(a.who)}・${esc(a.end)}`;
+  $('act-when').textContent = `${a.when}・${DAYW[a.day]}`;
+  $('bar-t').textContent = a.bar || '';
+  $('device').dataset.dev = a.dev;
+  paintNext();
+  setStatus(S.done[a.id] ? '這一幕做完了。可以再做一次，或按「下一幕」繼續。' : '照著畫面裡的引導做，做完「下一幕」就會亮起。', S.done[a.id] ? 'go' : '');
+}
+function load(focusStage) {
+  const a = ACTS[S.i], f = $('frame');
+  tourN = 0; tourAt = 0; stuck = false; skipped = false;
+  f.classList.remove('on');
+  const go = () => { f.src = actUrl(a); };
+  /* let the frame fade before the device changes shape, so the old screen never stretches */
+  setTimeout(go, f.src ? 180 : 0);
+  f.title = `第 ${S.i + 1} 幕：${a.title}（${a.end}）`;
+  log('life-act', {act:a.id, n:S.i + 1});
+  if (focusStage) $('stage').focus({preventScroll:true});
+}
+$('frame').addEventListener('load', () => { if ($('frame').src) $('frame').classList.add('on'); });
+
+function show(i, opts = {}) {
+  S.i = Math.min(Math.max(i, 0), ACTS.length - 1); S.ended = false; save();
+  $('end').hidden = true; $('play').hidden = false; $('well').hidden = false; $('ctl').hidden = false; $('narrow').hidden = false;
+  paintRing(); paintActs(); paintAct(); fit(); load(opts.focus);
+  if (matchMedia('(max-width: 960px)').matches) setActs(false);
+}
+function markDone(how) {
+  const a = ACTS[S.i]; if (S.done[a.id]) return;
+  const from = reachNow();
+  S.done[a.id] = how; save(); log('life-done', {act:a.id, via:how});
+  paintRing(a.id); paintActs(from); paintNext();
+  const b = $('next'); b.classList.remove('lit'); void b.offsetWidth; b.classList.add('lit');
+  const nx = ACTS[S.i + 1];
+  setStatus(!nx ? '最後一幕做完了。按「看總結」。' : nx.who === a.who ? '這一幕完成了。按「下一幕」繼續。' : `這一幕完成了。按「下一幕」，換你當${nx.who}。`, 'go');
+}
+
+/* ---------- messages from the frame: the kit's tour events and the prototype's key action ---------- */
+addEventListener('message', e => {
+  const f = $('frame');
+  if (e.origin !== location.origin || e.source !== f.contentWindow || !e.data) return;
+  const a = ACTS[S.i], d = e.data;
+  if (d.pp === 'life' && d.act === a.q.life && d.done === a.key) { markDone('action'); return; }
+  if (d.pp !== 'life-kit' || !d.ev || d.ev.tour !== a.tour) return;
+  const ev = d.ev;
+  if (ev.type === 'tour-done') { markDone('tour'); return; }
+  if (S.done[a.id]) return;
+  if (ev.type === 'tour-step') { tourN = ev.of; tourAt = ev.step; stuck = false; setStatus(`引導第 ${ev.step} 步／共 ${ev.of} 步。做完，「下一幕」就會亮起來。`); }
+  else if (ev.type === 'tour-stuck') { stuck = true; setStatus('畫面好像沒有照預期變化。可以按「重來這一幕」，或在畫面上的卡片選「重新開始」。', 'warn'); }
+  else if (ev.type === 'tour-skip') { skipped = true; setStatus('已跳過引導，可以自己操作；做完這一幕的重點動作，「下一幕」一樣會亮。'); }
+});
+
+/* ---------- controls ---------- */
+$('next').addEventListener('click', () => {
+  const a = ACTS[S.i];
+  log('life-next', {act:a.id, done:!!S.done[a.id]});
+  if (S.i === ACTS.length - 1) { showEnd(); return; }
+  show(S.i + 1, {focus:true});
+});
+$('prev').addEventListener('click', () => show(S.i - 1, {focus:true}));
+$('redo').addEventListener('click', () => { log('life-redo', {act:ACTS[S.i].id}); paintAct(); load(); });
+$('fb').addEventListener('click', () => {
+  const f = $('frame');
+  if (f.contentWindow && f.classList.contains('on')) { f.contentWindow.postMessage({pp:'life-fb'}, location.origin); f.focus(); }
+  else toast('畫面還在準備，稍等一下再按');
+});
+$('acts').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (b) show(+b.dataset.go, {focus:true}); });
+function setActs(open) { $('tl-toggle').setAttribute('aria-expanded', String(open)); $('acts').classList.toggle('shut', !open); }
+$('tl-toggle').addEventListener('click', () => setActs($('tl-toggle').getAttribute('aria-expanded') !== 'true'));
+$('export').addEventListener('click', () => { if ($('export').getAttribute('aria-disabled') !== 'true') exportFb(); });
+
+function exportFb() {
+  const items = readJ('pp-feedback'), events = readJ('pp-events'); if (!items.length && !events.length) return;
+  const tester = store.get('localStorage', 'pp-tester') || '';
+  const blob = new Blob([JSON.stringify({kind:'pet-prototype-feedback', version:2, exportedAt:new Date().toISOString(), tester, items, events}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `原型回饋-${tester || '受測者'}-毛孩日和被停權到恢復-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '')}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast(`已匯出 ${items.length} 則意見${events.length ? `、${events.length} 筆紀錄` : ''}`);
+}
+function toast(msg) {
+  document.querySelector('.toast')?.remove();
+  const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2600);
+}
+
+/* ---------- the end: the ring closes, the hours show how long it was suspended ---------- */
+function showEnd() {
+  S.ended = true; save(); log('life-end', {done:Object.keys(S.done).length});
+  $('play').hidden = true; $('well').hidden = true; $('ctl').hidden = true; $('narrow').hidden = true;
+  $('frame').classList.remove('on'); $('frame').removeAttribute('src');
+  paintRing(); paintActs();
+  const n = doneN(), all = n === ACTS.length;
+  $('end').innerHTML = `<div class="end-in">
+    <div class="end-top"><span class="ring${all ? ' closed' : ''}" style="--s:132px" role="img" aria-label="${ringLabel(true)}">${ringHtml(0, true)}</span>
+      <div><h2 id="end-h" tabindex="-1">${all ? '毛孩日和停了 27 小時 53 分，補繳後恢復營業' : `毛孩日和的停權，你走了 ${n} 幕`}</h2><p class="lede">${all ? '' : '還沒走完的幕在下面標著「沒做完」。'}毛孩日和 11 月月費 11/1 扣款失敗，重試和補款連結都沒有付。第 15 天，付款管理的美玲建議停權，交給冠宇；冠宇看清楚影響，11/16 10:12 停權。當晚王太太約不了年糕，毛毛的預約還在，只是不能改期；隔天早上阿凱的現場預約被擋下，阿福照常報到。陳老闆換公司的卡補繳 NT$4,179，冠宇確認入帳後 14:05 恢復營業。</p></div></div>
+    <div class="carry">${carryHtml()}</div>
+    <ol class="sum">${ACTS.map((a, k) => `<li class="${S.done[a.id] ? '' : 'miss'}"><span class="mk" aria-hidden="true">${S.done[a.id] ? ic('check') : k + 1}</span><span class="t">${esc(a.when)}</span><b>${esc(a.title)}<span class="vh">，${esc(a.who)}</span></b><span class="s">${S.done[a.id] ? '做完了' : '沒做完'}</span></li>`).join('')}</ol>
+    <div class="end-acts"><p>${all ? `${NUM}幕都做完了。` : `做完 ${n} 幕，有 ${ACTS.length - n} 幕沒做完；可以在左邊點回去補做。`}按「匯出回饋」把檔案交給主持人。</p>
+      <div><button class="btn sec" type="button" data-key="again" id="again">${ic('again', 'sm')}從第 1 幕再走一次</button><button class="btn main" type="button" data-key="end-export" id="end-export">${ic('down', 'sm')}匯出回饋</button></div></div></div>`;
+  $('end').hidden = false; $('end-h').focus();
+  $('end-export').addEventListener('click', exportFb);
+  $('again').addEventListener('click', () => { S.done = {}; save();  log('life-again', {}); show(0, {focus:true}); });
+}
+
+addEventListener('resize', () => { if (!S.ended) fit(); });
+addEventListener('storage', e => { if (e.key === 'pp-feedback' || e.key === 'pp-events') paintExport(); });
+/* the frame writes its feedback and events on this origin; the tab's own storage event never fires for it, so poll lightly */
+setInterval(paintExport, 2000);
+paintExport();
+if (S.ended) { paintActs(); showEnd(); } else show(S.i);
+})();
+</script>
+<script>
+/* the way back: to the list this story was opened from (a role or a host's set, kept by test.html in pp-entry); #done=story:suspend
+   once every act is done, so the list ticks it and moves 下一個 on, else #next */
+(() => {
+  const a = document.querySelector('[data-key="back"]'); let back = '../test.html';
+  try { const e = JSON.parse(sessionStorage.getItem('pp-entry') || 'null'); if (e && e.back) back = e.back; } catch (x) { /* opened on its own */ }
+  a.href = back;
+  a.addEventListener('click', () => {
+    const all = document.querySelectorAll('#acts .act').length, done = document.querySelectorAll('#acts .act.done').length;
+    a.hash = all && done === all ? 'done=story:suspend' : 'next';
+  });
+})();
+</script>
+</body>
+</html>

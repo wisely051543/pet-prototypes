@@ -1,0 +1,1511 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>系統設定原型</title>
+<script src="../test-kit/kit.js" data-proto="system-settings"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens, fonts and the 寵派後台 shell copied from 產業數據. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+:root{--sidew:15rem;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:24px;scroll-padding-bottom:120px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.spm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+.nw{white-space:nowrap}
+.muted{color:var(--ink-muted)}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .pbtn{border:1px solid var(--proto-line);border-radius:8px;padding:4px 10px;min-height:32px;color:var(--proto-ink);font-weight:700}
+.proto .pbtn:hover{border-color:var(--proto-ink)}
+.proto .tagp{border:1.5px dashed var(--proto-muted);border-radius:999px;padding:1px 8px;font-weight:800;color:var(--proto-muted)}
+
+/* ---------- shell: labeled cocoa sidebar (管理 Web) ---------- */
+#app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+#app.compact{display:block}
+.side{position:sticky;top:0;height:calc(100vh - 44px);height:calc(100dvh - 44px);overflow-y:auto;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;gap:2px;padding:18px 12px 16px;color:var(--rail-ink)}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+.mark{width:40px;height:40px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;flex:none}
+.mark .ico{width:24px;height:24px;stroke-width:0;fill:currentColor}
+.brand small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+.brand b{display:block;color:var(--rail-cur);font-size:1rem;font-weight:900;line-height:1.3}
+.sgrp{font-size:.75rem;font-weight:800;letter-spacing:.04em;padding:10px 12px 4px;color:var(--rail-ink);opacity:.82}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 12px;border-radius:12px;font-size:.9375rem;font-weight:700;line-height:1.3;color:var(--rail-ink);transition:background-color .2s var(--out),color .2s var(--out)}
+.sitem:hover{background:var(--rail-hover);color:var(--rail-cur)}
+.sitem[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.sitem .n{margin-left:auto;min-width:24px;padding:0 8px;border-radius:999px;background:var(--rail-hover);color:var(--rail-cur);font-size:.75rem;font-weight:900;text-align:center;line-height:1.6}
+.sitem .n.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.sitem[aria-current="page"] .n:not(.hot){background:var(--sunk);color:var(--ink)}
+.side :focus-visible{outline-color:var(--rail-cur)}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid var(--rail-hover);position:sticky;bottom:-16px;background:var(--rail);margin-bottom:-16px;padding-bottom:16px}
+.me::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:28px;background:linear-gradient(to bottom,transparent,var(--rail));pointer-events:none}
+.me .av{width:36px;height:36px;border-radius:50%;background:var(--rail-hover);color:var(--rail-cur);display:grid;place-items:center;font-weight:900;flex:none}
+.me b{display:block;color:var(--rail-cur);font-weight:800;line-height:1.3}
+.me small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+/* compact: the sidebar becomes a top bar and a drawer */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--rail);color:var(--rail-cur)}
+.topbar .mark{width:36px;height:36px;border-radius:12px}
+.topbar b{font-weight:900}
+.topbar .ibtn{color:var(--rail-cur)}
+.topbar .ibtn:hover{background:var(--rail-hover)}
+.topbar :focus-visible{outline-color:var(--rail-cur)}
+.ibtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;transition:background-color .2s var(--out)}
+.ibtn:hover{background:var(--sunk)}
+.drawer-nav{position:fixed;inset:0 auto 0 0;z-index:80;width:min(18rem,86vw);box-shadow:var(--lift-hi);animation:slidein .32s var(--out)}
+.drawer-nav .side{height:100%}
+@keyframes slidein{from{transform:translateX(-100%)}}
+main{min-width:0;container:main / inline-size}
+/* 1024–1279: the labeled sidebar folds into the world's icon rail so the detail keeps its width */
+#app.rail{--sidew:5.25rem}
+#app.rail .side{padding:16px 6px;align-items:center;gap:4px}
+#app.rail .brand{padding:0 0 10px}
+#app.rail .brand>span:not(.mark),#app.rail .sgrp,#app.rail .me>span:not(.av){display:none}
+#app.rail .sitem{flex-direction:column;justify-content:center;gap:4px;width:4.25rem;min-height:3.75rem;padding:6px 2px;border-radius:16px;font-size:.75rem;font-weight:700;text-align:center;line-height:1.25;position:relative}
+#app.rail .sitem[aria-current="page"]{font-weight:900}
+#app.rail .sitem .n{position:absolute;top:2px;right:2px;margin:0;padding:0 6px;font-size:.75rem}
+#app.rail .me{padding:12px 0 0;justify-content:center}
+
+
+/* ---------- page head ---------- */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 16px;padding:22px 28px 0}
+.compact .head{padding:16px 16px 0}
+.head h1{font-size:1.75rem;font-weight:900;line-height:1.25;display:flex;align-items:center;gap:10px}
+.compact .head h1{font-size:1.375rem}
+.compact .head .tools{margin-left:0;order:4;flex-basis:100%}
+.head .sub{flex-basis:100%;order:3;font-size:.875rem;font-weight:600;color:var(--ink-muted);margin-top:-6px}
+.head .tools{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.scope{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--control-border);font-weight:800;font-size:.875rem}
+select.scope{appearance:none;padding-right:36px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;cursor:pointer}
+select.scope:hover{border-color:var(--ink)}
+.scope.fixed{border-style:dashed;color:var(--ink-muted)}
+.updated{font-size:.8125rem;font-weight:700;color:var(--ink-muted);display:inline-flex;align-items:center;gap:6px}
+.updated.off{color:var(--warning)}
+.banner{display:flex;gap:10px;align-items:flex-start;margin:14px 28px 0;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:700;line-height:1.5}
+.compact .banner{margin:12px 16px 0}
+.banner.warning{background:var(--warning-bg);color:var(--warning)}
+.banner.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.banner .ico{margin-top:1px}
+
+/* ---------- buttons, chips, tags ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:var(--r-md);font-size:.9375rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out),border-color .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.quiet{background:var(--surface);color:var(--ink);border-color:var(--control-border)}
+.btn.quiet:hover{border-color:var(--ink)}
+.btn.danger{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.btn.danger:hover{filter:brightness(1.08)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none;filter:none}
+.btn.busy{pointer-events:none}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(1turn)}}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+a.textbtn{text-decoration:none}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.textbtn[aria-disabled="true"]{color:var(--ink-muted);background:transparent;border:1.5px dashed var(--control-border);cursor:not-allowed}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4;text-wrap:pretty}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.warning{color:var(--warning);background:var(--warning-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.chip.plain{background:var(--sunk);color:var(--ink)}
+.chip.plain::before{display:none}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 9px;border-radius:999px;font-size:.875rem;line-height:1.4;white-space:nowrap}
+.tag.safety{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.tag.care{background:var(--warning-bg);color:var(--warning);font-weight:700}
+.cnt{min-width:26px;padding:1px 9px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;text-align:center;line-height:1.5}
+.cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.masked{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--sunk);color:var(--ink-muted);font-size:.8125rem;font-weight:800;border:1.5px dashed var(--control-border)}
+.masked .ico{width:14px;height:14px;stroke-width:2.2}
+
+/* filter pills and segmented control */
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--border);font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out),border-color .2s var(--out),transform .35s var(--spring)}
+.pill:hover{border-color:var(--control-border);color:var(--ink)}
+.pill:active{transform:scale(.96);transition-duration:.08s}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface);font-weight:900}
+.pill[aria-pressed="true"] .cnt{background:var(--surface);color:var(--ink)}
+.pill[aria-pressed="true"] .cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.pill .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);flex-wrap:wrap}
+.seg button{min-height:40px;padding:0 16px;border-radius:999px;font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out)}
+.seg button:hover{color:var(--ink)}
+.seg button:is([aria-pressed="true"],[aria-checked="true"]){background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+:root[data-theme="dark"] .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+/* ---------- money ---------- */
+.money{font-weight:900;white-space:nowrap;font-feature-settings:"tnum"}
+.money .cur{font-size:.78em;font-weight:700;color:var(--ink-muted);margin-right:1px}
+.money.neg{color:var(--ink)}
+
+/* ---------- panels ---------- */
+.panel{background:var(--surface);border-radius:var(--r-lg);padding:22px;box-shadow:var(--lift)}
+.panel-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.panel-h h2,.panel-h h3{font-size:1.0625rem;font-weight:900;line-height:1.3;display:inline-flex;align-items:center;gap:8px}
+.panel-h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+/* ---------- dialog ---------- */
+.dialog{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:24px;display:flex;flex-direction:column;gap:16px;animation:pop .35s var(--spring)}
+@keyframes pop{from{transform:translateY(16px) scale(.98);opacity:0}}
+.dialog h2{font-size:1.25rem;font-weight:900;line-height:1.35;text-wrap:balance}
+.dialog .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.cdl{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px 14px;padding:14px 16px;border-radius:var(--r-md);background:var(--sunk);font-size:.9375rem;font-weight:700}
+.cdl dt{color:var(--ink-muted);font-size:.875rem}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:.875rem;font-weight:800}
+.field input,.field textarea{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:.9375rem;font-weight:600}
+.field textarea{min-height:84px;resize:vertical;line-height:1.5}
+.field input:hover,.field textarea:hover{border-color:var(--ink)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink-muted)}
+.field [aria-invalid="true"]{border-color:var(--danger)}
+.field .err{font-size:.8125rem;font-weight:800;color:var(--danger)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.dbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:flex-start}
+.dialog>.dbtns{position:sticky;bottom:-24px;margin:0 -24px -24px;padding:14px 24px 24px;background:var(--surface);box-shadow:0 -1px 0 var(--border)}
+@media (max-width: 600px){.dialog>.dbtns{bottom:calc(-20px - env(safe-area-inset-bottom));margin:0 -18px calc(-20px - env(safe-area-inset-bottom));padding:12px 18px calc(20px + env(safe-area-inset-bottom))}}
+.dialog .rg.col .opt{min-height:44px;padding:8px 14px}
+.dbtns .cell{display:flex;flex-direction:column;align-items:flex-end}
+@media (max-width: 600px){
+  .dlg-s{align-items:flex-end;padding:0}
+  .dialog{border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:92dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+  .dbtns{flex-direction:column-reverse;align-items:stretch}
+  .dbtns .cell{align-items:stretch}
+}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(560px,calc(100vw - 32px));padding:10px 18px;border-radius:18px;background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .4s var(--spring)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+#app:not(.compact) ~ #layer .toast{left:calc(50% + var(--sidew) / 2)}
+#app.rail ~ #layer .toast{left:calc(50% + 2.625rem)}
+
+.whoami{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 6px;border-radius:999px;background:var(--sunk);font-weight:800;font-size:.875rem}
+.whoami .av{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900}
+.btn.wide{width:100%}
+.btn .ico{flex:none}
+
+/* ---------- overlays ---------- */
+.scrim{position:fixed;inset:0;z-index:70;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s var(--out)}
+@keyframes fade{from{opacity:0}}
+.scrim.side-r{justify-content:flex-end;align-items:stretch;padding:0}
+@keyframes slidein-r{from{transform:translateX(40px);opacity:0}}
+
+/* ---------- page frame ---------- */
+.wrap{padding:14px 28px 56px}
+.compact .wrap{padding:12px 16px 48px}
+.head .pre-act{display:flex;flex-direction:column;align-items:flex-end}
+.compact .head .pre-act{align-items:stretch;flex-basis:100%}
+.head .pre-act .reason{margin-top:4px}
+.btn.primary.calm{background:var(--surface);color:var(--ink);border-color:var(--control-border);box-shadow:none;font-weight:700}
+.btn.primary.calm:hover{border-color:var(--ink);background:var(--surface)}
+
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:800;line-height:1.5}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.info{background:var(--info-bg);color:var(--info)}
+.notice .ico{margin-top:1px}
+.notice:focus{outline:2.5px solid var(--focus);outline-offset:2px}
+
+/* pickers: radiogroups of options */
+.fs{border:0;display:flex;flex-direction:column;gap:8px}
+.fs legend,.fs .lgd{font-size:.875rem;font-weight:900;margin-bottom:8px;padding:0}
+.rg{display:flex;flex-wrap:wrap;gap:6px}
+.opt{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:6px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:800;line-height:1.3;color:var(--ink);text-align:center;transition:box-shadow .2s var(--out),background-color .2s var(--out),transform .35s var(--spring)}
+.opt:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.opt:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.opt small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.opt[aria-checked="true"]{background:var(--ink);color:var(--surface);box-shadow:none}
+.opt[aria-checked="true"] small{color:var(--surface)}
+.opt[aria-disabled="true"]{background:transparent;box-shadow:none;border:1.5px dashed var(--control-border);color:var(--ink-muted);cursor:not-allowed}
+.ferr{display:flex;gap:8px;align-items:flex-start;font-size:.875rem;font-weight:800;color:var(--danger);line-height:1.45}
+.ferr .ico{margin-top:1px;width:18px;height:18px}
+.srch{position:relative}
+.srch .ico{position:absolute;left:14px;top:14px;color:var(--ink-muted)}
+.srch input{width:100%;min-height:48px;padding:10px 14px 10px 44px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);font-size:.9375rem;font-weight:600}
+.srch input:hover{border-color:var(--ink)}
+.srch input::placeholder{color:var(--ink-muted)}
+.hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+/* ---------- shared bits carried from M-07 ---------- */
+.fail{padding:32px 24px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.fail h2{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:900;color:var(--danger)}
+.fail p{font-size:.9375rem;font-weight:600;color:var(--ink-muted)}
+.noacc{max-width:36rem;margin:40px auto 0;padding:32px 28px;border-radius:var(--r-xl);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.noacc h2{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:900}
+.noacc p{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.banner.danger{background:var(--danger-tint);color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.dialog select{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:0 14px;font-weight:700}
+.pre-x{display:inline-flex;flex-direction:column;align-items:flex-end}
+:root{--hair:#F3EBE2}
+:root[data-theme="dark"]{--hair:#2B221C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hair:#2B221C}}
+
+/* ---------- 寵派後台 shell: the cocoa internal banner joins the sidebar into one frame ---------- */
+#app{grid-template-rows:auto minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+.ibar{grid-column:1 / -1;position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;min-height:40px;padding:0 20px;background:var(--rail);color:var(--rail-cur);font-size:.8125rem;font-weight:800;box-shadow:inset 0 -1px 0 var(--rail-hover)}
+.ibar .in{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:999px;background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.ibar .in .ico{width:15px;height:15px;stroke-width:2.2}
+.ibar .ws{color:var(--rail-ink);font-weight:700}
+.ibar .r{margin-left:auto;color:var(--rail-ink);font-weight:700}
+.ibar :focus-visible{outline-color:var(--rail-cur)}
+#app>.side{grid-row:2;top:40px;height:calc(100vh - 84px);height:calc(100dvh - 84px)}
+#app>main{grid-row:2}
+#app.compact .ibar{position:static}
+@media (max-width: 719px){.ibar .ws{display:none}}
+.ibar .in{flex:none}
+.compact .topbar{top:0}
+
+
+/* ---------- carried from 客服支援 ---------- */
+.sheet{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:20px 22px 18px;container:sheet / inline-size}
+.sheet h2{font-size:1.0625rem;font-weight:900;line-height:1.3;display:flex;align-items:center;gap:8px}
+.sheet .h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.sheet .h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.empty{padding:28px 8px 18px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.empty b{font-size:1rem;font-weight:900}
+.empty p{font-size:.875rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.tkt{display:flex;align-items:stretch}
+.tkt span{display:grid;place-items:center;padding:0 12px;border:1.5px solid var(--control-border);border-right:0;border-radius:var(--r-md) 0 0 var(--r-md);background:var(--sunk);font-weight:900}
+.tkt input{border-radius:0 var(--r-md) var(--r-md) 0 !important;font-feature-settings:"tnum";letter-spacing:.04em}
+.rg.col{flex-direction:column;align-items:stretch}
+.rg.col .opt{flex-direction:row;justify-content:flex-start;gap:10px;text-align:left;padding:10px 14px}
+.rg.col .opt::before{content:"";width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--control-border);flex:none}
+.rg.col .opt[aria-checked="true"]::before{box-shadow:inset 0 0 0 5px var(--surface)}
+.aud{display:flex;gap:8px;align-items:flex-start;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.45}
+.aud .ico{width:16px;height:16px;margin-top:1px}
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);overflow-x:auto;max-width:100%;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;font-size:.9375rem;font-weight:800;color:var(--ink-muted);white-space:nowrap;transition:background-color .2s var(--out),color .2s var(--out)}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+.tabs .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+:root[data-theme="dark"] .tabs button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tabs button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+.tabrow{padding:16px 28px 0;display:flex}
+.tabs .ts{display:none}
+@media (max-width: 719px){
+  .tabs{width:100%}
+  .tabs button{flex:1 1 0;justify-content:center;gap:5px;padding:0 6px;font-size:.875rem}
+  .tabs button .ico{display:none}
+  .tabs .tl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .tabs .ts{display:inline}
+}
+.compact .tabrow{padding:12px 16px 0}
+
+/* ---------- carried from 方案與用量: the docked 400px panel ---------- */
+.lay{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+.lay.withp{grid-template-columns:minmax(0,1fr) 400px}
+.colmain{display:flex;flex-direction:column;gap:16px;min-width:0}
+.dp{position:sticky;top:52px;max-height:calc(100vh - 64px);max-height:calc(100dvh - 64px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:20px;display:flex;flex-direction:column;gap:16px;animation:slidein-r .36s var(--out)}
+.dp.sheet{position:relative;top:0;width:min(440px,100vw);height:100%;max-height:none;border-radius:var(--r-xl) 0 0 var(--r-xl)}
+@media (max-width: 600px){.dp.sheet{border-radius:0;padding:16px 16px calc(24px + env(safe-area-inset-bottom))}}
+.dp-top{display:flex;align-items:center;gap:6px;margin:-6px -6px 0}
+.dp-top .x{margin-left:auto}
+.dp h3{font-size:.9375rem;font-weight:900;display:flex;align-items:center;gap:8px}
+.dph{display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;align-items:center}
+.ttile{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--sunk);color:var(--ink);font-size:1.375rem;font-weight:900}
+.ttile .ico{width:26px;height:26px;stroke-width:1.7}
+.ttile.warn{background:var(--warning-bg);color:var(--warning)}
+.dph h2{font-size:1.375rem;font-weight:900;line-height:1.25;text-wrap:balance}
+.dph p{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:.875rem;font-weight:700;color:var(--ink-muted);margin-top:4px}
+.dsec{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--border)}
+.dsec>.hint{margin-top:-4px}
+.dp .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.dp .lede b{color:var(--ink);font-weight:900}
+.dp .go{display:flex;flex-direction:column;gap:8px}
+.dp .go .btn{width:100%}
+.dp .notice{font-weight:700}
+.dp .notice b{font-weight:900}
+.kv{display:grid;grid-template-columns:5rem minmax(0,1fr);gap:8px 14px;font-weight:700;font-size:.9375rem;line-height:1.45}
+.kv dt{color:var(--ink-muted);font-size:.875rem}
+.hist{list-style:none;display:flex;flex-direction:column;gap:8px;font-size:.875rem;font-weight:700;line-height:1.45}
+.hist li{display:grid;grid-template-columns:5.25rem minmax(0,1fr);gap:10px}
+.hist li span:first-child{color:var(--ink-muted);font-size:.8125rem;font-feature-settings:"tnum"}
+.hist li.fresh{animation:fresh 1.6s var(--out);border-radius:8px}
+@keyframes fresh{0%,40%{background:var(--act-tint)}}
+.textbtn.ln{background:transparent;box-shadow:inset 0 0 0 1.5px var(--border)}
+.textbtn.ln:hover{background:var(--sunk);box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.linkb{display:inline;padding:0;font-weight:900;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+
+/* ---------- the 待寵派處理 strip ---------- */
+.qs{gap:6px 14px}
+.qs .it.warn b{color:var(--warning)}
+.qs .who{display:inline-flex;flex-wrap:wrap;gap:6px}
+.lnk{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px 0 10px;border-radius:999px;background:var(--warning-bg);color:var(--warning);font-weight:800;font-size:.8125rem;transition:box-shadow .2s var(--out),background-color .2s var(--out)}
+.lnk:hover{box-shadow:inset 0 0 0 1.5px var(--warning)}
+.lnk[aria-expanded="true"]{background:var(--warning);color:var(--surface)}
+.lnk .ico{width:15px;height:15px;stroke-width:2.2}
+.lnk .k{font-weight:700;opacity:.9}
+
+
+/* ---------- 系統設定: the parameter timeline ---------- */
+.sysnote{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:700;line-height:1.5}
+.maintbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:14px 28px 0;padding:10px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:800;line-height:1.45;background:var(--info-bg);color:var(--info)}
+.maintbar.live{background:var(--warning-bg);color:var(--warning)}
+.compact .maintbar{margin:12px 16px 0}
+.maintbar .linkb{margin-left:auto}
+
+.board{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:8px 0 10px;--lw:15.5rem;min-width:0}
+.board-h{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:12px 20px 4px}
+.board-h h2{font-size:1.0625rem;font-weight:900;display:flex;align-items:center;gap:8px}
+.board-h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.axis,.lane{display:grid;grid-template-columns:var(--lw) minmax(0,1fr);column-gap:18px;padding:0 20px}
+.axis{padding-top:10px;padding-bottom:6px}
+.axis .ticks{position:relative;height:46px}
+.axis .tk{position:absolute;bottom:0;height:18px;border-left:1px solid var(--control-border);font-size:.75rem;font-weight:800;color:var(--ink-muted);line-height:1}
+.axis .tk span{position:absolute;bottom:2px;left:6px;white-space:nowrap}
+.axis .tk.end{border-left:0}
+.axis .tk.end span{left:auto;right:0}
+.axis .nowl{position:absolute;top:0;box-shadow:0 0 0 3px var(--surface);transform:translateX(-50%);display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:999px;background:var(--ink);color:var(--surface);font-size:.75rem;font-weight:900;white-space:nowrap;z-index:2}
+.axis .legend2{display:flex;flex-wrap:wrap;gap:4px 12px;align-self:end;font-size:.75rem;font-weight:800;color:var(--ink-muted)}
+.legend2 i{display:inline-block;width:18px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.legend2 .p{background:var(--sunk)}
+.legend2 .c{background:var(--surface);box-shadow:inset 0 0 0 2px var(--ink)}
+.legend2 .s{background:var(--surface);border:1.5px dashed var(--ink)}
+.legend2 .d{background:var(--act-tint);border:1.5px dashed var(--act-ink)}
+
+.lanes{list-style:none;display:flex;flex-direction:column}
+.lane{width:100%;align-items:center;min-height:92px;padding-top:14px;padding-bottom:14px;border-top:1px solid var(--hair);text-align:left;transition:background-color .2s var(--out)}
+.lane:hover{background:var(--surface-2)}
+.lane[aria-expanded="true"]{background:var(--bg)}
+.lane[aria-expanded="true"] .lh b.nm::after{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ink);margin-left:8px;vertical-align:2px}
+.lh{display:flex;flex-direction:column;gap:3px;min-width:0}
+.lh .nm{display:flex;align-items:center;gap:8px;font-size:.9375rem;font-weight:900;line-height:1.3}
+.lh .nm .ico{color:var(--ink-muted)}
+.lh .v{font-size:1.5rem;font-weight:900;line-height:1.2;letter-spacing:-.01em;font-feature-settings:"tnum"}
+.lh .v small{font-size:.875rem;font-weight:800;color:var(--ink-muted);margin-left:3px;letter-spacing:0}
+.lh .tg{display:flex;flex-wrap:wrap;gap:4px 6px;margin-top:2px}
+.lh .tg .chip{font-size:.75rem;padding:2px 8px}
+
+.trk{position:relative;height:46px;margin-top:22px;border-radius:12px}
+.trk .ml{position:absolute;top:0;bottom:0;width:1px;background:var(--hair)}
+.trk .flag{position:absolute;bottom:calc(100% + 4px);display:none;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-size:.75rem;font-weight:900;white-space:nowrap;line-height:1.5;z-index:4}
+.trk .flag.on{display:inline-flex}
+.trk .flag.r{transform:translateX(-100%)}
+.trk .flag.sch{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.trk .flag.drf{background:var(--act-tint);color:var(--act-ink);box-shadow:inset 0 0 0 1.5px var(--act-ink)}
+.trk .flag .ico{width:13px;height:13px;stroke-width:2.4}
+.sg .s{display:none}
+.sg.short .l,.sg.short .from{display:none}
+.sg.short .s{display:inline}
+.trk::after{content:"";position:absolute;top:-8px;bottom:-8px;left:calc(var(--p) * 100%);width:2px;margin-left:-1px;background:var(--ink);border-radius:2px;z-index:3}
+.sg{position:absolute;top:4px;bottom:4px;display:flex;align-items:center;gap:6px;padding:0 10px;border-radius:10px;font-size:.8125rem;font-weight:800;white-space:nowrap;overflow:hidden;min-width:4px}
+.sg.past{background:var(--sunk);color:var(--ink-muted)}
+.sg.cur{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink);font-weight:900}
+.sg.cur.fade{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent)}
+.sg.sch{background:var(--surface);color:var(--ink);border:1.5px dashed var(--ink);font-weight:900}
+.sg.drf{background:var(--act-tint);color:var(--act-ink);border:1.5px dashed var(--act-ink);font-weight:900;z-index:2}
+.sg.lock{left:0;right:0;background:var(--sunk);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--control-border);font-weight:900}
+.sg .from{font-size:.75rem;font-weight:800;color:var(--ink-muted)}
+.sg .ico{width:15px;height:15px;stroke-width:2.2}
+.sg.tiny{padding:0;justify-content:center}
+.sg.tiny>*{display:none}
+.trk .edge{position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:.75rem;font-weight:800;color:var(--ink-muted);z-index:1;pointer-events:none}
+/* the signature: a draft unrolls from its effective time to the edge */
+.sg.drf.unroll{animation:unroll .7s var(--out) both}
+@keyframes unroll{from{clip-path:inset(0 100% 0 0 round 10px)}to{clip-path:inset(0 0 0 0 round 10px)}}
+@media (prefers-reduced-motion: reduce){.sg.drf.unroll{animation:none}}
+.board-f{display:flex;flex-wrap:wrap;gap:6px 16px;padding:12px 20px 4px;border-top:1px solid var(--hair);font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.board-f span{display:inline-flex;align-items:center;gap:6px}
+.board-f .ico{width:16px;height:16px}
+
+/* panel bits */
+.stepper{display:flex;align-items:center;gap:8px}
+.stepper input{width:7.5rem;text-align:center;font-size:1.25rem !important;font-weight:900 !important;font-feature-settings:"tnum"}
+.stepper .u{font-weight:900}
+.stepper .ibtn{background:var(--sunk);border-radius:var(--r-md)}
+.stepper .ibtn:hover{background:var(--sunk-hover)}
+.stepper .ibtn[aria-disabled="true"]{background:transparent;border:1.5px dashed var(--control-border);color:var(--ink-muted);cursor:not-allowed}
+.field input[type="datetime-local"]{font-feature-settings:"tnum"}
+.impact{display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700;line-height:1.55}
+.impact h4{font-size:.875rem;font-weight:900;display:flex;align-items:center;gap:6px}
+.impact ul{list-style:none;display:flex;flex-direction:column;gap:6px}
+.impact li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px}
+.impact li .ico{width:16px;height:16px;margin-top:2px}
+.impact b{font-weight:900}
+.impact .demo{font-size:.75rem;color:var(--ink-muted)}
+.clauses{list-style:none;display:flex;flex-direction:column;gap:6px}
+.cl{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:8px 12px;border-radius:var(--r-md);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:800;text-align:left;transition:box-shadow .2s var(--out),background-color .2s var(--out)}
+.cl:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.cl .bx{width:20px;height:20px;border-radius:6px;box-shadow:inset 0 0 0 1.5px var(--control-border);display:grid;place-items:center;flex:none}
+.cl .bx .ico{width:14px;height:14px;stroke-width:2.6;opacity:0}
+.cl[aria-checked="true"] .bx{background:var(--ink);color:var(--surface);box-shadow:none}
+.cl[aria-checked="true"] .bx .ico{opacity:1}
+.cl[aria-disabled="true"]{cursor:not-allowed;background:var(--sunk);box-shadow:none}
+.cl small{margin-left:auto;font-size:.75rem;font-weight:800;color:var(--ink-muted)}
+.cl.chg{box-shadow:inset 0 0 0 1.5px var(--act-ink)}
+.ret{list-style:none;display:flex;flex-direction:column;gap:2px;font-size:.875rem;font-weight:700}
+.ret li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--hair)}
+.ret li b{font-weight:900;display:inline-flex;align-items:center;gap:6px}
+.hist li .who{font-weight:900}
+.hist li q{display:block;color:var(--ink-muted);font-weight:600;quotes:"「" "」"}
+.hist li.sch span:first-child{color:var(--ink);font-weight:900}
+.go2{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.go2 .pre-x{flex:1 1 auto}
+.go2 .pre-x .btn{width:100%}
+
+/* confirm dialog */
+.otpin{display:flex;align-items:center;gap:10px}
+.otpin input{max-width:12rem;letter-spacing:.3em;font-size:1.25rem !important;font-weight:900 !important;text-align:center;font-feature-settings:"tnum"}
+.diff{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:1.125rem;font-weight:900}
+.diff s{color:var(--ink-muted);text-decoration-thickness:2px;font-weight:800}
+.diff .ico{color:var(--ink-muted)}
+
+/* ---------- 後台管理員 ---------- */
+.adm{width:100%;border-collapse:collapse;font-size:.875rem;font-weight:700}
+.adm th{font-size:.75rem;font-weight:900;color:var(--ink-muted);text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--border);white-space:nowrap}
+.adm td{padding:12px 10px;border-bottom:1px solid var(--hair);vertical-align:middle}
+.adm tr.off td{color:var(--ink-muted)}
+.adm tr.fresh td{animation:fresh 1.6s var(--out)}
+.adm .who{display:flex;align-items:center;gap:10px;min-width:12rem}
+.adm .who .av{width:36px;height:36px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900;flex:none}
+.adm tr.off .who .av{background:var(--sunk);color:var(--ink-muted)}
+.adm .who b{display:block;font-weight:900;color:var(--ink)}
+.adm .who small{display:block;font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.adm .acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;min-width:11rem}
+.adm .acts .textbtn{white-space:nowrap}
+.adm .mfabtn{display:inline-flex;align-items:center;min-height:32px;margin:2px 0 -6px -8px;padding:0 8px;border-radius:999px;font-size:.8125rem;font-weight:800;color:var(--ink);text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px}
+.adm .mfabtn:hover{background:var(--sunk)}
+.adm .mfabtn[aria-disabled="true"]{color:var(--ink-muted);cursor:not-allowed}
+.adm .acts.self{max-width:13rem;margin-left:auto}
+.adm .acts .reason{text-align:right;margin-top:0}
+.adm td .reason{margin-top:3px}
+.adm td:last-child{text-align:right}
+.rolechip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;white-space:nowrap}
+.rolechip.sup{background:var(--ink);color:var(--surface)}
+.admcards{list-style:none;display:flex;flex-direction:column}
+.admcards li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:4px 12px;padding:12px 0;border-bottom:1px solid var(--hair)}
+.admcards .av{width:40px;height:40px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900;grid-row:span 2}
+.admcards li.off .av{background:var(--sunk);color:var(--ink-muted)}
+.admcards b{font-weight:900}
+.admcards .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.rules{list-style:none;display:flex;flex-direction:column;gap:8px;font-size:.875rem;font-weight:700;line-height:1.5}
+.rules li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px}
+.rules .ico{width:18px;height:18px;margin-top:1px;color:var(--ink-muted)}
+.rdesc{list-style:none;display:flex;flex-direction:column;gap:10px;font-size:.8125rem;font-weight:700;line-height:1.5;color:var(--ink-muted)}
+.rdesc b{display:block;color:var(--ink);font-size:.875rem;font-weight:900}
+.lay3{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.lay3.one{grid-template-columns:minmax(0,1fr)}
+.lay3 .colside{position:sticky;top:52px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.lay3.one .colside{position:static}
+.colm{display:flex;flex-direction:column;gap:16px;min-width:0}
+.dialog .rg.col .opt small{display:block;margin-left:auto;font-weight:700;color:var(--ink-muted);text-align:right}
+.dialog .rg.col .opt[aria-checked="true"] small{color:var(--surface)}
+.dialog .rg.col .opt[aria-disabled="true"]::before{box-shadow:inset 0 0 0 1.5px var(--border)}
+
+/* ---------- 維護模式 ---------- */
+.mt-state{display:flex;flex-direction:column;gap:12px}
+.mt-big{display:flex;align-items:center;gap:14px}
+.mt-big .ttile{flex:none}
+.mt-big b{display:block;font-size:1.375rem;font-weight:900;line-height:1.25}
+.mt-big span{display:block;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.mtform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.mtform .full{grid-column:1 / -1}
+.mtform .go2 .pre-x,.mt-state .go2 .pre-x{flex:none}
+.sheet>.split,.sheet>.impact,.sheet>.mpreview,.sheet>.hint{margin-top:12px}
+.colside .split{grid-template-columns:1fr}
+.mtform select{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:0 14px;font-weight:700}
+.mtform select:hover{border-color:var(--ink)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.split>div{padding:12px 14px;border-radius:var(--r-md);font-size:.8125rem;font-weight:700;line-height:1.55}
+.split b{display:flex;align-items:center;gap:6px;font-size:.875rem;font-weight:900;margin-bottom:4px}
+.split ul{list-style:none;display:flex;flex-direction:column;gap:3px}
+.split .stop{background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border)}
+.split .keep{background:var(--success-bg);color:var(--success)}
+.split .keep b{color:var(--success)}
+.mpreview{border-radius:var(--r-md);overflow:hidden;box-shadow:inset 0 0 0 1.5px var(--border)}
+.mpreview .cap{padding:6px 12px;font-size:.75rem;font-weight:800;color:var(--ink-muted);background:var(--surface-2);border-bottom:1px solid var(--border)}
+.mpreview .bn{display:flex;gap:8px;align-items:flex-start;margin:10px;padding:10px 12px;border-radius:12px;background:var(--info-bg);color:var(--info);font-size:.8125rem;font-weight:800;line-height:1.5}
+.mpreview .bn .ico{width:18px;height:18px;margin-top:1px}
+.mpreview .mweb{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--rail);color:var(--rail-cur);font-size:.75rem}
+.mpreview .mweb b{font-weight:900}
+.mpreview .mweb span{margin-left:auto;color:var(--rail-ink);font-weight:700}
+.mpreview .mcrumb{padding:0 12px 10px;font-size:.9375rem;font-weight:900}
+.mhist{list-style:none;display:flex;flex-direction:column;gap:10px;font-size:.875rem;font-weight:700;line-height:1.45}
+.mhist li{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:10px}
+.mhist li span:first-child{color:var(--ink-muted);font-size:.8125rem}
+.mhist q{display:block;color:var(--ink-muted);font-weight:600;quotes:"「" "」"}
+.cnt.on{background:var(--info-bg);color:var(--info)}
+.cnt.live{background:var(--warning-bg);color:var(--warning)}
+
+/* responsive */
+@container main (max-width: 900px){
+  .board{--lw:12rem}
+  .split{grid-template-columns:1fr}
+}
+@container main (max-width: 719px){
+  .axis,.lane{grid-template-columns:minmax(0,1fr);row-gap:10px;padding:0 16px}
+  .axis>.legend2{order:2}
+  .lane{min-height:0;padding-top:14px;padding-bottom:16px}
+  .lh{flex-direction:row;flex-wrap:wrap;align-items:baseline;column-gap:12px}
+  .lh .nm{flex-basis:100%}
+  .board-h{padding:12px 16px 4px}
+  .board-h .aside{margin-left:0;flex-basis:100%}
+  .board-f{padding:12px 16px 4px}
+  .mtform{grid-template-columns:1fr}
+  .mhist li{grid-template-columns:1fr;gap:2px}
+}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>系統設定・原型</b><span class="muted">人名、帳號與筆數全為虛構示範・今天 10/9（五）11:20</span>
+  <label>身分 <select id="p-role"><option value="super">冠宇・最高管理者</option><option value="data">思妤・資料</option><option value="finance">美玲・財務</option><option value="support">小雯・客服</option><option value="compliance">宜蓁・合規</option></select></label>
+  <label>跳到 <select id="p-go"><option value="">選擇情境</option><option value="home">全域參數</option><option value="sign">現場簽署有效時間</option><option value="draft">草稿：改成 20 分</option><option value="draft-up">草稿：改成 45 分</option><option value="past">草稿：生效時間在過去</option><option value="review">即時審閱速度（已有排程）</option><option value="clauses">重點條款草稿</option><option value="retain">契約保存年限（鎖定）</option><option value="confirm">確認排定（填好）</option><option value="adm">後台管理員</option><option value="adm-new">新增管理員（填好）</option><option value="adm-pend">新帳號待設定 MFA</option><option value="maint">維護模式</option><option value="maint-soon">維護：今天下午（預告不到一天）</option><option value="maint-sched">維護：已排定</option><option value="maint-live">維護中</option><option value="data">思妤打開系統設定</option><option value="finance">財務打開</option><option value="support">客服打開</option><option value="compliance">合規打開</option></select></label>
+  <label>下一次 MFA <select id="p-mfa"><option value="ok">正確</option><option value="bad">錯誤</option></select></label>
+  <label>下一次送出 <select id="p-send"><option value="ok">正常</option><option value="fail">連線中斷</option></select></label>
+  <label><input type="checkbox" id="p-off"> 離線</label>
+  <label><input type="checkbox" id="p-fail"> 載入失敗</label>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <span class="tagp">原型</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+const I = {
+  inbox:'<path d="M4 13h4l1.5 2.5h5L16 13h4"/><path d="M5.5 5h13L20 13v6H4v-6l1.5-8Z"/>',
+  coins:'<ellipse cx="9" cy="7" rx="5" ry="2.5"/><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7"/><path d="M10 15.4c.9 1.3 3 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  dash:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 19c1-3.5 3.4-5 6-5s5 1.5 6 5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.3c1.7.7 2.9 2.2 3.5 4.7"/>',
+  scis:'<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17M8.6 15.6 20 7"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  doc:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  team:'<circle cx="10" cy="8" r="4"/><path d="M3 20c1.4-3.5 4-5 7-5 1.5 0 2.9.4 4 1.1M18 14v6M15 17h6"/>',
+  plan:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  fwd:'<path d="m10 6 6 6-6 6"/>',
+  up:'<path d="m6 14 6-6 6 6"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  paw:'<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  unlock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',
+  ban:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4V5Z"/>',
+  receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  stamp:'<path d="M9 4h6l-1 7h-4L9 4Z"/><path d="M5 15h14v3H5zM7 21h10"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  erase:'<path d="M8 20h12M4.5 15.5 14 6l5 5-7.5 7.5H8.5l-4-3Z"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/>',
+  swap:'<path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/>',
+  otp:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  layers:'<path d="m12 4 9 5-9 5-9-5 9-5Z"/><path d="m3 14 9 5 9-5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>'
+};
+Object.assign(I, {
+  store:'<path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8h13v-8M10 20v-5h4v5"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  tag:'<path d="M3.5 12.5V4h8.5l8.5 8.5-8.5 8.5-8.5-8.5Z"/><circle cx="8" cy="8.5" r="1.5"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  qr:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
+  play:'<circle cx="12" cy="12" r="8.5"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'
+});
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+Object.assign(I, {
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  dots:'<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+  board:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16M9 9v11"/>',
+  release:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M9 15h6" stroke-dasharray="2 2"/>'
+});
+Object.assign(I, {
+  print:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/>',
+  trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  tablet:'<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M11 18h2"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8M16 7l3 3M14 9l2 2"/>',
+  scale:'<path d="M12 4v16M7 20h10M5 8h14"/><path d="m5 8-3 6a3 3 0 0 0 6 0L5 8ZM19 8l-3 6a3 3 0 0 0 6 0l-3-6Z"/>',
+  home:'<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>'
+});
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  cage:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M8.5 5v15M12 5v15M15.5 5v15M4 12.5h16"/>',
+  pause:'<circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/>',
+  wrench:'<path d="M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5 2.5-2.5Z"/>',
+  move:'<path d="M4 12h16M15 7l5 5-5 5"/><path d="M4 6v12" stroke-dasharray="2 2"/>'
+});
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* a person's initial: skip the 阿 / 小 prefix so 阿凱 and 阿楷 stay apart (user decision 2026-10-11); pets keep their first character */
+const initialOf = n => /^[阿小]./.test(n) ? n[1] : n[0];
+const $ = id => document.getElementById(id);
+const qs = new URLSearchParams(location.search);
+const clone = o => JSON.parse(JSON.stringify(o));
+const chip = (tone, t) => `<span class="chip ${tone}">${t}</span>`;
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  logout:'<path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4M18 12H9"/>',
+  line:'<path d="M12 4.5c-5 0-9 3.2-9 7.2 0 3.6 3.2 6.5 7.5 7.1l-.4 2.2 3.3-2.2c4.4-.6 7.6-3.5 7.6-7.1 0-4-4-7.2-9-7.2Z"/>',
+  mail:'<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/>',
+  send:'<path d="M20 4 3 11l7 2.5L12.5 20 20 4Z"/><path d="m10 13.5 4.5-4.5"/>',
+  revoke:'<path d="M5 5h9l5 5v9H5z" stroke-dasharray="3 2.5"/><path d="m9 11 6 6M15 11l-6 6"/>',
+  seat:'<path d="M7 11V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v5"/><path d="M5 11h14v4H5zM7 15v5M17 15v5"/>'
+});
+Object.assign(I, {
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  sms:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 8h4M10 11h4M11 18h2"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  wall:'<path d="M5 4v16M19 4v16M5 9h14M5 15h14M12 4v5M9 9v6M15 9v6M12 15v5"/>',
+  hq:'<path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-5h6v5M9 11h.01M15 11h.01"/>'
+});
+Object.assign(I, {calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/>'});
+Object.assign(I, {
+  headset:'<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="13" width="4" height="6" rx="1.5"/><rect x="16.5" y="13" width="4" height="6" rx="1.5"/><path d="M18.5 19c0 1.4-1.6 2-4 2h-2"/>',
+  chart:'<path d="M4 20h16"/><path d="M7 16v-4M12 16V7M17 16v-6"/>',
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  hourglass:'<path d="M7 4h10M7 20h10M8 4c0 4 8 4 8 8s-8 4-8 8M16 4c0 4-8 4-8 8"/>',
+  out:'<path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4M18 12H9"/>',
+  trail:'<path d="M6 5h12M6 10h12M6 15h7"/><circle cx="17.5" cy="17.5" r="2.5"/>'
+});
+Object.assign(I, {
+  pay:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  clip:'<path d="m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.3 3.3 0 0 1 4.7 4.7L9.3 17a1.7 1.7 0 0 1-2.3-2.3L15 6.7"/>',
+  bank:'<path d="M3 10h18L12 4 3 10Z"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>',
+  code:'<path d="m8 8-4 4 4 4M16 8l4 4-4 4"/>'
+});
+Object.assign(I, {
+  copy2:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  heal:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  q:'<path d="M9.2 9a3 3 0 1 1 4.3 2.7c-.9.4-1.5 1.2-1.5 2.2v.6M12 18v.5"/>',
+  flask:'<path d="M9 3h6M10 3v6l-5.5 9.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/>',
+  live:'<circle cx="12" cy="12" r="3"/><path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4"/>'
+});
+Object.assign(I, {
+  tune:'<path d="M5 6h9M18 6h1M5 12h3M12 12h7M5 18h11M20 18h-1"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+  tools:'<path d="M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5 2.5-2.5Z"/>',
+  minus:'<path d="M5 12h14"/>',
+  ppl:'<circle cx="9" cy="8" r="3.5"/><path d="M3 19c1-3.5 3.4-5 6-5s5 1.5 6 5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.3c1.7.7 2.9 2.2 3.5 4.7"/>'
+});
+
+/* ---------- time: minutes since the epoch, read as Asia/Taipei wall clock ---------- */
+const FAST = qs.get('fast') === '1';
+const p2 = n => String(n).padStart(2, '0');
+const T = (mo, d, h = 0, mi = 0) => Date.UTC(2026, mo - 1, d, h, mi) / 60000;
+const WK = '日一二三四五六';
+const D = t => new Date(t * 60000);
+const md = t => `${D(t).getUTCMonth() + 1}/${D(t).getUTCDate()}`;
+const hm = t => `${p2(D(t).getUTCHours())}:${p2(D(t).getUTCMinutes())}`;
+const wk = t => WK[D(t).getUTCDay()];
+const when = t => `${md(t)}（${wk(t)}）${hm(t)}`;
+const iso = t => `2026-${p2(D(t).getUTCMonth() + 1)}-${p2(D(t).getUTCDate())}T${hm(t)}`;
+const fromIso = s => { const m = /^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)/.exec(s || ''); return m ? Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5]) / 60000 : NaN; };
+const DAY0 = T(10, 9);
+const now = () => DAY0 + state.m;
+const AX0 = T(8, 1), AX1 = T(11, 15);  /* at least now + 30 days, so no valid date can clamp to the edge */
+const MONTHS = [[T(8, 1), '8 月'], [T(9, 1), '9 月'], [T(10, 1), '10 月'], [T(11, 1), '11 月']];
+const pct = t => Math.min(1, Math.max(0, (t - AX0) / (AX1 - AX0)));
+const mmss = s => `${Math.floor(s / 60)} 分${s % 60 ? ` ${s % 60} 秒` : ''}`;
+const num = n => Math.round(n).toLocaleString('en-US');
+
+/* ---------- people and modules ---------- */
+const ME = {super:['冠宇', '最高管理者'], data:['思妤', '資料'], finance:['美玲', '財務'], support:['小雯', '客服'], compliance:['宜蓁', '合規']};
+const MODS = [
+  ['商家', [['tenants', '商家管理', 'store', ['super']], ['plans', '方案管理', 'plan', ['super', 'finance', 'support']], ['pay', '付款管理', 'card', ['super', 'finance']]]],
+  ['支援', [['support', '客服支援', 'headset', ['support', 'super']], ['notif', 'LINE／通知管理', 'bell', ['support', 'super']]]],
+  ['合規', [['tpl', '契約模板庫', 'doc', ['super', 'compliance', 'support']], ['audit', '稽核中心', 'shield', ['super', 'compliance']]]],
+  ['營運', [['gw', '金流設定', 'coins', ['super', 'finance']], ['usage', '用量監控', 'gauge', ['super', 'finance', 'support']], ['data', '產業數據', 'chart', ['super', 'data']]]],
+  ['系統', [['sys', '系統設定', 'wrench', ['super']]]]
+];
+const me = () => ME[state.role][0];
+const canOpen = () => state.role === 'super';
+const ROLE = {super:'最高管理者', compliance:'合規', finance:'財務', support:'客服', data:'資料'};
+const ROLE_DO = {
+  super:'建商家、方案、停權與復權、金流環境、系統設定、建管理員；全平台稽核',
+  compliance:'平台契約模板庫、稽核紀錄、簽署查核',
+  finance:'訂閱付款、補款、退款、發票、方案指派',
+  support:'客服查詢、通知與簽署連結補發、導入支援；不能代簽、代同意，也不能改金流或商家核心設定',
+  data:'匯出去識別化產業報表；看不到任何商家或個人資料'
+};
+
+/* ---------- the four platform parameters ---------- */
+const CLAUSES = [
+  ['cancel', '取消與改期費用', true], ['er', '緊急就醫授權', true], ['health', '寵物健康狀況告知'],
+  ['injury', '美容中受傷的處理與賠償'], ['late', '逾時接回費用'], ['photo', '拍攝與照片使用'], ['pii', '個資使用範圍']
+];
+const clName = k => CLAUSES.find(c => c[0] === k)[1];
+const P0 = {
+  sign:{name:'現場簽署有效時間', icon:'tablet', unit:'分', min:10, max:60, step:5, basis:'產品決議（10/8）',
+    use:'現場預約與當日單在平板簽完後，要在這段時間內報到；超過，或寵物、服務、資源有變，就作廢重簽。',
+    segs:[{v:30, at:T(6, 1), who:'冠宇', set:T(5, 28, 10), why:'上線預設'}], pending:null},
+  review:{name:'即時審閱速度', icon:'eye', unit:'字／分', min:120, max:300, step:10, legal:true,
+    use:'來不及給 1 日審閱期的當日單與現場預約，飼主至少要停留「契約字數 ÷ 這個速度」，捲到底並逐條勾選重點條款；飼主也可以勾選同意縮短審閱期。',
+    segs:[{v:250, at:T(6, 1), who:'冠宇', set:T(5, 28, 10), why:'上線預設'}, {v:200, at:T(8, 20), who:'冠宇', set:T(8, 18, 15, 30), why:'試點店回報：飼主還沒讀完就能按同意'}],
+    pending:{v:180, at:T(10, 15), who:'冠宇', set:T(10, 8, 17, 5), why:'9 月現場觀察：長輩飼主最短時間到了還沒讀完，先放慢看看'}},
+  clauses:{name:'重點條款', icon:'list', unit:'條', legal:true, list:true,
+    use:'即時審閱時，飼主要逐一勾選的條款。取消費與緊急就醫授權一定要勾，不能拿掉。',
+    segs:[{v:['cancel', 'er', 'health'], at:T(6, 1), who:'冠宇', set:T(5, 28, 10), why:'上線預設'}, {v:['cancel', 'er', 'health', 'injury', 'late'], at:T(9, 12), who:'冠宇', set:T(9, 10, 11, 40), why:'加入受傷處理與逾時接回：9 月兩起爭議都在這兩條'}],
+    pending:null},
+  retain:{name:'契約保存年限', icon:'lock', legal:true, locked:true,
+    use:'已簽契約與證據鏈（版本快照、PDF 與 hash、時間戳記、簽名紀錄）的保存期限。',
+    segs:[{v:'不清除', at:T(6, 1), who:'冠宇', set:T(5, 28, 10), why:'法務給定年限前一律不清除'}], pending:null}
+};
+const PKEYS = ['sign', 'review', 'clauses', 'retain'];
+const RETAIN_TYPES = ['美容定型化契約', '住宿授權', '醫療授權', '風險告知', '拍攝授權'];
+const valTxt = (k, v) => k === 'clauses' ? `${v.length} 條` : k === 'retain' ? v : `${v} ${P0[k].unit}`;
+const valBig = (k, v) => k === 'clauses' ? `${v.length}<small>條</small>` : k === 'retain' ? `${v}` : `${v}<small>${P0[k].unit}</small>`;
+const curSeg = k => { const s = state.params[k].segs; return [...s].reverse().find(x => x.at <= now()) || s[0]; };
+const curV = k => curSeg(k).v;
+const same = (a, b) => JSON.stringify(Array.isArray(a) ? [...a].sort() : a) === JSON.stringify(Array.isArray(b) ? [...b].sort() : b);
+
+/* ---------- 後台管理員 ---------- */
+const ADM0 = [
+  {id:'az', n:'冠宇', mail:'guanyu@chongpai.example', role:'super', st:'on', last:'今天 08:52', since:'6/1'},
+  {id:'yz', n:'宜蓁', mail:'yizhen@chongpai.example', role:'compliance', st:'on', last:'今天 09:30', since:'6/1'},
+  {id:'ml', n:'美玲', mail:'meiling@chongpai.example', role:'finance', st:'on', last:'今天 10:05', since:'6/1'},
+  {id:'xw', n:'小雯', mail:'xiaowen@chongpai.example', role:'support', st:'on', last:'今天 08:40', since:'6/1'},
+  {id:'jh', n:'家豪', mail:'jiahao@chongpai.example', role:'support', st:'on', last:'今天 09:12', since:'10/1'},
+  {id:'sy', n:'思妤', mail:'siyu@chongpai.example', role:'data', st:'on', last:'10/8 16:20', since:'7/15'},
+  {id:'zm', n:'志明', mail:'zhiming@chongpai.example', role:'support', st:'off', last:'9/14 18:02', since:'6/1', offAt:'9/15'}
+];
+const ST = {on:['success', 'MFA 已設定'], pend:['warning', '待設定 MFA'], off:['neutral', '已停用']};
+const supers = () => state.admins.filter(a => a.role === 'super' && a.st !== 'off');
+
+/* ---------- 維護模式: fictional platform-wide averages for one weekday ---------- */
+const APPT_H = [0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 9, 11, 10, 7, 9, 10, 11, 9, 8, 6, 3, 0, 0, 0];
+const LIFF_H = [1, 1, 0, 0, 0, 1, 2, 4, 9, 12, 14, 12, 10, 11, 12, 13, 12, 11, 12, 14, 13, 9, 5, 2];
+const BOARDING = 11;
+const M_PRE = [['tonight', '今晚 23:00', T(10, 9, 23)], ['sun', '週日 02:00', T(10, 11, 2)], ['tue', '下週二 02:00', T(10, 13, 2)], ['custom', '自訂', null]];
+const M_HIST = [{from:T(9, 20, 2), to:T(9, 20, 3, 10), plan:2, who:'冠宇', why:'資料庫版本升級', early:true}];
+const noteFor = (t, h) => `寵派系統維護：${md(t)}（${wk(t)}）${hm(t)}–${hm(t + h * 60)}。這段時間不能新增預約，也不能升級方案或加購；已建立預約的報到、服務、收款、離店與住宿退房照常。`;
+function mImpact(t, h) {
+  let appt = 0, liff = 0;
+  for (let i = 0; i < h; i++) { const hr = D(t + i * 60).getUTCHours(); appt += APPT_H[hr]; liff += LIFF_H[hr]; }
+  return {appt, liff, lead:t - now()};
+}
+
+/* ---------- state ---------- */
+const INIT = {role:'super', tab:'param', sel:null, draft:null, dlg:null, nextMfa:'ok', nextSend:'ok', offline:false, loadFail:false, roll:false};
+const fresh = () => {
+  const s = clone(INIT); s.params = clone(P0); s.admins = clone(ADM0); s.m = 11 * 60 + 20;
+  s.maint = {state:'none', hist:clone(M_HIST)};
+  s.mform = {pre:'tue', at:T(10, 13, 2), h:2, note:null, errs:{}};
+  s.fresh = {};
+  return s;
+};
+let state = fresh();
+const ro = () => state.phone;
+const blockW = () => state.offline ? '離線中，連上網路才能改' : state.phone ? '手機只能看；異動請用電腦' : '';
+
+/* ---------- shell ---------- */
+function sideNav() {
+  const [w, r] = ME[state.role];
+  const groups = MODS.map(([g, list]) => {
+    const vis = list.filter(m => m[3].includes(state.role));
+    if (!vis.length) return '';
+    return `<div class="sgrp" aria-hidden="true">${g}</div>${vis.map(([k, l, icon]) =>
+      `<button class="sitem" data-key="nav-${k}" data-do="nav" data-page="${k}" ${k === 'sys' ? 'aria-current="page"' : ''}>${ic(icon)}<span>${l}</span></button>`).join('')}`;
+  }).join('');
+  return `<nav class="side" aria-label="寵派後台選單"><div class="brand"><span class="mark" aria-hidden="true">${ic('mark')}</span><span><b>寵派管理後台</b></span></div>${groups}
+    <div class="me"><span class="av" aria-hidden="true">${initialOf(w)}</span><span><b>${w}</b><small>${r}</small></span></div></nav>`;
+}
+const ibar = () => `<section class="ibar" aria-label="寵派內部提示"><span class="in">${ic('shield', 'sm')}寵派內部</span><span class="ws">只給寵派員工使用・每次異動都要 MFA 驗證並留下紀錄</span><span class="r">10/9（五） ${hm(now())}</span></section>`;
+const whoami = () => { const [w, r] = ME[state.role]; return `<span class="whoami"><span class="av" aria-hidden="true">${initialOf(w)}</span>${w}・${r}</span>`; };
+const wbtn = (cls, action, key, label, extra = '') => {
+  const why = blockW();
+  return `<span class="pre-x"><button class="${cls}" data-do="${action}" data-key="${key}" ${extra} ${why ? `aria-disabled="true" aria-describedby="${key}-why"` : ''}>${label}</button>${why ? `<span class="reason" id="${key}-why">${why}</span>` : ''}</span>`;
+};
+
+/* ---------- 全域參數: the timeline board ---------- */
+function laneSegs(k) {
+  const P = state.params[k], segs = P.segs, out = [], n = now();
+  if (P.locked) return `<span class="sg lock" data-key="sg-${k}-0">${ic('lock')}<span>${segs[0].v}・每一類契約</span></span>`;
+  segs.forEach((s, i) => {
+    const end = i + 1 < segs.length ? segs[i + 1].at : P.pending ? P.pending.at : AX1;
+    if (end <= AX0) return;
+    const a = pct(s.at), b = pct(end), w = (b - a) * 100;
+    const cur = s.at <= n && end > n, cls = cur ? `cur${!P.pending && i === segs.length - 1 ? ' fade' : ''}` : s.at > n ? 'sch' : 'past';
+    const from = s.at < AX0 ? `<span class="from">自 ${md(s.at)}</span>` : '';
+    out.push(`<span class="sg ${cls}" style="left:${(a * 100).toFixed(2)}%;width:${w.toFixed(2)}%" data-key="sg-${k}-${i}">${from}<span class="l">${valTxt(k, s.v)}</span><span class="s">${shortV(k, s.v)}</span></span>`);
+  });
+  if (P.pending) {
+    const a = pct(P.pending.at);
+    const t = `${md(P.pending.at)} 起 ${valTxt(k, P.pending.v)}`;
+    out.push(`<span class="sg sch" style="left:${(a * 100).toFixed(2)}%;width:${((1 - a) * 100).toFixed(2)}%" data-key="sg-${k}-pend" data-flag="fl-${k}-pend">${ic('clock')}<span class="l">${t}</span><span class="s">${shortV(k, P.pending.v)}</span></span>`, flag('sch', a, `fl-${k}-pend`, 'clock', t));
+  }
+  const d = state.draft;
+  const dr = d && d.k === k ? dOk(d) : null, dat = dr && !Object.keys(dr.errs).length ? dr.at : null;
+  if (dat) {
+    const a = pct(dat);
+    const t = `草稿・${md(dat)} 起 ${valTxt(k, d.list ? d.list : d.v)}`;
+    out.push(`<span class="sg drf${state.roll ? ' unroll' : ''}" style="left:${(a * 100).toFixed(2)}%;width:${((1 - a) * 100).toFixed(2)}%" data-key="sg-${k}-draft" data-flag="fl-${k}-draft">${ic('pen')}<span class="l">${t}</span><span class="s">${shortV(k, d.list ? d.list : d.v)}</span></span>`, flag('drf', a, `fl-${k}-draft`, 'pen', t));
+  }
+  return MONTHS.slice(1).map(([t]) => `<i class="ml" style="left:${(pct(t) * 100).toFixed(2)}%"></i>`).join('') + out.join('');
+}
+const shortV = (k, v) => k === 'clauses' ? `${v.length}` : `${v}`;
+const flag = (cls, a, key, icon, t) => `<span class="flag ${cls}${a > .55 ? ' r' : ''}" style="left:${a > .55 ? `calc(${(a * 100).toFixed(2)}% + 1px)` : `${(a * 100).toFixed(2)}%`}" data-key="${key}">${ic(icon)}${t}</span>`;
+/* labels that do not fit drop to the value; a future segment that cannot show its date raises a flag above the track */
+function fitSegs(root) {
+  root.querySelectorAll('.sg:not(.lock)').forEach(sg => {
+    sg.classList.remove('short', 'tiny');
+    if (sg.scrollWidth > sg.clientWidth + 1) sg.classList.add('short');
+    if (sg.scrollWidth > sg.clientWidth + 1) sg.classList.add('tiny');
+    const f = sg.dataset.flag && root.querySelector(`[data-key="${sg.dataset.flag}"]`);
+    if (f) f.classList.toggle('on', sg.classList.contains('short'));
+  });
+}
+function laneHtml(k) {
+  const P = state.params[k], cs = curSeg(k), open = state.sel === k;
+  const tags = [P.legal ? chip('warning', '暫定・待法務') : chip('neutral', P.basis)];
+  if (P.locked) tags.push(chip('plain', `${ic('lock', 'spm')}不能在這裡改`).replace('<span class="chip plain">', '<span class="chip plain">'));
+  if (P.pending) tags.push(chip('info', `${md(P.pending.at)} 起 ${valTxt(k, P.pending.v)}`));
+  if (state.draft?.k === k) tags.push(chip('plain', '草稿未送出'));
+  return `<li><button class="lane" data-do="sel" data-v="${k}" data-key="lane-${k}" aria-expanded="${open}" aria-controls="dp" style="--p:${pct(now()).toFixed(4)}">
+    <span class="lh"><b class="nm">${ic(P.icon)}${P.name}</b><span class="v" data-key="val-${k}">${valBig(k, cs.v)}</span><span class="tg">${tags.join('')}</span></span>
+    <span class="trk" style="--p:${pct(now()).toFixed(4)}" aria-hidden="true">${laneSegs(k)}</span></button></li>`;
+}
+function boardHtml() {
+  const ticks = MONTHS.map(([t, l]) => `<span class="tk" style="left:${(pct(t) * 100).toFixed(2)}%"><span>${l}</span></span>`).join('');
+  const pend = PKEYS.filter(k => state.params[k].pending).length;
+  return `<section class="board" aria-labelledby="bd-h" data-key="board"><div class="board-h"><h2 id="bd-h">${ic('tune')}全域參數</h2><span class="aside">每家店都一樣，店家不能自己調・點一列看紀錄或修改</span></div>
+    <div class="axis" aria-hidden="true"><span class="legend2"><span><i class="p"></i>已過</span><span><i class="c"></i>現在</span><span><i class="s"></i>排程</span><span><i class="d"></i>草稿</span></span>
+      <span class="ticks">${ticks}<span class="nowl" style="left:${(pct(now()) * 100).toFixed(2)}%">現在 ${md(now())} ${hm(now())}</span></span></div>
+    <ul class="lanes" data-key="lanes">${PKEYS.map(laneHtml).join('')}</ul>
+    <div class="board-f"><span>${ic('doc')}每份已簽契約都存著簽約當時的參數，之後怎麼改都不會回溯</span><span>${ic('clock')}${pend ? `目前 ${pend} 筆排程中・` : ''}生效時間只能排在現在之後</span></div></section>`;
+}
+
+/* ---------- the panel ---------- */
+const PRE = () => {
+  const n = now(), out = [];
+  if (n < T(10, 9, 12)) out.push(['noon', '今天 12:00', T(10, 9, 12)]);
+  out.push(['tmr', '明天 00:00', T(10, 10)], ['mon', '下週一 00:00', T(10, 12)], ['custom', '自訂', null]);
+  return out;
+};
+function dOk(d) {
+  const P0k = P0[d.k], errs = {}, n = now();
+  let at = d.eff === 'custom' ? fromIso(d.custom) : (PRE().find(x => x[0] === d.eff) || [])[2];
+  if (d.eff === 'custom') {
+    if (!d.custom || isNaN(at)) errs.at = '請選生效的日期與時間';
+    else if (at <= n) errs.at = `生效時間要在現在（${md(n)} ${hm(n)}）之後；不能回溯`;
+    else if (at > n + 30 * 1440) errs.at = '最晚排到 30 天後；更遠的改動之後再排';
+  }
+  if (d.list) { if (same(d.list, curV(d.k))) errs.v = '和現在一樣，沒有要改的'; }
+  else {
+    const v = Number(d.v);
+    if (d.v === '' || !Number.isFinite(v)) errs.v = `請填數字（${P0k.min}–${P0k.max} ${P0k.unit}）`;
+    else if (v < P0k.min || v > P0k.max) errs.v = `要在 ${P0k.min}–${P0k.max} ${P0k.unit}之間`;
+    else if (v % P0k.step) errs.v = `請以 ${P0k.step} 為單位`;
+    else if (v === curV(d.k)) errs.v = '和現在一樣，沒有要改的';
+  }
+  return {errs, at:errs.at || (d.eff === 'custom' && isNaN(at)) ? null : at};
+}
+function impactHtml(k, d, at) {
+  const cur = curV(k), li = (icon, t) => `<li>${ic(icon)}<span>${t}</span></li>`, L = [];
+  const eff = at ? `${when(at)}` : '生效時間';
+  if (k === 'sign') {
+    const v = Number(d.v);
+    L.push(li('tablet', `現在有 <b>3 筆</b>現場簽署進行中（毛孩日和 2、汪汪俱樂部 1），照開始時的 ${cur} 分算到結束。`));
+    L.push(li('clock', `${eff} 之後才開始的簽署，用 <b>${v || '新的'} 分</b>。`));
+    const B = [[0, 148], [5, 112], [10, 71], [15, 38], [20, 19], [25, 9], [30, 9], [40, 4], [60, 2]];
+    if (v && v < cur) { const nn = B.filter(([lo]) => lo >= v && lo < cur).reduce((s, b) => s + b[1], 0); L.push(li('warn', `過去 30 天 412 筆現場簽署裡，有 <b>${nn} 筆</b>是簽完 ${v}–${cur} 分鐘才報到；改成 ${v} 分，這些都要重簽。`)); }
+    if (v && v > cur) { const nn = B.filter(([lo]) => lo >= cur && lo < v).reduce((s, b) => s + b[1], 0); L.push(li('check', `過去 30 天因超過 ${cur} 分而重簽的 15 筆裡，有 <b>${nn} 筆</b>在 ${v} 分內報到，改了就不用重簽；簽完到服務的空檔也跟著變長。`)); }
+  }
+  if (k === 'review') {
+    const v = Number(d.v), sec = x => Math.ceil(3600 / x * 60);
+    L.push(li('eye', `一份 3,600 字的契約（例）：最短停留從 <b>${mmss(sec(cur))}</b>${v ? ` 變成 <b>${mmss(sec(v))}</b>` : ''}。`));
+    L.push(li('clock', `${eff} 之前已經開始審閱的飼主，照開始時的速度算。`));
+    if (v && v > cur) L.push(li('warn', `速度變快，飼主可以更早按同意；重點條款仍要逐條勾選。`));
+    L.push(li('info', `過去 30 天有 <b>186 筆</b>即時審閱，其中 64 筆是飼主勾選同意縮短審閱期，不受這個速度影響。`));
+  }
+  if (k === 'clauses') {
+    const add = d.list.filter(x => !cur.includes(x)), rm = cur.filter(x => !d.list.includes(x));
+    if (add.length) L.push(li('plus', `新增要逐條勾選：<b>${add.map(clName).join('、')}</b>`));
+    if (rm.length) L.push(li('minus', `不再要求逐條勾選：<b>${rm.map(clName).join('、')}</b>（條文仍在契約全文裡）`));
+    L.push(li('list', `每筆即時審閱要勾 <b>${d.list.length} 條</b>（現在 ${cur.length} 條）；${eff} 之前開始的審閱照舊。`));
+  }
+  L.push(li('doc', '已簽的契約不受影響：每份都存著簽約當時用的值。'));
+  return `<div class="impact" data-key="impact"><h4>${ic('layers', 'spm')}改了會怎樣</h4><ul>${L.join('')}</ul><span class="demo">筆數為虛構示範</span></div>`;
+}
+function histHtml(k) {
+  const P = state.params[k], rows = [];
+  if (P.pending) rows.push(`<li class="sch" data-key="h-${k}-pend"><span>${md(P.pending.at)} 起</span><span><span class="who">${P.pending.who}</span> 排定 ${valTxt(k, curV(k))} → ${valTxt(k, P.pending.v)}・${md(P.pending.set)} ${hm(P.pending.set)} 排定・已過 MFA<q>${esc(P.pending.why)}</q></span></li>`);
+  [...P.segs].reverse().forEach((s, i, a) => {
+    const prev = a[i + 1];
+    rows.push(`<li class="${state.fresh[`h-${k}-${s.at}`] ? 'fresh' : ''}" data-key="h-${k}-${P.segs.indexOf(s)}"><span>${md(s.at)} 起</span><span><span class="who">${s.who}</span> ${prev ? `${valTxt(k, prev.v)} → ` : '設為 '}${valTxt(k, s.v)}${s.at > AX0 - 1440 * 120 ? `・${md(s.set)} ${hm(s.set)} 排定` : ''}<q>${esc(s.why)}</q></span></li>`);
+  });
+  (P.cancelled || []).forEach(c => rows.push(`<li data-key="h-${k}-cx"><span>${md(c.set)} 取消</span><span><span class="who">${c.who}</span> 取消排程：${md(c.at)} 起 ${valTxt(k, c.v)}<q>${esc(c.why)}</q></span></li>`));
+  return `<div class="dsec"><h3>${ic('trail')}紀錄</h3><ul class="hist" data-key="hist-${k}">${rows.join('')}</ul>
+    <a class="textbtn ln" href="../audit-center/index.html?role=super" data-key="to-audit">到稽核中心看完整紀錄${ic('fwd', 'spm')}</a></div>`;
+}
+function editHtml(k) {
+  const P = state.params[k], P0k = P0[k], d = state.draft && state.draft.k === k ? state.draft : null;
+  if (P.locked) return `<div class="dsec"><p class="notice warning" data-key="locked">${ic('lock')}<span>法務給定各類契約的保存年限之前，任何已簽契約與證據鏈都不清除。這一項不能在這裡改；年限確定後，會隨系統版本更新加入，並在這裡留下紀錄。</span></p>
+    <ul class="ret">${RETAIN_TYPES.map(t => `<li><span>${t}</span><b>${ic('lock', 'spm')}不清除</b></li>`).join('')}</ul>
+    <p class="hint">個資刪除請求核准後，一般個資會去識別化；已簽契約與證據鏈仍保留。</p></div>`;
+  if (P.pending) return `<div class="dsec"><p class="notice info" data-key="pend-note">${ic('clock')}<span>已排定 <b>${when(P.pending.at)}</b> 起改為 <b>${valTxt(k, P.pending.v)}</b>。一個參數同時只能有一筆排程；要改成別的值，先取消這一筆。</span></p>
+    ${ro() ? '' : `<div class="go2">${wbtn('btn quiet', 'cxPend', 'cx-pend', `${ic('x', 'sm')}取消這筆排程…`)}</div>`}</div>`;
+  if (ro()) return '';
+  if (!d) return `<div class="dsec"><h3>${ic('pen')}修改</h3><p class="hint">先寫草稿，看清楚影響，再排定生效時間；送出要輸入 MFA 驗證碼並寫原因。</p>
+    <div class="go2">${wbtn('btn secondary', 'draft', 'draft-start', `${ic('pen', 'sm')}寫一份草稿`)}</div></div>`;
+  const {errs, at} = dOk(d), e = d.show ? errs : {};
+  const valueField = P0k.list
+    ? `<fieldset class="fs"><legend>要逐條勾選的條款</legend><ul class="clauses" role="group" data-key="cl-list">${CLAUSES.map(([ck, cn, req]) => {
+        const on = d.list.includes(ck), was = curV(k).includes(ck);
+        return `<li><button class="cl${on !== was ? ' chg' : ''}" role="checkbox" aria-checked="${on}" data-do="cl" data-v="${ck}" data-key="cl-${ck}" ${req ? 'aria-disabled="true"' : ''}><span class="bx">${ic('check')}</span>${cn}${req ? '<small>一定要勾</small>' : on !== was ? `<small>${on ? '新增' : '拿掉'}</small>` : ''}</button></li>`; }).join('')}</ul>${e.v ? `<span class="ferr" data-key="v-e">${ic('warn')}${e.v}</span>` : ''}</fieldset>`
+    : `<div class="field"><label for="d-v">改成（${P0k.min}–${P0k.max} ${P0k.unit}，每 ${P0k.step}）</label><div class="stepper">
+        <button class="ibtn" data-do="step" data-v="-1" data-key="step-dn" aria-label="減 ${P0k.step}" ${Number(d.v) <= P0k.min ? 'aria-disabled="true"' : ''}>${ic('minus')}</button>
+        <input id="d-v" data-key="d-v" inputmode="numeric" value="${esc(d.v)}" ${e.v ? 'aria-invalid="true" aria-describedby="v-e"' : ''}>
+        <button class="ibtn" data-do="step" data-v="1" data-key="step-up" aria-label="加 ${P0k.step}" ${Number(d.v) >= P0k.max ? 'aria-disabled="true"' : ''}>${ic('plus')}</button><span class="u">${P0k.unit}</span></div>
+        ${e.v ? `<span class="err" id="v-e" data-key="v-e">${e.v}</span>` : `<span class="help">現在 ${valTxt(k, curV(k))}</span>`}</div>`;
+  const pre = PRE();
+  const effField = `<fieldset class="fs"><legend id="eff-l">從什麼時候生效</legend><div class="rg" role="radiogroup" aria-labelledby="eff-l" data-key="eff">${pre.map(([pk, pl]) =>
+      `<button class="opt" role="radio" aria-checked="${d.eff === pk}" tabindex="${d.eff === pk ? 0 : -1}" data-do="eff" data-v="${pk}" data-key="eff-${pk}">${pl}</button>`).join('')}</div>
+    ${d.eff === 'custom' ? `<div class="field"><label for="d-at" class="sr">生效的日期與時間</label><input type="datetime-local" id="d-at" data-key="d-at" step="1800" min="${iso(now())}" value="${esc(d.custom)}" ${e.at ? 'aria-invalid="true" aria-describedby="at-e"' : ''}></div>` : ''}
+    ${e.at ? `<span class="ferr" id="at-e" data-key="at-e">${ic('warn')}${e.at}</span>` : at ? `<span class="hint" data-key="eff-when">${when(at)} 起，新開始的${k === 'sign' ? '簽署' : '審閱'}用新的值</span>` : ''}</fieldset>`;
+  return `<div class="dsec" data-key="draft"><h3>${ic('pen')}草稿</h3>${valueField}${effField}${impactHtml(k, d, at)}
+    <div class="go2">${wbtn(`btn primary${state.dlg ? ' calm' : ''}`, 'review', 'd-go', `${ic('clock', 'sm')}排定生效…`)}<button class="btn secondary" data-do="dropDraft" data-key="d-drop">放棄草稿</button></div></div>`;
+}
+function panelHtml(sheet) {
+  const k = state.sel; if (!k) return '';
+  const P = state.params[k], cs = curSeg(k);
+  return `<aside class="dp${sheet ? ' sheet' : ''}" id="dp" aria-labelledby="dp-h" data-key="dp" ${sheet ? 'role="dialog" aria-modal="true"' : ''}>
+    <div class="dp-top"><button class="ibtn x" data-do="closeP" data-key="dp-x" aria-label="關閉">${ic('x')}</button></div>
+    <div class="dph"><span class="ttile${P.legal ? ' warn' : ''}">${ic(P.icon)}</span><div><h2 id="dp-h" tabindex="-1">${P.name}</h2><p>${P.legal ? chip('warning', '暫定・待法務') : chip('neutral', P.basis)}<span>全平台・每家店一樣</span></p></div></div>
+    <p class="lede">${P.use}</p>
+    <dl class="kv" data-key="now-kv"><dt>現在</dt><dd><b>${valTxt(k, cs.v)}</b>${k === 'clauses' ? `：${cs.v.map(clName).join('、')}` : ''}</dd><dt>自</dt><dd>${when(cs.at)}</dd>${P.legal ? `<dt>待法務</dt><dd>律師確認前先用這個值；確認後在這裡改，並留紀錄。</dd>` : ''}</dl>
+    ${editHtml(k)}${histHtml(k)}</aside>`;
+}
+
+/* ---------- 後台管理員 ---------- */
+function admActs(a) {
+  if (ro()) return '';
+  const self = a.id === 'az';
+  if (self) {
+    const why = supers().length > 1 ? '不能改自己的角色或停用自己；請另一位最高管理者處理' : '不能改自己的角色或停用自己；你也是唯一的最高管理者';
+    return `<div class="acts self"><span class="reason" data-key="a-self-why">${why}</span></div>`;
+  }
+  const w = blockW(), dis = w ? `aria-disabled="true" aria-describedby="a-blk"` : '';
+  if (a.st === 'off') return `<div class="acts"><button class="textbtn ln" data-do="admOn" data-v="${a.id}" data-key="a-${a.id}-on" ${dis}>重新啟用…</button></div>`;
+  return `<div class="acts">${a.st === 'pend' ? `<button class="textbtn ln" data-do="resend" data-v="${a.id}" data-key="a-${a.id}-resend" ${dis}>重寄設定連結</button>` : ''}<button class="textbtn" data-do="admRole" data-v="${a.id}" data-key="a-${a.id}-role" ${dis}>改角色…</button><button class="textbtn" data-do="admOff" data-v="${a.id}" data-key="a-${a.id}-off" ${dis}>停用…</button></div>`;
+}
+const roleChip = r => `<span class="rolechip${r === 'super' ? ' sup' : ''}">${r === 'super' ? ic('shield', 'spm') : ''}${ROLE[r]}</span>`;
+const stTxt = a => a.st === 'off' ? `${a.offAt} 停用` : a.st === 'pend' ? '待設定 MFA・還不能登入' : '可登入';
+function admHtml() {
+  const L = state.admins, on = L.filter(a => a.st !== 'off').length;
+  const head = `<div class="h"><h2 id="adm-h">${ic('ppl')}後台管理員</h2><span class="aside">${on} 個帳號啟用中・${supers().length} 位最高管理者</span></div>`;
+  const body = state.phone
+    ? `<ul class="admcards" data-key="adm-list">${L.map(a => `<li class="${a.st === 'off' ? 'off' : ''}" data-key="a-${a.id}"><span class="av" aria-hidden="true">${initialOf(a.n)}</span><span><b>${a.n}</b>${a.id === 'az' ? '（你）' : ''}</span><span class="meta">${roleChip(a.role)}${chip(ST[a.st][0], ST[a.st][1])}<span>最後登入 ${a.last}</span></span></li>`).join('')}</ul>`
+    : `<table class="adm" data-key="adm-list"><thead><tr><th scope="col">人員</th><th scope="col">角色</th><th scope="col">MFA 與登入</th><th scope="col">最後登入</th><th scope="col"><span class="sr">動作</span></th></tr></thead><tbody>${L.map(a =>
+      `<tr class="${a.st === 'off' ? 'off' : ''}${state.fresh[`a-${a.id}`] ? ' fresh' : ''}" data-key="a-${a.id}"><td><span class="who"><span class="av" aria-hidden="true">${initialOf(a.n)}</span><span><b>${a.n}${a.id === 'az' ? '（你）' : ''}</b><small>${a.mail}</small></span></span></td><td>${roleChip(a.role)}</td><td>${chip(ST[a.st][0], ST[a.st][1])}<span class="reason">${stTxt(a)}</span>${a.st === 'on' && a.id !== 'az' && !ro() ? `<button class="mfabtn" data-do="admMfa" data-v="${a.id}" data-key="a-${a.id}-mfa" ${blockW() ? 'aria-disabled="true" aria-describedby="a-blk"' : ''}>重設 MFA…</button>` : ''}</td><td class="nw">${a.last}</td><td>${admActs(a)}</td></tr>`).join('')}</tbody></table>`;
+  const w = blockW();
+  const add = ro() ? '' : wbtn(`btn primary${state.dlg ? ' calm' : ''}`, 'admNew', 'a-new', `${ic('plus', 'sm')}新增管理員…`);
+  const rules = `<section class="sheet" aria-labelledby="ru-h" data-key="rules"><div class="h"><h2 id="ru-h">${ic('shield')}異動規則</h2></div><ul class="rules">
+      <li>${ic('otp')}<span>建立、改角色、停用、重新啟用，都要重新輸入你的 MFA 驗證碼並寫原因，記在稽核中心。</span></li>
+      <li>${ic('ban')}<span>不能改自己的角色或停用自己；最後一位最高管理者不能被停用或降級。</span></li>
+      <li>${ic('key')}<span>新帳號與重新啟用的帳號，設定好 MFA 之前不能登入。</span></li>
+      <li>${ic('otp')}<span>手機遺失、備用碼也用完：重設 MFA，帳號回到待設定，綁定新手機後才能登入。</span></li>
+      <li>${ic('out')}<span>停用會立刻登出所有裝置；做到一半的工作與紀錄都留著。</span></li>
+      <li>${ic('lock')}<span>只有這五種角色，不能自訂。</span></li></ul></section>
+    <section class="sheet" aria-labelledby="rd-h" data-key="roles"><div class="h"><h2 id="rd-h">${ic('ppl')}五種角色</h2></div><ul class="rdesc">${Object.keys(ROLE).map(r => `<li><b>${ROLE[r]}</b>${ROLE_DO[r]}</li>`).join('')}</ul></section>`;
+  const main = `<section class="sheet" aria-labelledby="adm-h">${head}${add ? `<div style="margin-bottom:12px">${add}</div>` : ''}${body}${w && !ro() ? `<span class="reason" id="a-blk">${w}</span>` : ''}</section>`;
+  return state.wide ? `<div class="lay3"><div class="colm">${main}</div><aside class="colside" aria-label="規則">${rules}</aside></div>` : `<div class="lay3 one"><div class="colm">${main}${rules}</div></div>`;
+}
+
+/* ---------- 維護模式 ---------- */
+const maintWin = () => state.maint.state === 'none' ? null : state.maint;
+function splitHtml() {
+  return `<div class="split" data-key="split"><div class="stop"><b>${ic('ban', 'spm')}維護時擋下</b><ul><li>新預約：LINE、公開網頁、新增現場預約</li><li>方案升級與加購</li><li>商家設定與價格的修改</li></ul></div>
+    <div class="keep"><b>${ic('check', 'spm')}照常</b><ul><li>已建立預約的報到、服務、收款、離店</li><li>住宿退房與逾時費</li><li>已建立預約的簽署（平板與 LINE 連結）</li><li>查詢與必要通知</li></ul></div></div>`;
+}
+function previewHtml(note) {
+  return `<div class="mpreview" data-key="m-preview"><div class="cap">商家在管理 Web 上方看到</div><div class="mweb" aria-hidden="true"><b>寵派商家中心</b><span>毛孩日和・中山店</span></div><div class="bn">${ic('info')}<span>${esc(note)}</span></div><p class="mcrumb" aria-hidden="true">今日看板</p></div>`;
+}
+function maintHtml() {
+  const M = state.maint, f = state.mform, e = f.errs || {};
+  let main;
+  if (M.state === 'none') {
+    const at = f.at, im = mImpact(at, f.h), note = f.note ?? noteFor(at, f.h);
+    const warn = [];
+    if (at > now() && im.lead < 1440) warn.push(`商家只有不到一天的預告（${Math.floor(im.lead / 60)} 小時）。`);
+    if (im.appt) warn.push(`這段時間有約 ${im.appt} 筆預約；它們照常進行，但這段時間不能新增預約。`);
+    main = `<section class="sheet" aria-labelledby="mt-h" data-key="m-form"><div class="h"><h2 id="mt-h">${ic('tools')}排定維護</h2><span class="aside">目前沒有排定的維護</span></div>
+      ${ro() ? `<p class="hint">手機只能看；排定維護請用電腦。</p>` : `<div class="mtform">
+        <fieldset class="fs full"><legend id="ms-l">開始</legend><div class="rg" role="radiogroup" aria-labelledby="ms-l" data-key="m-pre">${M_PRE.map(([pk, pl]) =>
+          `<button class="opt" role="radio" aria-checked="${f.pre === pk}" tabindex="${f.pre === pk ? 0 : -1}" data-do="mPre" data-v="${pk}" data-key="mp-${pk}">${pl}</button>`).join('')}</div>
+          ${f.pre === 'custom' ? `<div class="field"><label for="m-at" class="sr">開始的日期與時間</label><input type="datetime-local" id="m-at" data-key="m-at" step="1800" min="${iso(now())}" value="${isNaN(at) ? '' : iso(at)}" ${e.at ? 'aria-invalid="true" aria-describedby="m-at-e"' : ''}></div>` : ''}
+          ${e.at ? `<span class="ferr" id="m-at-e" data-key="m-at-e">${ic('warn')}${e.at}</span>` : isNaN(at) ? '' : `<span class="hint" data-key="m-when-h">${when(at)}–${hm(at + f.h * 60)}</span>`}</fieldset>
+        <fieldset class="fs full"><legend id="mh-l">預計多久</legend><div class="seg" role="radiogroup" aria-labelledby="mh-l" data-key="m-h">${[1, 2, 3, 4].map(h =>
+          `<button role="radio" aria-checked="${f.h === h}" tabindex="${f.h === h ? 0 : -1}" data-do="mH" data-v="${h}" data-key="mh-${h}">${h} 小時</button>`).join('')}</div><span class="hint">最多 4 小時；提早做完可以提前結束</span></fieldset>
+        <div class="field full"><label for="m-note">給商家的公告</label><textarea id="m-note" data-key="m-note" ${e.note ? 'aria-invalid="true" aria-describedby="m-note-e"' : 'aria-describedby="m-note-h"'}>${esc(note)}</textarea>${e.note ? `<span class="err" id="m-note-e" data-key="m-note-e">${e.note}</span>` : `<span class="help" id="m-note-h">排定後就顯示在每家店的管理 Web 上方，直到維護結束；${note.length}／120 字</span>`}</div>
+        ${warn.length ? `<p class="notice warning full" data-key="m-warn">${ic('warn')}<span>${warn.join('')}</span></p>` : ''}
+        <div class="full go2">${wbtn(`btn primary${state.dlg ? ' calm' : ''}`, 'mSched', 'm-go', `${ic('clock', 'sm')}排定維護…`)}</div></div>`}</section>`;
+  } else {
+    const live = M.state === 'live', end = M.from + M.h * 60;
+    main = `<section class="sheet" aria-labelledby="mt-h" data-key="m-state"><div class="h"><h2 id="mt-h">${ic('tools')}${live ? '維護中' : '已排定維護'}</h2><span class="aside">${M.who} ${md(M.set)} ${hm(M.set)} 排定・已過 MFA</span></div>
+      <div class="mt-state"><div class="mt-big"><span class="ttile${live ? ' warn' : ''}">${ic(live ? 'tools' : 'clock')}</span><span><b data-key="m-when">${when(M.from)}–${hm(end)}</b><span>${live ? `已開始 ${Math.max(0, now() - M.from)} 分鐘・新預約暫停中` : `${M.h} 小時・公告已顯示在每家店的管理 Web`}</span></span></div>
+      <p class="hint">原因：${esc(M.why)}</p>
+      ${previewHtml(M.note)}
+      <div class="go2">${live ? wbtn('btn quiet', 'mEnd', 'm-end', `${ic('check', 'sm')}維護完成，提前結束…`) : wbtn('btn quiet', 'mCancel', 'm-cancel', `${ic('x', 'sm')}取消這次維護…`)}</div></div></section>`;
+  }
+  const W = maintWin(), at = W ? W.from : f.at, h = W ? W.h : f.h, im = mImpact(at, h);
+  const side = `<section class="sheet" aria-labelledby="mi-h" data-key="m-impact"><div class="h"><h2 id="mi-h">${ic('layers')}${W ? '這次維護' : '這段時間'}會怎樣</h2></div>
+    <div class="impact"><ul>
+      <li>${ic('cal')}<span><b data-key="m-appt">${im.appt}</b> 筆預約落在這段時間；已建立的預約照常報到、服務、離店。</span></li>
+      <li>${ic('cage')}<span><b>${BOARDING}</b> 隻住宿中；退房與逾時費照常。</span></li>
+      <li>${ic('ban')}<span>飼主平均會送出 <b data-key="m-liff">${im.liff}</b> 筆新預約，會看到「寵派系統維護中，${hm(at + h * 60)} 後再預約」。</span></li></ul>
+      <span class="demo">筆數為虛構示範（平日平均）</span></div>
+    ${splitHtml()}
+    ${W ? '' : previewHtml(f.note ?? noteFor(f.at, f.h))}</section>`;
+  const hist = `<section class="sheet" aria-labelledby="mh-h" data-key="m-hist"><div class="h"><h2 id="mh-h">${ic('trail')}過去的維護</h2></div><ul class="mhist">${M.hist.map((x, i) =>
+    `<li class="${x.fresh ? 'fresh' : ''}" data-key="mh-${i}"><span>${md(x.from)}（${wk(x.from)}）</span><span>${hm(x.from)}–${hm(x.to)}${x.cancel ? '・已取消' : x.early ? `・預定 ${x.plan} 小時，提前結束` : ''}・${x.who}<q>${esc(x.why)}</q></span></li>`).join('')}</ul></section>`;
+  return state.wide ? `<div class="lay3" style="grid-template-columns:minmax(0,1fr) 400px"><div class="colm">${main}${hist}</div><aside class="colside" aria-label="影響">${side}</aside></div>` : `<div class="lay3 one"><div class="colm">${main}${side}${hist}</div></div>`;
+}
+
+/* ---------- confirm dialogs: every change re-enters MFA and a reason ---------- */
+function dlgBody(d) {
+  const k = d.k;
+  if (d.kind === 'param') {
+    const P = state.params[k], v = d.list || d.v;
+    return {h:`排定修改：${P.name}`, danger:false, ok:'確認排定', body:`<div class="diff" data-key="dlg-diff"><s>${valTxt(k, curV(k))}</s>${ic('arrow')}<span>${valTxt(k, v)}</span></div>
+      <dl class="cdl"><dt>生效</dt><dd>${when(d.at)} 起</dd><dt>範圍</dt><dd>全平台每家店；已簽的契約與進行中的${k === 'sign' ? '簽署' : '審閱'}照舊</dd></dl>`};
+  }
+  if (d.kind === 'cxPend') { const p = state.params[k].pending; return {h:`取消排程：${state.params[k].name}`, danger:false, ok:'取消這筆排程', body:`<dl class="cdl"><dt>原本排定</dt><dd>${when(p.at)} 起改為 ${valTxt(k, p.v)}</dd><dt>取消後</dt><dd>維持 ${valTxt(k, curV(k))}</dd></dl>`}; }
+  const a = state.admins.find(x => x.id === d.id);
+  if (d.kind === 'admNew') return {h:'新增後台管理員', danger:false, ok:'建立並寄出設定連結', body:`
+      <div class="field"><label for="n-name">名字</label><input id="n-name" data-key="n-name" value="${esc(d.name)}" autocomplete="off" ${d.errs.name ? 'aria-invalid="true" aria-describedby="n-name-e"' : ''}>${d.errs.name ? `<span class="err" id="n-name-e" data-key="n-name-e">${d.errs.name}</span>` : ''}</div>
+      <div class="field"><label for="n-mail">公司 Email</label><input id="n-mail" type="email" data-key="n-mail" value="${esc(d.mail)}" autocomplete="off" placeholder="name@chongpai.example" ${d.errs.mail ? 'aria-invalid="true" aria-describedby="n-mail-e"' : 'aria-describedby="n-mail-h"'}>${d.errs.mail ? `<span class="err" id="n-mail-e" data-key="n-mail-e">${d.errs.mail}</span>` : `<span class="help" id="n-mail-h">設定連結寄到這裡；設定好密碼與 MFA 才能登入</span>`}</div>
+      ${roleRadios(d)}`};
+  if (d.kind === 'admRole') return {h:`改 ${a.n} 的角色`, danger:false, ok:'確認改角色', body:`<p class="lede">現在是${ROLE[a.role]}。改了之後，${a.n}下次操作就照新角色的權限；已登入的裝置不用重新登入。</p>${roleRadios(d, a.role)}`};
+  if (d.kind === 'admOff') return {h:`停用 ${a.n}？`, danger:true, ok:'停用並登出', body:`<p class="lede">${a.n}（${ROLE[a.role]}）會立刻從所有裝置登出，之後不能登入。做過的紀錄都留著；要恢復可以重新啟用。</p>`};
+  if (d.kind === 'admMfa') return {h:`重設 ${a.n} 的 MFA？`, danger:false, ok:'重設並寄出設定連結', body:`<p class="lede">手機遺失、備用碼也用完時才重設。${a.n}會立刻從所有裝置登出，舊手機上的驗證碼和剩下的備用碼一起作廢；設定連結寄到 ${a.mail}，${a.n}輸入現在的密碼、綁定新手機後才能再登入。角色不變。</p>`};
+  if (d.kind === 'admOn') return {h:`重新啟用 ${a.n}？`, danger:false, ok:'重新啟用', body:`<p class="lede">會以${ROLE[a.role]}重新啟用，並寄出新的設定連結；${a.n}要重新設定 MFA 才能登入。要換角色，啟用後再改。</p>`};
+  if (d.kind === 'mSched') return {h:'排定維護？', danger:false, ok:'確認排定', body:`<dl class="cdl"><dt>時間</dt><dd>${when(d.at)}–${hm(d.at + d.h * 60)}（${d.h} 小時）</dd><dt>公告</dt><dd>排定後立刻顯示在每家店的管理 Web</dd></dl>`};
+  if (d.kind === 'mCancel') return {h:'取消這次維護？', danger:false, ok:'取消維護', body:`<p class="lede">商家的公告會立刻拿掉；${when(state.maint.from)} 起照常營運。</p>`};
+  if (d.kind === 'mEnd') return {h:'提前結束維護？', danger:false, ok:'結束維護', body:`<p class="lede">新預約、方案升級與加購會立刻恢復，商家的公告也會拿掉。</p>`};
+}
+function roleRadios(d, cur) {
+  return `<fieldset class="fs"><legend id="role-l">角色</legend><div class="rg col" role="radiogroup" aria-labelledby="role-l" data-key="role">${Object.keys(ROLE).map((r, i) => {
+      const isCur = r === cur, on = d.role === r;
+      return `<button class="opt" role="radio" aria-checked="${on}" tabindex="${on || (!d.role && i === 0) ? 0 : -1}" data-do="pickRole" data-v="${r}" data-key="role-${r}" ${isCur ? 'aria-disabled="true"' : ''}>${ROLE[r]}<small>${isCur ? '現在的角色' : r === 'super' ? '權限最大' : ''}</small></button>`; }).join('')}</div>
+    ${d.role ? `<p class="hint" data-key="role-do">${ROLE_DO[d.role]}</p>` : ''}${d.role === 'super' ? `<p class="notice warning" data-key="role-super">${ic('warn')}<span>最高管理者可以建商家、停權、切換金流環境、改系統設定與異動管理員；請確認真的需要。</span></p>` : ''}
+    ${d.errs.role ? `<span class="ferr" data-key="role-e">${ic('warn')}${d.errs.role}</span>` : ''}</fieldset>`;
+}
+function dlgHtml() {
+  const d = state.dlg; if (!d) return '';
+  const b = dlgBody(d), e = d.errs, busy = d.busy;
+  return `<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dl-h" data-key="dlg"><h2 id="dl-h">${b.h}</h2>${b.body}
+    <div class="field"><label for="d-why">原因</label><textarea id="d-why" data-key="d-why" placeholder="寫給之後查稽核的人看：為什麼要改" ${e.why ? 'aria-invalid="true" aria-describedby="d-why-e"' : 'aria-describedby="d-why-h"'}>${esc(d.why)}</textarea>${e.why ? `<span class="err" id="d-why-e" data-key="d-why-e">${e.why}</span>` : `<span class="help" id="d-why-h">至少 10 個字</span>`}</div>
+    <div class="field"><label for="d-mfa">MFA 驗證碼</label><div class="otpin">${ic('otp')}<input id="d-mfa" data-key="d-mfa" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="${esc(d.mfa)}" ${e.mfa ? 'aria-invalid="true" aria-describedby="d-mfa-e"' : 'aria-describedby="d-mfa-h"'}></div>${e.mfa ? `<span class="err" id="d-mfa-e" data-key="d-mfa-e">${e.mfa}</span>` : `<span class="help" id="d-mfa-h">打開驗證 App，輸入${me()}帳號現在的 6 位數</span>`}</div>
+    <p class="aud">${ic('eye')}<span>會記在稽核中心：${me()}、${md(now())} ${hm(now())}、改了什麼、原因、MFA 已驗證。</span></p>
+    ${d.fail ? `<p class="ferr" role="alert" data-key="dlg-err">${ic('warn')}<span>${d.fail}</span></p>` : ''}
+    <div class="dbtns"><button class="btn secondary" data-do="closeDlg" data-key="dlg-cancel" ${busy ? 'aria-disabled="true"' : ''}>返回</button><button class="btn ${b.danger ? 'danger' : 'primary'}${busy ? ' busy' : ''}" data-do="submit" data-key="dlg-ok">${busy ? `<span class="spin" aria-hidden="true"></span>驗證中…` : b.ok}</button></div></div>`;
+}
+function renderDlg(focus) {
+  const l = $('layer'); l.querySelector('.dlg-s')?.remove();
+  if (!state.dlg) return;
+  l.insertAdjacentHTML('beforeend', `<div class="scrim dlg-s" data-do="scrimDlg">${dlgHtml()}</div>`);
+  const f = focus && l.querySelector(`.dlg-s [data-key="${focus}"]`);
+  (f || l.querySelector('.dialog input, .dialog [role="radio"][tabindex="0"], .dialog textarea'))?.focus();
+}
+function openDlg(d, ret) { d.ret = ret; d.why = d.why || ''; d.mfa = ''; d.errs = {}; state.dlg = d; render(); renderDlg(); }
+function closeDlg() { const ret = state.dlg?.ret; state.dlg = null; renderDlg(); render(); if (ret) document.querySelector(`#app [data-key="${ret}"], #layer [data-key="${ret}"]`)?.focus(); }
+
+function apply(d) {
+  const n = now(), why = d.why.trim();
+  if (d.kind === 'param') {
+    const P = state.params[d.k];
+    P.pending = {v:d.list ? [...d.list] : Number(d.v), at:d.at, who:me(), set:n, why};
+    state.draft = null; state.m += 1;
+    return `已排定：${P.name} ${when(d.at)} 起改為 ${valTxt(d.k, P.pending.v)}・已記在稽核中心`;
+  }
+  if (d.kind === 'cxPend') {
+    const P = state.params[d.k]; (P.cancelled = P.cancelled || []).unshift({...P.pending, set:n, who:me(), why}); P.pending = null; state.m += 1;
+    return `已取消排程：${P.name}維持 ${valTxt(d.k, curV(d.k))}・已記在稽核中心`;
+  }
+  if (d.kind === 'admNew') {
+    const id = `n${state.admins.length}`;
+    state.admins.splice(state.admins.findIndex(a => a.st === 'off'), 0, {id, n:d.name.trim(), mail:d.mail.trim(), role:d.role, st:'pend', last:'還沒登入', since:md(n)});
+    state.fresh[`a-${id}`] = 1; state.m += 1;
+    return `已建立${d.name.trim()}（${ROLE[d.role]}），設定連結已寄出・已記在稽核中心`;
+  }
+  if (d.kind.startsWith('adm')) {
+    const a = state.admins.find(x => x.id === d.id);
+    state.fresh[`a-${a.id}`] = 1; state.m += 1;
+  if (d.kind === 'admRole') { const old = a.role; a.role = d.role; return `已把${a.n}從${ROLE[old]}改為${ROLE[d.role]}・已記在稽核中心`; }
+  if (d.kind === 'admOff') { a.st = 'off'; a.offAt = md(n); return `已停用${a.n}，所有裝置已登出・已記在稽核中心`; }
+  if (d.kind === 'admMfa') { a.st = 'pend'; return `已重設${a.n}的 MFA，所有裝置已登出，設定連結已寄出・已記在稽核中心`; }
+  if (d.kind === 'admOn') { a.st = 'pend'; delete a.offAt; return `已重新啟用${a.n}，設定連結已寄出；設定好 MFA 才能登入`; }
+  }
+  state.m += 1;
+  if (d.kind === 'mSched') {
+    const f = state.mform; state.maint = {...state.maint, state:'sched', from:d.at, h:d.h, note:(f.note ?? noteFor(f.at, f.h)).trim(), who:me(), set:n, why};
+    return `已排定維護 ${when(d.at)}–${hm(d.at + d.h * 60)}；公告已顯示在每家店的管理 Web`;
+  }
+  if (d.kind === 'mCancel') {
+    const M = state.maint; M.hist.unshift({from:M.from, to:M.from + M.h * 60, plan:M.h, who:me(), why:`${M.why}（${why}）`, cancel:true, fresh:true});
+    state.maint = {state:'none', hist:M.hist}; return '已取消維護，商家的公告已拿掉・已記在稽核中心';
+  }
+  if (d.kind === 'mEnd') {
+    const M = state.maint; M.hist.unshift({from:M.from, to:n, plan:M.h, who:me(), why:M.why, early:true, fresh:true});
+    state.maint = {state:'none', hist:M.hist}; return '維護已結束，新預約已恢復・已記在稽核中心';
+  }
+}
+
+/* ---------- page ---------- */
+function noacc() {
+  if (state.role === 'data') return `<div class="wrap"><div class="noacc" data-key="noacc"><h2>${ic('lock')}系統設定不開放給資料</h2><p>資料只負責去識別化的產業統計；商家、方案、付款、客服、合規與系統的資料都看不到。</p><a class="textbtn ln" href="../industry-data/index.html?role=data" data-key="noacc-go">到產業數據${ic('fwd', 'spm')}</a></div></div>`;
+  return `<div class="wrap"><div class="noacc" data-key="noacc"><h2>${ic('lock')}系統設定只開放給最高管理者</h2><p>這裡改的是全平台的參數、後台管理員與維護時段，每次都要 MFA 驗證。需要調整，請找冠宇${state.role === 'compliance' ? '；每一次異動都記在稽核中心，你可以在那裡查' : ''}。</p>
+    ${state.role === 'compliance' ? `<a class="textbtn ln" href="../audit-center/index.html?role=compliance" data-key="noacc-go">到稽核中心${ic('fwd', 'spm')}</a>` : ''}</div></div>`;
+}
+function maintBar() {
+  const M = state.maint; if (M.state === 'none' || !canOpen()) return '';
+  const live = M.state === 'live', end = M.from + M.h * 60;
+  return `<div class="maintbar${live ? ' live' : ''}" role="status" data-key="maintbar">${ic(live ? 'tools' : 'clock')}<span>${live ? `維護中，到 ${hm(end)}：新預約暫停，在店寵物的流程照常` : `已排定維護 ${when(M.from)}–${hm(end)}・商家已看到公告`}</span>${state.tab !== 'maint' ? `<button class="linkb" data-do="tab" data-v="maint" data-key="maintbar-go">看維護模式</button>` : ''}</div>`;
+}
+function tabsHtml() {
+  const pend = PKEYS.filter(k => state.params[k].pending).length, on = state.admins.filter(a => a.st !== 'off').length, M = state.maint.state;
+  const T3 = [['param', '全域參數', 'tune', pend ? `<span class="cnt" aria-label="${pend} 筆排程">排程 ${pend}</span>` : ''],
+    ['adm', '後台管理員', 'ppl', `<span class="cnt" aria-label="${on} 個帳號啟用中">${on}</span>`],
+    ['maint', '維護模式', 'tools', M === 'sched' ? '<span class="cnt on">已排定</span>' : M === 'live' ? '<span class="cnt live">維護中</span>' : '']];
+  return `<div class="tabrow"><div class="tabs" role="tablist" aria-label="系統設定">${T3.map(([k, l, icon, c]) => `<button role="tab" id="tab-${k}" aria-selected="${state.tab === k}" aria-controls="tp" tabindex="${state.tab === k ? 0 : -1}" data-do="tab" data-v="${k}" data-key="tab-${k}">${ic(icon)}<span class="tl">${l}</span><span class="ts" aria-hidden="true">${{param:'參數', adm:'管理員', maint:'維護'}[k]}</span>${c}</button>`).join('')}</div></div>`;
+}
+function head() {
+  return `<header class="head"><h1 id="page-title" tabindex="-1">系統設定</h1><div class="tools">${whoami()}</div>
+    <p class="sub">全平台的參數、後台管理員與維護時段；只有最高管理者能改，每次都要 MFA 驗證並寫原因</p></header>
+    ${state.offline && canOpen() ? `<div class="banner warning" data-key="banner-off">${ic('off')}<span>離線中：看到的是 11:00 的資料；連上網路才能修改。</span></div>` : ''}
+    ${state.phone && canOpen() && !state.offline ? `<div class="banner neutral" data-key="banner-ph">${ic('lock')}<span>手機只能看；異動請用<span class="nw">電腦。</span></span></div>` : ''}${maintBar()}`;
+}
+function mainBody() {
+  if (!canOpen()) return noacc();
+  if (state.loadFail) return `<div class="wrap"><div class="fail" data-key="fail"><h2>${ic('warn')}系統設定沒有載入</h2><p>網路或伺服器沒有回應。重新載入就好；目前的參數照常運作，不影響任何店。</p><button class="btn quiet" data-do="retry" data-key="retry">${ic('refresh', 'sm')}重新載入</button></div></div>`;
+  let inner;
+  if (state.tab === 'param') inner = state.wide && state.sel ? `<div class="lay withp"><div class="colmain">${boardHtml()}</div>${panelHtml(false)}</div>` : boardHtml();
+  else if (state.tab === 'adm') inner = admHtml();
+  else inner = maintHtml();
+  return `${tabsHtml()}<div class="wrap" role="tabpanel" id="tp" aria-labelledby="tab-${state.tab}" data-key="tp">${inner}</div>`;
+}
+function renderSheet() {
+  const l = $('layer'), had = l.querySelector('.p-scrim'); had?.remove();
+  if (state.wide || !state.sel || state.tab !== 'param' || !canOpen() || state.loadFail) return;
+  l.insertAdjacentHTML('afterbegin', `<div class="scrim side-r p-scrim" data-do="pScrim">${panelHtml(true)}</div>`);
+}
+function render(focusKey) {
+  const app = $('app');
+  const keep = focusKey || document.activeElement?.dataset?.key;
+  const sy = scrollY, psy = $('layer').querySelector('.p-scrim .dp')?.scrollTop;
+  app.className = state.compact ? 'compact' : state.rail ? 'rail' : '';
+  const top = state.compact ? `<div class="topbar"><button class="ibtn" data-key="menu" data-do="openNav" aria-label="開啟選單">${ic('menu')}</button><span class="mark" aria-hidden="true">${ic('mark')}</span><b>系統設定</b></div>` : '';
+  app.innerHTML = `${ibar()}${state.compact ? '' : sideNav()}<main id="main">${top}${head()}${mainBody()}</main>`;
+  renderSheet();
+  fitSegs(document);
+  const sh = $('layer').querySelector('.p-scrim .dp'); if (sh && psy) sh.scrollTop = psy;
+  state.roll = false;
+  document.title = '系統設定・寵派管理後台';
+  if (keep) { const el = document.querySelector(`#app [data-key="${keep}"], #layer [data-key="${keep}"]`); if (el && el !== document.activeElement) el.focus({preventScroll:true}); }
+  scrollTo(0, sy);
+  setTimeout(() => { state.fresh = {}; state.maint.hist.forEach(h => delete h.fresh); document.querySelectorAll('.fresh').forEach(x => x.classList.remove('fresh')); }, 1700);
+  syncProto(); syncUrl();
+}
+function announce(t) { const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+function say(text) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status"><span>${esc(text)}</span></div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 7000);
+}
+const later = f => setTimeout(f, FAST ? 60 : 700);
+
+/* ---------- actions ---------- */
+const newDraft = k => { const P0k = P0[k]; return P0k.list ? {k, list:[...curV(k)], eff:'tmr', custom:'', show:false} : {k, v:String(curV(k)), eff:'tmr', custom:'', show:false}; };
+const act = {
+  nav(el) {
+    const p = el.dataset.page; closeNavDrawer();
+    if (p === 'sys') { $('page-title')?.focus(); scrollTo(0, 0); return; }
+    const to = {tenants:'tenant-admin', plans:'plan-admin', pay:'payment-admin', support:'support-console', notif:'line-notify-admin', tpl:'contract-library', audit:'audit-center', gw:'gateway-settings', usage:'usage-monitor', data:'industry-data'}[p];
+    if (to) location.href = `../${to}/index.html?role=${state.role}`;
+  },
+  retry() { state.loadFail = false; $('p-fail').checked = false; render('page-title'); say('已重新載入'); },
+  tab(el) { const v = el.dataset.v; if (state.tab === v) return; state.tab = v; render(`tab-${v}`); },
+  sel(el) {
+    const k = el.dataset.v;
+    if (state.sel === k) { state.sel = null; render(`lane-${k}`); return; }
+    if (state.draft && state.draft.k !== k) state.draft = null;
+    state.sel = k; render(state.wide ? `lane-${k}` : 'dp-h');
+    if (!state.wide) $('layer').querySelector('.p-scrim #dp-h')?.focus();
+  },
+  closeP() { const k = state.sel; state.sel = null; render(`lane-${k}`); },
+  pScrim(el, ev) { if (ev.target === el) act.closeP(); },
+  draft() { state.draft = newDraft(state.sel); state.roll = true; render(P0[state.sel].list ? 'cl-health' : 'd-v'); },
+  dropDraft() { state.draft = null; render('draft-start'); say('已放棄草稿'); },
+  step(el) {
+    const d = state.draft, P0k = P0[d.k], v = Number(d.v) || curV(d.k);
+    d.v = String(Math.min(P0k.max, Math.max(P0k.min, Math.round((v + Number(el.dataset.v) * P0k.step) / P0k.step) * P0k.step)));
+    state.roll = true; render(el.dataset.key);
+  },
+  cl(el) { const d = state.draft, k = el.dataset.v; d.list = d.list.includes(k) ? d.list.filter(x => x !== k) : CLAUSES.map(c => c[0]).filter(x => x === k || d.list.includes(x)); state.roll = true; render(`cl-${k}`); },
+  eff(el) {
+    const d = state.draft; d.eff = el.dataset.v;
+    if (d.eff === 'custom' && !d.custom) d.custom = iso(T(10, 11, 0));
+    state.roll = true; render(`eff-${d.eff}`);
+  },
+  review() {
+    const d = state.draft, r = dOk(d);
+    if (Object.keys(r.errs).length) { d.show = true; render(r.errs.v ? (d.list ? 'cl-health' : 'd-v') : d.eff === 'custom' ? 'd-at' : 'eff-tmr'); announce(Object.values(r.errs).join('；')); return; }
+    openDlg({kind:'param', k:d.k, v:d.v, list:d.list ? [...d.list] : null, at:r.at}, 'd-go');
+  },
+  cxPend() { openDlg({kind:'cxPend', k:state.sel}, 'cx-pend'); },
+  admNew() { openDlg({kind:'admNew', name:'', mail:'', role:''}, 'a-new'); },
+  admRole(el) { openDlg({kind:'admRole', id:el.dataset.v, role:''}, el.dataset.key); },
+  admOff(el) { openDlg({kind:'admOff', id:el.dataset.v}, el.dataset.key); },
+  admOn(el) { openDlg({kind:'admOn', id:el.dataset.v}, el.dataset.key); },
+  admMfa(el) { openDlg({kind:'admMfa', id:el.dataset.v}, el.dataset.key); },
+  resend(el) { const a = state.admins.find(x => x.id === el.dataset.v); say(`已重寄設定連結給${a.n}（${a.mail}）`); announce(`已重寄設定連結給${a.n}`); },
+  pickRole(el) { state.dlg.role = el.dataset.v; delete state.dlg.errs.role; renderDlg(`role-${el.dataset.v}`); },
+  mSched() {
+    const f = state.mform, errs = {}, note = (f.note ?? noteFor(f.at, f.h)).trim();
+    if (isNaN(f.at)) errs.at = '請選開始的日期與時間';
+    else if (f.at < now() + 60) errs.at = `至少要排在 1 小時後（${hm(now() + 60)} 之後），讓商家看得到公告`;
+    else if (f.at > now() + 60 * 1440) errs.at = '最晚排到 60 天後';
+    if (note.length < 10) errs.note = '請寫給商家的公告，至少 10 個字';
+    else if (note.length > 120) errs.note = `公告最多 120 字（目前 ${note.length} 字）`;
+    f.errs = errs;
+    if (Object.keys(errs).length) { render(errs.at ? 'm-at' : 'm-note'); announce(Object.values(errs).join('；')); return; }
+    openDlg({kind:'mSched', at:f.at, h:f.h}, 'm-go');
+  },
+  mPre(el) { const f = state.mform, v = el.dataset.v; f.pre = v; delete f.errs.at; if (v !== 'custom') f.at = M_PRE.find(x => x[0] === v)[2]; render(`mp-${v}`); },
+  mH(el) { state.mform.h = Number(el.dataset.v); render(`mh-${el.dataset.v}`); },
+  mCancel() { openDlg({kind:'mCancel'}, 'm-cancel'); },
+  mEnd() { openDlg({kind:'mEnd'}, 'm-end'); },
+  submit() {
+    const d = state.dlg, errs = {}, why = d.why.trim();
+    if (d.kind === 'admNew') {
+      if (!d.name.trim()) errs.name = '請填名字';
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.mail.trim())) errs.mail = d.mail.trim() ? 'Email 格式不對' : '請填公司 Email';
+      else if (state.admins.some(a => a.mail === d.mail.trim())) errs.mail = '這個 Email 已經有帳號；停用的帳號請用「重新啟用」';
+    }
+    if (['admNew', 'admRole'].includes(d.kind) && !d.role) errs.role = '請選一個角色';
+    if (why.length < 10) errs.why = why ? `再多寫一點，至少 10 個字（目前 ${why.length} 個字）` : '請寫下為什麼要改';
+    if (!/^\d{6}$/.test(d.mfa)) errs.mfa = d.mfa ? '驗證碼是 6 位數字' : '請輸入 MFA 驗證碼';
+    d.errs = errs; d.fail = null;
+    if (Object.keys(errs).length) { renderDlg(errs.name ? 'n-name' : errs.mail ? 'n-mail' : errs.role ? 'role-super' : errs.why ? 'd-why' : 'd-mfa'); return; }
+    d.busy = true; renderDlg('dlg-ok');
+    later(() => {
+      d.busy = false;
+      if (state.nextSend === 'fail') { state.nextSend = 'ok'; $('p-send').value = 'ok'; d.fail = '沒有送出：連線中斷。填的內容還在，連上後再按一次；什麼都還沒改。'; renderDlg('dlg-ok'); return; }
+      if (state.nextMfa === 'bad') { state.nextMfa = 'ok'; $('p-mfa').value = 'ok'; d.mfa = ''; d.errs = {mfa:'驗證碼不對或已過期；請輸入驗證 App 上最新的 6 位數'}; renderDlg('d-mfa'); return; }
+      const msg = apply(d), ret = d.ret;
+      state.dlg = null; renderDlg(); state.roll = true; render();
+      const back = document.querySelector(`#app [data-key="${ret}"], #layer [data-key="${ret}"]`) || document.querySelector(state.sel ? '#layer [data-key="dp-h"], #app [data-key="dp-h"]' : '#app [data-key="page-title"]');
+      back?.focus({preventScroll:true});
+      say(msg); announce(msg);
+    });
+  },
+  closeDlg() { if (!state.dlg?.busy) closeDlg(); },
+  scrimDlg(el, ev) { if (ev.target === el && !state.dlg?.busy) closeDlg(); },
+  openNav() { openNavDrawer(); },
+  navScrim(el, ev) { if (ev.target === el) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); } }
+};
+function openNavDrawer() {
+  const l = $('layer'); l.querySelector('.nav-scrim')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="scrim nav-scrim" data-do="navScrim" style="padding:0;justify-content:flex-start;align-items:stretch"><div class="drawer-nav" role="dialog" aria-modal="true" aria-label="寵派後台選單">${sideNav()}</div></div>`);
+  l.querySelector('.drawer-nav .sitem[aria-current]')?.focus();
+}
+function closeNavDrawer() { $('layer').querySelector('.nav-scrim')?.remove(); }
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-do]');
+  if (el && el.getAttribute('aria-disabled') !== 'true') act[el.dataset.do]?.(el, ev);
+});
+document.addEventListener('change', ev => {
+  const t = ev.target, d = state.draft;
+  if (t.id === 'd-at' && d) { d.custom = t.value; state.roll = true; render('d-at'); }
+  if (t.id === 'd-v' && d) { d.v = t.value.trim(); state.roll = true; render('d-v'); }
+  if (t.id === 'm-at') { state.mform.at = fromIso(t.value); delete state.mform.errs.at; render('m-at'); }
+
+});
+document.addEventListener('input', ev => {
+  const t = ev.target, d = state.dlg;
+  if (d && t.id === 'd-why') { d.why = t.value; if (d.errs.why) { delete d.errs.why; t.removeAttribute('aria-invalid'); t.closest('.field').querySelector('.err')?.remove(); } }
+  if (d && t.id === 'd-mfa') { t.value = t.value.replace(/\D/g, '').slice(0, 6); d.mfa = t.value; if (d.errs.mfa) { delete d.errs.mfa; t.removeAttribute('aria-invalid'); t.closest('.field').querySelector('.err')?.remove(); } }
+  if (d && t.id === 'n-name') d.name = t.value;
+  if (d && t.id === 'n-mail') d.mail = t.value;
+  if (t.id === 'm-note') { state.mform.note = t.value; const h = $('m-note-h'); if (h) h.textContent = `排定後就顯示在每家店的管理 Web 上方，直到維護結束；${t.value.trim().length}／120 字`; const pv = document.querySelector('[data-key="m-impact"] .mpreview .bn span'); if (pv) pv.textContent = t.value; }
+});
+document.addEventListener('keydown', ev => {
+  const modal = state.dlg ? '.dialog' : $('layer').querySelector('.drawer-nav') ? '.drawer-nav' : $('layer').querySelector('.p-scrim') ? '.p-scrim .dp' : null;
+  if (ev.key === 'Enter' && ev.target.id === 'd-v') { ev.target.dispatchEvent(new Event('change', {bubbles:true})); return; }
+  if (ev.key === 'Escape') {
+    if (state.dlg) { if (!state.dlg.busy) closeDlg(); return; }
+    if ($('layer').querySelector('.drawer-nav')) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); return; }
+    if (state.sel) { act.closeP(); return; }
+  }
+  if (modal && ev.key === 'Tab') {
+    const f = [...document.querySelectorAll(`${modal} button, ${modal} a[href], ${modal} input, ${modal} select, ${modal} textarea`)].filter(x => x.getAttribute('aria-disabled') !== 'true' && x.offsetParent && x.tabIndex !== -1);
+    if (!f.length) return;
+    if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); }
+    else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); }
+  }
+  const tb = ev.target.closest?.('[role="tab"]');
+  if (tb && ['ArrowLeft', 'ArrowRight'].includes(ev.key)) {
+    ev.preventDefault(); const all = [...tb.parentElement.querySelectorAll('[role="tab"]')], i = all.indexOf(tb);
+    all[(i + (ev.key === 'ArrowRight' ? 1 : all.length - 1)) % all.length].click();
+  }
+  const r = ev.target.closest?.('[role="radiogroup"] [role="radio"]');
+  if (r && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(ev.key)) {
+    ev.preventDefault();
+    const all = [...r.parentElement.querySelectorAll('[role="radio"]')].filter(x => x.getAttribute('aria-disabled') !== 'true'), i = all.indexOf(r), fw = ev.key === 'ArrowRight' || ev.key === 'ArrowDown';
+    all[(i + (fw ? 1 : all.length - 1)) % all.length].click();
+  }
+});
+
+/* ---------- prototype controls ---------- */
+function syncUrl() { const u = new URL(location); u.searchParams.set('role', state.role); u.searchParams.delete('go'); history.replaceState(null, '', u); }
+function syncProto() { document.querySelectorAll('.proto select, .proto input').forEach(x => { if (!['p-role', 'p-theme'].includes(x.id)) x.disabled = !canOpen(); }); }
+function seed(v) {
+  const keep = {role:state.role, compact:state.compact, rail:state.rail, phone:state.phone, wide:state.wide, nextSend:state.nextSend, nextMfa:state.nextMfa, offline:state.offline};
+  state = Object.assign(fresh(), keep);
+  const R = r => { state.role = r; $('p-role').value = r; };
+  if (!canOpen() && !['finance', 'support', 'compliance', 'data'].includes(v)) R('super');
+  if (v === 'sign') state.sel = 'sign';
+  if (v === 'draft') { state.sel = 'sign'; state.draft = {k:'sign', v:'20', eff:'tmr', custom:'', show:false}; }
+  if (v === 'draft-up') { state.sel = 'sign'; state.draft = {k:'sign', v:'45', eff:'mon', custom:'', show:false}; }
+  if (v === 'past') { state.sel = 'sign'; state.draft = {k:'sign', v:'20', eff:'custom', custom:'2026-10-09T09:00', show:true}; }
+  if (v === 'review') state.sel = 'review';
+  if (v === 'clauses') { state.sel = 'clauses'; state.draft = {k:'clauses', list:['cancel', 'er', 'health', 'injury', 'late', 'photo'], eff:'tmr', custom:'', show:false}; }
+  if (v === 'retain') state.sel = 'retain';
+  if (v === 'confirm') { state.sel = 'sign'; state.draft = {k:'sign', v:'20', eff:'tmr', custom:'', show:false}; state.dlg = {kind:'param', k:'sign', v:'20', list:null, at:T(10, 10), why:'10 月試點店反映簽完到報到的空檔被拿去等美容師，30 分太長', mfa:'482913', errs:{}, ret:'d-go'}; }
+  if (v === 'adm') state.tab = 'adm';
+  if (v === 'adm-new') { state.tab = 'adm'; state.dlg = {kind:'admNew', name:'佩君', mail:'peijun@chongpai.example', role:'support', why:'', mfa:'', errs:{}, ret:'a-new'}; }
+  if (v === 'adm-pend') { state.tab = 'adm'; state.admins.splice(6, 0, {id:'n7', n:'佩君', mail:'peijun@chongpai.example', role:'support', st:'pend', last:'還沒登入', since:'10/9'}); }
+  if (v === 'maint') state.tab = 'maint';
+  if (v === 'maint-sched') { state.tab = 'maint'; state.maint = {...state.maint, state:'sched', from:T(10, 13, 2), h:2, note:noteFor(T(10, 13, 2), 2), who:'冠宇', set:T(10, 9, 10, 40), why:'資料庫主機升級，需要停寫入'}; }
+  if (v === 'maint-live') { state.tab = 'maint'; state.maint = {...state.maint, state:'live', from:T(10, 9, 11), h:2, note:noteFor(T(10, 9, 11), 2), who:'冠宇', set:T(10, 8, 9, 15), why:'收款通知服務緊急修補'}; }
+  if (v === 'maint-soon') { state.tab = 'maint'; state.mform.pre = 'custom'; state.mform.at = T(10, 9, 14); }
+  if (['finance', 'support', 'compliance', 'data'].includes(v)) R(v);
+  state.roll = !state.dlg;
+}
+const ROLES = Object.keys(ME);
+if (ROLES.includes(qs.get('role'))) state.role = qs.get('role');
+const go0 = qs.get('go');
+$('p-role').value = state.role;
+$('p-role').onchange = e => { state.role = e.target.value; state.dlg = null; renderDlg(); render(); };
+$('p-send').onchange = e => { state.nextSend = e.target.value; };
+$('p-mfa').onchange = e => { state.nextMfa = e.target.value; };
+$('p-off').onchange = e => { state.offline = e.target.checked; render(); };
+$('p-fail').onchange = e => { state.loadFail = e.target.checked; render(); };
+$('p-theme').onchange = e => { if (e.target.value) document.documentElement.dataset.theme = e.target.value; else delete document.documentElement.dataset.theme; };
+$('p-go').onchange = e => { const v = e.target.value; e.target.value = ''; if (!v) return; state.dlg = null; renderDlg(); seed(v); render(); if (state.dlg) renderDlg(); else if (!state.sel || state.wide) $('page-title')?.focus({preventScroll:true}); scrollTo(0, 0); };
+const mq = matchMedia('(max-width: 1023px)'), mqR = matchMedia('(min-width: 1024px) and (max-width: 1279px)'), mqP = matchMedia('(max-width: 719px)'), mqW = matchMedia('(min-width: 1280px)');
+const setCompact = () => { state.compact = mq.matches; state.rail = mqR.matches; state.phone = mqP.matches; state.wide = mqW.matches; if (!state.compact) closeNavDrawer(); if (state.phone) { state.draft = null; if (state.dlg) { state.dlg = null; renderDlg(); } } render(); };
+[mq, mqR, mqP, mqW].forEach(m => m.addEventListener('change', setCompact));
+addEventListener('resize', () => { clearTimeout(fitSegs.t); fitSegs.t = setTimeout(() => fitSegs(document), 80); });
+state.compact = mq.matches; state.rail = mqR.matches; state.phone = mqP.matches; state.wide = mqW.matches;
+if (go0) seed(go0);
+if (state.phone) state.draft = null;
+render();
+if (state.dlg) renderDlg();
+</script>
+</body>
+</html>

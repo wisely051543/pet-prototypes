@@ -1,0 +1,1669 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>金流設定原型</title>
+<script src="../test-kit/kit.js" data-proto="gateway-settings"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens copied from the today board via 客服支援, 商家管理, 方案管理, 付款管理, 契約模板庫 and 稽核中心. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+:root{--sidew:15rem;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:24px;scroll-padding-bottom:120px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:inherit}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.spm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+.nw{white-space:nowrap}
+.muted{color:var(--ink-muted)}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:2.75rem}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+.proto .pbtn{border:1px solid var(--proto-line);border-radius:8px;padding:4px 10px;min-height:32px;color:var(--proto-ink);font-weight:700}
+.proto .pbtn:hover{border-color:var(--proto-ink)}
+.proto .tagp{border:1.5px dashed var(--proto-muted);border-radius:999px;padding:1px 8px;font-weight:800;color:var(--proto-muted)}
+
+/* ---------- shell: labeled cocoa sidebar (管理 Web) ---------- */
+#app{display:grid;grid-template-columns:var(--sidew) minmax(0,1fr);min-height:calc(100vh - 2.75rem);min-height:calc(100dvh - 2.75rem)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+#app.compact{display:block}
+.side{position:sticky;top:0;height:calc(100vh - 2.75rem);height:calc(100dvh - 2.75rem);overflow:hidden;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;gap:2px;padding:18px 12px 16px;color:var(--rail-ink)}
+.brand{flex:none;display:flex;align-items:center;gap:10px;padding:0 6px 10px}
+/* only the items scroll; the brand and the signed-in card stay put and never sit on top of the last items (as 商家管理) */
+.snav{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin:0 -6px;padding:0 6px 8px;scrollbar-color:var(--rail-hover) transparent}
+.mark{width:40px;height:40px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;flex:none}
+.mark .ico{width:24px;height:24px;stroke-width:0;fill:currentColor}
+.brand small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+.brand b{display:block;color:var(--rail-cur);font-size:1rem;font-weight:900;line-height:1.3}
+.sgrp{font-size:.75rem;font-weight:800;letter-spacing:.04em;padding:10px 12px 4px;color:var(--rail-ink);opacity:.82}
+.sitem{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:8px 12px;border-radius:12px;font-size:.9375rem;font-weight:700;line-height:1.3;color:var(--rail-ink);transition:background-color .2s var(--out),color .2s var(--out)}
+.sitem:hover{background:var(--rail-hover);color:var(--rail-cur)}
+.sitem[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.sitem .n{margin-left:auto;min-width:24px;padding:0 8px;border-radius:999px;background:var(--rail-hover);color:var(--rail-cur);font-size:.75rem;font-weight:900;text-align:center;line-height:1.6}
+.sitem .n.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.sitem[aria-current="page"] .n:not(.hot){background:var(--sunk);color:var(--ink)}
+.side :focus-visible{outline-color:var(--rail-cur)}
+.me{flex:none;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid var(--rail-hover)}
+.me .av{width:36px;height:36px;border-radius:50%;background:var(--rail-hover);color:var(--rail-cur);display:grid;place-items:center;font-weight:900;flex:none}
+.me b{display:block;color:var(--rail-cur);font-weight:800;line-height:1.3}
+.me small{display:block;font-size:.75rem;font-weight:700;line-height:1.3}
+/* compact: the sidebar becomes a top bar and a drawer */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--rail);color:var(--rail-cur)}
+.topbar .mark{width:36px;height:36px;border-radius:12px}
+.topbar b{font-weight:900}
+.topbar .ibtn{color:var(--rail-cur)}
+.topbar .ibtn:hover{background:var(--rail-hover)}
+.topbar :focus-visible{outline-color:var(--rail-cur)}
+.ibtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex:none;transition:background-color .2s var(--out)}
+.ibtn:hover{background:var(--sunk)}
+.drawer-nav{position:fixed;inset:0 auto 0 0;z-index:80;width:min(18rem,86vw);box-shadow:var(--lift-hi);animation:slidein .32s var(--out)}
+.drawer-nav .side{height:100%}
+@keyframes slidein{from{transform:translateX(-100%)}}
+main{min-width:0;container:main / inline-size}
+/* 1024–1279: the labeled sidebar folds into the world's icon rail so the detail keeps its width */
+#app.rail{--sidew:5.25rem}
+#app.rail .side{padding:16px 6px;align-items:center;gap:4px}
+#app.rail .snav{align-items:center;gap:4px;width:calc(100% + 12px)}
+#app.rail .brand{padding:0 0 10px}
+#app.rail .brand>span:not(.mark),#app.rail .sgrp,#app.rail .me>span:not(.av){display:none}
+#app.rail .sitem{flex-direction:column;justify-content:center;gap:4px;width:4.25rem;min-height:3.75rem;padding:6px 2px;border-radius:16px;font-size:.75rem;font-weight:700;text-align:center;line-height:1.25;position:relative}
+#app.rail .sitem[aria-current="page"]{font-weight:900}
+#app.rail .sitem .n{position:absolute;top:2px;right:2px;margin:0;padding:0 6px;font-size:.75rem}
+#app.rail .me{padding:12px 0 0;justify-content:center;width:100%}
+/* the narrow rail shows a short name (金流, 通知…) instead of breaking the full one; the full name stays in title and the accessible name */
+.sitem>span:not(.n){min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sitem .ls{display:none}
+#app.rail .sitem:has(.ls) .lf{display:none}
+#app.rail .sitem .ls{display:block}
+#app.rail .sitem{width:100%;max-width:4.25rem}
+/* 200% text: the rail widens with the type so the short names and badges keep fitting */
+#app.rail.big{--sidew:4.75rem}
+#app.rail.big .sitem{max-width:none;font-size:.6875rem;min-height:3.5rem}
+#app.rail.big .brand .mark{width:2.25rem;height:2.25rem}
+
+
+/* ---------- page head ---------- */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 16px;padding:22px 28px 0}
+.compact .head{padding:16px 16px 0}
+.head h1{font-size:1.75rem;font-weight:900;line-height:1.25;display:flex;align-items:center;gap:10px}
+.compact .head h1{font-size:1.375rem}
+.compact .head .tools{margin-left:0;order:4;flex-basis:100%}
+.head .sub{flex-basis:100%;order:3;font-size:.875rem;font-weight:600;color:var(--ink-muted);margin-top:-6px}
+.head .tools{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.scope{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--control-border);font-weight:800;font-size:.875rem}
+select.scope{appearance:none;padding-right:36px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;cursor:pointer}
+select.scope:hover{border-color:var(--ink)}
+.scope.fixed{border-style:dashed;color:var(--ink-muted)}
+.updated{font-size:.8125rem;font-weight:700;color:var(--ink-muted);display:inline-flex;align-items:center;gap:6px}
+.updated.off{color:var(--warning)}
+.banner{display:flex;gap:10px;align-items:flex-start;margin:14px 28px 0;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:700;line-height:1.5}
+.compact .banner{margin:12px 16px 0}
+.banner.warning{background:var(--warning-bg);color:var(--warning)}
+.banner.neutral{background:var(--neutral-bg);color:var(--neutral)}
+.banner .ico{margin-top:1px}
+
+/* ---------- buttons, chips, tags ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:var(--r-md);font-size:.9375rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out),border-color .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn.quiet{background:var(--surface);color:var(--ink);border-color:var(--control-border)}
+.btn.quiet:hover{border-color:var(--ink)}
+.btn.danger{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.btn.danger:hover{filter:brightness(1.08)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none;filter:none}
+.btn.busy{pointer-events:none}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(1turn)}}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+a.textbtn{text-decoration:none}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.textbtn[aria-disabled="true"]{color:var(--ink-muted);background:transparent;border:1.5px dashed var(--control-border);cursor:not-allowed}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4;text-wrap:pretty}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.warning{color:var(--warning);background:var(--warning-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.chip.plain{background:var(--sunk);color:var(--ink)}
+.chip.plain::before{display:none}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 9px;border-radius:999px;font-size:.875rem;line-height:1.4;white-space:nowrap}
+.tag.safety{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.tag.care{background:var(--warning-bg);color:var(--warning);font-weight:700}
+.cnt{min-width:26px;padding:1px 9px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;text-align:center;line-height:1.5}
+.cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.masked{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 8px;border-radius:999px;background:var(--sunk);color:var(--ink-muted);font-size:.8125rem;font-weight:800;border:1.5px dashed var(--control-border)}
+.masked .ico{width:14px;height:14px;stroke-width:2.2}
+
+/* filter pills and segmented control */
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px 0 14px;border-radius:999px;background:var(--surface);border:1.5px solid var(--border);font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out),border-color .2s var(--out),transform .35s var(--spring)}
+.pill:hover{border-color:var(--control-border);color:var(--ink)}
+.pill:active{transform:scale(.96);transition-duration:.08s}
+.pill[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface);font-weight:900}
+.pill[aria-pressed="true"] .cnt{background:var(--surface);color:var(--ink)}
+.pill[aria-pressed="true"] .cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+.pill .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);flex-wrap:wrap}
+.seg button{min-height:40px;padding:0 16px;border-radius:999px;font-size:.875rem;font-weight:800;color:var(--ink-muted);transition:background-color .2s var(--out)}
+.seg button:hover{color:var(--ink)}
+.seg button:is([aria-pressed="true"],[aria-checked="true"]){background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+:root[data-theme="dark"] .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .seg button:is([aria-pressed="true"],[aria-checked="true"]){--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+/* ---------- 臉環 ---------- */
+.face{--s:56px;position:relative;flex:none;width:var(--s);height:var(--s);display:inline-grid;place-items:center;border-radius:50%}
+.face>svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.face circle{fill:none;stroke:var(--track);stroke-width:7;stroke-linecap:round}
+.face circle.done{stroke:var(--ink)}
+.face circle.cur{stroke:var(--ink);stroke-width:9;stroke-dasharray:0 600;animation:seg .7s var(--out) .15s forwards}
+@keyframes seg{to{stroke-dasharray:var(--dash) 600}}
+.face img,.face .ini{width:calc(var(--s) * .74);height:calc(var(--s) * .74);border-radius:50%;object-fit:cover;background:var(--sunk);display:grid;place-items:center;font-weight:900;color:var(--ink-muted);font-size:calc(var(--s) * .3)}
+.face.plain img,.face.plain .ini{width:calc(var(--s) * .9);height:calc(var(--s) * .9)}
+.face.person .ini{background:var(--sunk);color:var(--ink)}
+.face .badge{position:absolute;right:-2px;bottom:-2px;width:calc(var(--s) * .32);height:calc(var(--s) * .32);min-width:20px;min-height:20px;border-radius:50%;display:grid;place-items:center;background:var(--danger-solid);color:var(--on-danger-solid);border:2.5px solid var(--surface)}
+.face .badge .ico{width:62%;height:62%;stroke-width:2.4}
+.face .step{position:absolute;left:-2px;bottom:-2px;padding:1px 7px;border-radius:999px;background:var(--surface);color:var(--ink);border:2px solid var(--ink);font-size:.75rem;font-weight:900;line-height:1.25}
+button.face{cursor:pointer;transition:transform .35s var(--spring)}
+button.face:hover{transform:scale(1.04)}
+button.face:active{transform:scale(.95);transition-duration:.08s}
+
+/* ---------- money ---------- */
+.money{font-weight:900;white-space:nowrap;font-feature-settings:"tnum"}
+.money .cur{font-size:.78em;font-weight:700;color:var(--ink-muted);margin-right:1px}
+.money.neg{color:var(--ink)}
+
+/* ---------- panels ---------- */
+.panel{background:var(--surface);border-radius:var(--r-lg);padding:22px;box-shadow:var(--lift)}
+.panel-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.panel-h h2,.panel-h h3{font-size:1.0625rem;font-weight:900;line-height:1.3;display:inline-flex;align-items:center;gap:8px}
+.panel-h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+/* ---------- dialog ---------- */
+.dialog{width:min(560px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:24px;display:flex;flex-direction:column;gap:16px;animation:pop .35s var(--spring)}
+@keyframes pop{from{transform:translateY(16px) scale(.98);opacity:0}}
+.dialog h2{font-size:1.25rem;font-weight:900;line-height:1.35;text-wrap:balance}
+.dialog .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.cdl{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px 14px;padding:14px 16px;border-radius:var(--r-md);background:var(--sunk);font-size:.9375rem;font-weight:700}
+.cdl dt{color:var(--ink-muted);font-size:.875rem}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:.875rem;font-weight:800}
+.field input,.field textarea{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:.9375rem;font-weight:600}
+.field textarea{min-height:84px;resize:vertical;line-height:1.5}
+.field input:hover,.field textarea:hover{border-color:var(--ink)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink-muted)}
+.field [aria-invalid="true"]{border-color:var(--danger)}
+.field .err{font-size:.8125rem;font-weight:800;color:var(--danger)}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.dbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:flex-start}
+.dbtns .cell{display:flex;flex-direction:column;align-items:flex-end}
+@media (max-width: 600px){
+  .dlg-s{align-items:flex-end;padding:0}
+  .dialog{border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:92dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+  .dbtns{flex-direction:column-reverse;align-items:stretch}
+  .dbtns .cell{align-items:stretch}
+}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(560px,calc(100vw - 32px));padding:10px 18px;border-radius:18px;background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .4s var(--spring)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+#app:not(.compact) ~ #layer .toast{left:calc(50% + var(--sidew) / 2)}
+#app.rail ~ #layer .toast{left:calc(50% + 2.625rem)}
+
+.whoami{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 6px;border-radius:999px;background:var(--sunk);font-weight:800;font-size:.875rem}
+.whoami .av{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-weight:900}
+:root{--boarding:#5B3BA6;--boarding-bg:#EDE7FA}
+:root[data-theme="dark"]{--boarding:#C6B3F5;--boarding-bg:#2D2347}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--boarding:#C6B3F5;--boarding-bg:#2D2347}}
+.chip.boarding{color:var(--boarding);background:var(--boarding-bg)}
+.btn.wide{width:100%}
+.btn .ico{flex:none}
+
+/* ---------- overlays ---------- */
+.scrim{position:fixed;inset:0;z-index:70;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s var(--out)}
+@keyframes fade{from{opacity:0}}
+.scrim.side-r{justify-content:flex-end;align-items:stretch;padding:0}
+@keyframes slidein-r{from{transform:translateX(40px);opacity:0}}
+
+/* ---------- page frame ---------- */
+.wrap{padding:14px 28px 56px}
+.compact .wrap{padding:12px 16px 48px}
+.head .pre-act{display:flex;flex-direction:column;align-items:flex-end}
+.compact .head .pre-act{align-items:stretch;flex-basis:100%}
+.head .pre-act .reason{margin-top:4px}
+.btn.primary.calm{background:var(--surface);color:var(--ink);border-color:var(--control-border);box-shadow:none;font-weight:700}
+.btn.primary.calm:hover{border-color:var(--ink);background:var(--surface)}
+
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);font-size:.875rem;font-weight:800;line-height:1.5}
+.notice.warning{background:var(--warning-bg);color:var(--warning)}
+.notice.info{background:var(--info-bg);color:var(--info)}
+.notice .ico{margin-top:1px}
+.notice:focus{outline:2.5px solid var(--focus);outline-offset:2px}
+
+/* pickers: radiogroups of options */
+.fs{border:0;display:flex;flex-direction:column;gap:8px}
+.fs legend,.fs .lgd{font-size:.875rem;font-weight:900;margin-bottom:8px;padding:0}
+.rg{display:flex;flex-wrap:wrap;gap:6px}
+.opt{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:6px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:800;line-height:1.3;color:var(--ink);text-align:center;transition:box-shadow .2s var(--out),background-color .2s var(--out),transform .35s var(--spring)}
+.opt:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.opt:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.opt small{font-size:.75rem;font-weight:700;color:var(--ink-muted)}
+.opt[aria-checked="true"]{background:var(--ink);color:var(--surface);box-shadow:none}
+.opt[aria-checked="true"] small{color:var(--surface)}
+.opt[aria-disabled="true"]{background:transparent;box-shadow:none;border:1.5px dashed var(--control-border);color:var(--ink-muted);cursor:not-allowed}
+.ferr{display:flex;gap:8px;align-items:flex-start;font-size:.875rem;font-weight:800;color:var(--danger);line-height:1.45}
+.ferr .ico{margin-top:1px;width:18px;height:18px}
+.srch{position:relative}
+.srch .ico{position:absolute;left:14px;top:14px;color:var(--ink-muted)}
+.srch input{width:100%;min-height:48px;padding:10px 14px 10px 44px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);font-size:.9375rem;font-weight:600}
+.srch input:hover{border-color:var(--ink)}
+.srch input::placeholder{color:var(--ink-muted)}
+.hint{font-size:.8125rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+/* ---------- shared bits carried from M-07 ---------- */
+.fail{padding:32px 24px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.fail h2{display:flex;align-items:center;gap:10px;font-size:1.125rem;font-weight:900;color:var(--danger)}
+.fail p{font-size:.9375rem;font-weight:600;color:var(--ink-muted)}
+.noacc{max-width:36rem;margin:40px auto 0;padding:32px 28px;border-radius:var(--r-xl);background:var(--surface);box-shadow:var(--lift);display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.noacc h2{display:flex;align-items:center;gap:10px;font-size:1.25rem;font-weight:900}
+.noacc p{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.banner.danger{background:var(--danger-tint);color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.dialog select{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:0 14px;font-weight:700}
+.pre-x{display:inline-flex;flex-direction:column;align-items:flex-end}
+:root{--hair:#F3EBE2}
+:root[data-theme="dark"]{--hair:#2B221C}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--hair:#2B221C}}
+
+/* ---------- 寵派後台 shell: the cocoa internal banner joins the sidebar into one frame ---------- */
+#app{grid-template-rows:auto minmax(0,1fr);min-height:calc(100vh - 2.75rem);min-height:calc(100dvh - 2.75rem)}
+#app:not(.compact){background:linear-gradient(to right,var(--rail) var(--sidew),transparent 0)}
+.ibar{grid-column:1 / -1;position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;min-height:2.5rem;padding:0 20px;background:var(--rail);color:var(--rail-cur);font-size:.8125rem;font-weight:800;box-shadow:inset 0 -1px 0 var(--rail-hover)}
+.ibar .in{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:999px;background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:900}
+.ibar .in .ico{width:15px;height:15px;stroke-width:2.2}
+.ibar .ws{color:var(--rail-ink);font-weight:700}
+.ibar .r{margin-left:auto;color:var(--rail-ink);font-weight:700}
+.ibar :focus-visible{outline-color:var(--rail-cur)}
+#app>.side{grid-row:2;top:2.5rem;height:calc(100vh - 5.25rem);height:calc(100dvh - 5.25rem)}
+#app>main{grid-row:2}
+#app.compact .ibar{position:static}
+.compact .topbar{top:0}
+
+
+/* ---------- carried from 客服支援 ---------- */
+.sheet{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift);padding:20px 22px 18px;container:sheet / inline-size}
+.sheet h2{font-size:1.0625rem;font-weight:900;line-height:1.3;display:flex;align-items:center;gap:8px}
+.sheet .h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.sheet .h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.empty{padding:28px 8px 18px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.empty b{font-size:1rem;font-weight:900}
+.empty p{font-size:.875rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.tkt{display:flex;align-items:stretch}
+.tkt span{display:grid;place-items:center;padding:0 12px;border:1.5px solid var(--control-border);border-right:0;border-radius:var(--r-md) 0 0 var(--r-md);background:var(--sunk);font-weight:900}
+.tkt input{border-radius:0 var(--r-md) var(--r-md) 0 !important;font-feature-settings:"tnum";letter-spacing:.04em}
+.rg.col{flex-direction:column;align-items:stretch}
+.rg.col .opt{flex-direction:row;justify-content:flex-start;gap:10px;text-align:left;padding:10px 14px}
+.rg.col .opt::before{content:"";width:16px;height:16px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--control-border);flex:none}
+.rg.col .opt[aria-checked="true"]::before{box-shadow:inset 0 0 0 5px var(--surface)}
+.aud{display:flex;gap:8px;align-items:flex-start;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.45}
+.aud .ico{width:16px;height:16px;margin-top:1px}
+.bubble{padding:14px 16px;border-radius:20px 20px 20px 8px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--border);font-size:.9375rem;font-weight:600;line-height:1.6;white-space:pre-line;overflow-wrap:anywhere}
+.bubble .from{display:block;font-size:.75rem;font-weight:800;color:var(--ink-muted);margin-bottom:4px;white-space:normal}
+.bubble b{font-weight:900}
+.bubble .nt{display:block;margin-top:8px;padding-top:8px;border-top:1px dashed var(--control-border);white-space:normal;color:var(--ink-muted)}
+.bubble .bb{display:flex;align-items:center;justify-content:center;margin-top:10px;min-height:40px;border-radius:12px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--border);font-weight:900;font-size:.875rem;white-space:normal}
+.smsb{padding:12px 14px;border-radius:16px 16px 16px 6px;background:var(--neutral-bg);color:var(--ink);font-size:.875rem;font-weight:600;line-height:1.55;word-break:break-all}
+.pvm{display:flex;justify-content:space-between;gap:8px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.pvm.over{color:var(--warning)}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--sunk);overflow-x:auto;max-width:100%;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;font-size:.9375rem;font-weight:800;color:var(--ink-muted);white-space:nowrap;transition:background-color .2s var(--out),color .2s var(--out)}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{background:var(--seg-on, var(--surface));color:var(--ink);font-weight:900;box-shadow:var(--lift)}
+.tabs .cnt{min-width:22px;padding:0 7px;font-size:.75rem}
+:root[data-theme="dark"] .tabs button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tabs button[aria-selected="true"]{--seg-on:#46382F;box-shadow:inset 0 0 0 1.5px var(--ink)}}
+.tabrow{padding:16px 28px 0;display:flex}
+.compact .tabrow{padding:12px 16px 0}
+
+/* ---------- the OA status strip ---------- */
+.oas{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:10px 12px 10px 18px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift);font-size:.875rem;font-weight:700;line-height:1.4}
+.oas .it{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 8px;max-width:100%;min-width:0;color:var(--ink)}
+.oas .it .ico{color:var(--ink-muted)}
+.oas .it b{font-weight:900;font-feature-settings:"tnum"}
+.oas .it.warn{color:var(--warning)}
+.oas .it.warn .ico{color:var(--warning)}
+.oas .sep{width:1px;align-self:stretch;background:var(--border)}
+@media (max-width: 599px){.oas .sep{display:none}}
+.oas .textbtn{margin-left:auto}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;background:currentColor}
+.dot.success{color:var(--success)}.dot.warning{color:var(--warning)}.dot.danger{color:var(--danger)}
+
+
+/* ---------- carried from 方案與用量: the docked 400px panel ---------- */
+.lay{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+.lay.withp{grid-template-columns:minmax(0,1fr) 400px}
+.colmain{display:flex;flex-direction:column;gap:16px;min-width:0}
+.dp{position:sticky;top:52px;max-height:calc(100vh - 64px);max-height:calc(100dvh - 64px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:20px;display:flex;flex-direction:column;gap:16px;animation:slidein-r .36s var(--out)}
+.dp.sheet{position:relative;top:0;width:min(440px,100vw);height:100%;max-height:none;border-radius:var(--r-xl) 0 0 var(--r-xl)}
+@media (max-width: 600px){.dp.sheet{border-radius:0;padding:16px 16px calc(24px + env(safe-area-inset-bottom))}}
+.dp-top{display:flex;align-items:center;gap:6px;margin:-6px -6px 0}
+.dp-top .x{margin-left:auto}
+.dp h3{font-size:.9375rem;font-weight:900;display:flex;align-items:center;gap:8px}
+.dph{display:grid;grid-template-columns:52px minmax(0,1fr);gap:14px;align-items:center}
+.ttile{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:var(--sunk);color:var(--ink);font-size:1.375rem;font-weight:900}
+.ttile .ico{width:26px;height:26px;stroke-width:1.7}
+.ttile.warn{background:var(--warning-bg);color:var(--warning)}
+.dph h2{font-size:1.375rem;font-weight:900;line-height:1.25;text-wrap:balance}
+.dph p{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:.875rem;font-weight:700;color:var(--ink-muted);margin-top:4px}
+.dsec{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:1px solid var(--border)}
+.dsec>.hint{margin-top:-4px}
+.dp .lede{font-size:.9375rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.dp .lede b{color:var(--ink);font-weight:900}
+.dp .go{display:flex;flex-direction:column;gap:8px}
+.dp .go .btn{width:100%}
+.dp .notice{font-weight:700}
+.dp .notice b{font-weight:900}
+.kv{display:grid;grid-template-columns:5rem minmax(0,1fr);gap:8px 14px;font-weight:700;font-size:.9375rem;line-height:1.45}
+.kv dt{color:var(--ink-muted);font-size:.875rem}
+.hist{list-style:none;display:flex;flex-direction:column;gap:8px;font-size:.875rem;font-weight:700;line-height:1.45}
+.hist li{display:grid;grid-template-columns:5.25rem minmax(0,1fr);gap:10px}
+.hist li span:first-child{color:var(--ink-muted);font-size:.8125rem;font-feature-settings:"tnum"}
+.hist li.fresh{animation:fresh 1.6s var(--out);border-radius:8px}
+@keyframes fresh{0%,40%{background:var(--act-tint)}}
+.textbtn.ln{background:transparent;box-shadow:inset 0 0 0 1.5px var(--border)}
+.textbtn.ln:hover{background:var(--sunk);box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.linkb{display:inline;padding:0;font-weight:900;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+
+/* ---------- the 待寵派處理 strip ---------- */
+.qs{gap:6px 14px}
+.qs .it.warn b{color:var(--warning)}
+.qs .who{display:inline-flex;flex-wrap:wrap;gap:6px}
+.lnk{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px 0 10px;border-radius:999px;background:var(--warning-bg);color:var(--warning);font-weight:800;font-size:.8125rem;transition:box-shadow .2s var(--out),background-color .2s var(--out)}
+.lnk:hover{box-shadow:inset 0 0 0 1.5px var(--warning)}
+.lnk[aria-expanded="true"]{background:var(--warning);color:var(--surface)}
+.lnk .ico{width:15px;height:15px;stroke-width:2.2}
+.lnk .k{font-weight:700;opacity:.9}
+
+
+/* ---------- panel bits carried from 方案管理 ---------- */
+.sum2{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;padding:12px 14px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700;font-feature-settings:"tnum"}
+.sum2 .tot{font-weight:900;font-size:1rem;padding-top:6px;border-top:1px solid var(--control-border)}
+.sum2 span:nth-child(even){text-align:right}
+.sum2 .neg{color:var(--danger)}
+.pw{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:var(--r-md);background:var(--info-bg);color:var(--info);font-weight:800;font-size:.875rem;line-height:1.5}
+.pw .r1{display:flex;align-items:center;gap:8px;font-size:.9375rem;font-weight:900}
+.offl{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;font-weight:800;color:var(--warning)}
+.qs .done{display:inline-flex;align-items:center;gap:8px;color:var(--success);font-weight:800}
+.qs .done .ico{color:var(--success)}
+.sitem .n.warn,.sitem[aria-current="page"] .n.warn,#app.rail .sitem .n.warn{background:var(--warning-bg);color:var(--warning)}
+@media (max-width: 719px){.ibar{padding:0 16px}.ibar .ws{display:none}.ibar .r{white-space:nowrap}}
+.toast .textbtn{background:transparent;color:inherit;box-shadow:inset 0 0 0 1.5px currentColor;min-height:36px}
+.frow{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width: 600px){.frow{grid-template-columns:minmax(0,1fr)}}
+.field .opt-l{font-weight:700;color:var(--ink-muted);font-size:.8125rem;margin-left:4px}
+.field .help{font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.unit{position:relative;display:block}
+.unit input{padding-right:2.75rem !important}
+.unit .u{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:.8125rem;font-weight:700;color:var(--ink-muted);pointer-events:none}
+.unit.pre input{padding-left:3.25rem !important;padding-right:14px !important}
+.unit.pre .u{left:14px;right:auto}
+.trl{list-style:none;display:flex;flex-direction:column}
+.trl li{display:grid;grid-template-columns:5.75rem minmax(0,1fr);gap:10px;padding:9px 0;border-bottom:1px solid var(--hair);font-size:.8125rem;font-weight:700;line-height:1.45}
+.trl li:last-child{border-bottom:0}
+.trl .t{color:var(--ink-muted);font-feature-settings:"tnum"}
+.trl li.fresh{animation:fresh 1.6s var(--out);border-radius:8px}
+.proto .pbtn:disabled{opacity:.5;cursor:not-allowed}
+.legend{list-style:none;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.legend li{display:inline-flex;align-items:center;gap:7px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}.hist li.fresh,.trl li.fresh,.opn li.fresh,.swh li.fresh{animation-duration:1.6s !important}}
+
+/* ---------- the summary strip ---------- */
+.qs .it .money{font-size:.9375rem}
+.qs .it .k{color:var(--ink-muted);font-weight:700}
+.qs .it{white-space:nowrap}
+.qs .who{display:inline-flex;flex-wrap:wrap;gap:6px}
+.lnk.danger{background:var(--danger-bg);color:var(--danger)}
+.lnk.danger:hover{box-shadow:inset 0 0 0 1.5px var(--danger)}
+.lnk.danger[aria-expanded="true"]{background:var(--danger);color:var(--surface)}
+.tabrow2{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap}
+.tabrow2 .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+
+
+/* ---------- 稽核中心: the tab row and the summary strip ---------- */
+.stack{display:flex;flex-direction:column;gap:16px}
+.qs .it.calm b{color:var(--ink)}
+.lnk.info{background:var(--info-bg);color:var(--info)}
+.mono{font-family:var(--mono);font-size:.8125rem;font-weight:600;letter-spacing:0;overflow-wrap:anywhere}
+.masked.v{border-style:solid;border-color:var(--border);color:var(--ink);font-weight:700;font-feature-settings:"tnum"}
+.demo{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:999px;border:1.5px dashed var(--control-border);font-size:.75rem;font-weight:800;color:var(--ink-muted);white-space:nowrap}
+.demo .ico{width:14px;height:14px}
+.ph-note{display:flex;gap:8px;align-items:flex-start;font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.5}
+.ph-note .ico{width:16px;height:16px;margin-top:2px}
+.textbtn.sm{min-height:40px;font-size:.8125rem;padding:0 12px}
+
+
+/* ---------- 金流設定: the environment pill and the test band ---------- */
+.stack{display:flex;flex-direction:column;gap:16px}
+.mono{font-family:var(--mono);font-size:.8125rem;font-weight:600;letter-spacing:0;overflow-wrap:anywhere}
+.demo{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:999px;border:1.5px dashed var(--control-border);font-size:.75rem;font-weight:800;color:var(--ink-muted);white-space:nowrap}
+.demo .ico{width:14px;height:14px}
+.textbtn.sm{min-height:40px;font-size:.8125rem;padding:0 12px}
+.hatch{background-image:repeating-linear-gradient(-45deg,transparent 0 4px,color-mix(in srgb,var(--warning) 55%,transparent) 4px 7px);background-size:100% 5px;background-repeat:no-repeat;background-position:left bottom}
+.tray.hatch,.tband.hatch{background-size:100% 7px;padding-bottom:16px}
+.envp{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;font-weight:900;font-size:.875rem;white-space:nowrap}
+.envp .ico{width:18px;height:18px;stroke-width:2.2}
+.envp small{font-weight:700;font-size:.8125rem;opacity:.85}
+.envp.prod{background:var(--ink);color:var(--surface)}
+.envp.test{background-color:var(--warning-bg);color:var(--warning);box-shadow:inset 0 0 0 1.5px var(--warning)}
+.tband{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:14px 28px 0;padding:12px 14px 12px 16px;border-radius:var(--r-md);background-color:var(--warning-bg);color:var(--warning);font-size:.875rem;font-weight:800;line-height:1.5;box-shadow:inset 0 0 0 1.5px var(--warning)}
+.compact .tband{margin:12px 16px 0}
+.tband>span{display:flex;gap:10px;align-items:flex-start;flex:1 1 20rem}
+.tband .ico{margin-top:1px}
+.tband b{font-weight:900}
+.tband .btn{min-height:44px;padding:8px 16px}
+
+/* the summary strip */
+.qs .it .k{color:var(--ink-muted);font-weight:700}
+.qs .it.warn b{color:var(--warning)}
+.qs .it.bad b{color:var(--danger)}
+.qs .it.bad .ico{color:var(--danger)}
+
+/* ---------- 通道健康 (signature): one ink pipe, five stops, every callback a bead that rests where it stopped ---------- */
+.pipe-h{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-bottom:6px}
+.pipe-h h2{margin-right:auto}
+.pipe-h .seg button{min-height:40px}
+.pipe-sub{font-size:.8125rem;font-weight:700;color:var(--ink-muted);margin:0 0 14px;text-wrap:pretty}
+.pipe{position:relative;display:grid;grid-template-columns:minmax(0,.9fr) repeat(5,minmax(0,1fr));grid-template-rows:auto auto auto auto;column-gap:10px;container:pipe / inline-size}
+.st{grid-row:span 4;display:grid;grid-template-rows:subgrid;justify-items:center;min-width:0}
+.st .beads{align-self:end;display:flex;flex-wrap:wrap-reverse;justify-content:center;align-content:flex-start;gap:6px;min-height:calc(var(--bd) * 2 + 12px);padding:0 2px 10px;max-width:100%}
+.st .nd{position:relative;width:100%;display:grid;place-items:center;height:40px}
+.st .nd::before{content:"";position:absolute;top:50%;left:-5px;right:-5px;height:3px;margin-top:-1.5px;background:var(--ink)}
+.st:first-of-type .nd::before{left:50%}
+.st:last-of-type .nd::before{right:50%}
+.st .nd .n0{position:relative;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--surface)}
+.st .nd .n0 .ico{width:20px;height:20px;stroke-width:2}
+.st .nd .arw{position:absolute;right:-9px;top:50%;width:14px;height:14px;margin-top:-7px;color:var(--ink);z-index:1}
+.st:last-of-type .nd .arw{display:none}
+/* the start: 寵派 sends the charge; the dashed leg to 收到 is 綠界's side, outside our pipe */
+.st.go0 .nd::before{background:repeating-linear-gradient(90deg,var(--ink) 0 6px,transparent 6px 11px)}
+.st.go0 .nd .n0{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 2.5px var(--ink)}
+.st.go0 .nd .arw{display:none}
+.bead.k-out{background:var(--surface);color:var(--ink);box-shadow:none;border:1.5px dashed var(--ink);cursor:default}
+.bead.k-out:hover{transform:none}
+.bead.k-out.lt{border-color:var(--warning);color:var(--warning);border-width:2px}
+.tray.nocb{background-color:var(--warning-bg);color:var(--warning);box-shadow:inset 0 0 0 1.5px var(--warning)}
+.tray.nocb p{color:var(--ink)}
+.tray.nocb .oncall{display:flex;gap:6px;align-items:flex-start;padding-top:8px;border-top:1px dashed var(--warning);color:var(--ink);font-weight:800}
+.tray.nocb .oncall .ico{width:16px;height:16px;margin-top:2px;color:var(--warning)}
+.st .lb{display:flex;flex-direction:column;align-items:center;gap:1px;padding-top:8px;text-align:center}
+.st .lb b{font-size:.9375rem;font-weight:900;line-height:1.3}
+.st .lb span{font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.4;font-feature-settings:"tnum"}
+.st .lb span.warn{color:var(--warning)}
+.st .lb span.bad{color:var(--danger)}
+.st .br{align-self:start;display:flex;flex-direction:column;align-items:center;width:100%;padding-top:4px}
+.st .br .stem{width:0;height:18px;border-left:2px dashed var(--control-border)}
+.tray{width:100%;max-width:15rem;display:flex;flex-direction:column;gap:8px;padding:10px 12px 12px;border-radius:var(--r-md);font-size:.8125rem;font-weight:700;line-height:1.45;text-align:left}
+.tray .tt{display:flex;align-items:center;gap:6px;font-size:.875rem;font-weight:900;white-space:nowrap}
+.tray .tt .ico{width:16px;height:16px;stroke-width:2.2}
+.tray p{color:var(--ink-muted);text-wrap:pretty}
+.tray .bb{display:flex;flex-wrap:wrap;gap:6px}
+.tray.bad{background:var(--danger-tint);color:var(--danger);box-shadow:inset 0 0 0 1.5px var(--border-danger)}
+.tray.calm{background:var(--neutral-bg);color:var(--neutral)}
+.tray.heal{background-color:var(--warning-bg);color:var(--warning)}
+.tray.wait{background:var(--surface);color:var(--warning);box-shadow:inset 0 0 0 2px var(--warning)}
+.tray .btn{min-height:44px;padding:8px 14px;font-size:.875rem;width:100%}
+.tray.seen{background:var(--surface);color:var(--ink-muted);box-shadow:inset 0 0 0 1.5px var(--border)}
+.tray.seen .tt{color:var(--ink)}
+/* beads: initial coins (付款管理's token) */
+.bead{--bd:1.875rem;position:relative;width:var(--bd);height:var(--bd);aspect-ratio:1;padding:0;flex:none;border-radius:50%;display:grid;place-items:center;font-size:.8125rem;font-weight:900;line-height:1;background:var(--surface);color:var(--ink-muted);box-shadow:inset 0 0 0 1.5px var(--control-border);transition:transform .35s var(--spring),box-shadow .2s var(--out)}
+.bead:hover{transform:translateY(-2px);box-shadow:inset 0 0 0 2px var(--ink)}
+.bead:active{transform:scale(.94);transition-duration:.08s}
+.bead.k-ok{background:var(--ink);color:var(--surface);box-shadow:none}
+.bead.k-wait{color:var(--ink);box-shadow:inset 0 0 0 2.5px var(--warning)}
+.bead.k-wait::after{content:"";position:absolute;right:-3px;top:-3px;width:11px;height:11px;border-radius:50%;background:var(--warning);border:2px solid var(--surface)}
+.bead.k-dup{background:transparent;box-shadow:none;border:1.5px dashed var(--neutral);color:var(--neutral)}
+.bead.k-rej{background:var(--surface);box-shadow:none;border:1.5px dashed var(--danger);color:var(--danger)}
+.bead.k-rej .ico{width:15px;height:15px;stroke-width:2.4}
+.bead .rb{position:absolute;left:-5px;bottom:-5px;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:var(--warning-bg);color:var(--warning);box-shadow:0 0 0 2px var(--surface)}
+.bead .rb .ico{width:11px;height:11px;stroke-width:2.6}
+.bead.sel{box-shadow:0 0 0 3px var(--surface),0 0 0 5.5px var(--ink)}
+.bead.k-ok.sel{box-shadow:0 0 0 3px var(--surface),0 0 0 5.5px var(--ink)}
+.rest{font-size:.75rem;font-weight:800;color:var(--ink-muted);width:100%;text-align:center;order:-1}
+/* the roll: beads travel the pipe from 收到 and settle at their stop; dropped ones fall down their stem */
+.pipe.roll .st .beads .bead{animation:roll .9s var(--out) both;animation-delay:calc(var(--i) * 45ms)}
+.pipe.roll .tray .bead{animation:drop .55s var(--spring) both;animation-delay:calc(.45s + var(--i) * 45ms)}
+.pipe.roll .tray{animation:fade .4s var(--out) both;animation-delay:.35s}
+@keyframes roll{from{transform:translateX(calc(var(--c) * -17cqi));opacity:0}30%{opacity:1}}
+@keyframes drop{from{transform:translateY(-44px);opacity:0}}
+.pipe .empty-run{grid-column:1 / -1;grid-row:1;align-self:end;justify-self:center;margin-bottom:12px;font-size:.875rem;font-weight:800;color:var(--ink-muted);text-align:center;text-wrap:balance}
+.legend{list-style:none;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8125rem;font-weight:700;color:var(--ink-muted);margin-top:16px;padding-top:12px;border-top:1px solid var(--hair)}
+.legend li{display:inline-flex;align-items:center;gap:7px}
+.legend .bead{--bd:1.375rem;font-size:.75rem;pointer-events:none}
+.legend .bead.k-wait::after{width:8px;height:8px;right:-2px;top:-2px;border-width:1.5px}
+/* phone: the pipe stands up */
+@container sheet (max-width: 53.75rem){
+  .pipe{grid-template-columns:minmax(0,1fr);grid-template-rows:none;row-gap:0}
+  .st{grid-row:auto;grid-template-rows:none;grid-template-columns:44px minmax(0,1fr);grid-template-areas:"nd lb" "nd beads" "nd br";justify-items:start;column-gap:12px;padding-bottom:14px;position:relative}
+  .st .nd{grid-area:nd;height:auto;align-self:stretch;place-items:start center;width:44px}
+  .st .nd::before{top:0;bottom:-14px;left:50%;right:auto;width:3px;height:auto;margin:0 0 0 -1.5px}
+  .st:first-of-type .nd::before{left:50%;top:20px}
+  .st:last-of-type .nd::before{right:auto;bottom:auto;height:20px}
+  .st.go0 .nd::before{background:repeating-linear-gradient(180deg,var(--ink) 0 6px,transparent 6px 11px)}
+  .st .nd .arw{display:none}
+  .st .lb{grid-area:lb;align-items:flex-start;text-align:left;padding-top:8px;flex-direction:row;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
+  .st .beads{grid-area:beads;min-height:0;justify-content:flex-start;flex-wrap:wrap;padding:8px 0 0}
+  .st .beads:empty{display:none}
+  .st .br{grid-area:br;align-items:flex-start;padding-top:8px}
+  .st .br .stem{display:none}
+  .tray{max-width:none}
+  .rest{text-align:left;order:0}
+  .pipe.roll .st .beads .bead{animation-name:fade}
+  .pipe .empty-run{grid-column:auto;grid-row:auto;justify-self:start;text-align:left;margin:0 0 12px}
+}
+
+/* ---------- 還沒處理完的: open items ignore the window ---------- */
+.opn{list-style:none;display:flex;flex-direction:column}
+.opn li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 14px;align-items:center;padding:14px 0;border-top:1px solid var(--hair)}
+.opn li:first-child{border-top:0;padding-top:2px}
+.opn .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.opn .tx b{font-size:1rem;font-weight:900;line-height:1.35}
+.opn .tx span{font-size:.8125rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+.opn .acts{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.opn li.fresh{animation:fresh 1.6s var(--out)}
+@container main (max-width: 44.9375rem){.opn li{grid-template-columns:auto minmax(0,1fr)}.opn .acts{grid-column:1 / -1;align-items:stretch}.opn .acts .btn,.opn .acts .textbtn{width:100%}}
+.seenbox{margin-top:6px;border-top:1px solid var(--hair);padding-top:8px}
+.seenbox summary{display:flex;align-items:center;gap:6px;min-height:44px;font-size:.875rem;font-weight:800;color:var(--ink-muted);cursor:pointer;list-style:none;width:max-content;padding-right:10px;border-radius:999px}
+.seenbox summary::-webkit-details-marker{display:none}
+.seenbox summary .ico{transition:transform .25s var(--out)}
+.seenbox[open] summary .ico{transform:rotate(180deg)}
+.seenbox summary:hover{color:var(--ink)}
+.concl{display:flex;flex-direction:column;gap:2px;font-size:.875rem;font-weight:700;line-height:1.5;color:var(--ink)}
+.concl small{font-size:.75rem;font-weight:800;color:var(--ink-muted)}
+.allok{display:flex;gap:10px;align-items:center;font-size:.9375rem;font-weight:800;color:var(--success)}
+
+@container main (max-width: 44.9375rem){.tabs button{padding:0 12px;gap:6px}.tabs button>.ico{display:none}}
+/* ---------- 回呼紀錄 ---------- */
+.flt{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;margin-bottom:12px}
+.flt .srch{flex:1 1 16rem;max-width:22rem}
+.fsel{display:inline-flex;align-items:center;gap:8px;font-size:.8125rem;font-weight:800;color:var(--ink-muted)}
+.fsel select{appearance:none;min-height:44px;padding:0 34px 0 14px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236E6058' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;color:var(--ink);font-weight:800;font-size:.875rem;cursor:pointer}
+.fsel select:hover{border-color:var(--ink)}
+.cbl{list-style:none;display:flex;flex-direction:column}
+.cbl .hd,.cbl button.rw{display:grid;grid-template-columns:7.5rem minmax(0,1.2fr) minmax(0,1.3fr) minmax(0,1.3fr) 6rem minmax(0,1.2fr) 20px;gap:12px;align-items:center;width:100%;text-align:left}
+.cbl .hd{padding:0 12px 8px;font-size:.75rem;font-weight:800;color:var(--ink-muted);border-bottom:1px solid var(--border)}
+.cbl button.rw{padding:12px;border-radius:var(--r-md);font-size:.875rem;font-weight:700;line-height:1.4;transition:background-color .2s var(--out)}
+.cbl li+li button.rw{box-shadow:0 -1px 0 var(--hair)}
+.cbl button.rw:hover{background:var(--surface-2)}
+.cbl button.rw[aria-current="true"]{background:var(--sunk);box-shadow:none}
+.cbl .who{display:flex;align-items:center;gap:8px;min-width:0;font-weight:800}
+.cbl .who .bead{--bd:1.625rem;font-size:.75rem;pointer-events:none}
+.cbl .who span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cbl .t{color:var(--ink-muted);font-feature-settings:"tnum"}
+.cbl .r{text-align:right}
+.cbl .ico.go{color:var(--ink-muted)}
+.cbl li.none{padding:28px 12px 12px}
+@container main (max-width: 56.1875rem){
+  .cbl .hd{display:none}
+  .cbl button.rw{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"who r" "ev ev" "res res" "t tx";gap:4px 10px;padding:14px 4px}
+  .cbl .who{grid-area:who}.cbl .c-ev{grid-area:ev}.cbl .c-tx{grid-area:tx;text-align:right}.cbl .t{grid-area:t}.cbl .r{grid-area:r}.cbl .c-res{grid-area:res}
+  .cbl .ico.go{display:none}
+  .cbl .who span:last-child{white-space:normal}
+  .cbl .c-res{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:4px;justify-self:start}
+}
+
+/* ---------- 環境與金鑰 ---------- */
+.envs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@container main (max-width: 56.1875rem){.envs{grid-template-columns:minmax(0,1fr)}}
+.envc{background:var(--surface);border-radius:var(--r-xl);padding:18px 20px 16px;display:flex;flex-direction:column;gap:14px;box-shadow:inset 0 0 0 1.5px var(--border)}
+.envc.on{box-shadow:inset 0 0 0 2.5px var(--ink),var(--lift)}
+.envc.test.on{box-shadow:inset 0 0 0 2.5px var(--warning),var(--lift)}
+.envc .eh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.envc .eh h2{font-size:1.125rem;font-weight:900;display:flex;align-items:center;gap:8px}
+.envc .eh .use{margin-left:auto}
+.envc .use.prod{display:inline-flex;align-items:center;gap:6px;padding:3px 12px 3px 9px;border-radius:999px;background:var(--ink);color:var(--surface);font-size:.8125rem;font-weight:900}
+.envc .use.test{display:inline-flex;align-items:center;gap:6px;padding:3px 12px 3px 9px;border-radius:999px;background-color:var(--warning-bg);color:var(--warning);font-size:.8125rem;font-weight:900;box-shadow:inset 0 0 0 1.5px var(--warning)}
+.envc .use .ico{width:14px;height:14px;stroke-width:2.4}
+.envc .lede{font-size:.875rem;font-weight:600;color:var(--ink-muted);text-wrap:pretty}
+.kv.w{grid-template-columns:6.5rem minmax(0,1fr)}
+.kv .masked{font-family:var(--mono);font-weight:700;letter-spacing:.02em}
+.swr{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:14px 18px;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--lift)}
+.swr p{flex:1 1 18rem;font-size:.875rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+.swr p b{color:var(--ink);font-weight:900}
+.swr .pre-x .reason{text-align:right;max-width:18rem}
+.ck{list-style:none;display:flex;flex-direction:column}
+.ck li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:4px 12px;align-items:start;padding:12px 0;border-top:1px solid var(--hair);font-size:.875rem;font-weight:700;line-height:1.45}
+.ck li:first-child{border-top:0;padding-top:2px}
+.ck .cm{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--success-bg);color:var(--success)}
+.ck .cm .ico{width:16px;height:16px;stroke-width:2.6}
+.ck b{display:block;font-size:.9375rem;font-weight:900}
+.ck span{color:var(--ink-muted)}
+.ck .by{text-align:right;font-size:.8125rem;color:var(--ink-muted);font-feature-settings:"tnum"}
+@container main (max-width: 44.9375rem){.ck li{grid-template-columns:28px minmax(0,1fr)}.ck .by{grid-column:2;text-align:left}}
+.swh{list-style:none;display:flex;flex-direction:column}
+.swh li{display:grid;grid-template-columns:6.5rem auto minmax(0,1fr);gap:4px 14px;align-items:start;padding:12px 0;border-top:1px solid var(--hair);font-size:.875rem;font-weight:700;line-height:1.5}
+.swh li:first-child{border-top:0;padding-top:2px}
+.swh li.fresh{animation:fresh 1.6s var(--out);border-radius:8px}
+.swh .t{color:var(--ink-muted);font-feature-settings:"tnum"}
+.swh .to{display:inline-flex;align-items:center;gap:6px;font-weight:900;white-space:nowrap}
+.swh .to .ico{width:14px;height:14px;color:var(--ink-muted)}
+.swh .ds{display:flex;flex-direction:column;gap:2px}
+.swh .ds small{font-size:.8125rem;color:var(--ink-muted);font-weight:700}
+@container main (max-width: 44.9375rem){.swh li{grid-template-columns:minmax(0,1fr)}}
+.tg{display:inline-flex;align-items:center;padding:1px 9px;border-radius:999px;font-size:.75rem;font-weight:900;white-space:nowrap}
+.tg.prod{background:var(--ink);color:var(--surface)}
+.tg.test{background-color:var(--warning-bg);color:var(--warning);box-shadow:inset 0 0 0 1.5px var(--warning)}
+
+/* ---------- the callback panel ---------- */
+.dph .ttile.bead{--bd:52px;width:52px;height:52px;border-radius:50%;font-size:1.25rem}
+.dph .ttile.bead.k-rej .ico{width:24px;height:24px}
+.trc{list-style:none;display:flex;flex-direction:column;position:relative}
+.trc li{position:relative;display:grid;grid-template-columns:26px minmax(0,1fr);gap:12px;padding-bottom:14px}
+.trc li:last-child{padding-bottom:0}
+.trc li::before{content:"";position:absolute;left:12px;top:26px;bottom:0;width:2px;background:var(--ink)}
+.trc li:last-child::before{display:none}
+.trc li.no::before,.trc li.stop::before{background:none;border-left:2px dashed var(--control-border);width:0}
+.trc .cn{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--surface);position:relative;z-index:1}
+.trc .cn .ico{width:15px;height:15px;stroke-width:2.6}
+.trc li.stop .cn{background:var(--danger-solid);color:var(--on-danger-solid)}
+.trc li.calm .cn{background:var(--neutral-bg);color:var(--neutral)}
+.trc li.warn .cn{background:var(--surface);color:var(--warning);box-shadow:inset 0 0 0 2.5px var(--warning)}
+.trc li.k-fail .cn{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.trc li.no .cn{background:var(--surface);color:var(--ink-muted);box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.trc .tx{display:flex;flex-direction:column;gap:1px;padding-top:2px;font-size:.875rem;font-weight:700;line-height:1.45;min-width:0}
+.trc .tx b{font-size:.9375rem;font-weight:900}
+.trc .tx span{color:var(--ink-muted)}
+.trc li.no .tx b{color:var(--ink-muted)}
+.raw{margin:0;padding:12px 14px;border-radius:var(--r-md);background:var(--sunk);font-family:var(--mono);font-size:.75rem;font-weight:600;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink)}
+.rocard{display:flex;gap:8px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);background:var(--sunk);font-size:.875rem;font-weight:700;color:var(--ink-muted);line-height:1.5}
+.rocard .ico{width:18px;height:18px;margin-top:1px}
+
+/* ---------- the switch dialog ---------- */
+.dialog.wide{width:min(620px,100%)}
+.flip{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center}
+.flip .ico{color:var(--ink-muted)}
+.flip .envp{justify-content:center;min-height:48px}
+.chk{list-style:none;display:flex;flex-direction:column;gap:6px}
+.chk button{display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;align-items:start;width:100%;padding:10px 12px;border-radius:var(--r-md);box-shadow:inset 0 0 0 1.5px var(--border);font-size:.875rem;font-weight:700;line-height:1.45;text-align:left;transition:box-shadow .2s var(--out),background-color .2s var(--out)}
+.chk button:hover{box-shadow:inset 0 0 0 1.5px var(--control-border)}
+.chk .bx{width:22px;height:22px;border-radius:var(--r-sm);display:grid;place-items:center;box-shadow:inset 0 0 0 1.5px var(--control-border);margin-top:1px;background:var(--surface)}
+.chk .bx .ico{width:15px;height:15px;stroke-width:2.8;opacity:0}
+.chk button[aria-checked="true"]{background:var(--surface-2);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.chk button[aria-checked="true"] .bx{background:var(--ink);color:var(--surface);box-shadow:none}
+.chk button[aria-checked="true"] .bx .ico{opacity:1}
+.chk b{display:block;font-weight:900}
+.chk span{color:var(--ink-muted)}
+.chk.bad button:not([aria-checked="true"]){box-shadow:inset 0 0 0 1.5px var(--danger)}
+.chk .when{display:block;font-size:.8125rem;font-weight:800;color:var(--ink);font-feature-settings:"tnum";margin-top:2px}
+.chkg{display:flex;flex-direction:column;gap:8px}
+.chkg+.chkg{margin-top:6px}
+.chkg .gh{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:.875rem;font-weight:900}
+.chkg .gh small{font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.chkg.kept .chk button{border:1.5px dashed var(--control-border);box-shadow:none}
+.chkg.kept .chk button[aria-checked="true"]{border-style:solid;border-color:var(--ink)}
+.chkg.kept .chk.bad button:not([aria-checked="true"]){border-color:var(--danger)}
+.ck .old{display:inline-flex;margin-right:6px;padding:0 8px;border-radius:999px;border:1.5px dashed var(--control-border);font-size:.75rem;font-weight:900;color:var(--ink);white-space:nowrap}
+.ck .nw2{display:inline-flex;margin-right:6px;padding:0 8px;border-radius:999px;background:var(--ink);color:var(--surface);font-size:.75rem;font-weight:900;white-space:nowrap}
+.ck .cm.kept{background:var(--sunk);color:var(--ink-muted)}
+.cbhint{font-size:.8125rem;font-weight:700;color:var(--ink-muted);line-height:1.5;text-wrap:pretty}
+.typec input{font-weight:800}
+.typec .want{font-weight:900;color:var(--ink)}
+.dialog .dbtns{position:sticky;bottom:-24px;z-index:2;margin:0 -24px -24px;padding:14px 24px 24px;background:var(--surface);box-shadow:var(--lift-up)}
+@media (max-width: 600px){.dialog .dbtns{bottom:calc(-20px - env(safe-area-inset-bottom));margin:0 -18px calc(-20px - env(safe-area-inset-bottom));padding:14px 18px calc(20px + env(safe-area-inset-bottom))}}
+.dialog .sub2{font-size:.875rem;font-weight:900;margin-bottom:-6px}
+a.btn{text-decoration:none}
+.dph .ttile.bead{pointer-events:none}
+/* touch: DESIGN.md touch-target is 44px; mouse density stays as drawn */
+@media (pointer: coarse){.seg>button,.textbtn.sm{min-height:44px !important}.bead::before{content:"";position:absolute;inset:-7px}}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>金流設定・原型</b><span class="muted">商家、人名、交易與金鑰全為虛構示範・今天 10/9（五）11:20</span>
+  <label>身分 <select id="p-role"><option value="super">冠宇・最高管理者</option><option value="finance">美玲・財務</option><option value="support">小雯・客服</option><option value="compliance">宜蓁・合規</option><option value="data">思妤・資料</option></select></label>
+  <label>跳到 <select id="p-go"><option value="">選擇情境</option><option value="home">通道健康・本月</option><option value="w7">近 7 天</option><option value="w24">近 24 小時・沒有通知</option><option value="run">11/1 03:04 扣款剛送出</option><option value="late">11/1 03:40 綠界還沒回</option><option value="cb-rej">假冒的收款通知</option><option value="cb-wait">汪汪 發票待重開</option><option value="cb-503">悠悠 10/8 回 503 後補上</option><option value="cb-dup">汪汪 重複通知</option><option value="raw">看原文（已遮罩）</option><option value="rej-mark">標記假冒通知已查看（填好）</option><option value="clear">假冒通知已查看</option><option value="log">回呼紀錄</option><option value="log-test">回呼紀錄・測試環境</option><option value="env">環境與金鑰</option><option value="sw-test">切到測試環境（填好）</option><option value="test">現在是測試環境</option><option value="sw-prod">切回正式（還沒勾檢核）</option><option value="finance">財務打開金流設定</option><option value="support">客服打開金流設定</option><option value="compliance">合規打開金流設定</option></select></label>
+  <label>下一次送出 <select id="p-send"><option value="ok">正常</option><option value="fail">連線中斷</option><option value="dup">別人剛處理過</option></select></label>
+  <label><input type="checkbox" id="p-off"> 離線</label>
+  <label><input type="checkbox" id="p-fail"> 載入失敗</label>
+  <label>字級 <select id="p-scale"><option value="1">100%</option><option value="2">200%</option></select></label>
+  <label>主題 <select id="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+  <span class="tagp">原型</span>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="live" class="sr" aria-live="polite"></div>
+<script>
+const I = {
+  inbox:'<path d="M4 13h4l1.5 2.5h5L16 13h4"/><path d="M5.5 5h13L20 13v6H4v-6l1.5-8Z"/>',
+  coins:'<ellipse cx="9" cy="7" rx="5" ry="2.5"/><path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7"/><path d="M10 15.4c.9 1.3 3 2.1 5 2.1 2.8 0 5-1.1 5-2.5v-4c0-1.2-1.6-2.2-3.8-2.4"/>',
+  shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-4"/>',
+  dash:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
+  cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M3 19c1-3.5 3.4-5 6-5s5 1.5 6 5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.3c1.7.7 2.9 2.2 3.5 4.7"/>',
+  scis:'<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 20 17M8.6 15.6 20 7"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  doc:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  team:'<circle cx="10" cy="8" r="4"/><path d="M3 20c1.4-3.5 4-5 7-5 1.5 0 2.9.4 4 1.1M18 14v6M15 17h6"/>',
+  plan:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  fwd:'<path d="m10 6 6 6-6 6"/>',
+  up:'<path d="m6 14 6-6 6 6"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  paw:'<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  unlock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',
+  ban:'<circle cx="12" cy="12" r="8"/><path d="m6.5 6.5 11 11"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4V5Z"/>',
+  receipt:'<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 8h6M9 12h6"/>',
+  refresh:'<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
+  dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>',
+  stamp:'<path d="M9 4h6l-1 7h-4L9 4Z"/><path d="M5 15h14v3H5zM7 21h10"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  erase:'<path d="M8 20h12M4.5 15.5 14 6l5 5-7.5 7.5H8.5l-4-3Z"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1Z"/>',
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.5"/>',
+  swap:'<path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4"/>',
+  otp:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/>',
+  file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  layers:'<path d="m12 4 9 5-9 5-9-5 9-5Z"/><path d="m3 14 9 5 9-5"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>'
+};
+Object.assign(I, {
+  store:'<path d="M4 9.5 5.5 4h13L20 9.5"/><path d="M4 9.5a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0 2.7 2.7 0 0 0 5.3 0"/><path d="M5.5 12v8h13v-8M10 20v-5h4v5"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  list:'<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+  tag:'<path d="M3.5 12.5V4h8.5l8.5 8.5-8.5 8.5-8.5-8.5Z"/><circle cx="8" cy="8.5" r="1.5"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  qr:'<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>',
+  play:'<circle cx="12" cy="12" r="8.5"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'
+});
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+Object.assign(I, {
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  cxl:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M14.5 15h-5M11.5 13l-2 2 2 2"/>',
+  moon:'<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z"/>',
+  down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
+  calx:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M10 13.5l4 4M14 13.5l-4 4"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  dots:'<circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/>',
+  board:'<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M4 9h16M9 9v11"/>',
+  release:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M9 15h6" stroke-dasharray="2 2"/>'
+});
+Object.assign(I, {
+  print:'<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/>',
+  trash:'<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
+  undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  tablet:'<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M11 18h2"/>',
+  key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 8-8M16 7l3 3M14 9l2 2"/>',
+  scale:'<path d="M12 4v16M7 20h10M5 8h14"/><path d="m5 8-3 6a3 3 0 0 0 6 0L5 8ZM19 8l-3 6a3 3 0 0 0 6 0l-3-6Z"/>',
+  home:'<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>'
+});
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  cage:'<rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M8.5 5v15M12 5v15M15.5 5v15M4 12.5h16"/>',
+  pause:'<circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/>',
+  wrench:'<path d="M14.5 5.5a4 4 0 0 0-5 5L4 16l4 4 5.5-5.5a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5 2.5-2.5Z"/>',
+  move:'<path d="M4 12h16M15 7l5 5-5 5"/><path d="M4 6v12" stroke-dasharray="2 2"/>'
+});
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* a person's initial: skip the 阿 / 小 prefix so 阿凱 and 阿楷 stay apart (user decision 2026-10-11); pets keep their first character */
+const initialOf = n => /^[阿小]./.test(n) ? n[1] : n[0];
+const $ = id => document.getElementById(id);
+const qs = new URLSearchParams(location.search);
+const clone = o => JSON.parse(JSON.stringify(o));
+const chip = (tone, t) => `<span class="chip ${tone}">${t}</span>`;
+Object.assign(I, {
+  res:'<rect x="3" y="9" width="18" height="4" rx="1.2"/><path d="M6 13v7M18 13v7M8.5 9V5.5h7V9"/>',
+  logout:'<path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4M18 12H9"/>',
+  line:'<path d="M12 4.5c-5 0-9 3.2-9 7.2 0 3.6 3.2 6.5 7.5 7.1l-.4 2.2 3.3-2.2c4.4-.6 7.6-3.5 7.6-7.1 0-4-4-7.2-9-7.2Z"/>',
+  mail:'<rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/>',
+  send:'<path d="M20 4 3 11l7 2.5L12.5 20 20 4Z"/><path d="m10 13.5 4.5-4.5"/>',
+  revoke:'<path d="M5 5h9l5 5v9H5z" stroke-dasharray="3 2.5"/><path d="m9 11 6 6M15 11l-6 6"/>',
+  seat:'<path d="M7 11V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v5"/><path d="M5 11h14v4H5zM7 15v5M17 15v5"/>'
+});
+Object.assign(I, {
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  sms:'<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 8h4M10 11h4M11 18h2"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  wall:'<path d="M5 4v16M19 4v16M5 9h14M5 15h14M12 4v5M9 9v6M15 9v6M12 15v5"/>',
+  hq:'<path d="M4 20V8l8-4 8 4v12"/><path d="M9 20v-5h6v5M9 11h.01M15 11h.01"/>'
+});
+Object.assign(I, {calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/>'});
+Object.assign(I, {
+  headset:'<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3.5" y="13" width="4" height="6" rx="1.5"/><rect x="16.5" y="13" width="4" height="6" rx="1.5"/><path d="M18.5 19c0 1.4-1.6 2-4 2h-2"/>',
+  chart:'<path d="M4 20h16"/><path d="M7 16v-4M12 16V7M17 16v-6"/>',
+  card:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="m12 17 4-5"/>',
+  link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  hourglass:'<path d="M7 4h10M7 20h10M8 4c0 4 8 4 8 8s-8 4-8 8M16 4c0 4-8 4-8 8"/>',
+  out:'<path d="M10 5H5v14h5"/><path d="M14 8l4 4-4 4M18 12H9"/>',
+  trail:'<path d="M6 5h12M6 10h12M6 15h7"/><circle cx="17.5" cy="17.5" r="2.5"/>'
+});
+Object.assign(I, {
+  pay:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  clip:'<path d="m20 11-8.5 8.5a5 5 0 0 1-7-7L13 4a3.3 3.3 0 0 1 4.7 4.7L9.3 17a1.7 1.7 0 0 1-2.3-2.3L15 6.7"/>',
+  bank:'<path d="M3 10h18L12 4 3 10Z"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>',
+  code:'<path d="m8 8-4 4 4 4M16 8l4 4-4 4"/>'
+});
+Object.assign(I, {
+  copy2:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+  heal:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+  q:'<path d="M9.2 9a3 3 0 1 1 4.3 2.7c-.9.4-1.5 1.2-1.5 2.2v.6M12 18v.5"/>',
+  flask:'<path d="M9 3h6M10 3v6l-5.5 9.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/>',
+  live:'<circle cx="12" cy="12" r="3"/><path d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4"/>'
+});
+
+/* ---------- the demo day ---------- */
+const FAST = qs.get('fast') === '1';
+/* 毛孩日和的月費 (prototypes/monthly-fee): ?life=fee-cb is 10/9（五）16:50. Two notices of 毛孩日和's upgrade arrive that day: 10:40 the
+   bank declined 陳老闆's own upgrade payment (卡片額度不足), 16:45 the 補差額 link 美玲 sent at 11:05 was paid (NT$1,558, invoice
+   YQ-48231140, as 付款管理 shows it). A top-up's merchant order is the month's with -up (PAY-2610-mhr-up, never the 10 月 bill's
+   PAY-2610-mhr); 陳老闆's own upgrade attempt has its own order. Opening the 16:45 notice's raw text posts the act's key action to the
+   director page. */
+const LIFE = qs.get('life') === 'fee-cb' ? 'fee-cb' : null;
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+let T0 = LIFE ? 16 * 60 + 50 : 11 * 60 + 20;              /* 10/9（五）11:20; the 11/1 scenarios move the day */
+const p2 = n => String(n).padStart(2, '0');
+const clk = m => `${p2(Math.floor(m / 60))}:${p2(m % 60)}`;
+const WK = '日一二三四五六';
+const D = s => { const [m, d] = s.split('/').map(Number); return new Date(2026, m - 1, d); };
+let TODAY = '10/9';
+const dw = s => `${s}（${WK[D(s).getDay()]}）`;
+const num = n => n.toLocaleString('en-US');
+const money = n => `<span class="money"><span class="cur">NT$</span>${num(n)}</span>`;
+const mins = (at, t) => { const [h, m] = t.split(':').map(Number); return D(at).getTime() / 6e4 + h * 60 + m; };
+let NOW = mins(TODAY, clk(T0));
+const DAY0 = [TODAY, T0];
+const setDay = (d, m) => { TODAY = d; T0 = m; NOW = mins(TODAY, clk(T0)); };
+
+/* ---------- people and modules ---------- */
+const ME = {super:['冠宇', '最高管理者'], finance:['美玲', '財務'], support:['小雯', '客服'], compliance:['宜蓁', '合規'], data:['思妤', '資料']};
+/* the icon rail's short names */
+const SHORT = {tenants:'商家', plans:'方案', pay:'付款', support:'客服', notif:'通知', tpl:'契約', audit:'稽核', gw:'金流', usage:'用量', data:'數據', sys:'系統'};
+const MODS = [
+  ['商家', [['tenants', '商家管理', 'store', ['super']], ['plans', '方案管理', 'plan', ['super', 'finance', 'support']], ['pay', '付款管理', 'card', ['super', 'finance']]]],
+  ['支援', [['support', '客服支援', 'headset', ['support', 'super']], ['notif', 'LINE／通知管理', 'bell', ['support', 'super']]]],
+  ['合規', [['tpl', '契約模板庫', 'doc', ['super', 'compliance', 'support']], ['audit', '稽核中心', 'shield', ['super', 'compliance']]]],
+  ['營運', [['gw', '金流設定', 'coins', ['super', 'finance']], ['usage', '用量監控', 'gauge', ['super', 'finance', 'support']], ['data', '產業數據', 'chart', ['super', 'data']]]],
+  ['系統', [['sys', '系統設定', 'wrench', ['super']]]]
+];
+const me = () => ME[state.role][0];
+const canOpen = () => state.role === 'super' || state.role === 'finance';
+const isSuper = () => state.role === 'super';
+const canLook = () => canOpen() && !state.offline;
+const canWrite = () => isSuper() && !state.offline && !state.phone;
+const whyW = what => !isSuper() ? `只有最高管理者能${what}` : state.offline ? `離線中，連上網路才能${what}` : `手機只能看；${what}請用電腦`;
+
+/* ---------- the provider and the five stops ---------- */
+const STOPS = [['收到', 'inbox'], ['驗簽', 'key'], ['去重', 'copy2'], ['處理', 'coins'], ['開發票', 'receipt']];
+const ENVN = {prod:'正式環境', test:'測試環境'};
+const CODE = {'00':'成功', '51':'額度不足', '54':'卡片已過期'};
+const SHOPS = {mhr:['毛孩日和', '和'], ww:['汪汪俱樂部', '汪'], yy:['悠悠寵物旅館', '悠'], rq:['肉球小舖', '肉'], xs:['小森寵物美容', '小'], tst:['測試商店（工程）', '測'], unk:['不明來源', '?']};
+const ENVS = {
+  prod:{mid:'2186', key:'a7Q2', iv:'Lm09', upd:'7/24・建宏（工程）', url:'https://api.chongpai-demo.example/v1/webhooks/ecpay', inv:'綠界電子發票・同一組特店'},
+  test:{mid:'4410', key:'x3Pd', iv:'q8Rt', upd:'7/10・建宏（工程）', url:'https://api-test.chongpai-demo.example/v1/webhooks/ecpay', inv:'綠界電子發票測試平台'}
+};
+const LINKS = [['肉球小舖', '補款連結', '10/9'], ['毛孩日和', '升級補差額連結', '10/16']].filter(l => !LIFE || l[0] !== '毛孩日和');   /* sent from 付款管理 / 方案管理, still open */
+/* the charges 寵派 sends to 綠界 (付款管理's runs: 1 日 03:00, retries day 1, 3, 7). Every charge should come back as one callback;
+   綠界 usually answers within 10 minutes. 30 minutes past that, the pipe shows a warning tray (default, not user-decided): the system asks
+   綠界 for the order every 10 minutes and books it as usual when found; the person to call is the engineer on duty. */
+const RUNS0 = [
+  {at:'10/1', t:'03:00', shops:['mhr', 'ww', 'yy', 'rq', 'xs']},
+  {at:'10/2', t:'03:00', shops:['yy'], retry:1},
+  {at:'10/4', t:'03:00', shops:['yy'], retry:2},
+  {at:'10/8', t:'03:00', shops:['yy'], retry:3}
+];
+const RUN_NOV = {at:'11/1', t:'03:00', shops:['mhr', 'ww', 'yy', 'rq']};
+const DUE = 10, LATE = 30, POLL = 10, ONCALL = '怡君';
+const nextRun = () => NOW < mins('11/1', '03:00') ? '11/1 03:00' : '12/1 03:00';
+const nextRunN = () => NOW < mins('11/1', '03:00') ? '・4 家' : '';
+
+/* ---------- callbacks (the 10/1 run and its retries are 付款管理's; every name is fictional) ---------- */
+const C = (id, env, at, t, shop, ev, o = {}) => ({id, env, at, t, shop, ev, sig:'ok', ip:'210.200.*.*', ...o});
+const ok = (id, at, t, shop, amt, txn, mon, inv, o = {}) => C(id, 'prod', at, t, shop, 'charge.succeeded', {amt, txn, code:'00', mon, inv:{no:inv}, ...o});
+const no = (id, at, t, shop, amt, txn, mon, code, next, o = {}) => C(id, 'prod', at, t, shop, 'charge.failed', {amt, txn, code, mon, next, ...o});
+const FORGED = {ev:'charge.succeeded', sig:'bad', ip:'198.51.100.*', amt:2079, txn:'T2610072241000', mon:10, claim:'yy', code:'00'};
+const CBS0 = [
+  ok('c01', '10/1', '03:00', 'mhr', 2127, 'T2610010300417', 10, 'YQ-48213075'),
+  ok('c02', '10/1', '03:01', 'ww', 4578, 'T2610010301022', 10, null, {inv:{fail:'電子發票平台沒有回應（逾時）', t:'03:04'}}),
+  no('c03', '10/1', '03:02', 'yy', 2079, 'T2610010302188', 10, '51', '排在第 1 天（10/2）重試'),
+  no('c04', '10/1', '03:02', 'rq', 2079, 'T2610010302240', 10, '54', '卡片已過期，不重試；10/2 美玲寄出補款連結'),
+  no('c05', '10/1', '03:02', 'xs', 2079, 'T2610010302301', 10, '51', '9 月也沒付，10/3 已停權，不再重試'),
+  ok('c06', '10/1', '03:07', 'ww', 4578, 'T2610010301022', 10, null, {dup:'c02'}),
+  no('c07', '10/2', '03:00', 'yy', 2079, 'T2610020300031', 10, '51', '第 1 次重試失敗；第 2 次排在 10/4'),
+  no('c08', '10/4', '03:00', 'yy', 2079, 'T2610040300027', 10, '51', '第 2 次重試失敗；第 3 次排在 10/8'),
+  C('c09', 'prod', '10/7', '22:41', 'unk', '', {...FORGED}),
+  C('c10', 'prod', '10/7', '22:41', 'unk', '', {...FORGED}),
+  C('c11', 'prod', '10/7', '22:42', 'unk', '', {...FORGED}),
+  no('c12', '10/8', '03:00', 'yy', 2079, 'T2610080300019', 10, '51', '10/9 起可寄補款連結（付款管理）', {r503:{t:'03:00', again:'03:05'}, try:3}),
+  ok('c13', '9/1', '03:00', 'mhr', 2079, 'T2609010300112', 9, 'YQ-39102846'),
+  ok('c14', '9/1', '03:01', 'ww', 4400, 'T2609010301004', 9, 'YQ-39102851'),
+  ok('c15', '9/1', '03:02', 'yy', 2079, 'T2609010302066', 9, 'YQ-39102853'),
+  no('c16', '9/1', '03:02', 'xs', 2079, 'T2609010302290', 9, '51', '重試三次都失敗；9/9 美玲寄出補款連結'),
+  ok('c17', '8/1', '03:00', 'mhr', 2092, 'T2608010300090', 8, 'YQ-27719354'),
+  ok('c18', '8/1', '03:01', 'ww', 4242, 'T2608010301011', 8, 'YQ-27719360', {invNote:'8/12 退款後作廢，重開為 YQ-27725518'}),
+  ok('c19', '8/1', '03:02', 'xs', 2079, 'T2608010302075', 8, 'YQ-27719371'),
+  /* 10/6 13:10–14:02, the test window for ENG-212 */
+  C('t1', 'test', '10/6', '13:14', 'tst', 'charge.succeeded', {amt:1, txn:'T2610061314001', code:'00', mon:10, inv:{no:'ZZ-00000001'}, ip:'210.200.*.*'}),
+  C('t2', 'test', '10/6', '13:21', 'tst', 'charge.failed', {amt:1, txn:'T2610061321007', code:'51', mon:10, next:'測試把重試間隔縮短為 2 分鐘'}),
+  C('t3', 'test', '10/6', '13:23', 'tst', 'charge.succeeded', {amt:1, txn:'T2610061323004', code:'00', mon:10, inv:{no:'ZZ-00000002'}, invNote:'13:47 測試作廢'}),
+  C('t4', 'test', '10/6', '13:30', 'tst', 'charge.succeeded', {amt:1, txn:'T2610061314001', code:'00', mon:10, dup:'t1'}),
+  C('t5', 'test', '10/6', '13:38', 'unk', '', {...FORGED, ip:'10.0.*.*', txn:'T2610061338000', claim:'tst', amt:1, test:'工程故意送出的錯誤簽章'})
+];
+if (LIFE) CBS0.unshift(
+  ok('u2', '10/9', '16:45', 'mhr', 1558, 'T2610091645052', 10, 'YQ-48231140', {top:true}),
+  no('u1', '10/9', '10:40', 'mhr', 1558, 'T2610091040018', 10, '51', '陳老闆在方案與用量自己升級，刷卡沒過；方案維持基本方案，自己升級的付款不重試。11:05 美玲改寄補差額付款連結', {top:true, ord:'UPG-2610-mhr'}));
+/* the five checks, in the order they were proven; each keeps its last evidence. Every switch back to 正式 reruns all five
+   (default, not user-decided): an item with new evidence from this test window is confirmed as usual; one with only old evidence
+   reads 「沿用 10/6 結果」 and needs its own explicit confirm, which the switch record keeps. */
+const CHECKS = [
+  ['rec', '定期定額扣款', '測試交易 T2610061314001 扣款成功、入帳', '10/6', '13:15'],
+  ['retry', '扣款失敗重試', 'T2610061321007 失敗後重試成功（T2610061323004）', '10/6', '13:24'],
+  ['idem', '收款通知不重複入帳', '同一筆 T2610061314001 第二次通知，沒有重複入帳', '10/6', '13:31'],
+  ['inv', '電子發票開立與作廢', 'ZZ-00000002 開立後作廢', '10/6', '13:48'],
+  ['fee', '手續費', '9 月對帳單逐筆核對，與合約報價一致（示範）', '10/6', '13:51']
+];
+/* the ENG-231 test window (10/9 11:12 起): 工程 proved three of the five again; 重試 and 手續費 were not rerun */
+const TEST_NEW = [
+  C('t6', 'test', '10/9', '11:14', 'tst', 'charge.succeeded', {amt:1, txn:'T2610091114003', code:'00', mon:10, inv:{no:'ZZ-00000003'}, invNote:'11:18 測試作廢', proves:[['rec', '11:15', '測試交易 T2610091114003 扣款成功、入帳'], ['inv', '11:18', 'ZZ-00000003 開立後作廢']]}),
+  C('t7', 'test', '10/9', '11:16', 'tst', 'charge.succeeded', {amt:1, txn:'T2610091114003', code:'00', mon:10, dup:'t6', proves:[['idem', '11:16', '同一筆 T2610091114003 第二次通知，沒有重複入帳']]})
+];
+const ENGS = ['建宏（工程）', '怡君（工程）'];
+const HIST0 = [
+  {at:'10/6', t:'14:02', to:'prod', by:'冠宇', eng:'建宏（工程）', tk:'ENG-212', why:'工程確認收款通知驗簽通過（工單 ENG-212）'},
+  {at:'10/6', t:'13:10', to:'test', by:'冠宇', tk:'ENG-212', why:'工程更新收款通知驗簽，要在測試環境驗證'},
+  {at:'7/28', t:'10:00', to:'prod', by:'冠宇', eng:'建宏（工程）', tk:'ENG-140', why:'首次上線：五項檢核通過，開始收 8 月月費'}
+];
+
+/* a notice's merchant order: the month's bill, or its top-up (-up), unless the order is its own (a shop's own upgrade attempt) */
+const ordOf = c => c.ord || `PAY-26${p2(c.mon)}-${c.claim || c.shop}${c.top ? '-up' : ''}`;
+
+/* ---------- state ---------- */
+const INIT = {role:'super', view:'health', win:'mon', env:'prod', since:{at:'10/6', t:'14:02'}, panel:null, dlg:null, lf:{env:'prod', res:'all', shop:'all', per:'all', q:''}, rejSeen:null, nextSend:'ok', roll:true};
+const fresh = () => { const s = clone(INIT); s.cbs = clone(CBS0); s.hist = clone(HIST0); s.runs = clone(RUNS0); s.links = clone(LINKS); s.m = T0; s.looks = 0;
+  s.checks = Object.fromEntries(CHECKS.map(([k, , ev, at, t]) => [k, {ev, at, t}])); return s; };
+let state = fresh();
+
+/* ---------- derived ---------- */
+const kind = c => c.sig === 'bad' ? 'rej' : c.dup ? 'dup' : c.ev === 'charge.failed' ? 'fail' : c.inv?.fail ? 'wait' : 'ok';
+const WINS = [['24', '近 24 小時', 1440], ['7', '近 7 天', 10080], ['mon', '本月']];
+const winN = () => WINS.find(w => w[0] === state.win)[1];
+const inWin = c => state.win === 'mon' ? D(c.at).getMonth() === D(TODAY).getMonth() && NOW >= mins(c.at, c.t) : NOW - mins(c.at, c.t) < WINS.find(w => w[0] === state.win)[2] && NOW >= mins(c.at, c.t);
+const prodWin = () => state.cbs.filter(c => c.env === 'prod' && inWin(c));
+const cbOf = id => state.cbs.find(c => c.id === id);
+const shopN = c => SHOPS[c.shop][0];
+const evN = c => c.sig === 'bad' ? '自稱扣款成功的通知' : c.ev === 'charge.succeeded' ? '扣款成功通知' : '扣款失敗通知';
+const rejOpen = () => state.cbs.filter(c => c.env === 'prod' && c.sig === 'bad');
+/* runs: a charge (run, shop) is answered once a genuine callback for that shop arrives that day */
+const answered = (r, sh) => state.cbs.some(c => c.env === 'prod' && c.shop === sh && c.at === r.at && !c.top && ['ok', 'fail', 'wait'].includes(kind(c)));
+const runsDone = () => state.runs.filter(r => mins(r.at, r.t) <= NOW).sort((a, b) => mins(b.at, b.t) - mins(a.at, a.t));
+const pendOf = r => r.shops.filter(sh => !answered(r, sh));
+const dueOf = r => mins(r.at, r.t) + DUE;
+const tod = m => { const d = new Date(m * 6e4); return d.getHours() * 60 + d.getMinutes(); };
+const lateBy = r => NOW - dueOf(r);
+const isLate = r => pendOf(r).length > 0 && lateBy(r) >= LATE;
+const lateRun = () => runsDone().find(isLate);
+const pollAt = r => { const last = dueOf(r) + Math.floor(lateBy(r) / POLL) * POLL; return [last, last + POLL].map(m => clk(tod(m))); };
+const openItems = () => {
+  const o = [];
+  if (lateRun()) o.push({k:'late', r:lateRun()});
+  state.cbs.filter(c => c.env === 'prod' && kind(c) === 'wait').forEach(c => o.push({k:'inv', c}));
+  if (rejOpen().length && !state.rejSeen) o.push({k:'rej'});
+  return o;
+};
+const recvT = c => c.r503 ? c.r503.again : c.t;
+const lastProd = () => state.cbs.filter(c => c.env === 'prod').sort((a, b) => mins(b.at, b.t) - mins(a.at, a.t))[0];
+const calmPage = () => !!state.panel || !!state.dlg;
+
+/* ---------- shell ---------- */
+function sideNav() {
+  const [w, r] = ME[state.role], n = canOpen() ? openItems().length : 0;
+  const groups = MODS.map(([g, list]) => {
+    const vis = list.filter(m => m[3].includes(state.role));
+    if (!vis.length) return '';
+    return `<div class="sgrp" aria-hidden="true">${g}</div>${vis.map(([k, l, icon]) =>
+      `<button class="sitem" data-key="nav-${k}" data-do="nav" data-page="${k}" title="${l}" ${k === 'gw' ? 'aria-current="page"' : ''}>${ic(icon)}<span class="lf">${l}</span>${SHORT[k] ? `<span class="ls" aria-hidden="true">${SHORT[k]}</span>` : ''}${k === 'gw' && n ? `<span class="n warn" aria-label="${n} 件還沒處理完">${n}</span>` : ''}</button>`).join('')}`;
+  }).join('');
+  return `<nav class="side" aria-label="寵派後台選單"><div class="brand"><span class="mark" aria-hidden="true">${ic('mark')}</span><span><b>寵派管理後台</b></span></div><div class="snav">${groups}</div>
+    <div class="me"><span class="av" aria-hidden="true">${initialOf(w)}</span><span><b>${w}</b><small>${r}</small></span></div></nav>`;
+}
+const ibar = () => `<section class="ibar" aria-label="寵派內部提示"><span class="in">${ic('shield', 'sm')}寵派內部</span><span class="ws">只給寵派員工使用・切換環境與查看原文都會留下紀錄</span><span class="r">${dw(TODAY)} ${clk(state.m)}</span></section>`;
+const whoami = () => { const [w, r] = ME[state.role]; return `<span class="whoami"><span class="av" aria-hidden="true">${initialOf(w)}</span>${w}・${r}</span>`; };
+const envPill = (k = true) => state.env === 'prod'
+  ? `<span class="envp prod"${k ? ' data-key="envp"' : ''}>${ic('live')}正式環境<small>${state.since.at} ${state.since.t} 起</small></span>`
+  : `<span class="envp test hatch"${k ? ' data-key="envp"' : ''}>${ic('flask')}測試環境<small>不會真的扣款</small></span>`;
+const envTag = e => `<span class="tg ${e}${e === 'test' ? ' hatch' : ''}">${ENVN[e]}</span>`;
+
+/* ---------- tabs ---------- */
+const TABS = [['health', '通道健康', 'gauge'], ['log', '回呼紀錄', 'list'], ['env', '環境與金鑰', 'key']];
+function tabs() {
+  const n = openItems().length;
+  return `<div class="tabrow"><div class="tabs" role="tablist" aria-label="金流設定">${TABS.map(([k, l, i]) =>
+    `<button role="tab" id="tab-${k}" aria-selected="${state.view === k}" aria-controls="tp" tabindex="${state.view === k ? 0 : -1}" data-do="tab" data-v="${k}" data-key="tab-${k}">${ic(i, 'spm')}${l}${k === 'health' && n ? `<span class="cnt" aria-label="${n} 件還沒處理完">${n}</span>` : ''}</button>`).join('')}</div></div>`;
+}
+
+/* ---------- beads ---------- */
+const beadIn = c => `${kind(c) === 'rej' ? ic('q') : SHOPS[c.shop][1]}${c.r503 ? `<span class="rb" aria-hidden="true">${ic('heal')}</span>` : ''}`;
+function bead(c, i = 0, col = 0, pre = 'bd') {
+  const k = kind(c), sel = state.panel?.mode === 'cb' && state.panel.id === c.id;
+  const lbl = `${c.shop === 'unk' ? '不明來源' : shopN(c)}・${c.at} ${c.t}・${beadWords(c)}`;
+  return `<button class="bead k-${k}${sel ? ' sel' : ''}" style="--i:${i};--c:${col}" data-do="openCb" data-id="${c.id}" data-key="${pre}-${c.id}" aria-label="${esc(lbl)}">${beadIn(c)}</button>`;
+}
+const coin = c => `<span class="bead k-${kind(c)}" aria-hidden="true">${beadIn(c)}</span>`;
+function beadWords(c) {
+  const k = kind(c);
+  if (k === 'rej') return `簽章不符，已拒收`;
+  if (k === 'dup') return '重複通知，已忽略';
+  if (k === 'fail') return `扣款失敗（${CODE[c.code]}）${c.r503 ? '・回 503 一次後已補上' : ''}`;
+  if (k === 'wait') return '已入帳，發票待重開';
+  return `已入帳，發票 ${c.inv.no}`;
+}
+
+/* ---------- 通道健康 ---------- */
+function strip() {
+  const l = lastProd(), o = openItems().length, r = runsDone()[0];
+  const pend = r ? pendOf(r).length : 0, late = r && isLate(r);
+  const run = r ? `<span class="it${late ? ' warn' : ''}" data-key="strip-run">${ic('send')}<span class="k">${r.at} ${r.t} 扣款</span><b>已扣款 ${r.shops.length} 家／收到 ${r.shops.length - pend} 則</b><span>${!pend ? '都收到了' : late ? `比預計晚 ${lateBy(r)} 分鐘` : `預計 ${clk(tod(dueOf(r)))} 前到`}</span></span><span class="sep" aria-hidden="true"></span>` : '';
+  return `<div class="oas qs" data-key="strip">
+    ${run}<span class="it">${ic('inbox')}<span class="k">最後收到</span><b>${l.at} ${recvT(l)}</b><span>${l.r503 ? '綠界重送・' : ''}${l.shop === 'unk' ? '不明來源（已拒收）' : shopN(l)}</span></span><span class="sep" aria-hidden="true"></span>
+    <span class="it">${ic('clock')}<span class="k">下次自動扣款</span><b>${nextRun()}</b>${nextRunN() ? `<span>${nextRunN().slice(1)}</span>` : ''}</span><span class="sep" aria-hidden="true"></span>
+    <span class="it">${ic('link')}<span class="k">寄出未付的連結</span><b>${state.links.length}</b></span><span class="sep" aria-hidden="true"></span>
+    ${o ? `<span class="it warn">${ic('warn')}<span class="k">還沒處理完</span><b>${o}</b></span>` : `<span class="done">${ic('check')}都處理完了</span>`}
+  </div>`;
+}
+function pipeView() {
+  const L = prodWin(), K = c => kind(c);
+  const rej = L.filter(c => K(c) === 'rej'), dup = L.filter(c => K(c) === 'dup'), fail = L.filter(c => K(c) === 'fail'), okk = L.filter(c => K(c) === 'ok'), wait = L.filter(c => K(c) === 'wait'), heal = L.filter(c => c.r503);
+  /* the start: what 寵派 sent in this window, and which charges 綠界 has not answered yet */
+  const RW = state.runs.filter(inWin), sentShops = new Set(RW.flatMap(r => r.shops)), sentN = RW.reduce((n, r) => n + r.shops.length, 0), retries = RW.filter(r => r.retry).reduce((n, r) => n + r.shops.length, 0);
+  const pend = RW.flatMap(r => pendOf(r).map(sh => ({r, sh}))), late = RW.filter(isLate);
+  let i = 0;
+  const on = [[], [], [], fail, [...okk, ...wait]];
+  const lbl = [
+    `<span>${L.length} 則</span>`,
+    `<span>通過 ${L.length - rej.length}</span>${rej.length ? `<span class="bad">拒收 ${rej.length}</span>` : ''}`,
+    `<span>通過 ${L.length - rej.length - dup.length}</span>${dup.length ? `<span>重複 ${dup.length}</span>` : ''}`,
+    `<span>入帳 ${okk.length + wait.length}・失敗 ${fail.length}</span>${heal.length ? `<span class="warn">回 503 ${heal.length}・已補上</span>` : ''}`,
+    `<span>開立 ${okk.length}</span>${wait.length ? `<span class="warn">待重開 ${wait.length}</span>` : ''}`
+  ];
+  const rejSeen = state.rejSeen;
+  const trays = [
+    '',
+    rej.length ? `<div class="tray ${rejSeen ? 'seen' : 'bad'}" data-key="tray-rej"><span class="tt">${ic('ban')}拒收 ${rej.length}${rejSeen ? '・已查看' : ''}</span><p>簽章不符，只記錄、沒有入帳。${rej.every(c => c.claim === 'yy') ? '都自稱悠悠寵物旅館已付款。' : ''}</p><span class="bb">${rej.map(c => bead(c, i++, 1)).join('')}</span></div>` : '',
+    dup.length ? `<div class="tray calm" data-key="tray-dup"><span class="tt">${ic('copy2')}重複 ${dup.length}・已忽略</span><p>同一筆交易又通知一次；回覆收到，沒有重複入帳。</p><span class="bb">${dup.map(c => bead(c, i++, 2)).join('')}</span></div>` : '',
+    heal.length ? `<div class="tray heal hatch" data-key="tray-503"><span class="tt">${ic('heal')}回 503 ${heal.length}・已補上</span><p>${heal.map(c => `${c.at} ${c.r503.t} 暫時寫不進帳務，回 503 請綠界重送；${c.r503.again} 重送後已處理`).join('；')}。</p></div>` : '',
+    wait.length ? `<div class="tray wait" data-key="tray-wait"><span class="tt">${ic('warn')}待重開發票 ${wait.length}</span><p>${wait.map(c => `${shopN(c)}・${c.inv.fail}；款項已入帳`).join('；')}。</p><button class="textbtn sm ln" data-do="openCb" data-id="${wait[0].id}" data-key="tray-wait-go">看細節${ic('fwd', 'spm')}</button></div>` : ''
+  ];
+  const pb = ({r, sh}) => `<span class="bead k-out${isLate(r) ? ' lt' : ''}" role="img" data-key="bo-${sh}" aria-label="${esc(`${SHOPS[sh][0]}・${r.at} ${r.t} 送出扣款・綠界還沒回`)}">${SHOPS[sh][1]}</span>`;
+  const lateTray = late.length ? (() => {
+    const r = late[0], n = pendOf(r).length, [last, next] = pollAt(r);
+    return `<div class="tray nocb" data-key="tray-nocb" role="status"><span class="tt">${ic('hourglass')}綠界還沒回 ${n} 家</span>
+      <p>${r.at} ${r.t} 送出扣款，預計 ${clk(tod(dueOf(r)))} 前收到通知，已晚 ${lateBy(r)} 分鐘。</p>
+      <p>系統每 10 分鐘主動向綠界查單，查到就照常入帳；上次 ${last} 還沒查到，下次 ${next}。</p>
+      <span class="oncall">${ic('phone')}<span>要找人：工程值班 ${ONCALL}（示範）</span></span></div>`;
+  })() : '';
+  const go0 = `<div class="st go0" data-key="st-go"><div class="beads">${pend.map(pb).join('')}</div>
+      <div class="nd"><span class="n0" aria-hidden="true">${ic('send')}</span></div>
+      <div class="lb"><b>送出</b><span>已送出扣款 ${sentShops.size} 家</span>${retries ? `<span>共 ${sentN} 筆，含重試 ${retries}</span>` : ''}${pend.length && !late.length ? `<span class="warn">等綠界回 ${pend.length}</span>` : ''}</div>
+      <div class="br">${lateTray ? `<span class="stem" aria-hidden="true"></span>${lateTray}` : ''}</div></div>`;
+  const cols = go0 + STOPS.map(([n, icon], c) => {
+    const beads = on[c].map(x => bead(x, i++, c)).join('');
+    return `<div class="st" data-key="st-${c}"><div class="beads">${beads}</div>
+      <div class="nd"><span class="n0" aria-hidden="true">${ic(icon)}</span><svg class="arw ico" viewBox="0 0 24 24" aria-hidden="true">${I.fwd}</svg></div>
+      <div class="lb"><b>${n}</b>${lbl[c]}</div>
+      <div class="br">${trays[c] ? `<span class="stem" aria-hidden="true"></span>${trays[c]}` : ''}</div></div>`;
+  }).join('');
+  const waitTxt = pend.length ? `${RW[RW.length - 1].at} ${RW[RW.length - 1].t} 送出的 ${pend.length} 家扣款，${late.length ? '綠界還沒回' : `預計 ${clk(tod(dueOf(RW[RW.length - 1])))} 前收到`}。` : '';
+  const empty = !L.length ? `<p class="empty-run" data-key="pipe-empty">${winN()}${RW.length ? '還沒' : '沒有'}收到收款通知。${waitTxt || `下次自動扣款 ${nextRun()}。`}</p>` : '';
+  const words = `${winN()}：已送出扣款 ${sentShops.size} 家${retries ? `（共 ${sentN} 筆，含重試 ${retries}）` : ''}；` + (L.length ? `收到 ${L.length} 則：拒收 ${rej.length}、重複 ${dup.length}、扣款失敗 ${fail.length}、入帳 ${okk.length + wait.length}、發票開立 ${okk.length}、待重開 ${wait.length}` : '沒有收到收款通知') + (pend.length ? `；綠界還沒回 ${pend.length} 家${late.length ? `，已晚 ${lateBy(late[0])} 分鐘` : ''}` : '');
+  const roll = state.roll; state.roll = false;
+  return `<section class="sheet" aria-labelledby="pp-h" data-key="pipe-sheet">
+    <div class="pipe-h"><h2 id="pp-h">${ic('coins')}正式環境的收款通知走到哪一站</h2>
+      <div class="seg" role="radiogroup" aria-label="時間範圍">${WINS.map(([k, l]) => `<button role="radio" aria-checked="${state.win === k}" tabindex="${state.win === k ? 0 : -1}" data-do="win" data-v="${k}" data-key="win-${k}">${l}</button>`).join('')}</div></div>
+    <p class="pipe-sub">寵派送出扣款，綠界回一則收款通知。每一顆是一則通知，停在它最後到的那一站；點一下看細節。虛線圈是送出了、綠界還沒回的。</p>
+    <div class="pipe${roll ? ' roll' : ''}" role="group" aria-label="${esc(words)}" data-key="pipe">${empty}${cols}</div>
+    <ul class="legend" aria-label="圖例"><li><span class="bead k-out">肉</span>送出、還沒回</li><li><span class="bead k-ok">和</span>入帳、發票已開</li><li><span class="bead k-wait">汪</span>入帳、發票待重開</li><li><span class="bead">悠</span>扣款失敗</li><li><span class="bead k-dup">汪</span>重複・已忽略</li><li><span class="bead k-rej">${ic('q')}</span>簽章不符・拒收</li></ul>
+  </section>`;
+}
+function openView() {
+  const o = openItems(), pri = !calmPage() && state.env === 'prod';
+  const row = x => {
+    if (x.k === 'late') {
+      const r = x.r, n = pendOf(r);
+      return `<li data-key="op-late"><span class="bead k-out lt" aria-hidden="true">${SHOPS[n[0]][1]}</span><span class="tx"><b>${r.at} ${r.t} 的扣款，綠界還沒回 ${n.length} 家</b><span>${n.map(sh => SHOPS[sh][0]).join('、')}・已晚 ${lateBy(r)} 分鐘。系統每 10 分鐘主動向綠界查單，查到就照常入帳，不用重扣；要找人請找工程值班 ${ONCALL}（示範）。</span></span><span class="acts"></span></li>`;
+    }
+    if (x.k === 'inv') {
+      const c = x.c;
+      return `<li data-key="op-inv-${c.id}">${coin(c)}<span class="tx"><b>${shopN(c)} ${c.mon} 月發票沒開出來</b><span>${c.at} ${c.inv.t} ${c.inv.fail}；款項 NT$${num(c.amt)} 已入帳。重開發票在付款管理。</span></span>
+        <span class="acts"><a class="btn ${pri ? 'primary' : 'quiet'}" href="../payment-admin/index.html?role=${state.role}" data-key="op-inv-go">${ic('receipt', 'sm')}到付款管理重開發票</a></span></li>`;
+    }
+    const r = rejOpen();
+    return `<li data-key="op-rej">${coin(r[0])}<span class="tx"><b>${r[0].at} 有 ${r.length} 則假冒的收款通知被拒收</b><span>自稱悠悠寵物旅館已付 NT$${num(r[0].amt)}；簽章不符、來源不在綠界公布的位址。沒有入帳，也沒有改帳單。</span></span>
+      <span class="acts">${isSuper() && canWrite() ? `<button class="btn quiet" data-do="openRej" data-key="op-rej-go">${ic('check', 'sm')}標記已查看</button>`
+        : isSuper() ? `<button class="btn quiet" data-key="op-rej-go" aria-disabled="true" aria-describedby="op-rej-w">${ic('check', 'sm')}標記已查看</button><span class="reason" id="op-rej-w">${whyW('標記')}</span>${state.phone && !state.offline ? `<button class="textbtn sm ln" data-do="openRej" data-key="op-rej-look">看這 ${r.length} 則${ic('fwd', 'spm')}</button>` : ''}`
+        : `<button class="textbtn sm ln" data-do="openRej" data-key="op-rej-go">看這 ${r.length} 則${ic('fwd', 'spm')}</button>`}</span></li>`;
+  };
+  const seen = state.rejSeen ? `<details class="seenbox" data-key="seenbox" ${state.seenOpen ? 'open' : ''}><summary>${ic('chev', 'spm')}已查看 1</summary>
+    <ul class="opn"><li>${coin(rejOpen()[0])}<span class="tx"><b>${rejOpen()[0].at} 假冒的收款通知・${rejOpen().length} 則</b><span class="concl"><small>${state.rejSeen.by} ${state.rejSeen.at} ${state.rejSeen.t} 已查看</small>${esc(state.rejSeen.c)}</span></span><span class="acts"><button class="textbtn sm ln" data-do="openRej" data-key="seen-rej">再看一次${ic('fwd', 'spm')}</button></span></li></ul></details>` : '';
+  return `<section class="sheet" aria-labelledby="op-h" data-key="open-sheet"><div class="h"><h2 id="op-h">${ic('warn')}還沒處理完的</h2><span class="aside">不受上面的時間範圍影響</span></div>
+    ${o.length ? `<ul class="opn" data-key="opn">${o.map(row).join('')}</ul>` : `<p class="allok" data-key="allok">${ic('check')}都處理完了，沒有要跟進的通知。</p>`}${seen}</section>`;
+}
+const healthView = () => `<div class="stack">${strip()}${pipeView()}${openView()}</div>`;
+
+/* ---------- 回呼紀錄 ---------- */
+const RES = [['all', '全部'], ['ok', '已入帳'], ['fail', '扣款失敗'], ['dup', '重複・已忽略'], ['rej', '拒收'], ['503', '回 503']];
+const resOf = (c, r) => r === 'all' || (r === '503' ? !!c.r503 : r === 'ok' ? ['ok', 'wait'].includes(kind(c)) : kind(c) === r);
+/* 期間: the whole log, the last 7 days, or one calendar month */
+const perOf = (c, p) => p === 'all' || (p === '7' ? NOW >= mins(c.at, c.t) && NOW - mins(c.at, c.t) < 10080 : D(c.at).getMonth() + 1 === +p.slice(1));
+const resChip = c => ({ok:chip('success', '已入帳'), wait:chip('warning', '入帳・發票待重開'), fail:chip('neutral', `扣款失敗・${CODE[c.code]}`), dup:chip('neutral', '重複・已忽略'), rej:chip('danger', '簽章不符・拒收')})[kind(c)];
+function logView() {
+  const f = state.lf, base = state.cbs.filter(c => c.env === f.env);
+  const q = f.q.trim().toUpperCase();
+  const L = base.filter(c => resOf(c, f.res) && perOf(c, f.per) && (f.shop === 'all' || c.shop === f.shop) && (!q || c.txn.includes(q) || ordOf(c).toUpperCase().includes(q))).sort((a, b) => mins(b.at, b.t) - mins(a.at, a.t));
+  const shops = [...new Set(base.map(c => c.shop))];
+  const months = [...new Set(base.map(c => D(c.at).getMonth() + 1))].sort((a, b) => b - a);
+  const cnt = r => base.filter(c => resOf(c, r) && perOf(c, f.per)).length;
+  const testWins = state.hist.filter(h => h.to === 'test' && state.cbs.some(c => c.env === 'test' && c.at === h.at)).reverse().map(h => `${h.at} ${h.tk || ''}`.trim());
+  const rows = L.map(c => `<li><button class="rw" data-do="openCb" data-id="${c.id}" data-key="rw-${c.id}" ${state.panel?.id === c.id ? 'aria-current="true"' : ''}>
+      <span class="t">${c.at} ${c.t}</span><span class="who">${coin(c)}<span>${c.shop === 'unk' ? '不明來源' : shopN(c)}</span></span>
+      <span class="c-ev">${evN(c)}</span><span class="c-tx mono">${c.txn}</span><span class="r">${money(c.amt)}</span><span class="c-res">${resChip(c)}${c.r503 ? ' ' + chip('warning', '回 503・已補上') : ''}</span>${ic('fwd', 'go spm')}</button></li>`).join('');
+  return `<section class="sheet" aria-labelledby="lg-h" data-key="log-sheet"><div class="h"><h2 id="lg-h">${ic('list')}綠界送來的收款通知</h2><span class="aside">${f.env === 'prod' ? '7/28 上線以來' : `${testWins.join('、')} 測試期間`}・查看原文會留下紀錄</span></div>
+    <div class="flt"><div class="seg" role="radiogroup" aria-label="環境">${['prod', 'test'].map(e => `<button role="radio" aria-checked="${f.env === e}" tabindex="${f.env === e ? 0 : -1}" data-do="lfEnv" data-v="${e}" data-key="lf-${e}">${ENVN[e]}</button>`).join('')}</div>
+      <label class="fsel"><span>期間</span><select data-lf="per" data-key="lf-per"><option value="all">全部</option><option value="7" ${f.per === '7' ? 'selected' : ''}>近 7 天</option>${months.map(m => `<option value="m${m}" ${f.per === `m${m}` ? 'selected' : ''}>${m} 月</option>`).join('')}</select></label>
+      <label class="fsel"><span>商家</span><select data-lf="shop" data-key="lf-shop"><option value="all">全部</option>${shops.map(s => `<option value="${s}" ${f.shop === s ? 'selected' : ''}>${SHOPS[s][0]}</option>`).join('')}</select></label>
+      <div class="srch">${ic('search')}<input type="search" id="lf-q" data-key="lf-q" value="${esc(f.q)}" placeholder="交易編號或訂單編號" aria-label="用交易編號或訂單編號找"></div></div>
+    <div class="pills" role="group" aria-label="處理結果" style="margin-bottom:12px">${RES.map(([k, l]) => `<button class="pill" aria-pressed="${f.res === k}" data-do="lfRes" data-v="${k}" data-key="lr-${k}">${l}<span class="cnt">${cnt(k)}</span></button>`).join('')}</div>
+    <ul class="cbl" data-key="cbl"><li class="hd" aria-hidden="true"><span>收到</span><span>商家</span><span>通知</span><span>交易編號</span><span class="r">金額（含稅）</span><span>結果</span><span></span></li>
+    ${rows || `<li class="none"><div class="empty" data-key="log-empty"><b>沒有符合的通知</b><p>換個條件，或清除搜尋。交易編號長得像 T2610010300417。</p><button class="textbtn sm" data-do="lfClear" data-key="lf-clear">清除條件</button></div></li>`}</ul></section>`;
+}
+
+/* ---------- 環境與金鑰 ---------- */
+/* evidence: new from this test window (since the switch to 測試), else the item's last result, which a switch back can only keep by an explicit confirm */
+const sinceM = () => mins(state.since.at, state.since.t);
+const newEv = k => state.env !== 'test' ? null : state.cbs.filter(c => c.env === 'test' && mins(c.at, c.t) >= sinceM()).flatMap(c => (c.proves || []).filter(x => x[0] === k).map(x => ({at:c.at, t:x[1], ev:x[2]})))[0] || null;
+const evOf = k => newEv(k) || {...state.checks[k], old:true};
+const byTime = list => list.slice().sort((a, b) => mins(evOf(a[0]).at, evOf(a[0]).t) - mins(evOf(b[0]).at, evOf(b[0]).t));
+function envCard(e) {
+  const on = state.env === e, v = ENVS[e], last = state.cbs.filter(c => c.env === e).sort((a, b) => mins(b.at, b.t) - mins(a.at, a.t))[0];
+  return `<section class="envc ${e}${on ? ' on' : ''}" aria-labelledby="ev-${e}" data-key="envc-${e}"><div class="eh"><h2 id="ev-${e}">${ic(e === 'prod' ? 'live' : 'flask')}${ENVN[e]}</h2>${on ? `<span class="use ${e}${e === 'test' ? ' hatch' : ''}">${ic('check')}使用中</span>` : ''}</div>
+    <p class="lede">${e === 'prod' ? '真的向店家扣款、開立電子發票。' : '不會真的扣款；發票開在綠界的測試平台。'}</p>
+    <dl class="kv w"><dt>綠界特店</dt><dd><span class="masked v">${ic('lock')}末四碼 ${v.mid}</span></dd><dt>HashKey</dt><dd><span class="masked v">${ic('lock')}末四碼 ${v.key}</span></dd><dt>HashIV</dt><dd><span class="masked v">${ic('lock')}末四碼 ${v.iv}</span></dd>
+      <dt>金鑰更新</dt><dd>${v.upd}</dd><dt>回呼網址</dt><dd class="mono">${v.url}</dd><dt>電子發票</dt><dd>${v.inv}</dd><dt>最後一則</dt><dd>${last ? `${last.at} ${recvT(last)}${last.r503 ? '（重送）' : ''}・${evN(last)}` : '還沒有'}</dd></dl></section>`;
+}
+function ckAside() {
+  if (state.env === 'test') { const n = CHECKS.filter(c => newEv(c[0])).length; return `這次測試 ${state.since.at} ${state.since.t} 起・有新結果 ${n} 項`; }
+  const h = state.hist.find(x => x.to === 'prod'); return `最近一次：${h.at} ${h.eng || ''}・${h.tk || ''}`;
+}
+function envView() {
+  const to = state.env === 'prod' ? 'test' : 'prod', can = canWrite();
+  const btn = can ? `<button class="btn ${to === 'test' ? 'quiet' : calmPage() ? 'quiet' : 'primary'}" data-do="openSw" data-key="sw-open">${ic('swap', 'sm')}切換到${ENVN[to]}</button>`
+    : `<span class="pre-x"><button class="btn quiet" aria-disabled="true" data-key="sw-open" aria-describedby="sw-w">${ic('swap', 'sm')}切換到${ENVN[to]}</button><span class="reason" id="sw-w">${whyW('切換環境')}</span></span>`;
+  return `<div class="stack"><div class="envs">${envCard('prod')}${envCard('test')}</div>
+    <div class="swr" data-key="swr"><p>現在用<b>${ENVN[state.env]}</b>（${state.since.at} ${state.since.t} 起）。切換只影響之後的新交易；已寄出的付款連結照原本的環境走完。</p>${btn}</div>
+    <p class="ph-note">${ic('lock', 'spm')}<span>金鑰放在密鑰保管服務，由工程更換；這裡只顯示末四碼，不能顯示或複製完整金鑰。</span></p>
+    <section class="sheet" aria-labelledby="ck-h" data-key="ck-sheet"><div class="h"><h2 id="ck-h">${ic('check')}切到正式前的五項檢核</h2><span class="aside">${ckAside()}</span></div>
+      ${state.env === 'test' ? `<p class="hint" style="margin:-4px 0 10px">每次切回正式都要五項重測；這次沒重測的，切回時要逐項確認沿用舊結果。</p>` : ''}
+      <ul class="ck">${byTime(CHECKS).map(([k, n]) => { const v = evOf(k), test = state.env === 'test', kept = test ? v.old : v.kept;
+        return `<li data-key="ck-${k}"><span class="cm${kept ? ' kept' : ''}" aria-hidden="true">${ic(kept ? 'undo' : 'check')}</span><span><b>${n}</b><span>${test && !v.old ? '<span class="nw2">這次測試</span>' : ''}${kept ? `<span class="old">沿用 ${test ? v.at : v.kept} 結果</span>` : ''}${v.ev}</span></span><span class="by">${v.at} ${v.t}</span></li>`; }).join('')}</ul></section>
+    <section class="sheet" aria-labelledby="sh-h" data-key="sh-sheet"><div class="h"><h2 id="sh-h">${ic('clock')}切換紀錄</h2><span class="aside">也記在稽核中心</span></div>
+      <ul class="swh" data-key="swh">${state.hist.map((h, i) => `<li class="${h.fresh ? 'fresh' : ''}" data-key="sh-${i}"><span class="t">${h.at} ${h.t}</span><span class="to">${envTag(h.to === 'prod' ? 'test' : 'prod')}${ic('arrow')}${envTag(h.to)}</span><span class="ds"><span>${esc(h.why)}</span><small>${h.by}${h.eng ? `・工程確認 ${h.eng}` : ''}${h.tk ? `・${h.tk}` : ''}</small>${h.kept?.length ? `<small data-key="sh-kept-${i}">沿用舊結果（逐項確認）：${h.kept.join('、')}</small>` : ''}</span></li>`).join('')}</ul></section></div>`;
+}
+
+/* ---------- panels ---------- */
+const closeBtn = () => `<div class="dp-top"><button class="ibtn x" data-do="closePanel" data-key="dp-x" aria-label="關閉">${ic('x')}</button></div>`;
+const panelErr = () => state.err ? `<div class="ferr" role="alert" data-key="dp-err">${ic('warn')}<span>${state.err}</span></div>` : '';
+const busy = () => state.panel?.busy;
+function busyBtn(cls, act, key, icon, label, busyLabel, extra = '') {
+  const b = busy() === key;
+  return `<button class="btn ${cls}${b ? ' busy' : ''}" data-do="${act}" data-key="${key}" ${extra}>${b ? '<span class="spin" aria-hidden="true"></span>' : ic(icon, 'sm')}${b ? busyLabel : label}</button>`;
+}
+function trace(c) {
+  const k = kind(c), N = (cls, b, s) => ({cls, b, s});
+  const t = [N('', '收到', `${c.at} ${c.t}・${c.env === 'prod' ? '正式' : '測試'}環境`)];
+  if (k === 'rej') return [...t, N('stop', '驗簽：簽章不符', `拒收，只記錄（回 400）${c.test ? `・${c.test}` : ''}`), N('no', '去重', '沒有走到'), N('no', '處理', '沒有入帳，也沒有改帳單'), N('no', '開發票', '沒有走到')];
+  t.push(N('', '驗簽：簽章相符', '確認是綠界送來的'));
+  if (k === 'dup') { const o = cbOf(c.dup); return [...t, N('calm', '去重：已處理過', `同一筆交易 ${o.at} ${o.t} 已處理；回覆收到，沒有重複入帳`), N('no', '處理', '沒有走到'), N('no', '開發票', '沒有走到')]; }
+  t.push(N('', '去重：第一次收到', '這筆交易之前沒處理過'));
+  if (k === 'fail' && c.r503) return [...t, N('warn', `我方：寫不進帳務，回 503 → 綠界 ${c.r503.again} 重送後已記下`, `${c.r503.t} 帳務暫時寫不進去，請綠界稍後重送；重送的那一則照常處理，沒有漏記`), N('k-fail', `扣款：第 ${c.try} 次重試失敗，重試用完`, `${CODE[c.code]}；${c.next}`), N('no', '開發票', '扣款失敗不開發票')];
+  if (k === 'fail') return [...t, N('k-fail', `處理：扣款失敗（${CODE[c.code]}）`, c.next), N('no', '開發票', '扣款失敗不開發票')];
+  t.push(N('', `處理：入帳 NT$${num(c.amt)}`, c.top ? `記到${shopN(c)}的升級補差額帳單；立即改為專業方案` : `記到 ${shopN(c)} ${c.mon} 月帳單`));
+  return [...t, k === 'wait' ? N('warn', '開發票：開立失敗', `${c.inv.t} ${c.inv.fail}；請在付款管理重開`) : N('', `開發票：${c.inv.no}`, c.invNote || '已開立並寄給店家')];
+}
+function rawJson(c) {
+  return JSON.stringify({event:c.ev, merchant_order_no:ordOf(c), txn_id:c.txn, amount:c.amt, currency:'TWD', result_code:c.code, received_at:`2026-${c.at.split('/').map(x => p2(x)).join('-')}T${c.t}:11+08:00`, source_ip:c.ip, signature:c.sig === 'bad' ? '••••••••（不符）' : '••••••••（相符）', card:c.shop === 'unk' ? null : '************••••'}, null, 2);
+}
+function panelCb() {
+  const c = cbOf(state.panel.id), k = kind(c), raw = state.panel.raw;
+  const tile = `<span class="ttile bead k-${k}" aria-hidden="true">${k === 'rej' ? ic('q') : SHOPS[c.shop][1]}</span>`;
+  const t = trace(c).map(s => `<li class="${s.cls}"><span class="cn" aria-hidden="true">${ic(s.cls === 'stop' ? 'ban' : s.cls === 'no' ? 'dots' : s.cls === 'warn' ? 'warn' : s.cls === 'k-fail' ? 'x' : s.cls === 'calm' ? 'copy2' : 'check')}</span><span class="tx"><b>${s.b}</b><span>${s.s}</span></span></li>`).join('');
+  const rawBtn = canLook() ? `<button class="textbtn ln" style="align-self:flex-start" data-do="showRaw" data-key="raw-btn">${ic('code', 'spm')}看原文（已遮罩）</button>`
+    : `<span class="pre-x" style="align-items:flex-start"><button class="textbtn" aria-disabled="true" data-key="raw-btn" aria-describedby="raw-w">${ic('code', 'spm')}看原文（已遮罩）</button><span class="reason" id="raw-w">離線中，連上網路才能看原文</span></span>`;
+  return `${closeBtn()}<div class="dph">${tile}<div><h2 id="dp-h" tabindex="-1">${c.shop === 'unk' ? '不明來源' : shopN(c)}・${evN(c)}</h2><p><span class="nw">收到 ${dw(c.at)} ${c.t}</span>${envTag(c.env)}</p></div></div>
+    ${k === 'rej' ? `<p class="notice warning" data-key="cb-forged">${ic('warn')}<span>${c.test ? '這是工程測試驗簽時故意送出的錯誤簽章。' : `這則通知自稱${SHOPS[c.claim][0]}已付款，但簽章不符、來源不在綠界公布的位址。`}沒有入帳，也沒有改任何帳單。</span></p>` : ''}
+    <div class="dsec"><h3>${ic('trail')}走過的站</h3><ol class="trc" data-key="trc">${t}</ol></div>
+    <div class="dsec"><h3>${ic('info')}通知內容</h3><dl class="kv w" data-key="cb-kv"><dt>交易編號</dt><dd class="mono">${c.txn}${k === 'rej' ? '（自稱）' : ''}</dd><dt>訂單編號</dt><dd class="mono">${ordOf(c)}</dd><dt>金額</dt><dd>${money(c.amt)}</dd>
+      <dt>結果碼</dt><dd>${c.code}・${CODE[c.code]}</dd><dt>回給綠界</dt><dd>${k === 'rej' ? '拒收（400）' : c.r503 ? '暫時失敗（503）→ 重送後收到（200）' : k === 'dup' ? '收到（200）・已處理過' : '收到（200）'}</dd><dt>來源位址</dt><dd><span class="masked">${ic('lock')}${c.ip}</span></dd></dl>
+      <p class="cbhint" data-key="cb-hint">${k === 'rej' ? '400＝拒收：不是綠界送的或內容對不上，只記錄，綠界也不會再送。' : c.r503 ? '503＝我們這邊暫時寫不進去，請綠界稍後重送；重送後照常處理。' : k === 'dup' ? '去重：同一筆交易已處理過，仍回收到（200），綠界就不再重送，也不會重複入帳。' : '200＝收到並處理好了，綠界不會再送。'}</p>
+      ${raw ? `<pre class="raw" data-key="raw" aria-label="收款通知原文（已遮罩）">${esc(rawJson(c))}</pre><p class="aud">${ic('eye')}<span>簽章與卡號已遮罩；這次查看已記在稽核中心的查詢紀錄。</span></p>` : rawBtn}</div>
+    ${c.shop !== 'unk' && c.shop !== 'tst' && !(c.top && k === 'fail') ? `<div class="dsec"><a class="textbtn ln" style="align-self:flex-start" href="../payment-admin/index.html?role=${state.role}" data-key="cb-bill">${ic('card', 'spm')}到付款管理看 ${shopN(c)} ${c.top ? '升級補差額' : `${c.mon} 月帳單`}${ic('fwd', 'spm')}</a></div>` : ''}`;
+}
+function panelRej() {
+  const r = rejOpen(), P = state.panel, e = P.errs || {}, s = state.rejSeen;
+  const form = s ? `<p class="concl" data-key="rej-concl"><small>${s.by} ${s.at} ${s.t} 已查看</small>${esc(s.c)}</p>`
+    : canWrite() ? `<div class="field"><label for="rj-c">查看結論</label><textarea id="rj-c" data-mf="rj-c" data-key="rj-c" placeholder="例：已請工程確認來源，驗簽有擋下，不需處理" ${e['rj-c'] ? 'aria-invalid="true" aria-describedby="rj-c-e"' : 'aria-describedby="rj-c-h"'}>${esc(P.f['rj-c'] || '')}</textarea>${e['rj-c'] ? `<span class="err" id="rj-c-e" data-key="rj-c-e">${e['rj-c']}</span>` : '<span class="help" id="rj-c-h">至少 10 個字；會寫進操作紀錄</span>'}</div>
+      ${panelErr()}<div class="go">${busyBtn('primary', 'doRej', 'rj-ok', 'check', '標記已查看', '送出中…')}<button class="btn secondary" data-do="closePanel" data-key="rj-cancel">取消</button></div>`
+    : `<p class="rocard" data-key="rj-ro">${ic('lock')}<span>${whyW('標記已查看')}。</span></p>`;
+  return `${closeBtn()}<div class="dph"><span class="ttile bead k-rej" aria-hidden="true">${ic('q')}</span><div><h2 id="dp-h" tabindex="-1">假冒的收款通知・${r.length} 則</h2><p><span class="nw">${dw(r[0].at)} ${r[0].t}–${r[r.length - 1].t}</span>${envTag('prod')}</p></div></div>
+    <p class="lede">都自稱<b>${SHOPS[r[0].claim][0]}</b>已付 NT$${num(r[0].amt)}；簽章不符，來源 ${r[0].ip} 不在綠界公布的位址。驗簽擋下了，沒有入帳；悠悠的 10 月帳單仍是逾期。</p>
+    <div class="dsec"><h3>${ic('list')}這幾則</h3><ul class="opn" data-key="rej-list">${r.map(c => `<li>${bead(c, 0, 0, 'rl')}<span class="tx"><b>${c.at} ${c.t}</b><span>${c.txn}（自稱）・回 400 拒收</span></span></li>`).join('')}</ul>
+      <p class="hint">連續出現時通知工程查來源（示範）。這裡不能封鎖位址；擋人是工程的防火牆設定。</p></div>
+    <div class="dsec"><h3>${ic('check')}${s ? '已查看' : '標記已查看'}</h3>${form}</div>`;
+}
+function panelBody() { return {cb:panelCb, rej:panelRej}[state.panel.mode](); }
+
+/* ---------- dialog: switch environment ---------- */
+function dlgHtml() {
+  const d = state.dlg; if (!d) return '';
+  const toP = d.to === 'prod', want = ENVN[d.to], e = d.errs || {}, b = d.busy;
+  const field = (id, label, inner, help) => `<div class="field${id === 'sw-type' ? ' typec' : ''}"><label for="${id}">${label}</label>${inner}${e[id] ? `<span class="err" id="${id}-e" data-key="${id}-e">${e[id]}</span>` : help ? `<span class="help" id="${id}-h">${help}</span>` : ''}</div>`;
+  const inv = id => e[id] ? `aria-invalid="true" aria-describedby="${id}-e"` : `aria-describedby="${id}-h"`;
+  const fr = byTime(CHECKS.filter(c => newEv(c[0]))), kept = byTime(CHECKS.filter(c => !newEv(c[0])));
+  const box = (k, n, v, old) => `<li><button role="checkbox" aria-checked="${d.checks.includes(k)}" data-do="swCheck" data-v="${k}" data-key="swc-${k}"><span class="bx" aria-hidden="true">${ic('check')}</span><span><b>${old ? `${n}・確認沿用 ${v.at} 結果` : n}</b><span>${v.ev}</span><span class="when">${old ? '上次通過 ' : '這次 '}${v.at} ${v.t}</span></span></button></li>`;
+  const checks = toP ? `<p class="sub2" id="ck-l">五項檢核<span class="opt-l">每次切回都要五項重測</span></p>
+    <div role="group" aria-labelledby="ck-l" data-key="sw-checks">
+    ${fr.length ? `<div class="chkg" data-key="sw-fresh"><p class="gh" id="ck-n">這次測試有新結果 ${fr.length} 項<small>${state.since.at} ${state.since.t} 起</small></p><ul class="chk${e.checks ? ' bad' : ''}" aria-labelledby="ck-n">${fr.map(([k, n]) => box(k, n, newEv(k))).join('')}</ul></div>` : ''}
+    ${kept.length ? `<div class="chkg kept" data-key="sw-kept"><p class="gh" id="ck-o">這次沒有重測 ${kept.length} 項<small>要沿用舊結果，請逐項確認；會記進切換紀錄</small></p><ul class="chk${e.checks ? ' bad' : ''}" aria-labelledby="ck-o">${kept.map(([k, n]) => box(k, n, state.checks[k], true)).join('')}</ul></div>` : ''}</div>
+    ${e.checks ? `<span class="err" style="font-size:.8125rem;font-weight:800;color:var(--danger)" data-key="sw-checks-e">${e.checks}</span>` : ''}
+    <div class="frow">${field('sw-eng', '工程確認人', `<select id="sw-eng" data-key="sw-eng" ${inv('sw-eng')}><option value="">選擇工程同事</option>${ENGS.map(x => `<option ${d.eng === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`, '記下名字，不是另一個帳號')}
+      ${field('sw-tk', '工單編號', `<input id="sw-tk" data-key="sw-tk" value="${esc(d.tk)}" placeholder="例如 ENG-000" autocomplete="off" ${inv('sw-tk')}>`, 'ENG- 加數字')}</div>` : '';
+  const impact = toP
+    ? `<dl class="cdl"><dt>之後</dt><dd>新的自動扣款與新寄出的付款連結會真的收錢</dd><dt>測試期間</dt><dd>在測試環境建立的連結不會搬過去，需要時重寄</dd><dt>下次扣款</dt><dd>${nextRun()}${nextRunN()}</dd></dl>`
+    : `<dl class="cdl"><dt>之後</dt><dd><b>新的自動扣款與新寄出的付款連結都不會真的收錢</b></dd>${state.links.length ? `<dt>已寄出的</dt><dd>${state.links.map(l => `${l[0]}${l[1]}（${l[2]} 前）`).join('、')}：照正式環境走完</dd>` : ''}<dt>下次扣款</dt><dd>${nextRun()}・切回正式前不會真的扣款</dd></dl>`;
+  return `<div class="dialog wide" role="dialog" aria-modal="true" aria-labelledby="dl-h" data-key="dlg"><h2 id="dl-h">${toP ? '切回正式環境？' : '切到測試環境？'}</h2>
+    <div class="flip" aria-hidden="true">${envPill(false)}${ic('arrow')}<span class="envp ${d.to}${d.to === 'test' ? ' hatch' : ''}">${ic(d.to === 'prod' ? 'live' : 'flask')}${want}</span></div>
+    ${impact}${checks}
+    ${field('sw-why', '切換原因', `<textarea id="sw-why" data-key="sw-why" placeholder="${toP ? '例：工程確認收款通知驗簽通過' : '例：工程要在測試環境驗證新的收款通知驗簽'}" ${inv('sw-why')}>${esc(d.why)}</textarea>`, '至少 10 個字；會寫進操作紀錄，稽核中心會列出')}
+    ${field('sw-type', `輸入「<span class="want">${want}</span>」確認`, `<input id="sw-type" data-key="sw-type" value="${esc(d.typed)}" autocomplete="off" ${inv('sw-type')}>`, '')}
+    ${d.fail ? `<p class="ferr" role="alert" data-key="dlg-err">${ic('warn')}<span>${d.fail}</span></p>` : ''}
+    <div class="dbtns"><button class="btn secondary" data-do="closeDlg" data-key="dlg-cancel" ${b ? 'aria-disabled="true"' : ''}>取消</button><button class="btn ${toP ? 'primary' : 'danger'}${b ? ' busy' : ''}" data-do="doSw" data-key="dlg-ok">${b ? '<span class="spin" aria-hidden="true"></span>切換中…' : `${ic('swap', 'sm')}切到${want}`}</button></div></div>`;
+}
+function renderDlg(focus) {
+  const l = $('layer'); l.querySelector('.dlg-s')?.remove();
+  if (!state.dlg) return;
+  l.insertAdjacentHTML('beforeend', `<div class="scrim dlg-s" data-do="scrimDlg">${dlgHtml()}</div>`);
+  const f = focus && l.querySelector(`.dlg-s [data-key="${focus}"]`);
+  (f || l.querySelector('.dialog textarea'))?.focus();
+}
+function openDlg(d, focus) { d.ret = document.activeElement?.dataset?.key; state.dlg = d; render(); renderDlg(focus); }
+function closeDlg(focus) { const ret = focus || state.dlg?.ret; state.dlg = null; renderDlg(); render(); if (ret) document.querySelector(`[data-key="${ret}"]`)?.focus(); }
+
+/* ---------- page ---------- */
+function noacc() {
+  const sup = state.role === 'support';
+  return `<div class="noacc" data-key="noacc"><h2>${ic('lock')}金流設定只開放給最高管理者與財務</h2><p>${sup ? '客服不能看金流環境與收款通知。店家問付款的事，請轉給財務（美玲）。' : '環境切換都記在稽核中心：在那裡可以查是誰、什麼時候、為什麼切換。'}</p>
+    <a class="textbtn ln" href="../${sup ? 'support-console' : 'audit-center'}/index.html?role=${state.role}" data-key="noacc-go">到${sup ? '客服支援' : '稽核中心'}${ic('fwd', 'spm')}</a></div>`;
+}
+function head() {
+  const test = state.env === 'test' && canOpen();
+  return `<header class="head"><h1 id="page-title" tabindex="-1">金流設定</h1><div class="tools">${canOpen() ? envPill() : ''}${whoami()}</div>
+    <p class="sub">綠界・寵派向店家收月費的扣款與電子發票；飼主付款仍由店家自己記錄</p></header>
+    ${test ? `<div class="tband hatch" data-key="tband" role="status"><span>${ic('flask')}<span><b>現在是測試環境（${state.since.at} ${state.since.t} 起）。</b>新的自動扣款與新寄出的付款連結不會真的收錢；${nextRun()} 自動扣款前要切回正式。</span></span>${canWrite() ? `<button class="btn ${calmPage() ? 'quiet' : 'primary'}" data-do="openSw" data-key="tband-go">${ic('live', 'sm')}切回正式環境</button>` : ''}</div>` : ''}
+    ${state.offline && canOpen() ? `<div class="banner warning" data-key="banner-off">${ic('off')}<span>離線中：看到的是 ${clk(T0)} 的資料；切換環境、標記與看原文要連上網路。</span></div>` : ''}
+    ${state.phone && canOpen() && !state.offline ? `<div class="banner neutral" data-key="banner-ph">${ic('lock')}<span>手機可以看；切換環境與標記請用<span class="nw">電腦。</span></span></div>` : ''}`;
+}
+function mainBody() {
+  if (!canOpen()) return noacc();
+  if (state.loadFail) return `<div class="fail" data-key="fail"><h2>${ic('warn')}金流設定沒有載入</h2><p>網路或伺服器沒有回應。這不影響綠界送來的通知，系統照常處理；重新載入就好。</p><button class="btn quiet" data-do="retry" data-key="retry">${ic('refresh', 'sm')}重新載入</button></div>`;
+  const v = {health:healthView, log:logView, env:envView}[state.view]();
+  const wide = state.wide && state.panel;
+  return `${tabs()}<div class="wrap" id="tp" role="tabpanel" aria-labelledby="tab-${state.view}"><div class="lay${wide ? ' withp' : ''}"><div class="colmain">${v}</div>${wide ? `<aside class="dp" aria-labelledby="dp-h" data-key="dp">${panelBody()}</aside>` : ''}</div></div>`;
+}
+/* 資料 (data_admin) works only in 產業數據; every other module is closed to it */
+const dataOnly = () => `<header class="head"><h1 id="page-title" tabindex="-1">金流設定</h1><div class="tools">${whoami()}</div></header><div class="wrap"><div class="noacc" data-key="noacc"><h2>${ic('lock')}金流設定不開放給資料</h2><p>資料只負責去識別化的產業統計；商家、方案、付款、客服、合規與系統的資料都看不到。</p><a class="textbtn ln" href="../industry-data/index.html?role=data" data-key="noacc-go">到產業數據${ic('fwd', 'spm')}</a></div></div>`;
+/* the prototype strip's scenario, failure and simulate controls act on a page 資料 cannot see; only 身分 and 主題 stay live */
+function protoForData() {
+  const off = state.role === 'data';
+  document.querySelectorAll('.proto select, .proto input, .proto button').forEach(el => {
+    if (el.id === 'p-role' || el.id === 'p-theme') return;
+    if (off && !el.disabled) { el.disabled = true; el.dataset.dataOff = '1'; el.title = '資料看不到這一頁，模擬操作先停用'; }
+    else if (!off && el.dataset.dataOff) { el.disabled = false; delete el.dataset.dataOff; el.removeAttribute('title'); }
+  });
+}
+function render(focusKey) {
+  const app = $('app');
+  const keep = focusKey || document.activeElement?.dataset?.key;
+  const dpS = document.querySelector('#app .dp')?.scrollTop || 0;
+  app.className = state.compact ? 'compact' : state.rail ? `rail${state.big ? ' big' : ''}` : '';
+  const top = state.compact ? `<div class="topbar"><button class="ibtn" data-key="menu" data-do="openNav" aria-label="開啟選單">${ic('menu')}</button><span class="mark" aria-hidden="true">${ic('mark')}</span><b>金流設定</b></div>` : '';
+  const body = mainBody();
+  app.innerHTML = `${ibar()}${state.compact ? '' : sideNav()}<main id="main">${top}${state.role === 'data' ? dataOnly() : `${head()}${canOpen() && !state.loadFail ? body : `<div class="wrap">${body}</div>`}`}</main>`;
+  protoForData();
+  const dp = document.querySelector('#app .dp'); if (dp) { dp.scrollTop = dpS; if (state.noAnim) dp.style.animation = 'none'; }
+  state.noAnim = false;
+  renderOverlayPanel();
+  document.title = '金流設定・寵派管理後台';
+  if (keep) { const el = document.querySelector(`#app [data-key="${keep}"], #layer [data-key="${keep}"]`); if (el && el !== document.activeElement) el.focus({preventScroll:true}); }
+  setTimeout(() => { state.hist.forEach(h => delete h.fresh); }, 50);
+  syncUrl();
+}
+function renderOverlayPanel() {
+  const l = $('layer'), ex = l.querySelector('.pnl-s');
+  const body = state.wide || !state.panel || state.loadFail || !canOpen() ? '' : panelBody();
+  if (!body) { ex?.remove(); return; }
+  const html = `<div class="dp sheet" role="dialog" aria-modal="true" aria-labelledby="dp-h">${body}</div>`;
+  if (ex) { const sc = ex.firstChild.scrollTop; ex.innerHTML = html; ex.firstChild.style.animation = 'none'; ex.firstChild.scrollTop = sc; return; }
+  l.insertAdjacentHTML('afterbegin', `<div class="scrim side-r pnl-s" data-do="scrimPanel">${html}</div>`);
+}
+function announce(t) { const l = $('live'); l.textContent = ''; setTimeout(() => { l.textContent = t; }, 30); }
+function say(text) {
+  clearTimeout(say.t);
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status"><span>${esc(text)}</span></div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 7000);
+}
+function failOnce() { if (state.nextSend !== 'fail') return false; state.nextSend = 'ok'; $('p-send').value = 'ok'; return true; }
+function dupOnce() { if (state.nextSend !== 'dup') return false; state.nextSend = 'ok'; $('p-send').value = 'ok'; return true; }
+const later = f => setTimeout(f, FAST ? 60 : 650);
+function focusPanel(k) {
+  const el = document.querySelector(`#app .dp [data-key="${k}"], #layer .dp [data-key="${k}"]`) || document.querySelector('#app .dp h2, #layer .dp h2');
+  if (el) { if (!el.matches('button,input,textarea,a,[tabindex]')) el.tabIndex = -1; el.focus({preventScroll:true}); }
+  const dp = document.querySelector('#app .dp'); if (dp && !k) dp.scrollTop = 0;
+}
+
+/* ---------- actions ---------- */
+function openPanel(p, focus) { p.ret = p.ret || document.activeElement?.dataset?.key; state.panel = p; state.err = null; render(); focusPanel(focus); }
+function closePanel() { const ret = state.panel?.ret; state.panel = null; state.err = null; render(); if (ret) document.querySelector(`#app [data-key="${ret}"]`)?.focus(); }
+function setView(v, focus) { state.view = v; state.panel = null; state.roll = v === 'health'; render(focus || `tab-${v}`); scrollTo(0, 0); }
+function switchTo(to, why, tk, eng, by = me(), t = clk(state.m)) {
+  let kept;
+  if (to === 'prod' && state.env === 'test') {
+    kept = byTime(CHECKS.filter(c => !newEv(c[0]))).map(c => `${c[1]}（${state.checks[c[0]].at}）`);
+    CHECKS.forEach(([k]) => { const v = newEv(k); state.checks[k] = v ? {ev:v.ev, at:v.at, t:v.t} : {...state.checks[k], kept:state.checks[k].kept || state.checks[k].at}; });
+  }
+  state.env = to; state.since = {at:TODAY, t};
+  state.hist.unshift({at:TODAY, t, to, by, eng, tk, why, kept, fresh:true}); state.m += 1;
+}
+const act = {
+  nav(el) {
+    const p = el.dataset.page; closeNavDrawer();
+    if (p === 'sys') { location.href = `../system-settings/index.html?role=${state.role}`; return; }
+    if (p === 'gw') { if (state.view !== 'health') setView('health'); return; }
+    const to = {tenants:'tenant-admin', plans:'plan-admin', pay:'payment-admin', support:'support-console', notif:'line-notify-admin', tpl:'contract-library', audit:'audit-center', usage:'usage-monitor', data:'industry-data'}[p];
+    if (to) { location.href = `../${to}/index.html?role=${state.role}`; return; }
+    say(`「${el.textContent.trim()}」的原型還沒做；目前有商家管理、方案管理、付款管理、客服支援、LINE／通知管理、契約模板庫、稽核中心、金流設定、用量監控與產業數據`);
+  },
+  retry() { state.loadFail = false; $('p-fail').checked = false; state.roll = true; render('page-title'); say('已重新載入'); },
+  tab(el) { setView(el.dataset.v); },
+  win(el) { state.win = el.dataset.v; state.roll = true; render(`win-${state.win}`); announce(`${winN()}：收到 ${prodWin().length} 則`); },
+  openCb(el) { openPanel({mode:'cb', id:el.dataset.id}); },
+  openRej() { openPanel({mode:'rej', f:{}, errs:{}}, state.rejSeen ? null : 'rj-c'); },
+  showRaw() {
+    const c = cbOf(state.panel.id); state.panel.raw = true; state.looks += 1; state.m += 1;
+    render('raw'); say(`已顯示 ${c.txn} 的原文（已遮罩）・已記錄查詢紀錄`);
+    if (c.id === 'u2') lifeSay('raw');
+  },
+  doRej() {
+    const P = state.panel, c = (P.f['rj-c'] || '').trim();
+    if (c.length < 10) { P.errs = {'rj-c':c ? `再多寫一點，至少 10 個字（目前 ${c.length} 個字）` : '請寫下查看的結論'}; render('rj-c'); return; }
+    P.busy = 'rj-ok'; state.err = null; render('rj-ok');
+    later(() => {
+      P.busy = null;
+      if (failOnce()) { state.err = '沒有送出：連線中斷。結論還在，連上後再按一次。'; render('rj-ok'); return; }
+      if (dupOnce()) { state.rejSeen = {by:'美玲', at:TODAY, t:clk(state.m - 1), c:'已轉給工程確認來源，驗簽有擋下'}; render('rej-concl'); say('美玲剛標記這幾則已查看，你的結論沒有送出'); return; }
+      state.rejSeen = {by:me(), at:TODAY, t:clk(state.m), c}; state.m += 1; state.panel = null; state.seenOpen = true;
+      render('seenbox'); say('已標記已查看・已記錄操作紀錄'); announce('假冒的收款通知已標記已查看');
+    });
+  },
+  openSw() { if (!canWrite()) return; openDlg({to:state.env === 'prod' ? 'test' : 'prod', why:'', tk:'', eng:'', typed:'', checks:[], errs:{}}); },
+  swCheck(el) { const d = state.dlg, k = el.dataset.v; d.checks = d.checks.includes(k) ? d.checks.filter(x => x !== k) : [...d.checks, k]; if (d.errs.checks && d.checks.length === CHECKS.length) delete d.errs.checks; renderDlg(`swc-${k}`); },
+  doSw() {
+    const d = state.dlg, toP = d.to === 'prod', want = ENVN[d.to], e = {};
+    if (toP && d.checks.length < CHECKS.length) {
+      const miss = CHECKS.filter(c => !d.checks.includes(c[0])), a = miss.filter(c => newEv(c[0])).length, o = miss.length - a;
+      e.checks = `還有 ${miss.length} 項沒有確認${o ? `（其中 ${o} 項是沿用舊結果，要逐項確認）` : ''}；五項都確認才能切回正式`;
+    }
+    if (toP && !d.eng) e['sw-eng'] = '請選擇工程確認人';
+    if (toP && !/^ENG-\d+$/i.test(d.tk.trim())) e['sw-tk'] = d.tk.trim() ? '工單編號是 ENG- 加數字，例如 ENG-000' : '請填工單編號';
+    const why = d.why.trim();
+    if (why.length < 10) e['sw-why'] = why ? `再多寫一點，至少 10 個字（目前 ${why.length} 個字）` : '請寫下為什麼要切換';
+    if (d.typed.trim() !== want) e['sw-type'] = d.typed.trim() ? `輸入的字不一樣，請輸入「${want}」` : `請輸入「${want}」`;
+    d.errs = e;
+    const first = ['checks', 'sw-eng', 'sw-tk', 'sw-why', 'sw-type'].find(k => e[k]);
+    if (first) { renderDlg(first === 'checks' ? `swc-${[...byTime(CHECKS.filter(c => newEv(c[0]))), ...byTime(CHECKS.filter(c => !newEv(c[0])))].find(c => !d.checks.includes(c[0]))[0]}` : first); return; }
+    d.busy = true; d.fail = null; renderDlg('dlg-ok');
+    later(() => {
+      d.busy = false;
+      if (failOnce()) { d.fail = '沒有切換：連線中斷。環境還是' + ENVN[state.env] + '，填的內容還在，連上後再按一次。'; renderDlg('dlg-ok'); return; }
+      if (dupOnce()) { switchTo(d.to, '（在另一個分頁切換）', d.tk.trim().toUpperCase() || undefined, d.eng || undefined, '冠宇', clk(state.m - 1)); state.dlg = null; renderDlg(); render('envp'); say(`另一個分頁剛切到${want}；這次沒有再切一次`); return; }
+      switchTo(d.to, why, d.tk.trim().toUpperCase() || undefined, d.eng || undefined);
+      state.dlg = null; renderDlg(); state.roll = false;
+      render(state.view === 'env' ? 'sh-0' : 'envp'); say(`已切到${want}・已記錄操作紀錄，稽核中心會列出`); announce(`現在是${want}`);
+    });
+  },
+  lfEnv(el) { state.lf.env = el.dataset.v; state.lf.shop = 'all'; state.lf.res = 'all'; state.lf.per = 'all'; state.panel = null; render(`lf-${el.dataset.v}`); },
+  lfRes(el) { state.lf.res = el.dataset.v; render(`lr-${el.dataset.v}`); },
+  lfClear() { state.lf = {...state.lf, res:'all', shop:'all', per:'all', q:''}; render('lr-all'); },
+  closePanel() { if (!busy()) closePanel(); },
+  scrimPanel(el, ev) { if (ev.target === el && !busy()) closePanel(); },
+  closeDlg() { if (!state.dlg?.busy) closeDlg(); },
+  scrimDlg(el, ev) { if (ev.target === el && !state.dlg?.busy) closeDlg(); },
+  openNav() { openNavDrawer(); },
+  navScrim(el, ev) { if (ev.target === el) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); } }
+};
+function openNavDrawer() {
+  const l = $('layer'); l.querySelector('.nav-scrim')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="scrim nav-scrim" data-do="navScrim" style="padding:0;justify-content:flex-start;align-items:stretch"><div class="drawer-nav" role="dialog" aria-modal="true" aria-label="寵派後台選單">${sideNav()}</div></div>`);
+  l.querySelector('.drawer-nav .sitem[aria-current]')?.focus();
+}
+function closeNavDrawer() { $('layer').querySelector('.nav-scrim')?.remove(); }
+
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-do]');
+  if (el && el.getAttribute('aria-disabled') !== 'true') act[el.dataset.do]?.(el, ev);
+});
+document.addEventListener('toggle', ev => { if (ev.target.classList?.contains('seenbox')) state.seenOpen = ev.target.open; }, true);
+document.addEventListener('change', ev => {
+  const t = ev.target;
+  if (t.dataset.lf) { state.lf[t.dataset.lf] = t.value; render(t.dataset.key); return; }
+  if (t.id === 'sw-eng' && state.dlg) { state.dlg.eng = t.value; if (state.dlg.errs['sw-eng']) { delete state.dlg.errs['sw-eng']; renderDlg('sw-eng'); } }
+});
+const clearErr = (t, d, k) => { if (d.errs?.[k]) { delete d.errs[k]; t.removeAttribute('aria-invalid'); t.closest('.field').querySelector('.err')?.remove(); } };
+document.addEventListener('input', ev => {
+  const t = ev.target, d = state.dlg;
+  if (d && ['sw-why', 'sw-tk', 'sw-type'].includes(t.id)) { d[{'sw-why':'why', 'sw-tk':'tk', 'sw-type':'typed'}[t.id]] = t.value; clearErr(t, d, t.id); return; }
+  if (t.id === 'lf-q') { state.lf.q = t.value; clearTimeout(act.qt); act.qt = setTimeout(() => render('lf-q'), FAST ? 0 : 200); return; }
+  if (t.dataset.mf && state.panel?.f) { const P = state.panel; P.f[t.dataset.mf] = t.value; clearErr(t, P, t.dataset.mf); }
+});
+document.addEventListener('keydown', ev => {
+  const overlay = $('layer').querySelector('.pnl-s');
+  const modal = state.dlg ? '.dialog' : $('layer').querySelector('.drawer-nav') ? '.drawer-nav' : overlay ? '.pnl-s .dp' : null;
+  if (ev.key === 'Escape') {
+    if (state.dlg) { if (!state.dlg.busy) closeDlg(); return; }
+    if ($('layer').querySelector('.drawer-nav')) { closeNavDrawer(); document.querySelector('[data-key="menu"]')?.focus(); return; }
+    if (state.panel) { if (!busy()) closePanel(); return; }
+  }
+  if (modal && ev.key === 'Tab') {
+    const f = [...document.querySelectorAll(`${modal} button, ${modal} a[href], ${modal} input, ${modal} select, ${modal} textarea, ${modal} summary`)].filter(x => x.getAttribute('aria-disabled') !== 'true' && x.offsetParent && x.tabIndex !== -1);
+    if (!f.length) return;
+    if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); }
+    else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); }
+  }
+  const r = ev.target.closest?.('[role="radiogroup"] [role="radio"], [role="tablist"] [role="tab"]');
+  if (r && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(ev.key)) {
+    ev.preventDefault();
+    const all = [...r.parentElement.querySelectorAll('[role="radio"], [role="tab"]')], i = all.indexOf(r), fw = ev.key === 'ArrowRight' || ev.key === 'ArrowDown';
+    all[(i + (fw ? 1 : all.length - 1)) % all.length].click();
+  }
+});
+
+/* ---------- prototype controls ---------- */
+function syncUrl() { const u = new URL(location); u.searchParams.set('role', state.role); u.searchParams.delete('go'); u.searchParams.delete('tx'); history.replaceState(null, '', u); }
+/* ?tx=<交易編號> (or a callback id) opens that callback in 回呼紀錄, so 付款管理 can link a charge here; the search keeps every notice of that transaction */
+function openTx(tx) {
+  const hit = state.cbs.filter(c => c.txn === tx || c.id === tx).sort((a, b) => (a.dup ? 1 : 0) - (b.dup ? 1 : 0) || mins(a.at, a.t) - mins(b.at, b.t));
+  state.view = 'log'; state.lf.q = hit[0]?.txn || tx;
+  if (hit[0]) { state.lf.env = hit[0].env; state.panel = {mode:'cb', id:hit[0].id}; }
+  state.roll = false;
+}
+function seed(v) {
+  const keep = {role:state.role, compact:state.compact, rail:state.rail, big:state.big, phone:state.phone, wide:state.wide, nextSend:state.nextSend, offline:state.offline};
+  /* 11/1: the 11 月 run went out at 03:00. By then October is settled (the forged notices reviewed, 汪汪's invoice re-issued, the links closed) */
+  if (v === 'run' || v === 'late') setDay('11/1', v === 'run' ? 3 * 60 + 4 : 3 * 60 + 40); else setDay(...DAY0);
+  state = Object.assign(fresh(), keep);
+  if (v === 'run' || v === 'late') {
+    state.runs.push(clone(RUN_NOV)); state.links = [];
+    state.rejSeen = {by:'冠宇', at:'10/9', t:'10:52', c:'建宏確認來源是境外掃描，驗簽有擋下，不需處理'};
+    Object.assign(cbOf('c02'), {inv:{no:'YQ-48231139'}, invNote:'10/9 在付款管理重開（原本逾時）'});
+  }
+  if (v === 'test' || v === 'sw-prod') state.cbs.push(...clone(TEST_NEW));
+  dayLabel();
+  const R = r => { state.role = r; $('p-role').value = r; };
+  if (!canOpen() && !['support', 'compliance'].includes(v)) R('super');
+  const cb = id => { state.panel = {mode:'cb', id}; };
+  if (v === 'w24') state.win = '24';
+  if (v === 'w7') state.win = '7';
+  if (v === 'cb-rej') cb('c09');
+  if (v === 'cb-wait') cb('c02');
+  if (v === 'cb-503') cb('c12');
+  if (v === 'cb-dup') cb('c06');
+  if (v === 'raw') { cb('c02'); state.panel.raw = true; state.looks = 1; }
+  if (v === 'rej-mark') state.panel = {mode:'rej', f:{'rj-c':'建宏確認來源是境外掃描，驗簽有擋下，不需處理'}, errs:{}};
+  if (v === 'log') state.view = 'log';
+  if (v === 'log-test') { state.view = 'log'; state.lf.env = 'test'; }
+  if (v === 'env') state.view = 'env';
+  if (v === 'sw-test') { state.view = 'env'; state.dlg = {to:'test', why:'工程要在測試環境重現汪汪的發票逾時', tk:'ENG-231', eng:'', typed:'測試環境', checks:[], errs:{}, ret:'sw-open'}; }
+  if (v === 'test') { switchTo('test', '工程要在測試環境重現汪汪的發票逾時', 'ENG-231', undefined, '冠宇', '11:12'); state.hist[0].fresh = false; state.m = T0; }
+  if (v === 'sw-prod') { switchTo('test', '工程要在測試環境重現汪汪的發票逾時', 'ENG-231', undefined, '冠宇', '11:12'); state.hist[0].fresh = false; state.m = T0; state.view = 'env'; state.dlg = {to:'prod', why:'', tk:'', eng:'', typed:'', checks:[], errs:{}, ret:'sw-open'}; }
+  if (v === 'clear') state.rejSeen = {by:'冠宇', at:TODAY, t:'10:52', c:'建宏確認來源是境外掃描，驗簽有擋下，不需處理'};
+  if (v === 'finance') R('finance');
+  if (v === 'support') R('support');
+  if (v === 'compliance') R('compliance');
+  state.roll = !state.panel && !state.dlg && state.view === 'health';
+}
+function dayLabel() { const el = document.querySelector('.proto .muted'); if (el) el.textContent = `商家、人名、交易與金鑰全為虛構示範・今天 ${dw(TODAY)}${clk(T0)}`; }
+const ROLES = Object.keys(ME);
+if (ROLES.includes(qs.get('role'))) state.role = qs.get('role');
+const go0 = qs.get('go');
+$('p-role').value = state.role;
+$('p-role').onchange = e => { state.role = e.target.value; state.dlg = null; renderDlg(); state.panel = null; render(); };
+$('p-send').onchange = e => { state.nextSend = e.target.value; };
+$('p-off').onchange = e => { state.offline = e.target.checked; render(); };
+$('p-fail').onchange = e => { state.loadFail = e.target.checked; render(); };
+$('p-theme').onchange = e => { if (e.target.value) document.documentElement.dataset.theme = e.target.value; else delete document.documentElement.dataset.theme; };
+$('p-go').onchange = e => { const v = e.target.value; e.target.value = ''; if (!v) return; state.dlg = null; renderDlg(); seed(v); render(); if (state.dlg) renderDlg(); else if (state.panel) focusPanel(); else $('page-title')?.focus({preventScroll:true}); scrollTo(0, 0); };
+/* 200% text: the root grows, so rem-based container queries fold the pipe and the log, and the sidebar folds into the short-name rail */
+/* the set scale wins: under reduced motion the root's font-size still "transitions" for .01ms, so its computed size is stale inside the change handler */
+let scaleSet = null;
+const big = () => scaleSet ? scaleSet > 1 : parseFloat(getComputedStyle(document.documentElement).fontSize) > 20;
+const applyScale = v => { scaleSet = v; document.documentElement.style.fontSize = v > 1 ? `${v * 100}%` : ''; $('p-scale').value = String(v); };
+if (qs.get('scale') === '2') applyScale(2);
+const mq = matchMedia('(max-width: 1023px)'), mqR = matchMedia('(min-width: 1024px) and (max-width: 1279px)'), mqP = matchMedia('(max-width: 719px)'), mqW = matchMedia('(min-width: 1280px)');
+const layout = () => { state.big = big(); state.compact = mq.matches; state.rail = mqR.matches || (!mq.matches && state.big); state.phone = mqP.matches; state.wide = mqW.matches && !state.big; };
+const setCompact = () => { layout(); if (!state.compact) closeNavDrawer(); render(); };
+[mq, mqR, mqP, mqW].forEach(m => m.addEventListener('change', setCompact));
+$('p-scale').onchange = e => { applyScale(+e.target.value); setCompact(); };
+layout();
+if (go0) seed(go0);
+if (qs.get('tx')) openTx(qs.get('tx'));
+if (LIFE) document.querySelector('.proto .muted').textContent = '商家、人名、交易與金鑰全為虛構示範・今天 10/9（五）16:50';
+render();
+if (state.dlg) renderDlg();
+</script>
+</body>
+</html>

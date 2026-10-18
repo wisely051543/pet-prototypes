@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>寵物卡原型</title>
+<script src="../test-kit/kit.js" data-proto="pet-card"></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%2212%22 fill=%22%232E211B%22/%3E%3Cg fill=%22%23F6EFE7%22%3E%3Ccircle cx=%227.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Ccircle cx=%2210.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2213.5%22 cy=%227.5%22 r=%221.6%22/%3E%3Ccircle cx=%2216.5%22 cy=%2210.5%22 r=%221.6%22/%3E%3Cpath d=%22M8.5 16c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preload" href="fonts/Huninn-subset.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Nunito-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/* 暖心生活 App world, staff tokens copied from the today board. Status colors are the fixed set shared by every surface and shop. */
+@font-face{font-family:"Nunito";src:url(fonts/Nunito-latin.woff2) format("woff2");font-weight:500 900;font-display:swap;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
+@font-face{font-family:"Huninn";src:url(fonts/Huninn-subset.woff2) format("woff2");font-weight:400;font-display:swap}
+:root{
+  --bg:#F6EFE7;--surface:#FFFFFF;--surface-2:#FBF6F0;--sunk:#F1E7DC;--sunk-hover:#E9DCCE;
+  --ink:#2B211C;--ink-muted:#6E6058;--border:#EADFD3;--control-border:#9A8878;--track:#E6D9CC;
+  --act:#FF6B3D;--act-hover:#FF7E55;--on-act:#2B160C;--act-tint:#FFE5DA;--act-ink:#B5431A;
+  --rail:#2E211B;--rail-edge:transparent;--rail-ink:#DCCDC0;--rail-hover:#45352C;--rail-cur:#F6EFE7;--rail-cur-ink:#2B211C;
+  --focus:#2B211C;
+  --success:#1E6B3A;--success-bg:#E3F4EA;--warning:#8A5300;--warning-bg:#FDF0D5;--danger:#B4231B;--danger-bg:#FCE4E2;
+  --info:#1D5FA8;--info-bg:#E0EEFB;--neutral:#4A4F57;--neutral-bg:#ECEDEF;
+  --danger-solid:#C62F25;--on-danger-solid:#FFFFFF;--border-danger:#E9A9A3;--danger-tint:#FFF1EE;
+  --toast:#2E211B;--on-toast:#FFFFFF;--scrim:#2B211C8C;
+  --proto-bg:#1F1612;--proto-ink:#F1E7DC;--proto-muted:#BCAEA3;--proto-line:#4A3A31;
+  --lift:0 1px 2px rgb(74 44 26 / .06),0 8px 20px -10px rgb(74 44 26 / .22);
+  --lift-hi:0 2px 4px rgb(74 44 26 / .07),0 18px 36px -14px rgb(74 44 26 / .30);
+  --lift-up:0 -12px 28px -16px rgb(74 44 26 / .35);
+  --font:"Nunito","Huninn",-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  --r-sm:10px;--r-md:14px;--r-lg:20px;--r-xl:28px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--out:cubic-bezier(.16,1,.3,1);
+  --railw:5.25rem;color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+  --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+  --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+  --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+  --focus:#F6EDE6;
+  --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+  --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+  --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+  --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+  --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+  --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+  --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+  --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100D;--surface:#211915;--surface-2:#271E19;--sunk:#30261F;--sunk-hover:#3B2F27;
+    --ink:#F6EDE6;--ink-muted:#BCAEA3;--border:#3A2E27;--control-border:#8D7C6F;--track:#46382F;
+    --act:#FF8257;--act-hover:#FF956F;--on-act:#2B160C;--act-tint:#4A2618;--act-ink:#FFA584;
+    --rail:#0E0A08;--rail-edge:#3A2E27;--rail-ink:#BCAEA3;--rail-hover:#2A211C;--rail-cur:#F6EDE6;--rail-cur-ink:#15100D;
+    --focus:#F6EDE6;
+    --success:#8EDBA9;--success-bg:#173B26;--warning:#F5C46A;--warning-bg:#3F2E0B;--danger:#FF9C94;--danger-bg:#47191A;
+    --info:#8CC2F5;--info-bg:#14304F;--neutral:#C3C7CE;--neutral-bg:#2E3136;
+    --danger-solid:#D23A30;--on-danger-solid:#FFFFFF;--border-danger:#6B2A27;--danger-tint:#2C1715;
+    --toast:#F6EDE6;--on-toast:#15100D;--scrim:#000000B3;
+    --proto-bg:#F1E7DC;--proto-ink:#2B211C;--proto-muted:#6E6058;--proto-line:#D3C3B3;
+    --lift:0 1px 2px rgb(0 0 0 / .35),0 10px 24px -12px rgb(0 0 0 / .65);
+    --lift-hi:0 2px 4px rgb(0 0 0 / .4),0 20px 40px -16px rgb(0 0 0 / .75);
+    --lift-up:0 -12px 28px -16px rgb(0 0 0 / .7);
+    color-scheme:dark;
+  }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:24px;scroll-padding-bottom:180px}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);font-size:.9375rem;line-height:1.5;font-feature-settings:"tnum";-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+::selection{background:var(--act-tint);color:var(--ink)}
+input,textarea{caret-color:var(--act-ink)}
+*{scrollbar-width:thin;scrollbar-color:var(--control-border) transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+[tabindex="-1"]:focus{outline:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ico{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ico.sm{width:16px;height:16px}
+.ico.lg{width:24px;height:24px}
+
+/* ---------- prototype strip (not product UI) ---------- */
+.proto{background:var(--proto-bg);color:var(--proto-ink);font-size:.8125rem;display:flex;align-items:center;gap:6px 16px;padding:6px 16px;overflow-x:auto;white-space:nowrap;min-height:44px}
+.proto b{font-weight:700}
+.proto .muted{color:var(--proto-muted)}
+.proto label{display:inline-flex;align-items:center;gap:6px}
+.proto select{background:transparent;border:1px solid var(--proto-line);border-radius:8px;padding:4px 8px;min-height:32px;color:var(--proto-ink)}
+.proto select option{color:#2B211C;background:#fff}
+.proto input[type=checkbox]{width:16px;height:16px;accent-color:var(--proto-ink)}
+.proto :focus-visible{outline-color:var(--proto-ink)}
+
+/* ---------- shell ---------- */
+#app{display:grid;grid-template-columns:var(--railw) minmax(0,1fr);min-height:calc(100vh - 44px);min-height:calc(100dvh - 44px)}
+#app:not(.phone){background:linear-gradient(to right,var(--rail) var(--railw),transparent 0)}
+#app.phone{display:block;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+.rail{position:sticky;top:0;height:100vh;height:100dvh;background:var(--rail);box-shadow:inset -1px 0 0 var(--rail-edge);display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 0}
+.mark{width:44px;height:44px;border-radius:14px;background:var(--rail-cur);color:var(--rail);display:grid;place-items:center;margin-bottom:14px}
+.mark .ico{width:26px;height:26px;stroke-width:0;fill:currentColor}
+.rail-item{width:4rem;min-height:3.75rem;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--rail-ink);font-size:.75rem;font-weight:600;text-align:center;line-height:1.25;padding:6px 0;transition:background-color .2s var(--out)}
+.rail-item:hover{color:var(--rail-cur);background:var(--rail-hover)}
+.rail-item[aria-current="page"]{background:var(--rail-cur);color:var(--rail-cur-ink);font-weight:800;--cut:var(--rail-cur)}
+.rail :focus-visible{outline-color:var(--rail-cur)}
+.bnav{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:20;background:var(--rail);display:grid;grid-template-columns:repeat(4,1fr);border-radius:var(--r-lg);padding:6px;box-shadow:var(--lift-hi)}
+.bnav button{min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 2px;font-size:.75rem;font-weight:600;line-height:1.2;text-align:center;color:var(--rail-ink);border-radius:16px}
+.bnav button[aria-current="page"]{color:var(--rail-cur-ink);background:var(--rail-cur);font-weight:800;--cut:var(--rail-cur)}
+.bnav :focus-visible{outline-color:var(--rail-cur);outline-offset:-3px}
+main{min-width:0}
+
+/* ---------- buttons, chips, tags ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:12px 18px;border-radius:var(--r-md);font-size:.9375rem;font-weight:700;line-height:1.3;text-align:center;border:1.5px solid transparent;transition:transform .35s var(--spring),background-color .2s var(--out),box-shadow .2s var(--out)}
+.btn:active:not([aria-disabled="true"]){transform:scale(.96);transition-duration:.08s}
+.btn.primary{background:var(--act);color:var(--on-act);font-weight:800;box-shadow:0 1px 0 rgb(255 255 255 / .35) inset,var(--lift)}
+.btn.primary:hover{background:var(--act-hover)}
+.btn.secondary{background:var(--sunk);color:var(--ink)}
+.btn.secondary:hover{background:var(--sunk-hover)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--ink-muted);cursor:not-allowed;border:1.5px dashed var(--control-border);box-shadow:none}
+.textbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 14px;color:var(--ink);background:var(--sunk);font-weight:800;font-size:.875rem;border-radius:999px;transition:background-color .2s var(--out),transform .35s var(--spring)}
+.textbtn:hover{background:var(--sunk-hover)}
+.textbtn:active{transform:scale(.96);transition-duration:.08s}
+.textbtn[aria-disabled="true"]{color:var(--ink-muted);background:transparent;border:1.5px dashed var(--control-border);cursor:not-allowed}
+.reason{display:block;font-size:.8125rem;font-weight:600;color:var(--ink-muted);margin-top:6px;line-height:1.4}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 14px 0 8px;color:var(--ink-muted);font-weight:800;border-radius:999px}
+.back:hover{color:var(--ink);background:var(--sunk)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.8125rem;font-weight:700;line-height:1.4;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.chip.neutral{color:var(--neutral);background:var(--neutral-bg)}
+.chip.warning{color:var(--warning);background:var(--warning-bg)}
+.chip.info{color:var(--info);background:var(--info-bg)}
+.chip.success{color:var(--success);background:var(--success-bg)}
+.chip.danger{color:var(--danger);background:var(--danger-bg)}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px 4px 9px;border-radius:999px;font-size:.875rem;line-height:1.4;white-space:nowrap}
+.tag.safety{background:var(--danger-solid);color:var(--on-danger-solid);font-weight:800}
+.tag.care{background:var(--warning-bg);color:var(--warning);font-weight:700}
+.tag.finding{background:var(--warning-bg);color:var(--warning);font-weight:800;font-size:.8125rem;padding:2px 10px 2px 8px}
+
+/* ---------- 臉環: the face is the pet, the ring is today's visit ---------- */
+.face{--s:56px;position:relative;flex:none;width:var(--s);height:var(--s);display:inline-grid;place-items:center}
+.face>svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.face circle{fill:none;stroke:var(--track);stroke-width:7;stroke-linecap:round}
+.face circle.done{stroke:var(--ink)}
+.face circle.cur{stroke:var(--ink);stroke-width:9;stroke-dasharray:0 600;animation:seg .7s var(--out) .15s forwards}
+@keyframes seg{to{stroke-dasharray:var(--dash) 600}}
+.face img,.face .ini{width:calc(var(--s) * .74);height:calc(var(--s) * .74);border-radius:50%;object-fit:cover;background:var(--sunk);display:grid;place-items:center;font-weight:900;color:var(--ink-muted);font-size:calc(var(--s) * .3)}
+.face.plain img,.face.plain .ini{width:calc(var(--s) * .86);height:calc(var(--s) * .86)}
+.face .badge{position:absolute;right:-2px;bottom:-2px;width:calc(var(--s) * .3);height:calc(var(--s) * .3);min-width:22px;min-height:22px;border-radius:50%;display:grid;place-items:center;background:var(--danger-solid);color:var(--on-danger-solid);border:3px solid var(--surface)}
+.face .badge .ico{width:62%;height:62%;stroke-width:2.4}
+.face .step{position:absolute;left:0;bottom:0;padding:2px 9px;border-radius:999px;background:var(--surface);color:var(--ink);border:2px solid var(--ink);font-size:.875rem;font-weight:900;line-height:1.25}
+
+/* ---------- page ---------- */
+.page{container:page / inline-size;padding:14px 28px 120px}
+.phone .page{padding:8px 16px 160px}
+.grid{display:grid;grid-template-columns:minmax(340px,420px) minmax(0,1fr);gap:20px;align-items:start;margin-top:8px}
+@container page (max-width: 820px){.grid{grid-template-columns:minmax(0,1fr)}}
+@media (min-height: 860px){#app:not(.phone) .lcol{position:sticky;top:16px}}
+.lcol,.rcol{display:flex;flex-direction:column;gap:16px;min-width:0}
+.panel{background:var(--surface);border-radius:var(--r-lg);padding:22px;box-shadow:var(--lift)}
+.panel-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.panel-h h2{font-size:1.0625rem;font-weight:900;line-height:1.3;display:inline-flex;align-items:center;gap:8px}
+.panel-h .aside{margin-left:auto;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.cnt{min-width:26px;padding:1px 9px;border-radius:999px;background:var(--sunk);font-size:.8125rem;font-weight:800;text-align:center}
+.cnt.hot{background:var(--danger-solid);color:var(--on-danger-solid)}
+
+/* identity */
+.who{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:center}
+.who .face{--s:112px}
+.phone .who .face{--s:88px}
+.who h1{font-size:1.75rem;font-weight:900;line-height:1.2}
+.phone .who h1{font-size:1.5rem}
+.who .breed{display:block;margin-top:4px;font-size:.9375rem;font-weight:700;color:var(--ink-muted)}
+.facts{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:10px;font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.facts b{color:var(--ink);font-weight:800}
+.today-line{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-size:.9375rem;font-weight:700}
+.today-line .t{font-weight:900}
+.today-line .muted{color:var(--ink-muted);font-weight:600}
+
+/* 注意事項 band: what the hands must know before touching the animal */
+.band{padding:0;overflow:hidden}
+.band .panel-h{padding:20px 22px 0;margin-bottom:12px}
+.band .src{padding:0 22px;margin:-6px 0 12px;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.safe-rows{background:var(--danger-tint);border-top:1px solid var(--border-danger);border-bottom:1px solid var(--border-danger);padding:6px 22px;list-style:none}
+.care-rows{padding:6px 22px;list-style:none}
+.nrow{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:6px 14px;align-items:start;padding:12px 0;border-bottom:1px solid var(--border)}
+.safe-rows .nrow{border-bottom-color:var(--border-danger)}
+.nrow:last-child{border-bottom:0}
+.nrow .tag{justify-self:start}
+.nrow .say{font-size:1rem;font-weight:800;line-height:1.5;text-wrap:pretty;padding-top:2px}
+.safe-rows .say{color:var(--danger)}
+.nrow .say.quiet{font-weight:600;color:var(--ink-muted)}
+.phone .nrow{grid-template-columns:minmax(0,1fr)}
+.health{padding:14px 22px 6px}
+.health h3,.internal h3{display:flex;align-items:center;gap:8px;font-size:.9375rem;font-weight:900;margin-bottom:8px}
+.dl{display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:8px 14px;font-size:.9375rem;font-weight:700}
+.dl dt{color:var(--ink-muted);font-size:.875rem;font-weight:700;padding-top:1px}
+.internal{padding:14px 22px 6px;font-size:.9375rem;font-weight:700}
+.internal p{text-wrap:pretty}
+.none{padding:16px 22px;font-size:.9375rem;font-weight:700;color:var(--ink-muted)}
+/* masked: protected, not missing */
+.masked{display:inline-flex;align-items:center;gap:6px;color:var(--ink-muted);font-size:.8125rem;font-weight:800}
+.vnotes li.shut{background:transparent}
+.vcheck .masked{margin-right:8px}
+.vnotes li.shut small{margin-top:0}
+/* the clerk's own explanation sits under the heading, before anything it explains */
+.band .mask-note{margin:0 22px 12px}
+.panel-h .maskcnt{font-size:.8125rem;font-weight:800;color:var(--ink-muted)}
+/* safety tags ride in the identity card, so they are on the first screen at any text size */
+.who-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.tog[aria-disabled="true"]{opacity:.55;cursor:not-allowed}
+.tog-note{margin:8px 0 0;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.masked .ico{width:14px;height:14px;stroke-width:2.2}
+.mask-note{display:flex;gap:8px;align-items:flex-start;margin:10px 22px 0;padding:10px 12px;border-radius:var(--r-md);background:var(--neutral-bg);color:var(--neutral);font-size:.8125rem;font-weight:700;line-height:1.5}
+.mask-note .ico{margin-top:1px}
+.band-foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:16px 22px 20px}
+.band-foot .reason{margin:0;flex-basis:100%}
+.band-foot .nolog{font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+.missing{max-width:560px;margin:24px auto 0;padding:28px 24px}
+.missing h1{font-size:1.375rem;font-weight:900;margin:0 0 6px}
+.missing p{font-weight:600;color:var(--ink-muted);margin:0 0 18px;text-wrap:pretty}
+.missing .acts{display:flex;flex-wrap:wrap;gap:10px}
+.missing a.btn{text-decoration:none}
+
+/* 修改紀錄 */
+.log{list-style:none;display:flex;flex-direction:column;gap:12px;margin-top:4px}
+.log li{padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border);font-size:.875rem;font-weight:600}
+.log .lh{display:flex;flex-wrap:wrap;gap:4px 10px;font-weight:800;margin-bottom:6px}
+.log .lh .muted{color:var(--ink-muted);font-weight:700}
+.log ul{list-style:none;display:flex;flex-direction:column;gap:4px}
+.log .chg{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center}
+.log .b{text-decoration:line-through;color:var(--ink-muted)}
+.log .why{margin-top:6px;color:var(--ink-muted)}
+
+/* 歷次來店 */
+.visits{list-style:none;display:flex;flex-direction:column}
+.visit{display:grid;grid-template-columns:4.25rem minmax(0,1fr);gap:16px;padding:16px 0;border-top:1px solid var(--border)}
+.visit:first-child{border-top:0;padding-top:4px}
+.vdate{text-align:left;line-height:1.15}
+.vdate b{display:block;font-size:1.375rem;font-weight:900;letter-spacing:-.01em}
+.vdate small{display:block;margin-top:4px;font-size:.8125rem;font-weight:700;color:var(--ink-muted)}
+.vh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.vh .svc{font-size:1rem;font-weight:900}
+.vh .by{font-size:.875rem;font-weight:700;color:var(--ink-muted)}
+/* one reading line: 現況 → tag → finding → 其餘正常, wrapping as text, never stacking */
+.vcheck{margin-top:8px;font-size:.875rem;font-weight:700;line-height:2}
+.vcheck .find{color:var(--ink);margin-right:8px}
+.vcheck .tag.finding{vertical-align:1px;margin:0 6px 0 2px}
+.vcheck .ok{color:var(--ink-muted);font-weight:600}
+.vnotes{list-style:none;display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.vnotes li{padding:9px 12px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border);font-size:.9375rem;font-weight:700;line-height:1.5;text-wrap:pretty}
+.vnotes small{display:flex;align-items:center;gap:8px;margin-top:2px;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.phone .visit{grid-template-columns:minmax(0,1fr);gap:0}
+.phone .visit:not(.today) .vdate{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+.phone .visit:not(.today) .vdate b{display:inline;font-size:1.125rem}
+.phone .visit:not(.today) .vdate small{display:inline;margin:0}
+.visit.off .vh .svc{color:var(--ink-muted);font-weight:800}
+.visit.off .vdate b{color:var(--ink-muted)}
+/* today: the visit that is happening, on top, the one place staff write */
+.visit.today{grid-template-columns:minmax(0,1fr);margin:0 -10px 6px;padding:16px;border:0;border-radius:var(--r-lg);background:var(--surface-2);box-shadow:inset 0 0 0 1.5px var(--border)}
+.visit.today .vh .svc{font-size:1.0625rem}
+.tday{display:flex;align-items:center;flex-wrap:wrap;gap:8px 10px;margin-bottom:6px}
+.tday b{font-size:1.125rem;font-weight:900}
+.tday .t{font-size:.9375rem;font-weight:800;color:var(--ink-muted)}
+.src-line{margin-top:6px;font-size:.8125rem;font-weight:600;color:var(--ink-muted)}
+.compose{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.compose label{font-size:.875rem;font-weight:800}
+.compose textarea{width:100%;min-height:96px;resize:vertical;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:12px 14px;font-size:1rem;font-weight:600;line-height:1.5}
+.compose textarea:hover{border-color:var(--ink)}
+.compose textarea::placeholder{color:var(--ink-muted)}
+.compose .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.compose .row .cell{display:flex;flex-direction:column}
+.tact{margin-top:14px}
+.empty{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:8px 0 4px;font-size:.9375rem;font-weight:700;color:var(--ink-muted);text-wrap:pretty}
+.empty b{color:var(--ink);font-size:1rem;font-weight:900}
+.older{margin-top:8px}
+.dock{position:fixed;left:16px;right:16px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:19;display:flex}
+#app:not(.phone) .dock{left:calc(var(--railw) + 28px);right:28px;bottom:24px}
+#app.narrow:not(.phone) .page{padding-bottom:140px}
+.dock .btn{flex:1;min-height:56px;box-shadow:var(--lift-hi)}
+
+/* ---------- dialog: 修改注意事項 ---------- */
+.scrim{position:fixed;inset:0;z-index:70;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s var(--out)}
+@keyframes fade{from{opacity:0}}
+.dialog{width:min(620px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--lift-hi);padding:24px;display:flex;flex-direction:column;gap:18px;animation:pop .35s var(--out)}
+@keyframes pop{from{transform:translateY(16px);opacity:0}}
+.phone .scrim{align-items:flex-end;padding:0}
+.phone .dialog{border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:92dvh;padding:20px 18px calc(20px + env(safe-area-inset-bottom))}
+.dialog h2{font-size:1.375rem;font-weight:900;line-height:1.3}
+.dialog .lede{margin-top:4px;font-size:.9375rem;font-weight:600;color:var(--ink-muted)}
+.fs{border:0;display:flex;flex-direction:column;gap:10px}
+.fs legend{font-size:1rem;font-weight:900;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.tog{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px 0 12px;border-radius:999px;border:1.5px solid var(--control-border);background:var(--surface);font-weight:800;font-size:.9375rem;transition:transform .35s var(--spring),background-color .2s var(--out)}
+.tog:hover{border-color:var(--ink)}
+.tog:active{transform:scale(.96);transition-duration:.08s}
+.tog .box{width:18px;height:18px;border-radius:8px;border:1.5px solid var(--control-border);display:grid;place-items:center}
+.tog[aria-pressed="true"].s{background:var(--danger-solid);border-color:var(--danger-solid);color:var(--on-danger-solid)}
+.tog[aria-pressed="true"].c{background:var(--warning-bg);border-color:var(--warning);color:var(--warning)}
+.tog[aria-pressed="true"] .box{border-color:currentColor;background:currentColor}
+.tog[aria-pressed="true"] .box .ico{stroke:var(--surface);width:14px;height:14px;stroke-width:3}
+.tog[aria-pressed="true"].c .box .ico{stroke:var(--warning-bg)}
+.tog[aria-pressed="true"].s .box .ico{stroke:var(--danger-solid)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-size:.875rem;font-weight:800}
+.field input,.field textarea{width:100%;min-height:48px;border:1.5px solid var(--control-border);border-radius:var(--r-md);background:var(--surface);padding:10px 14px;font-size:.9375rem;font-weight:600}
+.field textarea{min-height:72px;resize:vertical;line-height:1.5}
+.field input:hover,.field textarea:hover{border-color:var(--ink)}
+.field input[aria-invalid="true"],.field textarea[aria-invalid="true"]{border-color:var(--danger)}
+.field .err{font-size:.8125rem;font-weight:800;color:var(--danger)}
+.field .lockbox{min-height:48px;display:flex;align-items:center;padding:0 12px;border-radius:var(--r-md);background:var(--sunk);border:1.5px dashed var(--control-border)}
+.diff{list-style:none;display:flex;flex-direction:column;gap:8px}
+.diff li{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:baseline;padding:12px 14px;border-radius:var(--r-md);background:var(--surface-2);border:1px solid var(--border);font-size:.9375rem;font-weight:700}
+.diff .k{font-weight:900}
+.diff .b{text-decoration:line-through;color:var(--ink-muted)}
+.diff .a{color:var(--ink)}
+.dbtns{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;align-items:flex-start;position:sticky;bottom:-24px;margin:0 -24px -24px;padding:14px 24px 24px;background:var(--surface);box-shadow:var(--lift-up)}
+.phone .dbtns{bottom:calc(-20px - env(safe-area-inset-bottom));margin:0 -18px calc(-20px - env(safe-area-inset-bottom));padding:12px 18px calc(20px + env(safe-area-inset-bottom))}
+.dbtns .cell{display:flex;flex-direction:column;align-items:flex-end}
+.phone .dbtns{flex-direction:column-reverse;align-items:stretch}
+.phone .dbtns .cell{align-items:stretch}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:12px;min-height:52px;max-width:min(520px,calc(100vw - 32px));padding:10px 18px;border-radius:var(--r-lg);background:var(--toast);color:var(--on-toast);box-shadow:var(--lift-hi);font-size:.9375rem;font-weight:700;animation:rise .35s var(--out)}
+#app.narrow ~ #layer .toast{bottom:100px}
+#app.phone ~ #layer .toast{bottom:calc(160px + env(safe-area-inset-bottom));width:calc(100vw - 32px)}
+@keyframes rise{from{transform:translate(-50%,16px);opacity:0}}
+
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-delay:0s !important;transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="原型控制（非產品介面）">
+  <b>S-04 寵物卡・互動原型</b><span class="muted">毛孩日和・中山店，資料全為虛構；體重與美容師為假設欄位</span>
+  <label>身分 <select id="p-role" data-key="p-role"><option value="desk">櫃台・阿凱</option><option value="groomer">美容照護・小葵</option><option value="mgr">店長・林店長</option></select></label>
+  <label>寵物 <select id="p-pet" data-key="p-pet"></select></label>
+  <label><input type="checkbox" id="p-off" data-key="p-off"> 離線</label>
+  <label>主題 <select id="p-theme" data-key="p-theme"><option value="">跟系統</option><option value="light">淺色</option><option value="dark">深色</option></select></label>
+</div>
+<div id="app"></div>
+<div id="layer"></div>
+<script>
+const I = {
+  board:'<path d="M4 5h16v14H4z"/><path d="M4 10h16M9 10v9"/>',
+  scan:'<path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/>',
+  send:'<path d="M20 4 3 11l7 2 2 7 8-16Z"/><path d="m10 13 4-4"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/>',
+  boardF:'<path d="M4 5h16v14H4z" fill="currentColor"/><path d="M4 10h16M9 10v9" style="stroke:var(--cut)"/>',
+  warn:'<path d="M12 4 2.5 20h19L12 4Z"/><path d="M12 10v4M12 17v.5"/>',
+  paw:'<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>',
+  back:'<path d="m14 6-6 6 6 6"/>',
+  check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  walk:'<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>',
+  chev:'<path d="m6 9 6 6 6-6"/>',
+  lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  pen:'<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
+  note:'<path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h4"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+  off:'<path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 4.2-2.6M12 8c3.2 0 6 1.2 7.9 3.1M12 20h.01"/>'
+};
+I.mark = '<circle cx="7" cy="10" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="17.5" cy="10" r="2"/><path d="M8.5 16.5c0-2.2 1.6-4 3.5-4s3.5 1.8 3.5 4c0 1.7-1.6 2-3.5 2s-3.5-.3-3.5-2Z"/>';
+const ic = (n, c = '') => `<svg class="ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${I[n]}</svg>`;
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = id => document.getElementById(id);
+
+/* ---------- demo data (fictional) ---------- */
+const DOW = '日一二三四五六';
+const dow = (m, d) => DOW[new Date(2026, m - 1, d).getDay()];
+const TODAY = {m:10, d:9};
+const CHECK_ITEMS = ['皮膚','耳朵','眼睛','指甲','毛結','外傷或腫塊'];
+const ROLES = {desk:{who:'阿凱', role:'櫃台'}, groomer:{who:'小葵', role:'美容照護'}, mgr:{who:'林店長', role:'店長'}};
+const SAFETY_PRESET = ['會咬人','會抓人','怕陌生人','護食'];
+const CARE_PRESET = ['怕吹風機','怕剪刀','需戴頭套','皮膚敏感','關節不好'];
+const STAGE = ['待報到','待記錄現況','服務中','待紀錄簽名','待收款','待接回'];
+const STAGE_CHIP = ['neutral','info','info','success','warning','success'];
+const LC = ['報到','現況','服務','完成','收款','離店'];
+/* visit tuple: [m, d, service, groomer, table, status, weight, findings, notes, why] */
+const V = (m, d, svc, by, res, st, w, ab, notes, why) => ({m, d, svc, by, res, st, w, ab: ab || {}, notes: (notes || []).map(([by, t, x]) => ({by, t, x})), why});
+const PETS0 = [
+  {id:'afu', name:'阿福', breed:'黃金獵犬', sex:'公', age:'6 歲', owner:'蔡先生', ph:'1180', chip:'已登記', photo:true,
+   src:'10/2 飼主在 LIFF 確認寵物資料',
+   safety:[{t:'會咬人', note:'剪指甲與吹耳朵時會咬，需兩人保定'}],
+   care:[{t:'怕吹風機', note:'改用低風量分段吹'}],
+   ill:'異位性皮膚炎，背部易起疹（服藥中）', allergy:'雞肉', internal:'飼主上次覺得剪太短，修剪長度先跟飼主確認',
+   today:{t:'11:00–13:30', svc:'精緻美容・大型犬', res:'美容台 A・阿哲', i:2, ab:{'耳朵':'右耳微紅，比上次好'}, w:'31.2', notes:[{by:'阿哲', t:'11:15', x:'右耳比上次好，仍有一點紅，已提醒飼主繼續點藥'}]},
+   visits:[
+     V(9,14,'精緻美容・大型犬','阿楷','美容台 C','done','32.1',{'耳朵':'右耳紅腫、有分泌物，請飼主帶去看醫生'},[['阿楷','15:40','吹風時躲，分三段低風量吹完，多花約 20 分鐘']]),
+     V(8,30,'基礎洗澡・大型犬','小葵','美容台 B','done','31.8',{},[['小葵','11:20','這次很配合，指甲兩人保定順利']]),
+     V(8,16,'精緻美容・大型犬','阿楷','美容台 C','cancel',null,null,null,'飼主改期'),
+     V(8,2,'精緻美容・大型犬','阿楷','美容台 C','done','31.6',{'皮膚':'背部紅疹兩處，改用院方藥浴'},[['阿楷','16:05','剪指甲時掙扎，下次先戴頭套再剪'],['林店長','16:30','已和飼主確認藥浴可以續用']]),
+     V(7,19,'基礎洗澡・大型犬','小葵','美容台 B','noshow',null,null,null,'逾時 30 分未到，已標記未到'),
+     V(7,5,'精緻美容・大型犬','阿楷','美容台 C','done','31.2',{'毛結':'後腿毛結多，剃短處理'},[['阿楷','15:10','後腿剃短，已跟飼主說明原因']]),
+     V(6,21,'基礎洗澡・大型犬','小葵','美容台 B','done','31.0'),
+     V(6,7,'精緻美容・大型犬','阿楷','美容台 C','done','30.8',{'指甲':'右前腳指甲斷裂，已修平'}),
+     V(5,24,'基礎洗澡・大型犬','小葵','美容台 B','done','30.9',{},[['小葵','12:00','很乖，洗完自己走去等飼主']]),
+     V(5,10,'精緻美容・大型犬','阿楷','美容台 C','done','30.5'),
+     V(4,26,'基礎洗澡・大型犬','小葵','美容台 B','done','30.4',{'耳朵':'耳垢多，已清潔'}),
+     V(4,12,'精緻美容・大型犬','阿楷','美容台 C','done','30.2',{},[['阿楷','15:30','第一次來店，吹風機會躲']])],
+   audit:[{at:'8/2 16:40', by:'林店長', role:'店長', why:'美容時差點咬到美容師，與飼主確認後新增',
+     ch:[{k:'新增安全', a:'會咬人'}, {k:'會咬人說明', b:'', a:'剪指甲與吹耳朵時會咬，需兩人保定', sens:true}]},
+     {at:'4/12 15:45', by:'阿凱', role:'櫃台', why:'第一次來店觀察', ch:[{k:'新增照護', a:'怕吹風機'}]}]},
+  {id:'huasheng', name:'花生', breed:'臘腸犬', sex:'母', age:'3 歲', owner:'何先生', ph:'3047', chip:'已登記', photo:false,
+   src:'9/20 飼主在平板確認寵物資料',
+   safety:[], care:[{t:'皮膚敏感', note:'只用低敏洗劑，洗後檢查腹部'}], ill:'無', allergy:'無', internal:'',
+   today:{t:'14:00–15:00', svc:'基礎洗澡・小型犬', res:'美容台 A・阿哲', i:0, notes:[]},
+   visits:[
+     V(9,20,'基礎洗澡・小型犬','小葵','美容台 B','done','5.1',{},[['小葵','14:50','用低敏洗劑，洗後沒有泛紅']]),
+     V(8,23,'基礎洗澡・小型犬','小葵','美容台 B','done','5.1',{'皮膚':'腹部微紅'}),
+     V(7,26,'基礎洗澡・小型犬','小葵','美容台 B','done','5.0')],
+   audit:[]},
+  {id:'buding', name:'布丁', breed:'柴犬', sex:'公', age:'4 歲', owner:'吳小姐', ph:'6610', chip:'已登記', photo:true,
+   src:'9/25 飼主在 LIFF 確認寵物資料',
+   safety:[], care:[], ill:'無', allergy:'無', internal:'', today:null,
+   visits:[
+     V(9,27,'精緻美容・中型犬','阿楷','美容台 C','done','9.6'),
+     V(8,29,'精緻美容・中型犬','阿楷','美容台 C','cancel',null,null,null,'飼主取消'),
+     V(7,31,'精緻美容・中型犬','阿楷','美容台 C','done','10.2',{},[['阿楷','16:20','換毛期，梳出很多底毛，建議兩週後洗澡']]),
+     V(6,28,'基礎洗澡・中型犬','小葵','美容台 B','done','10.1'),
+     V(5,30,'精緻美容・中型犬','阿楷','美容台 C','done','9.9',{'眼睛':'眼屎多，已清潔'})],
+   audit:[]},
+  {id:'heipi', name:'黑皮', breed:'米克斯', sex:'公', age:'2 歲', owner:'彭先生', ph:'8264', chip:'已登記', photo:true,
+   src:'10/9 飼主在平板確認寵物資料',
+   safety:[], care:[{t:'怕剪刀', note:'剪刀靠近臉部會掙扎，臉部改用電剪'}], ill:'無', allergy:'不確定', internal:'',
+   today:{t:'11:30–12:30', svc:'基礎洗澡・中型犬', res:'美容台 C・阿楷', i:1, from:'現場預約・阿凱 11:18 建立並報到', notes:[]},
+   visits:[], audit:[]}
+];
+/* every other pet on the today board gets a lighter card: who it is, its 注意事項 and health from M-03 (people and pets are M-03's), today from
+   M-02's 10/9 bookings and the past visits M-03 shows (M-02's, mirrored). Facts nobody recorded stay hidden: no weight or 現況 per visit, and the
+   修改紀錄 starts empty. 豆皮, Lucky and Momo exist only on the 10/5 board, so their facts come from there and they carry no history.
+   row: today [start, end, service, table, stage index if past 待報到]; h [[day offset from 10/9, time, service, table, 'noshow' | 'cancel' if not done]] */
+const LITE = [
+  {id:'doudou', name:'豆豆', breed:'臘腸犬', sex:'公', age:'7 歲', kg:5.4, sp:'犬', owner:'黃先生', ph:'5318', chip:'已登記', photo:true, by:'店家建立', safety:[['會咬人', '剪指甲時會咬，需兩人保定']], ill:'椎間盤突出（已手術，避免跳躍）', allergy:'無', internal:'住宿期間每天兩次確認後腿力氣', h:[[-10, '13:00', 'groom', 'C'], [-53, '11:00', 'bath', 'A']]},
+  {id:'xiaohei', name:'小黑', breed:'米克斯', sex:'公', age:'2 歲', kg:14, sp:'犬', owner:'林先生', ph:'2716', chip:'已登記', photo:true, care:[['怕吹風機', '吹風改低風量，分三段吹']], ill:'無', allergy:'不確定', today:['10:30', '12:30', 'groom', 'B', 1], h:[[-22, '15:00', 'bath', 'B']]},
+  {id:'naicha', name:'奶茶', breed:'博美', sex:'母', age:'4 歲', kg:2.8, sp:'犬', owner:'李小姐', ph:'4471', chip:'已登記', photo:true, ill:'', allergy:'', h:[[-3, '10:00', 'nail', 'B', 'noshow'], [-10, '16:00', 'nail', 'A'], [-47, '16:30', 'spa', 'A']]},
+  {id:'xiaomi', name:'小米', breed:'柯基', sex:'公', age:'3 歲', kg:11.8, sp:'犬', owner:'鄭小姐', ph:'7702', chip:'已登記', photo:true, safety:[['護食', '服務中不要給零食，碗靠近會撲咬']], care:[['關節不好', '抱上美容台要托住後腿']], ill:'髖關節發育不良（觀察中）', allergy:'無', today:['14:00', '15:00', 'bath', 'B'], h:[[-20, '11:00', 'bath', 'C'], [-52, '14:30', 'spa', 'B'], [-94, '12:30', 'bath', 'B']]},
+  {id:'maomao', name:'毛毛', breed:'貴賓犬', sex:'母', age:'5 歲', kg:4.2, sp:'犬', owner:'王太太', ph:'8821', chip:'已登記', photo:true, care:[['怕剪刀', '剪刀靠近臉部會掙扎，臉部改用電剪']], ill:'無', allergy:'無', h:[[-15, '12:30', 'nail', 'C'], [-54, '14:00', 'groom', 'C'], [-96, '15:30', 'bath', 'C'], [-124, '16:00', 'nail', 'A', 'noshow']]},
+  {id:'qiuqiu', name:'球球', breed:'比熊', sex:'母', age:'8 歲', kg:4.6, sp:'犬', owner:'許小姐', ph:'3390', chip:'已登記', photo:true, care:[['怕陌生人', '先讓牠聞手再抱']], ill:'氣管塌陷（避免勒頸）', allergy:'無', today:['16:00', '18:00', 'spa', 'A'], h:[[-13, '14:30', 'nail', 'C'], [-50, '15:30', 'nail', 'C']]},
+  {id:'lele', name:'樂樂', breed:'迷你雪納瑞', sex:'公', age:'1 歲', kg:7.2, sp:'犬', owner:'謝小姐', ph:'5562', chip:'已登記', ill:'', allergy:'', h:[[-1, '12:30', 'groom', 'B', 'noshow'], [-13, '16:00', 'groom', 'B'], [-38, '16:30', 'spa', 'C']]},
+  {id:'heitang', name:'黑糖', breed:'米克斯', sex:'公', age:'4 歲', kg:15.6, sp:'犬', owner:'劉先生', ph:'3055', chip:'已登記', photo:true, ill:'', allergy:'', h:[[-3, '15:00', 'groom', 'A'], [-13, '12:00', 'groom', 'C'], [-52, '14:00', 'bath', 'A'], [-87, '12:30', 'spa', 'C'], [-122, '14:00', 'bath', 'C', 'noshow']]},
+  {id:'mimi', name:'咪咪', breed:'英國短毛貓', sex:'母', age:'9 歲', kg:4.4, sp:'貓', owner:'張太太', ph:'0112', chip:'未登記', photo:true, ill:'', allergy:'', h:[[-10, '11:30', 'groom', 'C'], [-59, '10:30', 'nail', 'A']]},
+  {id:'tangtang', name:'糖糖', breed:'馬爾濟斯', sex:'母', age:'5 歲', kg:3.2, sp:'犬', owner:'郭太太', ph:'4126', chip:'已登記', photo:true, ill:'', allergy:'', h:[[-15, '13:00', 'groom', 'C'], [-40, '11:00', 'bath', 'A']]},
+  {id:'tangyuan', name:'湯圓', breed:'比熊', sex:'公', age:'4 歲', kg:5.6, sp:'犬', owner:'王先生', ph:'2664', chip:'已登記', ill:'', allergy:'', today:['10:30', '11:30', 'bath', 'C'], h:[[-18, '11:00', 'bath', 'A'], [-56, '14:30', 'spa', 'C'], [-106, '12:30', 'bath', 'C']]},
+  {id:'mochi', name:'麻糬', breed:'西施犬', sex:'母', age:'6 歲', kg:5.9, sp:'犬', owner:'游小姐', ph:'4870', chip:'已登記', ill:'', allergy:'', today:['12:30', '14:30', 'groom', 'C'], h:[[-17, '13:00', 'groom', 'B'], [-64, '11:30', 'spa', 'C'], [-101, '14:30', 'groom', 'B'], [-129, '15:30', 'bath', 'B'], [-168, '16:00', 'nail', 'C'], [-203, '16:30', 'groom', 'A']]},
+  {id:'pipi', name:'皮皮', breed:'吉娃娃', sex:'公', age:'9 歲', kg:2.1, sp:'犬', owner:'曾先生', ph:'7133', chip:'已登記', by:'店家建立', ill:'心雜音（定期追蹤）', allergy:'', internal:'保定時間不要超過 10 分鐘', today:['15:00', '15:30', 'nail', 'C'], h:[[-13, '14:30', 'groom', 'B'], [-50, '15:30', 'nail', 'C']]},
+  {id:'mantou', name:'饅頭', breed:'馬爾濟斯', sex:'公', age:'6 歲', kg:3.9, sp:'犬', owner:'段小姐', ph:'8166', chip:'已登記', ill:'無', allergy:'無', h:[[-19, '11:30', 'groom', 'A'], [-54, '10:00', 'groom', 'B'], [-103, '10:00', 'bath', 'A'], [-155, '13:00', 'bath', 'A'], [-201, '11:00', 'groom', 'B']]},
+  {id:'kabi', name:'卡比', breed:'柴犬', sex:'公', age:'5 歲', kg:10.4, sp:'犬', owner:'苗小姐', ph:'4487', chip:'已登記', ill:'無', allergy:'無', h:[[-26, '13:00', 'bath', 'B'], [-64, '15:00', 'bath', 'A'], [-115, '16:30', 'nail', 'A']]},
+  {id:'mahua', name:'麻花', breed:'西施犬', sex:'母', age:'4 歲', kg:5.7, sp:'犬', owner:'史太太', ph:'4244', chip:'已登記', ill:'無', allergy:'無', h:[[-17, '16:30', 'nail', 'B'], [-70, '16:00', 'groom', 'B'], [-123, '16:00', 'bath', 'B'], [-161, '16:00', 'nail', 'C'], [-211, '16:00', 'nail', 'C'], [-264, '13:30', 'spa', 'C']]},
+  {id:'bobo', name:'波波', breed:'比熊', sex:'公', age:'3 歲', kg:5.2, sp:'犬', owner:'范小姐', ph:'4416', chip:'已登記', ill:'無', allergy:'無', h:[[-25, '10:00', 'groom', 'B'], [-76, '13:00', 'bath', 'C'], [-115, '15:30', 'groom', 'B'], [-165, '16:30', 'nail', 'B', 'noshow']]},
+  {id:'moka', name:'摩卡', breed:'貴賓犬', sex:'公', age:'5 歲', kg:6.2, sp:'犬', owner:'錢先生', ph:'6129', chip:'已登記', ill:'無', allergy:'無', h:[[-7, '12:00', 'groom', 'C'], [-52, '14:00', 'bath', 'A'], [-96, '12:00', 'bath', 'C'], [-140, '11:00', 'nail', 'C', 'noshow']]},
+  {id:'subing', name:'酥餅', breed:'貴賓犬', sex:'母', age:'9 歲', kg:4.4, sp:'犬', owner:'祁太太', ph:'4550', chip:'已登記', ill:'無', allergy:'無', h:[[-15, '14:30', 'nail', 'A'], [-46, '15:00', 'groom', 'A']]},
+  {id:'dounai', name:'豆奶', breed:'貴賓犬', sex:'母', age:'2 歲', kg:3.9, sp:'犬', owner:'姜先生', ph:'6663', chip:'已登記', ill:'無', allergy:'無', h:[[-24, '15:00', 'groom', 'C'], [-66, '12:00', 'bath', 'B'], [-94, '11:00', 'bath', 'C'], [-134, '14:00', 'spa', 'C'], [-162, '12:00', 'nail', 'B'], [-187, '11:30', 'groom', 'C']]},
+  {id:'heidou', name:'黑豆', breed:'臘腸犬', sex:'公', age:'10 歲', kg:5.5, sp:'犬', owner:'牛小姐', ph:'4334', chip:'已登記', ill:'無', allergy:'無', h:[[-25, '11:30', 'nail', 'A'], [-76, '10:30', 'nail', 'A'], [-106, '13:00', 'spa', 'A'], [-131, '15:00', 'groom', 'B', 'noshow']]},
+  {id:'oudi', name:'歐弟', breed:'貴賓犬', sex:'母', age:'9 歲', kg:4.4, sp:'犬', owner:'樊太太', ph:'1788', chip:'已登記', ill:'無', allergy:'無', h:[[-10, '16:00', 'spa', 'B'], [-50, '13:30', 'spa', 'B'], [-101, '11:00', 'bath', 'C'], [-154, '14:00', 'nail', 'B'], [-200, '12:00', 'bath', 'A']]},
+  {id:'mangguo', name:'芒果', breed:'米克斯', sex:'母', age:'4 歲', kg:11.4, sp:'犬', owner:'侯先生', ph:'4812', chip:'已登記', ill:'無', allergy:'無', h:[[-13, '14:00', 'groom', 'A'], [-62, '15:00', 'bath', 'B']]},
+  {id:'keke', name:'可可', breed:'米克斯', sex:'母', age:'3 歲', kg:10.2, sp:'犬', owner:'洪先生', ph:'3081', chip:'已登記', ill:'', allergy:'', h:[[-7, '13:00', 'groom', 'B'], [-40, '11:00', 'bath', 'C'], [-81, '14:30', 'nail', 'B'], [-109, '15:30', 'groom', 'B', 'noshow']]},
+  {id:'naiyou', name:'奶油', breed:'馬爾濟斯', sex:'母', age:'7 歲', kg:3.1, sp:'犬', owner:'邱小姐', ph:'9360', chip:'已登記', ill:'', allergy:'', h:[[-24, '16:30', 'spa', 'B'], [-56, '13:30', 'nail', 'B'], [-104, '11:00', 'spa', 'C']]},
+  {id:'niangao', name:'年糕', breed:'米克斯', sex:'母', age:'6 歲', kg:4.6, sp:'貓', owner:'王太太', ph:'8821', chip:'已登記', care:[['需戴頭套', '剪指甲前先戴頭套']], ill:'無', allergy:'無', h:[[-22, '11:30', 'bath', 'A'], [-73, '14:00', 'groom', 'C'], [-126, '12:30', 'groom', 'C']]},
+  {id:'cola', name:'可樂', breed:'法鬥', sex:'公', age:'3 歲', kg:12.4, sp:'犬', owner:'楊小姐', ph:'0552', chip:'已登記', care:[['皮膚敏感', '皺褶處洗後要吹乾']], ill:'', allergy:'', today:['17:00', '19:00', 'groom', 'B'], h:[[-8, '15:00', 'bath', 'A']]},
+  {id:'yutou', name:'芋頭', breed:'米克斯', sex:'公', age:'4 歲', kg:5.3, sp:'貓', owner:'何志明', ph:'3047', chip:'未登記', ill:'無', allergy:'無', h:[[-19, '12:00', 'groom', 'C'], [-45, '14:30', 'groom', 'A']]},
+  {id:'doupi', name:'豆皮', breed:'柴犬', owner:'林小姐', ph:'0640', photo:true, board:true, ill:'', allergy:'', h:[]},
+  {id:'lucky', name:'Lucky', breed:'迷你雪納瑞', owner:'周先生', ph:'0093', photo:true, board:true, ill:'', allergy:'', h:[]},
+  {id:'momo', name:'Momo', breed:'貴賓犬', owner:'陳先生', ph:'2207', photo:true, board:true, safety:[['會咬人', '']], care:[['需戴頭套', '']], ill:'', allergy:'', h:[]}
+];
+const SVC_N = {bath:'基礎洗澡', groom:'洗澡＋剪毛', spa:'精緻美容', nail:'修指甲'};
+const TABLE_BY = {A:'阿哲', B:'小葵', C:'阿楷'};
+const sizeOf = r => r.sp === '貓' ? '貓' : r.kg < 9 ? '小型犬' : r.kg < 25 ? '中型犬' : '大型犬';
+const svcOf = (r, k) => k === 'nail' ? SVC_N.nail : `${SVC_N[k]}・${sizeOf(r)}`;
+const liteVisit = (r, [off, t, k, tb, st]) => { const x = new Date(2026, TODAY.m - 1, TODAY.d + off);
+  return {m:x.getMonth() + 1, d:x.getDate(), svc:svcOf(r, k), by:TABLE_BY[tb], res:`美容台 ${tb}`, st:st || 'done', w:null, ab:null, notes:[], why:st === 'noshow' ? '已標記未到' : st ? '預約已取消' : undefined}; };
+const lite = r => ({id:r.id, name:r.name, breed:r.breed, sex:r.sex || '', age:r.age || '', kg:r.kg, owner:r.owner, ph:r.ph, chip:r.chip || '—', photo:!!r.photo, lite:true, board:!!r.board,
+  src:r.board ? '資料來自今日看板的預約' : r.by ? `${r.by}的寵物資料` : '飼主在 LIFF 填寫的寵物資料',
+  safety:(r.safety || []).map(([t, note]) => ({t, note})), care:(r.care || []).map(([t, note]) => ({t, note})),
+  ill:r.ill || '未填', allergy:r.allergy || '未填', internal:r.internal || '',
+  today:r.today ? {t:`${r.today[0]}–${r.today[1]}`, svc:svcOf(r, r.today[2]), res:`美容台 ${r.today[3]}・${TABLE_BY[r.today[3]]}`, i:r.today[4] || 0, notes:[]} : null,
+  visits:r.h.map(v => liteVisit(r, v)), audit:[]});
+PETS0.push(...LITE.map(lite));
+const clone = o => JSON.parse(JSON.stringify(o));
+/* 阿福的過敏 (prototypes/allergy): ?life=afu-desk (10:50, 櫃台阿凱 before 阿福 arrives), afu-groom (11:05, 美容師阿哲 before he starts) and
+   afu-note (13:20, 阿哲 writing today's note) show 阿福's card on 10/9（五） after 陳老闆 changed the allergy to 雞肉、牛肉 at 09:40 in M-03. The
+   美容照護 is 阿哲, 阿福's groomer on 美容台 A in M-02; the 現況 is what 阿凱 recorded at 10:56 on the today board. Without ?life= nothing changes. */
+const LIFE = (v => ['afu-desk', 'afu-groom', 'afu-note'].includes(v) ? v : null)(new URLSearchParams(location.search).get('life'));
+const LIFE_NOW = LIFE && {'afu-desk':'10:50', 'afu-groom':'11:05', 'afu-note':'13:20'}[LIFE];
+const lifeSay = k => { if (LIFE && parent !== window) try { parent.postMessage({pp:'life', act:LIFE, done:k}, location.origin); } catch (e) { /* opened on its own */ } };
+if (LIFE) {
+  ROLES.groomer.who = '阿哲';
+  const a = PETS0.find(p => p.id === 'afu');
+  a.allergy = '雞肉、牛肉';
+  a.audit.unshift({at:'10/9 09:40', by:'陳老闆', role:'店家管理者', why:'飼主今天告知', ch:[{k:'過敏', b:'雞肉', a:'雞肉、牛肉', sens:true}]});
+  /* today's 現況 is what the today board saved in act 3 (same tab, same origin); opened on its own, the story's own words */
+  let ck = null; try { ck = JSON.parse(sessionStorage.getItem('pp-life-afu-check') || 'null'); } catch (e) { /* private mode */ }
+  const ab = ck && ck.ab ? Object.fromEntries(Object.entries(ck.ab).map(([k, n]) => [k, n || '異常'])) : {'皮膚':'背部兩處紅疹，會癢'};
+  a.today = LIFE === 'afu-desk' ? {...a.today, i:0, ab:{}, notes:[]} : {...a.today, i:2, ab, notes:[]};
+}
+
+/* ---------- state ---------- */
+const state = {role:'desk', pet:'afu', missing:null, offline:false, phone:false, narrow:false, composing:false, draft:'', older:false, logOpen:false, edit:null, toast:null};
+let PETS = clone(PETS0);
+/* opened from a board on another day (the 10/5 board, or a story's moved board, ?day=M-D): the card shows that day. The board's own row
+   (?t, svc, res, i = its lifecycle step, st = its stage words) becomes 今天, and visits from after that day are not history yet.
+   A board on the card's own 10/9, or no ?day=, changes nothing. */
+const BQ = new URLSearchParams(location.search), BD = (BQ.get('day') || '').match(/^(\d{1,2})-(\d{1,2})$/);
+const DAY = BD ? {m:+BD[1], d:+BD[2]} : TODAY;
+if (DAY.m !== TODAY.m || DAY.d !== TODAY.d) {
+  const before = v => v.m < DAY.m || (v.m === DAY.m && v.d < DAY.d);
+  PETS.forEach(p => { p.visits = p.visits.filter(before); p.today = null; });
+  const p = PETS.find(x => x.id === BQ.get('pet'));
+  if (p && BQ.get('t')) p.today = {t:BQ.get('t'), svc:BQ.get('svc') || '', res:BQ.get('res') || '', i:Math.max(0, Math.min(5, +BQ.get('i') || 0)), st:BQ.get('st') || '', notes:[]};
+}
+const pet = () => PETS.find(p => p.id === state.pet);
+const me = () => ROLES[state.role];
+const canSens = () => state.role !== 'desk';
+const canEdit = () => state.role !== 'groomer';
+const bigText = () => parseFloat(getComputedStyle(document.documentElement).fontSize) >= 24;
+/* 櫃台 can add a safety tag but never take one the pet already has away: they cannot read why it is there (decided 2026-10-17) */
+const lockedSafety = (kind, t) => kind === 'safety' && !canSens() && pet().safety.some(x => x.t === t);
+const nowT = () => { if (LIFE_NOW) return LIFE_NOW; const d = new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+const lastW = p => p.today?.w || p.visits.find(v => v.w)?.w || p.kg;
+
+/* ---------- pieces ---------- */
+/* a lock and the words, no outline: it reads as a statement, never as a button */
+const masked = (what, shown) => `<span class="masked" role="img" aria-label="${esc(what)}已遮罩，需敏感資料權限">${ic('lock')}${shown ? `${esc(shown)}・` : ''}需敏感資料權限</span>`;
+const imgOf = p => p.photo ? `<img src="pets/${p.id}.webp" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ini',textContent:'${esc(p.name[0])}'}))">` : `<span class="ini" aria-hidden="true">${esc(p.name[0])}</span>`;
+/* 臉環 lights only when the pet has a visit today; other days the face is just the pet */
+function face(p) {
+  const badge = p.safety.length ? `<span class="badge">${ic('warn')}</span>` : '';
+  if (!p.today) return `<span class="face plain" role="img" aria-label="${esc(p.name)}的照片">${imgOf(p)}${badge}</span>`;
+  const t = p.today, active = t.i === 2;
+  const segs = LC.map((l, i) => `<circle cx="50" cy="50" r="46" pathLength="600" class="${i < t.i ? 'done' : i === t.i ? 'cur' : ''}" stroke-dasharray="82 600" stroke-dashoffset="${-(i * 100 + 9)}" style="--dash:82"/>`).join('');
+  return `<span class="face" role="img" aria-label="${esc(p.name)}今天的進度：已完成 ${t.i} / 6，現在：${LC[t.i]}${active ? '進行中' : '待處理'}"><svg viewBox="0 0 100 100" aria-hidden="true">${segs}</svg>${imgOf(p)}${badge}<span class="step" aria-hidden="true">${t.i}/6</span></span>`;
+}
+const tag = (k, t) => k === 'safety' ? `<span class="tag safety">${ic('warn','sm')}${esc(t)}</span>` : `<span class="tag care">${ic('paw','sm')}${esc(t)}</span>`;
+const phoneMask = ph => `<span aria-label="手機末四碼 ${ph.split('').join(' ')}">••••${ph}</span>`;
+
+function whoPanel(p) {
+  const t = p.today, w = lastW(p);
+  return `<section class="panel" aria-labelledby="pet-name"><div class="who">${face(p)}<div>
+      <h1 id="pet-name" tabindex="-1">${esc(p.name)}</h1><span class="breed">${[p.breed, p.sex, p.age].filter(Boolean).map(esc).join('・')}</span>
+      ${p.safety.length ? `<div class="who-tags" aria-label="安全注意">${p.safety.map(x => tag('safety', x.t)).join('')}</div>` : ''}</div></div>
+    <div class="facts"><span>飼主 <b>${esc(p.owner)}</b>・${phoneMask(p.ph)}</span><span>晶片 <b>${p.chip}</b></span><span>體重 <b>${w ? w + ' kg' : '—'}</b></span><span>來店 <b>${p.visits.filter(v => v.st === 'done').length + (t ? 1 : 0)} 次</b></span></div>
+    <div class="today-line">${t ? `<span class="chip ${STAGE_CHIP[t.i]}">${t.st || STAGE[t.i]}</span><span class="t">今天 ${t.t}</span><span>${esc(t.svc)}</span><span class="muted">${esc(t.res)}</span>`
+      : '<span class="chip neutral">今天沒有預約</span>'}</div></section>`;
+}
+
+function bandPanel(p) {
+  const sens = canSens(), n = p.safety.length + p.care.length;
+  const safeRows = p.safety.map(x => `<li class="nrow">${tag('safety', x.t)}<span class="say">${sens ? esc(x.note || '（沒有說明）') : masked(x.t + '的說明')}</span></li>`).join('');
+  const careRows = p.care.map(x => `<li class="nrow">${tag('care', x.t)}<span class="say${x.note ? '' : ' quiet'}">${esc(x.note || '沒有說明')}</span></li>`).join('');
+  const val = (k, v) => sens ? `<dd>${esc(v || '無')}</dd>` : `<dd>${masked(k)}</dd>`;
+  const internal = p.internal || !sens ? `<div class="internal"><h3>${ic('note','sm')}內部備註</h3>${sens ? `<p>${esc(p.internal)}</p>` : masked('內部備註')}</div>` : '';
+  const foot = canEdit()
+    ? (state.offline ? `<button class="btn secondary" aria-disabled="true" aria-describedby="ed-r" data-key="edit">${ic('pen','sm')}修改注意事項</button><span class="reason" id="ed-r">修改注意事項需連線</span>`
+      : `<button class="btn secondary" data-key="edit" data-do="openEdit">${ic('pen','sm')}修改注意事項</button>`)
+    : `<span class="reason">注意事項由櫃台或店長修改。看到不對的地方，請告訴櫃台。</span>`;
+  const logN = p.audit.length;
+  return `<section class="panel band" aria-labelledby="h-band">
+    <div class="panel-h"><h2 id="h-band">注意事項${n ? `<span class="cnt${p.safety.length ? ' hot' : ''}" aria-label="${n} 個標籤">${n}</span>` : ''}</h2>${sens ? '' : `<span class="maskcnt">${n ? `${n} 個標籤・` : ''}${p.safety.length + 3} 項已遮</span>`}</div>
+    ${sens ? '' : `<p class="mask-note">${ic('lock','sm')}<span>櫃台看得到標籤和照護說明；攻擊性說明、病史、過敏、內部備註，以及每次來店的現況說明與服務備註會遮住。需要細節請找店長或美容照護人員。</span></p>`}
+    <p class="src">${esc(p.src)}</p>
+    ${safeRows ? `<ul class="safe-rows" aria-label="安全注意">${safeRows}</ul>` : ''}
+    ${careRows ? `<ul class="care-rows" aria-label="照護需求">${careRows}</ul>` : ''}
+    ${n ? '' : '<p class="none">這隻寵物沒有特別注意事項。</p>'}
+    <div class="health"${n ? ' style="border-top:1px solid var(--border)"' : ''}><h3>${ic('heart','sm')}健康</h3><dl class="dl"><dt>疾病史</dt>${val('疾病史', p.ill)}<dt>過敏</dt>${val('過敏', p.allergy)}</dl></div>
+    ${internal}
+    <div class="band-foot">${foot}${logN ? `<button class="textbtn" data-key="log" data-do="toggleLog" aria-expanded="${state.logOpen}" aria-controls="log-l">${ic('clock','sm')}修改紀錄<span class="cnt">${logN}</span></button>` : '<span class="nolog" data-key="log-none">還沒有異動紀錄</span>'}</div>
+    ${logN && state.logOpen ? `<div style="padding:0 22px 22px"><ul class="log" id="log-l">${p.audit.map(logRow).join('')}</ul></div>` : ''}
+  </section>`;
+}
+function logRow(r) {
+  const chg = c => {
+    if (c.sens && !canSens()) return `<li class="chg">${esc(c.k)}已修改<span class="masked" style="padding:1px 8px">${ic('lock')}內容已遮罩</span></li>`;
+    if (c.b === undefined) return `<li class="chg">${esc(c.k)}「${esc(c.a)}」</li>`;
+    return `<li class="chg">${esc(c.k)}：${c.b ? `<span class="b">${esc(c.b)}</span><span aria-hidden="true">→</span>` : ''}<span>${esc(c.a || '（清空）')}</span></li>`;
+  };
+  return `<li><div class="lh"><span>${esc(r.at)}</span><span>${esc(r.by)}（${esc(r.role)}）</span></div><ul>${r.ch.map(chg).join('')}</ul><p class="why">原因：${esc(r.why)}</p></li>`;
+}
+
+/* what a check found and what the groomer wrote are health and handling detail, so 櫃台 sees which item and that a note exists,
+   never the words (decided 2026-10-17: 現況說明 and 服務備註 join the sensitive set) */
+function findings(ab, label) {
+  const keys = Object.keys(ab), okN = CHECK_ITEMS.length - keys.length;
+  if (!keys.length) return `<div class="vcheck"><span class="ok">${label}：${CHECK_ITEMS.length} 項正常</span></div>`;
+  const what = k => canSens() ? esc(ab[k]) : '';
+  return `<div class="vcheck"><span class="ok">${label}：</span>${keys.map(k => `<span class="find"><span class="tag finding">${ic('warn','sm')}${esc(k)}${canSens() ? '' : '異常'}</span>${what(k)}</span>`).join('')}${canSens() ? '' : masked(`${label}說明`)}<span class="ok">其餘 ${okN} 項正常</span></div>`;
+}
+/* a clerk still reads the notes they wrote themselves; everyone else's are counted and locked */
+const noteList = ns => {
+  if (!ns.length) return '';
+  const mine = n => n.by === me().who, open = canSens() ? ns : ns.filter(mine), shut = ns.length - open.length;
+  return `<ul class="vnotes">${open.map(n => `<li>${esc(n.x)}<small>${esc(n.by)}・${esc(n.t)}${n.pending ? '<span class="chip warning">待同步</span>' : ''}</small></li>`).join('')}${shut ? `<li class="shut">${masked(`${shut} 則服務備註`, `服務備註 ${shut} 則`)}<small>${[...new Set(ns.filter(n => !mine(n)).map(n => n.by))].map(esc).join('、')}</small></li>` : ''}</ul>`;
+};
+
+function todayEntry(p) {
+  const t = p.today;
+  const c = state.composing, empty = !state.draft.trim();
+  const save = empty ? `<div class="cell"><button class="btn" aria-disabled="true" aria-describedby="cp-r" data-key="cp-save">儲存備註</button><span class="reason" id="cp-r">先寫下備註內容</span></div>`
+    : `<div class="cell"><button class="btn primary" data-key="cp-save" data-do="saveNote">儲存備註</button>${state.offline ? '<span class="reason">目前離線：先存在這台裝置，連線後自動同步</span>' : ''}</div>`;
+  const comp = c ? `<div class="compose"><label for="cp">今天的服務備註</label>
+      <textarea id="cp" data-key="cp" placeholder="例：吹風時會躲，改低風量；右耳仍微紅">${esc(state.draft)}</textarea>
+      <div class="row">${save}<div class="cell"><button class="btn secondary" data-key="cp-no" data-do="cancelNote">取消</button></div></div></div>`
+    : (state.phone || state.narrow) && !bigText() ? '' : `<div class="tact"><button class="btn primary" data-key="add" data-do="openNote">${ic('plus','sm')}新增服務備註</button></div>`;
+  return `<li class="visit today" id="today-entry"><div>
+    <div class="tday"><b>今天</b><span class="t">${DAY.m}/${DAY.d}（${dow(DAY.m, DAY.d)}）${t.t}</span><span class="chip ${STAGE_CHIP[t.i]}">${t.st || STAGE[t.i]}</span></div>
+    <div class="vh"><span class="svc">${esc(t.svc)}</span><span class="by">${esc(t.res)}</span></div>
+    ${t.from ? `<p class="src-line">${esc(t.from)}</p>` : ''}
+    ${t.i >= 2 ? findings(t.ab || {}, '今天現況') : `<div class="vcheck"><span class="ok">${t.i === 0 ? '報到後記錄現況' : '現況還沒記錄，記錄後才能開始服務'}</span></div>`}
+    ${noteList(t.notes)}${comp}</div></li>`;
+}
+function visitRow(v) {
+  const date = `<div class="vdate"><b>${v.m}/${v.d}</b><small>週${dow(v.m, v.d)}</small></div>`;
+  if (v.st !== 'done') return `<li class="visit off">${date}<div><div class="vh"><span class="svc">${esc(v.svc)}</span><span class="chip ${v.st === 'noshow' ? 'danger' : 'neutral'}">${v.st === 'noshow' ? '未到' : '已取消'}</span></div><div class="vcheck"><span class="ok">${esc(v.why)}</span></div></div></li>`;
+  return `<li class="visit">${date}<div><div class="vh"><span class="svc">${esc(v.svc)}</span><span class="by">${esc(v.by)}・${esc(v.res)}${v.w ? `・${v.w} kg` : ''}</span></div>${v.ab ? findings(v.ab, '現況') : ''}${noteList(v.notes)}</div></li>`;
+}
+const SHOW = 5;
+function visitsPanel(p) {
+  const list = state.older ? p.visits : p.visits.slice(0, SHOW), more = p.visits.length - list.length;
+  const empty = p.visits.length ? '' : p.board ? `<li class="empty"><b>沒有來店紀錄</b>這隻寵物只在今日看板的示範資料裡，原型沒有牠過去的來店紀錄。</li>` : `<li class="empty"><b>第一次來店</b>服務完成後，現況紀錄與服務備註會出現在這裡。</li>`;
+  const noToday = !p.today ? `<li class="empty" style="padding-bottom:14px"><b>今天沒有預約</b>服務備註要記在當次預約上，下次來店時就能在這裡新增。</li>` : '';
+  return `<section class="panel" aria-labelledby="h-visits"><div class="panel-h"><h2 id="h-visits">歷次來店<span class="cnt">${p.visits.length + (p.today ? 1 : 0)}</span></h2><span class="aside">新的在上面</span></div>
+    <ol class="visits">${p.today ? todayEntry(p) : noToday}${list.map(visitRow).join('')}${empty}</ol>
+    ${more ? `<button class="textbtn older" data-key="older" data-do="showOlder">${ic('chev','sm')}顯示更早 ${more} 筆</button>` : ''}</section>`;
+}
+
+function rail() {
+  const it = (k, l, icon, cur) => `<button class="rail-item" data-key="nav-${k}" data-do="nav" ${cur ? 'aria-current="page"' : ''}>${ic(cur ? icon + 'F' : icon, 'lg')}<span>${l}</span></button>`;
+  return `<nav class="rail" aria-label="主導覽"><div class="mark" aria-hidden="true">${ic('mark')}</div>${it('board','今日看板','board',true)}${it('search','掃 QR / 查詢預約','scan')}${it('notify','通知補發','send')}${it('me','個人帳號','user')}</nav>`;
+}
+function bnav() {
+  const it = (k, l, icon, cur) => `<button data-key="nav-${k}" data-do="nav" ${cur ? 'aria-current="page"' : ''}>${ic(cur ? icon + 'F' : icon)}<span>${l}</span></button>`;
+  return `<nav class="bnav" aria-label="主導覽">${it('board','看板','board',true)}${it('search','掃碼查詢','scan')}${it('walk','新增現場預約','walk')}${it('me','我的','user')}</nav>`;
+}
+
+/* ---------- render ---------- */
+function missingView() {
+  return `<main><div class="page"><section class="panel missing" aria-labelledby="nf-h"><h1 id="nf-h" tabindex="-1">找不到這隻寵物</h1>
+    <p>寵物卡沒有這隻寵物的資料（代號「${esc(state.missing)}」）。可能是剛建立的現場預約還沒同步，回今日看板重新整理後再點一次；還是找不到，請店長到客戶與寵物查詢。</p>
+    <div class="acts"><a class="btn primary" href="../today-board/index.html" data-key="nf-board">${ic('back','sm')}回今日看板</a>${history.length > 1 ? `<button class="btn secondary" data-key="nf-back" data-do="goBack">回上一頁</button>` : ''}</div></section></div></main>`;
+}
+function render(focusKey) {
+  const p = pet(), app = $('app');
+  if (state.missing) { app.className = state.phone ? 'phone' : state.narrow ? 'narrow' : ''; app.innerHTML = `${state.phone ? '' : rail()}${missingView()}${state.phone ? bnav() : ''}`; return; }
+  const keep = focusKey || document.activeElement?.dataset?.key;
+  app.className = state.phone ? 'phone' : state.narrow ? 'narrow' : '';
+  /* at 150% text and up a docked button would sit on the 注意事項: it goes back into the today entry instead */
+  const dock = (state.phone || state.narrow) && !bigText() && p.today && !state.composing ? `<div class="dock" role="region" aria-label="下一步"><button class="btn primary" data-key="add" data-do="openNote">${ic('plus','sm')}新增服務備註</button></div>` : '';
+  app.innerHTML = `${state.phone ? '' : rail()}<main>
+    <div class="page"><button class="back" data-key="back" data-do="nav">${ic('back')}今日看板</button>
+      ${state.offline ? `<p class="mask-note" style="margin:8px 0 0">${ic('off','sm')}<span>目前離線，顯示的是最後同步的資料。可以新增服務備註，連線後自動同步。</span></p>` : ''}
+      <div class="grid"><div class="lcol">${whoPanel(p)}${bandPanel(p)}</div><div class="rcol">${visitsPanel(p)}</div></div>
+    </div></main>${dock}${state.phone ? bnav() : ''}`;
+  if (keep) { const el = app.querySelector(`[data-key="${keep}"]`); if (el && el !== document.activeElement) el.focus({preventScroll: true}); }
+}
+function say(text) {
+  clearTimeout(say.t); state.toast = text;
+  const l = $('layer'); l.querySelector('.toast')?.remove();
+  l.insertAdjacentHTML('beforeend', `<div class="toast" role="status">${esc(text)}</div>`);
+  say.t = setTimeout(() => l.querySelector('.toast')?.remove(), 3200);
+}
+
+/* ---------- 修改注意事項 ---------- */
+function openEdit() {
+  const p = pet();
+  state.edit = {step:'form', err:{}, why:'',
+    safety: Object.fromEntries(p.safety.map(x => [x.t, x.note])), care: Object.fromEntries(p.care.map(x => [x.t, x.note])),
+    ill:p.ill, allergy:p.allergy, internal:p.internal, ret: document.activeElement?.dataset?.key || 'edit'};
+  renderEdit('ed-title');
+}
+function diffOf() {
+  const p = pet(), e = state.edit, out = [];
+  const cmp = (kind, label, before, after, sens) => {
+    const bk = before.map(x => x.t);
+    Object.keys(after).forEach(t => { if (!bk.includes(t)) out.push({k:`新增${label}`, a:t}); });
+    before.forEach(x => {
+      if (!(x.t in after)) out.push({k:`移除${label}`, a:x.t});
+      else if ((after[x.t] || '') !== (x.note || '')) out.push({k:`${x.t}說明`, b:x.note || '', a:after[x.t] || '', sens});
+    });
+    Object.keys(after).forEach(t => { if (!bk.includes(t) && after[t]) out.push({k:`${t}說明`, b:'', a:after[t], sens}); });
+  };
+  cmp('safety', '安全', p.safety, e.safety, true);
+  cmp('care', '照護', p.care, e.care, false);
+  [['疾病史','ill'],['過敏','allergy'],['內部備註','internal']].forEach(([k, f]) => { if ((e[f] || '') !== (p[f] || '')) out.push({k, b:p[f] || '', a:e[f] || '', sens:true}); });
+  return out;
+}
+function renderEdit(focusId) {
+  const e = state.edit, l = $('layer');
+  l.querySelector('.scrim')?.remove();
+  if (!e) return;
+  const sens = canSens(), p = pet();
+  const lock = what => `<div class="lockbox">${masked(what)}</div>`;
+  const togs = (kind, preset, cls) => {
+    const all = [...new Set([...preset, ...Object.keys(e[kind])])];
+    const held = all.filter(t => lockedSafety(kind, t));
+    return `<div class="toggles">${all.map(t => `<button class="tog ${cls}" aria-pressed="${t in e[kind]}" data-key="tg-${kind}-${t}" data-do="toggleTag" data-kind="${kind}" data-t="${esc(t)}"${lockedSafety(kind, t) ? ' aria-disabled="true" aria-describedby="tg-held"' : ''}><span class="box">${t in e[kind] ? ic('check') : ''}</span>${esc(t)}</button>`).join('')}</div>${held.length ? `<p class="tog-note" id="tg-held">櫃台可以新增安全標籤；移除要店長以上確認。</p>` : ''}`;
+  };
+  const notes = (kind, sensKind) => Object.keys(e[kind]).map(t => `<div class="field">${sensKind && !sens
+      ? `<span class="lbl">${esc(t)}：說明</span>${lock(t + '的說明')}`
+      : `<label for="n-${kind}-${esc(t)}">${esc(t)}：說明</label><textarea id="n-${kind}-${esc(t)}" data-key="n-${kind}-${esc(t)}" data-field="note" data-kind="${kind}" data-t="${esc(t)}" placeholder="怎麼做才安全，例：需兩人保定">${esc(e[kind][t] || '')}</textarea>`}</div>`).join('');
+  const txt = (f, label, ph) => `<div class="field">${sens ? `<label for="f-${f}">${label}</label><textarea id="f-${f}" data-key="f-${f}" data-field="${f}" placeholder="${ph}">${esc(e[f] || '')}</textarea>` : `<span class="lbl">${label}</span>${lock(label)}`}</div>`;
+  let body;
+  if (e.step === 'form') {
+    const changes = diffOf().length;
+    body = `<div><h2 id="ed-title" tabindex="-1">修改注意事項：${esc(p.name)}</h2><p class="lede">修改後所有店員都會看到，並寫入修改紀錄。${sens ? '' : '櫃台可新增安全標籤、修改照護標籤與照護說明；移除安全標籤、攻擊性說明、病史與內部備註由店長修改。'}</p></div>
+      <fieldset class="fs"><legend>${ic('warn','sm')}安全（攻擊性）</legend>${togs('safety', SAFETY_PRESET, 's')}${notes('safety', true)}</fieldset>
+      <fieldset class="fs"><legend>${ic('paw','sm')}照護</legend>${togs('care', CARE_PRESET, 'c')}${notes('care', false)}</fieldset>
+      <fieldset class="fs"><legend>${ic('heart','sm')}健康與內部備註</legend>${txt('ill','疾病史','例：異位性皮膚炎（服藥中）')}${txt('allergy','過敏','例：雞肉')}${txt('internal','內部備註','只有店內人員看得到')}</fieldset>
+      <div class="field"><label for="f-why">修改原因（必填）</label><input id="f-why" data-key="f-why" data-field="why" value="${esc(e.why)}" placeholder="例：飼主今天告知" ${e.err.why ? 'aria-invalid="true" aria-describedby="why-e"' : ''}>${e.err.why ? `<span class="err" id="why-e">${e.err.why}</span>` : ''}</div>
+      <div class="dbtns"><div class="cell"><button class="btn secondary" data-key="ed-no" data-do="closeEdit">取消</button></div><div class="cell">${changes
+        ? `<button class="btn secondary" data-key="ed-next" data-do="editNext">下一步：確認 ${changes} 項修改</button>`
+        : `<button class="btn" aria-disabled="true" aria-describedby="ed-nr" data-key="ed-next">下一步：確認修改</button><span class="reason" id="ed-nr">還沒有任何修改</span>`}</div></div>`;
+  } else {
+    const d = diffOf();
+    body = `<div><h2 id="ed-title" tabindex="-1">確認修改 ${d.length} 項</h2><p class="lede">儲存後無法刪除，會以「${esc(me().who)}（${me().role}）」寫入修改紀錄。</p></div>
+      <ul class="diff">${d.map(c => `<li><span class="k">${esc(c.k)}</span>${c.b === undefined ? `<span class="a">「${esc(c.a)}」</span>` : `${c.b ? `<span class="b">${esc(c.b)}</span><span aria-hidden="true">→</span>` : ''}<span class="a">${esc(c.a || '（清空）')}</span>`}</li>`).join('')}</ul>
+      <p class="lede" style="margin:0">原因：${esc(e.why)}</p>
+      <div class="dbtns"><div class="cell"><button class="btn secondary" data-key="ed-back" data-do="editBack">返回修改</button></div><div class="cell"><button class="btn primary" data-key="ed-save" data-do="editSave">${ic('check','sm')}儲存修改</button></div></div>`;
+  }
+  l.insertAdjacentHTML('afterbegin', `<div class="scrim" data-do="scrim"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="ed-title">${body}</div></div>`);
+  const f = focusId && document.getElementById(focusId) || l.querySelector(`[data-key="${focusId}"]`);
+  f?.focus();
+}
+function closeEdit() { const ret = state.edit?.ret; state.edit = null; renderEdit(); render(); document.querySelector(`#app [data-key="${ret}"]`)?.focus(); }
+
+/* ---------- actions ---------- */
+const act = {
+  nav() { say('原型只做寵物卡；看板請開今日看板原型'); },
+  goBack() { history.back(); },
+  openNote() { state.composing = true; render(); const t = $('cp'); t?.focus(); $('today-entry')?.scrollIntoView({block:'nearest'}); },
+  cancelNote() { state.composing = false; state.draft = ''; render('add'); },
+  saveNote() {
+    const x = state.draft.trim(); if (!x) return;
+    pet().today.notes.push({by: me().who, t: nowT(), x, pending: state.offline});
+    state.composing = false; state.draft = '';
+    render('add'); say(state.offline ? '已存在這台裝置，連線後自動同步' : '已新增服務備註');
+    if (state.pet === 'afu') lifeSay('noted');
+  },
+  showOlder() { state.older = true; render(); document.querySelector(`.visits li:nth-child(${SHOW + 2})`)?.setAttribute('tabindex','-1'); document.querySelector(`.visits li:nth-child(${SHOW + 2})`)?.focus(); },
+  toggleLog() { state.logOpen = !state.logOpen; render('log'); if (state.logOpen && state.pet === 'afu') lifeSay('log'); },
+  openEdit,
+  closeEdit,
+  scrim(el, ev) { if (ev.target === el) closeEdit(); },
+  toggleTag(el) {
+    const e = state.edit, k = el.dataset.kind, t = el.dataset.t;
+    if (lockedSafety(k, t)) { say('移除安全標籤需店長以上'); return; }
+    if (t in e[k]) delete e[k][t]; else e[k][t] = '';
+    renderEdit(el.dataset.key);
+  },
+  editNext() {
+    const e = state.edit;
+    if (!e.why.trim()) { e.err = {why:'請寫下修改原因，例：飼主今天告知'}; renderEdit('f-why'); return; }
+    e.err = {}; e.step = 'confirm'; renderEdit('ed-title');
+  },
+  editBack() { state.edit.step = 'form'; renderEdit('ed-title'); },
+  editSave() {
+    if (state.offline) { say('修改注意事項需連線'); return; }
+    const p = pet(), e = state.edit, d = diffOf();
+    const order = (before, after) => [...before.filter(x => x.t in after).map(x => x.t), ...Object.keys(after).filter(t => !before.some(x => x.t === t))].map(t => ({t, note: after[t] || ''}));
+    p.safety = order(p.safety, e.safety); p.care = order(p.care, e.care);
+    p.ill = e.ill; p.allergy = e.allergy; p.internal = e.internal;
+    p.audit.unshift({at:`${DAY.m}/${DAY.d} ${nowT()}`, by: me().who, role: me().role, why: e.why.trim(), ch: d});
+    state.edit = null; state.logOpen = true; renderEdit(); render(); document.querySelector('#app [data-key="edit"]')?.focus();
+    say(`注意事項已更新 ${d.length} 項・已寫入修改紀錄`);
+  }
+};
+document.addEventListener('click', ev => {
+  const el = ev.target.closest('[data-do]');
+  if (!el || el.getAttribute('aria-disabled') === 'true') return;
+  act[el.dataset.do]?.(el, ev);
+});
+document.addEventListener('input', ev => {
+  const el = ev.target;
+  if (el.id === 'cp') {
+    const was = !state.draft.trim(); state.draft = el.value;
+    if (was !== !state.draft.trim()) { const pos = el.selectionStart; render('cp'); const t = $('cp'); t.setSelectionRange(pos, pos); }
+    return;
+  }
+  const e = state.edit; if (!e || !el.dataset.field) return;
+  if (el.dataset.field === 'note') e[el.dataset.kind][el.dataset.t] = el.value;
+  else e[el.dataset.field] = el.value;
+  if (el.dataset.field === 'why' && e.err.why && el.value.trim()) { e.err = {}; }
+  const btn = document.querySelector('[data-key="ed-next"]'), n = diffOf().length;
+  if (btn && (btn.getAttribute('aria-disabled') === 'true') !== !n) { const pos = el.selectionStart; renderEdit(el.dataset.key); const t = document.querySelector(`[data-key="${el.dataset.key}"]`); t?.setSelectionRange?.(pos, pos); }
+  else if (btn && n) btn.textContent = `下一步：確認 ${n} 項修改`;
+});
+document.addEventListener('keydown', ev => {
+  if (!state.edit) return;
+  if (ev.key === 'Escape') { closeEdit(); return; }
+  if (ev.key === 'Tab') {
+    const f = [...document.querySelectorAll('.dialog button, .dialog textarea, .dialog input, .dialog [tabindex="-1"]')].filter(x => x.tabIndex >= 0);
+    if (!f.length) return;
+    if (ev.shiftKey && document.activeElement === f[0]) { ev.preventDefault(); f[f.length - 1].focus(); }
+    else if (!ev.shiftKey && document.activeElement === f[f.length - 1]) { ev.preventDefault(); f[0].focus(); }
+  }
+});
+
+/* ---------- prototype controls ---------- */
+$('p-pet').innerHTML = PETS0.map(p => `<option value="${p.id}">${p.name}・${p.today ? '今天有預約' : '今天沒預約'}${p.lite ? '・精簡版' : ''}${p.photo ? '' : '・無照片'}${p.visits.length ? '' : p.board ? '・沒有來店紀錄' : '・第一次來店'}${p.safety.length + p.care.length ? '' : '・無注意事項'}</option>`).join('');
+const q = new URLSearchParams(location.search);
+if (q.get('role') in ROLES) state.role = q.get('role');
+/* a ?pet= this prototype does not carry says so instead of quietly opening another pet */
+if (q.get('pet')) { if (PETS0.some(p => p.id === q.get('pet'))) state.pet = q.get('pet'); else state.missing = q.get('pet'); }
+if (q.get('off') === '1') state.offline = true;
+if (LIFE) $('p-role').querySelector('option[value="groomer"]').textContent = '美容照護・阿哲';
+$('p-role').value = state.role; $('p-pet').value = state.pet; $('p-off').checked = state.offline;
+$('p-role').onchange = e => { state.role = e.target.value; state.edit = null; renderEdit(); render(); };
+$('p-pet').onchange = e => { state.pet = e.target.value; state.missing = null; state.composing = false; state.draft = ''; state.older = false; state.logOpen = false; render(); };
+$('p-off').onchange = e => {
+  state.offline = e.target.checked;
+  if (!state.offline) {
+    let n = 0; PETS.forEach(p => p.today?.notes.forEach(x => { if (x.pending) { x.pending = false; n++; } }));
+    if (n) say(`已連線，${n} 則備註已同步`);
+  }
+  render();
+};
+$('p-theme').onchange = e => { if (e.target.value) document.documentElement.dataset.theme = e.target.value; else delete document.documentElement.dataset.theme; };
+const mq = matchMedia('(max-width: 767px)');
+/* the page collapses to one column below ~960px (container ≤820 beside the rail); then the next step docks like on phone */
+const mqN = matchMedia('(max-width: 960px)');
+const setPhone = () => { state.phone = mq.matches; state.narrow = mqN.matches; render(); if (state.edit) renderEdit(); };
+mq.addEventListener('change', setPhone); mqN.addEventListener('change', setPhone);
+setPhone();
+</script>
+</body>
+</html>
